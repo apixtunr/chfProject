@@ -1,0 +1,11 @@
+target/
+*.iml
+.idea/
+.vscode/
+.settings/
+.classpath
+.project
+*.log
+application-local.yml
+application-local.properties
+.claude/settings.local.json

@@ -1,0 +1,34 @@
+<div class="login-container">
+  <mat-card class="login-card">
+    <mat-card-header>
+      <mat-card-title>La Casa del Chef</mat-card-title>
+      <mat-card-subtitle>Ingresa con tu usuario</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <form [formGroup]="formulario" (ngSubmit)="ingresar()">
+        <mat-form-field appearance="outline" class="campo">
+          <mat-label>Usuario</mat-label>
+          <input matInput formControlName="username" autocomplete="username" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="campo">
+          <mat-label>Contrasena</mat-label>
+          <input matInput type="password" formControlName="password" autocomplete="current-password" />
+        </mat-form-field>
+
+        @if (errorMensaje()) {
+          <p class="error">{{ errorMensaje() }}</p>
+        }
+
+        <button mat-flat-button color="primary" type="submit" class="campo" [disabled]="cargando()">
+          @if (cargando()) {
+            <mat-spinner diameter="20"></mat-spinner>
+          } @else {
+            Ingresar
+          }
+        </button>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

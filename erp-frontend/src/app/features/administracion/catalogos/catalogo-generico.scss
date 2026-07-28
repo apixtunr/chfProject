@@ -1,0 +1,33 @@
+.encabezado {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.acciones-encabezado {
+  display: flex;
+  gap: 8px;
+}
+
+.tarjeta {
+  margin-bottom: 16px;
+}
+
+.form-inline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+.acciones {
+  display: flex;
+  gap: 8px;
+}
+
+.tabla {
+  width: 100%;
+}

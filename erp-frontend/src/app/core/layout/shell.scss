@@ -1,0 +1,75 @@
+.shell {
+  height: 100vh;
+}
+
+.sidenav {
+  width: 240px;
+}
+
+.activo {
+  background-color: var(--mat-sys-secondary-container);
+}
+
+.panel-modulo {
+  box-shadow: none !important;
+  border-radius: 0 !important;
+
+  // Compactar el contenido del panel para que el menu no quede aireado
+  ::ng-deep .mat-expansion-panel-body {
+    padding: 0 0 8px;
+  }
+}
+
+.titulo-modulo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 500;
+}
+
+.icono-modulo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  flex: 0 0 auto;
+
+  mat-icon {
+    color: white;
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+}
+
+.toolbar-oscura {
+  background-color: #1f2430;
+  color: white;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.usuario {
+  margin-right: 8px;
+  font-size: 0.875rem;
+}
+
+.contenido {
+  padding: 24px;
+  background-color: #eef1f5;
+  min-height: calc(100% - 48px);
+
+  // Tarjeta contenedora para el contenido de cada pantalla ruteada (el elemento
+  // que Angular inserta justo despues de router-outlet, nunca router-outlet en si).
+  router-outlet + * {
+    display: block;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+    padding: 20px;
+  }
+}

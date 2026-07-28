@@ -1,0 +1,60 @@
+<div class="encabezado">
+  <h1>Menus</h1>
+  @if (puedeCrear) {
+    <button mat-flat-button color="primary" routerLink="/menus/nuevo">
+      <mat-icon>add</mat-icon>
+      Nuevo menu
+    </button>
+  }
+</div>
+
+<mat-form-field appearance="outline" class="buscador">
+  <mat-label>Buscar por nombre</mat-label>
+  <input matInput [(ngModel)]="filtroNombre" (keyup.enter)="buscar()" />
+  <button matSuffix mat-icon-button (click)="buscar()" aria-label="Buscar">
+    <mat-icon>search</mat-icon>
+  </button>
+</mat-form-field>
+
+<table mat-table [dataSource]="menus()" class="tabla">
+  <ng-container matColumnDef="nombreMenu">
+    <th mat-header-cell *matHeaderCellDef>Menu</th>
+    <td mat-cell *matCellDef="let m">{{ m.nombreMenu }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="estado">
+    <th mat-header-cell *matHeaderCellDef>Estado</th>
+    <td mat-cell *matCellDef="let m">{{ m.estadoNombre }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="acciones">
+    <th mat-header-cell *matHeaderCellDef></th>
+    <td mat-cell *matCellDef="let m">
+      <button mat-icon-button [routerLink]="['/menus', m.idMenu]" aria-label="Ver composicion">
+        <mat-icon>restaurant_menu</mat-icon>
+      </button>
+      @if (puedeEditar) {
+        <button mat-icon-button [routerLink]="['/menus', m.idMenu, 'editar']" aria-label="Editar">
+          <mat-icon>edit</mat-icon>
+        </button>
+      }
+      @if (puedeEliminar) {
+        <button mat-icon-button (click)="eliminar(m)" aria-label="Eliminar">
+          <mat-icon>delete</mat-icon>
+        </button>
+      }
+    </td>
+  </ng-container>
+
+  <tr mat-header-row *matHeaderRowDef="columnas"></tr>
+  <tr mat-row *matRowDef="let row; columns: columnas"></tr>
+</table>
+
+<mat-paginator
+  [length]="totalElements()"
+  [pageIndex]="pageIndex()"
+  [pageSize]="pageSize()"
+  [pageSizeOptions]="[10, 20, 50]"
+  (page)="onPageChange($event)"
+>
+</mat-paginator>

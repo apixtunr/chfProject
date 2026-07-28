@@ -1,0 +1,43 @@
+<mat-card class="tarjeta">
+  <mat-card-header>
+    <mat-card-title>{{ idCliente() ? 'Editar cliente' : 'Nuevo cliente' }}</mat-card-title>
+  </mat-card-header>
+
+  <mat-card-content>
+    <form [formGroup]="formulario" (ngSubmit)="guardar()">
+      <mat-form-field appearance="outline" class="campo">
+        <mat-label>Nombre</mat-label>
+        <input matInput formControlName="nombre" />
+        @if (formulario.controls.nombre.hasError('required')) {
+          <mat-error>El nombre es obligatorio</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="campo">
+        <mat-label>Correo</mat-label>
+        <input matInput formControlName="correo" />
+        @if (formulario.controls.correo.hasError('email')) {
+          <mat-error>El correo no tiene un formato valido</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="campo">
+        <mat-label>Telefono</mat-label>
+        <input matInput formControlName="telefono" />
+        @if (formulario.controls.telefono.hasError('pattern')) {
+          <mat-error>El telefono no tiene un formato valido</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="campo">
+        <mat-label>NIT</mat-label>
+        <input matInput formControlName="nit" />
+      </mat-form-field>
+
+      <div class="acciones">
+        <button mat-button type="button" routerLink="/clientes">Cancelar</button>
+        <button mat-flat-button color="primary" type="submit" [disabled]="guardando()">Guardar</button>
+      </div>
+    </form>
+  </mat-card-content>
+</mat-card>

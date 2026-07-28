@@ -1,0 +1,58 @@
+<div class="encabezado">
+  <h1>Roles</h1>
+  @if (puedeCrear && !creando()) {
+    <button mat-flat-button color="primary" (click)="iniciarCreacion()">
+      <mat-icon>add</mat-icon>
+      Nuevo rol
+    </button>
+  }
+</div>
+
+@if (creando()) {
+  <mat-card class="tarjeta">
+    <mat-card-content>
+      <form [formGroup]="formulario" (ngSubmit)="guardar()" class="form-inline">
+        <mat-form-field appearance="outline">
+          <mat-label>Nombre del rol</mat-label>
+          <input matInput formControlName="nombreRol" placeholder="SUPERVISOR, COCINA..." />
+        </mat-form-field>
+        <div class="acciones">
+          <button mat-button type="button" (click)="creando.set(false)">Cancelar</button>
+          <button mat-flat-button color="primary" type="submit">
+            {{ editando() ? 'Actualizar' : 'Crear' }}
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+}
+
+<table mat-table [dataSource]="roles()" class="tabla">
+  <ng-container matColumnDef="nombreRol">
+    <th mat-header-cell *matHeaderCellDef>Rol</th>
+    <td mat-cell *matCellDef="let r">{{ r.nombreRol }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="acciones">
+    <th mat-header-cell *matHeaderCellDef></th>
+    <td mat-cell *matCellDef="let r">
+      <button mat-stroked-button [routerLink]="['/admin/roles', r.idRol, 'permisos']">
+        <mat-icon>lock_open</mat-icon>
+        Permisos
+      </button>
+      @if (puedeEditar) {
+        <button mat-icon-button (click)="iniciarEdicion(r)" aria-label="Editar">
+          <mat-icon>edit</mat-icon>
+        </button>
+      }
+      @if (puedeEliminar && r.nombreRol !== 'ADMINISTRADOR') {
+        <button mat-icon-button (click)="eliminar(r)" aria-label="Eliminar">
+          <mat-icon>delete</mat-icon>
+        </button>
+      }
+    </td>
+  </ng-container>
+
+  <tr mat-header-row *matHeaderRowDef="columnas"></tr>
+  <tr mat-row *matRowDef="let row; columns: columnas"></tr>
+</table>

@@ -1,0 +1,51 @@
+<mat-card class="tarjeta">
+  <mat-card-header>
+    <mat-card-title>{{ idVehiculo() ? 'Editar vehiculo' : 'Nuevo vehiculo' }}</mat-card-title>
+  </mat-card-header>
+
+  <mat-card-content>
+    <form [formGroup]="formulario" (ngSubmit)="guardar()">
+      <mat-form-field appearance="outline" class="campo">
+        <mat-label>Placa</mat-label>
+        <input matInput formControlName="placa" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="campo">
+        <mat-label>Linea</mat-label>
+        <mat-select formControlName="idLineaVehiculo">
+          @for (linea of lineas(); track linea.idLineaVehiculo) {
+            <mat-option [value]="linea.idLineaVehiculo">{{ linea.nombreMarca }} - {{ linea.nombreLinea }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="campo">
+        <mat-label>Tipo de placa</mat-label>
+        <mat-select formControlName="idTipoPlaca">
+          @for (tipo of tiposPlaca(); track tipo.idTipoPlaca) {
+            <mat-option [value]="tipo.idTipoPlaca">{{ tipo.nombreTipo }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="campo">
+        <mat-label>Estado</mat-label>
+        <mat-select formControlName="idEstado">
+          @for (estado of estados(); track estado.idEstado) {
+            <mat-option [value]="estado.idEstado">{{ estado.nombre }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="campo">
+        <mat-label>Año</mat-label>
+        <input matInput type="number" formControlName="anioVehiculo" />
+      </mat-form-field>
+
+      <div class="acciones">
+        <button mat-button type="button" routerLink="/vehiculos">Cancelar</button>
+        <button mat-flat-button color="primary" type="submit" [disabled]="guardando()">Guardar</button>
+      </div>
+    </form>
+  </mat-card-content>
+</mat-card>

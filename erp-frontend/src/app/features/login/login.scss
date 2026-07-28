@@ -1,0 +1,22 @@
+.login-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background-color: var(--mat-sys-surface-container-low);
+}
+
+.login-card {
+  width: 360px;
+  padding: 8px;
+}
+
+.campo {
+  width: 100%;
+  margin-top: 8px;
+}
+
+.error {
+  color: var(--mat-sys-error);
+  font-size: 0.875rem;
+}

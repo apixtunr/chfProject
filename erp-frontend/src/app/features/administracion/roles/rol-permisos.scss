@@ -1,0 +1,40 @@
+.encabezado {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.acciones-encabezado {
+  display: flex;
+  gap: 8px;
+}
+
+.ayuda {
+  color: rgba(0, 0, 0, 0.6);
+  margin-bottom: 16px;
+}
+
+.tabla {
+  width: 100%;
+  margin-bottom: 24px;
+}
+
+.titulo-modulo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 16px 0 8px;
+  font-size: 18px;
+}
+
+.url {
+  font-size: 11px;
+  color: rgba(0, 0, 0, 0.45);
+}
+
+.fila-activa {
+  background: #f1f8f4;
+}

@@ -1,0 +1,111 @@
+@if (pago(); as p) {
+  <div class="encabezado">
+    <h1>Pago #{{ p.idPago }}</h1>
+    <button mat-button routerLink="/pagos">
+      <mat-icon>arrow_back</mat-icon>
+      Volver
+    </button>
+  </div>
+
+  <mat-card class="tarjeta">
+    <mat-card-content>
+      <div class="datos">
+        <div><span class="etiqueta">Evento:</span> #{{ p.idEvento }}</div>
+        <div><span class="etiqueta">Monto:</span> Q {{ p.monto }}</div>
+        <div><span class="etiqueta">Metodo:</span> {{ p.nombreMetodoPago }}</div>
+        <div><span class="etiqueta">Fecha:</span> {{ p.fechaPago | date: 'dd/MM/yyyy HH:mm' }}</div>
+        <div><span class="etiqueta">Registrado por:</span> {{ p.usernameUsuario }}</div>
+        @if (p.referenciaTransaccion) {
+          <div><span class="etiqueta">Referencia:</span> {{ p.referenciaTransaccion }}</div>
+        }
+        @if (p.observaciones) {
+          <div><span class="etiqueta">Observaciones:</span> {{ p.observaciones }}</div>
+        }
+      </div>
+
+      @if (puedeEditar) {
+        <mat-form-field appearance="outline" class="campo-estado">
+          <mat-label>Estado del pago</mat-label>
+          <mat-select [value]="p.idEstado" (selectionChange)="cambiarEstado($event.value)">
+            @for (estado of estados(); track estado.idEstado) {
+              <mat-option [value]="estado.idEstado">{{ estado.nombre }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      } @else {
+        <p><span class="etiqueta">Estado:</span> {{ p.estadoNombre }}</p>
+      }
+    </mat-card-content>
+  </mat-card>
+
+  <div class="encabezado seccion">
+    <h2>Comprobantes</h2>
+    @if (puedeAgregar && !agregandoComprobante()) {
+      <button mat-stroked-button (click)="agregandoComprobante.set(true)">
+        <mat-icon>add</mat-icon>
+        Agregar comprobante
+      </button>
+    }
+  </div>
+
+  @if (agregandoComprobante()) {
+    <mat-card class="tarjeta">
+      <mat-card-content>
+        <form [formGroup]="formularioComprobante" (ngSubmit)="agregarComprobante()" class="form-inline">
+          <mat-form-field appearance="outline">
+            <mat-label>No. de comprobante</mat-label>
+            <input matInput formControlName="numeroComprobante" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Tipo (recibo, factura...)</mat-label>
+            <input matInput formControlName="tipoComprobante" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Fecha de emision</mat-label>
+            <input matInput type="date" formControlName="fechaEmision" />
+          </mat-form-field>
+          <div class="acciones">
+            <button mat-button type="button" (click)="agregandoComprobante.set(false)">Cancelar</button>
+            <button mat-flat-button color="primary" type="submit">Agregar</button>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  }
+
+  <table mat-table [dataSource]="comprobantes()" class="tabla">
+    <ng-container matColumnDef="numeroComprobante">
+      <th mat-header-cell *matHeaderCellDef>Numero</th>
+      <td mat-cell *matCellDef="let c">{{ c.numeroComprobante }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="tipoComprobante">
+      <th mat-header-cell *matHeaderCellDef>Tipo</th>
+      <td mat-cell *matCellDef="let c">{{ c.tipoComprobante ?? '-' }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="fechaEmision">
+      <th mat-header-cell *matHeaderCellDef>Emision</th>
+      <td mat-cell *matCellDef="let c">{{ c.fechaEmision ?? '-' }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="esValido">
+      <th mat-header-cell *matHeaderCellDef>Valido</th>
+      <td mat-cell *matCellDef="let c">{{ c.esValido ? 'Si' : 'No' }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="acciones">
+      <th mat-header-cell *matHeaderCellDef></th>
+      <td mat-cell *matCellDef="let c">
+        @if (puedeEliminar) {
+          <button mat-icon-button (click)="eliminarComprobante(c)" aria-label="Eliminar">
+            <mat-icon>delete</mat-icon>
+          </button>
+        }
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="columnasComprobantes"></tr>
+    <tr mat-row *matRowDef="let row; columns: columnasComprobantes"></tr>
+  </table>
+}
