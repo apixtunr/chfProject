@@ -4,61 +4,6 @@
   flex-direction: column;
 }
 
-// El toolbar ahora vive fuera del sidenav-container, ocupando todo el ancho arriba;
-// el sidenav-container se queda con el resto de la altura, debajo de el.
-.shell-body {
-  flex: 1 1 auto;
-  min-height: 0;
-}
-
-.sidenav {
-  width: 240px;
-}
-
-.lista-inicio {
-  padding-bottom: 4px;
-  margin-bottom: 4px;
-  border-bottom: 1px solid var(--mat-sys-outline-variant);
-}
-
-.activo {
-  background-color: var(--mat-sys-secondary-container);
-}
-
-.panel-modulo {
-  box-shadow: none !important;
-  border-radius: 0 !important;
-
-  // Compactar el contenido del panel para que el menu no quede aireado
-  ::ng-deep .mat-expansion-panel-body {
-    padding: 0 0 8px;
-  }
-}
-
-.titulo-modulo {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-weight: 500;
-}
-
-.icono-modulo {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  border-radius: 6px;
-  flex: 0 0 auto;
-
-  mat-icon {
-    color: white;
-    font-size: 18px;
-    width: 18px;
-    height: 18px;
-  }
-}
-
 .toolbar-oscura {
   background-color: #1f2430;
   color: white;
@@ -74,9 +19,11 @@
 }
 
 .contenido {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
   padding: 24px;
   background-color: #eef1f5;
-  min-height: 100%;
 
   // Tarjeta contenedora para el contenido de cada pantalla ruteada (el elemento
   // que Angular inserta justo despues de router-outlet, nunca router-outlet en si).

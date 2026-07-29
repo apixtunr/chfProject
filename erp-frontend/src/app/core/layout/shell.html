@@ -8,53 +8,7 @@
     </button>
   </mat-toolbar>
 
-  <mat-sidenav-container class="shell-body">
-    <mat-sidenav mode="side" opened class="sidenav">
-      <mat-nav-list dense class="lista-inicio">
-        <a mat-list-item routerLink="/" routerLinkActive="activo" [routerLinkActiveOptions]="{ exact: true }">
-          <mat-icon matListItemIcon>home</mat-icon>
-          <span matListItemTitle>Inicio</span>
-        </a>
-      </mat-nav-list>
-
-      <mat-accordion multi displayMode="flat">
-        @for (grupo of gruposMenu(); track grupo.modulo) {
-          <mat-expansion-panel
-            class="panel-modulo"
-            [expanded]="estaExpandido(grupo.modulo)"
-            (expandedChange)="alternarModulo(grupo.modulo, $event)"
-          >
-            <mat-expansion-panel-header>
-              <mat-panel-title class="titulo-modulo">
-                <span class="icono-modulo" [style.background-color]="grupo.color">
-                  <mat-icon>{{ grupo.icon }}</mat-icon>
-                </span>
-                <span>{{ grupo.modulo }}</span>
-              </mat-panel-title>
-            </mat-expansion-panel-header>
-
-            <mat-nav-list dense>
-              @for (item of grupo.items; track item.route) {
-                <a
-                  mat-list-item
-                  [routerLink]="item.route"
-                  routerLinkActive="activo"
-                  [routerLinkActiveOptions]="{ exact: true }"
-                >
-                  <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
-                  <span matListItemTitle>{{ item.label }}</span>
-                </a>
-              }
-            </mat-nav-list>
-          </mat-expansion-panel>
-        }
-      </mat-accordion>
-    </mat-sidenav>
-
-    <mat-sidenav-content>
-      <main class="contenido">
-        <router-outlet></router-outlet>
-      </main>
-    </mat-sidenav-content>
-  </mat-sidenav-container>
+  <main class="contenido">
+    <router-outlet></router-outlet>
+  </main>
 </div>
