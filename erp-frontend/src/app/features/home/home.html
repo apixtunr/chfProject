@@ -1,0 +1,79 @@
+@if (usuario(); as u) {
+  <div class="bienvenida">
+    <p class="eyebrow">{{ saludo() }}</p>
+    <h1>{{ u.nombreCompleto }}</h1>
+    <p class="tagline">
+      Bienvenido al sistema de gestion de banquetes y eventos de <strong>La Casa del Chef</strong>.
+      Utiliza el menu lateral para navegar por los modulos.
+    </p>
+  </div>
+}
+
+<div class="grilla-principal">
+  @if (proximoEvento(); as evento) {
+    <a class="tarjeta-hero" [routerLink]="['/eventos', evento.idEvento]">
+      <div class="hero-visual">
+        <mat-icon>event</mat-icon>
+        <span class="badge-estado">{{ evento.estadoNombre }}</span>
+      </div>
+      <div class="hero-info">
+        <div>
+          <p class="hero-titulo">{{ evento.tipoEventoNombre }} — {{ evento.clienteNombre }}</p>
+          <ul class="hero-lista">
+            <li><mat-icon>calendar_today</mat-icon>{{ evento.fechaEvento }}</li>
+            <li><mat-icon>place</mat-icon>{{ evento.direccionUbicacion }}</li>
+            @if (evento.cantidadPersonas) {
+              <li><mat-icon>groups</mat-icon>{{ evento.cantidadPersonas }} invitados</li>
+            }
+          </ul>
+        </div>
+        <span class="hero-boton">Ver detalles del evento<mat-icon>arrow_forward</mat-icon></span>
+      </div>
+    </a>
+  } @else if (proximoEvento() === null) {
+    <div class="tarjeta-hero tarjeta-hero--vacia">
+      <mat-icon>event_available</mat-icon>
+      <p>No tenes eventos proximos planificados.</p>
+    </div>
+  }
+
+  <div class="columna-stats">
+    @if (cotizacionesPendientes() !== null) {
+      <a class="tarjeta-stat" routerLink="/cotizaciones" style="--color-stat: #8e44ad">
+        <span class="stat-icono"><mat-icon>request_quote</mat-icon></span>
+        <p class="stat-etiqueta">Cotizaciones pendientes</p>
+        <p class="stat-valor">{{ cotizacionesPendientes() }}</p>
+      </a>
+    }
+    @if (montoPorConfirmar() !== null) {
+      <a class="tarjeta-stat" routerLink="/pagos" style="--color-stat: #16a085">
+        <span class="stat-icono"><mat-icon>payments</mat-icon></span>
+        <p class="stat-etiqueta">Pagos por confirmar</p>
+        <p class="stat-valor">Q{{ montoPorConfirmar() | number: '1.2-2' }}</p>
+      </a>
+    }
+  </div>
+</div>
+
+<div class="grilla-secundaria">
+  @if (alertasInventario() !== null) {
+    <div class="tarjeta-inventario" style="--color-stat: #f39c12">
+      <p class="stat-etiqueta">Inventario</p>
+      @if (alertasInventario()! > 0) {
+        <p class="inventario-texto">
+          {{ alertasInventario() }} {{ alertasInventario() === 1 ? 'articulo requiere' : 'articulos requieren' }}
+          reposicion.
+        </p>
+      } @else {
+        <p class="inventario-texto">Todo el stock esta por encima del minimo.</p>
+      }
+      <a routerLink="/inventario" class="enlace-flecha">Gestionar stock<mat-icon>arrow_forward</mat-icon></a>
+    </div>
+  }
+
+  <div class="tarjeta-promo" style="--color-stat: #d35400">
+    <p class="promo-titulo">Optimiza tu rentabilidad</p>
+    <p class="promo-texto">Revisa los margenes de ganancia por evento y por tipo de menu.</p>
+    <a routerLink="/rentabilidad" class="boton-promo">Ver reportes</a>
+  </div>
+</div>

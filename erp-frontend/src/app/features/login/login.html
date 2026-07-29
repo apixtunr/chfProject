@@ -1,34 +1,49 @@
-<div class="login-container">
-  <mat-card class="login-card">
-    <mat-card-header>
-      <mat-card-title>La Casa del Chef</mat-card-title>
-      <mat-card-subtitle>Ingresa con tu usuario</mat-card-subtitle>
-    </mat-card-header>
+<div class="login-fondo">
+  <div class="login-card">
+    <div class="login-icono">
+      <mat-icon>restaurant</mat-icon>
+    </div>
+    <h1>La Casa del Chef</h1>
+    <p class="subtitulo">Gestion profesional de banquetes</p>
 
-    <mat-card-content>
-      <form [formGroup]="formulario" (ngSubmit)="ingresar()">
-        <mat-form-field appearance="outline" class="campo">
-          <mat-label>Usuario</mat-label>
-          <input matInput formControlName="username" autocomplete="username" />
-        </mat-form-field>
+    <form [formGroup]="formulario" (ngSubmit)="ingresar()">
+      <label class="etiqueta" for="username">Usuario</label>
+      <div class="campo-icono">
+        <mat-icon>person</mat-icon>
+        <input
+          id="username"
+          formControlName="username"
+          autocomplete="username"
+          placeholder="Ingrese su usuario"
+        />
+      </div>
 
-        <mat-form-field appearance="outline" class="campo">
-          <mat-label>Contrasena</mat-label>
-          <input matInput type="password" formControlName="password" autocomplete="current-password" />
-        </mat-form-field>
+      <label class="etiqueta" for="password">Contrasena</label>
+      <div class="campo-icono">
+        <mat-icon>lock</mat-icon>
+        <input
+          id="password"
+          type="password"
+          formControlName="password"
+          autocomplete="current-password"
+          placeholder="Ingrese su contraseña"
+        />
+      </div>
 
-        @if (errorMensaje()) {
-          <p class="error">{{ errorMensaje() }}</p>
+      @if (errorMensaje()) {
+        <p class="error">{{ errorMensaje() }}</p>
+      }
+
+      <button type="submit" class="boton-ingresar" [disabled]="cargando()">
+        @if (cargando()) {
+          <mat-spinner diameter="20" color="accent"></mat-spinner>
+        } @else {
+          <span>Ingresar</span>
+          <mat-icon>arrow_forward</mat-icon>
         }
+      </button>
+    </form>
+  </div>
 
-        <button mat-flat-button color="primary" type="submit" class="campo" [disabled]="cargando()">
-          @if (cargando()) {
-            <mat-spinner diameter="20"></mat-spinner>
-          } @else {
-            Ingresar
-          }
-        </button>
-      </form>
-    </mat-card-content>
-  </mat-card>
+  <p class="pie">© 2026 La Casa del Chef</p>
 </div>

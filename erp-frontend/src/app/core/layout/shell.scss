@@ -1,9 +1,24 @@
 .shell {
   height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+// El toolbar ahora vive fuera del sidenav-container, ocupando todo el ancho arriba;
+// el sidenav-container se queda con el resto de la altura, debajo de el.
+.shell-body {
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 .sidenav {
   width: 240px;
+}
+
+.lista-inicio {
+  padding-bottom: 4px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--mat-sys-outline-variant);
 }
 
 .activo {
@@ -61,7 +76,7 @@
 .contenido {
   padding: 24px;
   background-color: #eef1f5;
-  min-height: calc(100% - 48px);
+  min-height: 100%;
 
   // Tarjeta contenedora para el contenido de cada pantalla ruteada (el elemento
   // que Angular inserta justo despues de router-outlet, nunca router-outlet en si).

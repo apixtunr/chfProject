@@ -25,8 +25,14 @@ export class EventoService {
 
   // --- Cabecera ---
 
-  listar(fechaDesde: string | null, fechaHasta: string | null, page: number, size: number): Observable<Page<EventoResponse>> {
-    let params = new HttpParams().set('page', page).set('size', size).set('sort', 'fechaEvento,desc');
+  listar(
+    fechaDesde: string | null,
+    fechaHasta: string | null,
+    page: number,
+    size: number,
+    orden = 'fechaEvento,desc',
+  ): Observable<Page<EventoResponse>> {
+    let params = new HttpParams().set('page', page).set('size', size).set('sort', orden);
     if (fechaDesde) {
       params = params.set('fechaDesde', fechaDesde);
     }

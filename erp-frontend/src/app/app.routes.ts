@@ -1,6 +1,5 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/auth/auth.guard';
-import { inicioGuard } from './core/auth/inicio.guard';
 import { permisoGuard } from './core/auth/permiso.guard';
 import { catalogoPermisoGuard } from './features/administracion/catalogos/catalogo-permiso.guard';
 import { Shell } from './core/layout/shell';
@@ -18,8 +17,7 @@ export const routes: Routes = [
       {
         path: '',
         pathMatch: 'full',
-        canActivate: [inicioGuard],
-        loadComponent: () => import('./core/layout/sin-acceso/sin-acceso').then((m) => m.SinAcceso),
+        loadComponent: () => import('./features/home/home').then((m) => m.Home),
       },
       {
         path: 'sin-acceso',

@@ -14,6 +14,9 @@
 --  7. PKs compuestas en tablas puente
 --  8. usuario.password almacena hash BCrypt (columna password_hash)
 --  9. evento_vehiculo con id_empleado (conductor, nullable)
+-- 10. evento admite id_cliente directo (sin cotizacion); CHECK garantiza origen
+-- 11. usuario.tokens_validos_desde: revocacion de tokens JWT al cerrar sesion
+-- 12. Seed de modulo/menu_vista/opcion (RBAC) para la matriz de permisos
 -- ============================================================================
 
 BEGIN;
@@ -150,6 +153,9 @@ CREATE TABLE usuario (
     password_hash       VARCHAR(100) NOT NULL, -- BCrypt via Spring Security
     intentos_acceso     INT NOT NULL DEFAULT 0,
     fecha_ultimo_acceso TIMESTAMP,
+    -- Revocacion de tokens al cerrar sesion (JWT es stateless): al hacer logout se fija
+    -- en NOW() y el filtro JWT rechaza cualquier token emitido antes. NULL = sin revocar.
+    tokens_validos_desde TIMESTAMP,
     fecha_creacion      TIMESTAMP NOT NULL DEFAULT NOW(),
     fecha_modificacion  TIMESTAMP
 );
@@ -168,7 +174,8 @@ CREATE TABLE menu_vista (
     nombre              VARCHAR(80) NOT NULL,
     orden               INT NOT NULL DEFAULT 0,
     fecha_creacion      TIMESTAMP NOT NULL DEFAULT NOW(),
-    fecha_modificacion  TIMESTAMP
+    fecha_modificacion  TIMESTAMP,
+    UNIQUE (id_modulo, nombre)
 );
 
 CREATE TABLE opcion (
@@ -176,7 +183,7 @@ CREATE TABLE opcion (
     id_menu_vista       INT NOT NULL REFERENCES menu_vista(id_menu_vista),
     nombre_opcion       VARCHAR(80) NOT NULL,
     orden_menu_vista    INT NOT NULL DEFAULT 0,
-    pagina_url          VARCHAR(255),
+    pagina_url          VARCHAR(255) UNIQUE,
     accion              VARCHAR(80),
     fecha_creacion      TIMESTAMP NOT NULL DEFAULT NOW(),
     fecha_modificacion  TIMESTAMP
@@ -307,8 +314,9 @@ CREATE TABLE tipo_evento (
 
 -- Ajuste 10: id_cotizacion_version es nullable y se agrega id_cliente para permitir
 -- eventos directos (sin pasar por cotizacion). Si id_cotizacion_version esta presente,
--- el cliente se deriva de ahi (la app ignora id_cliente); si no, id_cliente es obligatorio
--- (regla validada en la aplicacion, no con un CHECK, para no acoplar la BD a esa logica).
+-- el cliente se deriva de ahi (la app ignora id_cliente); si no, id_cliente es obligatorio.
+-- Ademas de la validacion en la aplicacion, un CHECK garantiza a nivel de BD que todo
+-- evento tenga origen (cotizacion o cliente), nunca ninguno de los dos.
 CREATE TABLE evento (
     id_evento           INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     id_cotizacion_version INT REFERENCES cotizacion_version(id_cotizacion_version),
@@ -322,7 +330,8 @@ CREATE TABLE evento (
     cantidad_personas   INT CHECK (cantidad_personas > 0),
     observaciones       VARCHAR(500),
     fecha_creacion      TIMESTAMP NOT NULL DEFAULT NOW(),
-    fecha_modificacion  TIMESTAMP
+    fecha_modificacion  TIMESTAMP,
+    CONSTRAINT chk_evento_origen CHECK (id_cotizacion_version IS NOT NULL OR id_cliente IS NOT NULL)
 );
 
 CREATE TABLE tipo_costo (
@@ -610,6 +619,7 @@ CREATE INDEX idx_cotizacion_cliente        ON cotizacion(id_cliente);
 CREATE INDEX idx_cot_version_cotizacion    ON cotizacion_version(id_cotizacion);
 CREATE INDEX idx_detalle_cot_version       ON detalle_cotizacion(id_cotizacion_version);
 CREATE INDEX idx_evento_cot_version        ON evento(id_cotizacion_version);
+CREATE INDEX idx_evento_cliente            ON evento(id_cliente);
 CREATE INDEX idx_evento_fecha              ON evento(fecha_evento);
 CREATE INDEX idx_costo_evento_evento       ON costo_evento(id_evento);
 CREATE INDEX idx_pago_evento               ON pago(id_evento);
@@ -637,5 +647,75 @@ INSERT INTO accion (nombre) VALUES
 
 INSERT INTO rol (nombre_rol) VALUES
  ('ADMINISTRADOR'), ('OPERATIVO');
+
+-- Estructura de seguridad (modulo -> menu_vista -> opcion) con todas las pantallas
+-- del frontend, para poder configurar permisos de roles desde la matriz de
+-- administracion. pagina_url debe coincidir EXACTAMENTE con lo que usan
+-- PermisoService (backend) y AuthService/nav-items (frontend).
+INSERT INTO modulo (nombre, orden) VALUES
+ ('Clientes', 1),
+ ('Cotizaciones', 2),
+ ('Eventos', 3),
+ ('Inventarios', 4),
+ ('Menus y platos', 5),
+ ('Pagos', 6),
+ ('Rentabilidad', 7),
+ ('Administracion', 8);
+
+-- Un menu_vista principal por modulo, mas "Catalogos" bajo Administracion
+INSERT INTO menu_vista (id_modulo, nombre, orden)
+SELECT id_modulo, nombre, orden FROM modulo;
+
+INSERT INTO menu_vista (id_modulo, nombre, orden)
+SELECT id_modulo, 'Catalogos', 10 FROM modulo WHERE nombre = 'Administracion';
+
+-- Opciones (pantallas). accion documenta el CRUD disponible.
+INSERT INTO opcion (id_menu_vista, nombre_opcion, orden_menu_vista, pagina_url, accion)
+SELECT mv.id_menu_vista, o.nombre_opcion, o.orden, o.pagina_url, 'CRUD'
+FROM (VALUES
+    -- (modulo,            nombre_opcion,               orden, pagina_url)
+    ('Clientes',        'Clientes',                  1, '/api/clientes'),
+    ('Clientes',        'Ubicaciones',               2, '/api/ubicaciones'),
+    ('Cotizaciones',    'Cotizaciones',              1, '/api/cotizaciones'),
+    ('Eventos',         'Eventos',                   1, '/api/eventos'),
+    ('Inventarios',     'Stock de inventario',       1, '/api/inventarios'),
+    ('Inventarios',     'Productos',                 2, '/api/productos'),
+    ('Inventarios',     'Movimientos de inventario', 3, '/api/movimientos-inventario'),
+    ('Menus y platos',  'Menus',                     1, '/api/menus'),
+    ('Menus y platos',  'Platos',                    2, '/api/platos'),
+    ('Pagos',           'Pagos',                     1, '/api/pagos'),
+    ('Pagos',           'Metodos de pago',           2, '/api/metodos-pago'),
+    ('Rentabilidad',    'Reporte de rentabilidad',   1, '/api/rentabilidad'),
+    ('Administracion',  'Usuarios',                  1, '/api/usuarios'),
+    ('Administracion',  'Roles y permisos',          2, '/api/roles'),
+    ('Administracion',  'Opciones del sistema',      3, '/api/opciones'),
+    ('Administracion',  'Empleados',                 4, '/api/empleados'),
+    ('Administracion',  'Vehiculos',                 5, '/api/vehiculos')
+) AS o(modulo, nombre_opcion, orden, pagina_url)
+JOIN modulo m ON m.nombre = o.modulo
+JOIN menu_vista mv ON mv.id_modulo = m.id_modulo AND mv.nombre = m.nombre;
+
+-- Catalogos simples, registrados como opciones bajo el menu_vista "Catalogos"
+-- de Administracion, para poder asignarles permisos por rol desde la matriz.
+INSERT INTO opcion (id_menu_vista, nombre_opcion, orden_menu_vista, pagina_url, accion)
+SELECT mv.id_menu_vista, o.nombre_opcion, o.orden, o.pagina_url, 'CRUD'
+FROM (VALUES
+    ('Departamentos',            1,  '/api/departamentos'),
+    ('Municipios',               2,  '/api/municipios'),
+    ('Tipos de estado',          3,  '/api/tipos-estado'),
+    ('Estados',                  4,  '/api/estados'),
+    ('Generos',                  5,  '/api/generos'),
+    ('Tipos de documento',       6,  '/api/tipos-documento'),
+    ('Tipos de evento',          7,  '/api/tipos-evento'),
+    ('Tipos de costo',           8,  '/api/tipos-costo'),
+    ('Puestos de empleado',      9,  '/api/puestos-empleado'),
+    ('Marcas de vehiculo',       10, '/api/marcas-vehiculo'),
+    ('Lineas de vehiculo',       11, '/api/lineas-vehiculo'),
+    ('Tipos de placa',           12, '/api/tipos-placa'),
+    ('Tipos de inventario',      13, '/api/tipos-inventario'),
+    ('Categorias de producto',   14, '/api/categorias-producto')
+) AS o(nombre_opcion, orden, pagina_url)
+JOIN modulo m ON m.nombre = 'Administracion'
+JOIN menu_vista mv ON mv.id_modulo = m.id_modulo AND mv.nombre = 'Catalogos';
 
 COMMIT;
