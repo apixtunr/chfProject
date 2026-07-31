@@ -14,18 +14,14 @@ export class AuthService {
   readonly usuarioActual = computed(() => this.sesion());
   readonly permisos = computed(() => this.sesion()?.permisos ?? []);
   readonly estaAutenticado = computed(() => this.sesion() !== null);
-  /**
-   * Espeja el bypass de ADMINISTRADOR en security/PermisoService.java del backend. Hoy
-   * rol_opcion esta vacia (nadie configuro permisos todavia), asi que sin este bypass el
-   * propio admin no veria nada en el menu.
-   */
+ 
   readonly esAdministrador = computed(() => this.sesion()?.rol === 'ADMINISTRADOR');
 
   constructor(
     private readonly http: HttpClient,
     private readonly router: Router,
   ) {
-    // Sincronizacion entre pestanas: si la sesion se cierra en otra pestana
+    // Sincronizacion entre pestañas: si la sesion se cierra en otra pestana
     // (localStorage cambia a null), esta pestana tambien queda fuera.
     window.addEventListener('storage', (evento) => {
       if (evento.key === STORAGE_KEY && evento.newValue === null && this.sesion() !== null) {
