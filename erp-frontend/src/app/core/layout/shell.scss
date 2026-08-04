@@ -14,12 +14,7 @@
 }
 
 .activo {
-  background-color: var(--mat-sys-secondary-container);
-}
-
-.toolbar-oscura {
-  background-color: #1f2430;
-  color: white;
+  font-weight: 600;
 }
 
 .spacer {
@@ -33,16 +28,4 @@
 
 .contenido {
   padding: 24px;
-  background-color: #eef1f5;
-  min-height: 100%;
-
-  // Tarjeta contenedora para el contenido de cada pantalla ruteada (el elemento
-  // que Angular inserta justo despues de router-outlet, nunca router-outlet en si).
-  router-outlet + * {
-    display: block;
-    background-color: white;
-    border-radius: 8px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
-    padding: 20px;
-  }
 }

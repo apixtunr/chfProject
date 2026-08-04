@@ -1,7 +1,7 @@
 <div class="encabezado">
   <h1>Cotizaciones</h1>
   @if (puedeCrear) {
-    <button mat-flat-button color="primary" routerLink="/cotizaciones/nueva">
+    <button mat-flat-button routerLink="/cotizaciones/nueva">
       <mat-icon>add</mat-icon>
       Nueva cotizacion
     </button>
@@ -23,9 +23,7 @@
     <th mat-header-cell *matHeaderCellDef>Estado</th>
     <td mat-cell *matCellDef="let c">
       @if (c.ultimaVersionEstado) {
-        <mat-chip [color]="colorEstado(c.ultimaVersionEstado)" highlighted>
-          v{{ c.ultimaVersionNumero }} · {{ c.ultimaVersionEstado }}
-        </mat-chip>
+        <mat-chip>v{{ c.ultimaVersionNumero }} · {{ c.ultimaVersionEstado }}</mat-chip>
       }
     </td>
   </ng-container>

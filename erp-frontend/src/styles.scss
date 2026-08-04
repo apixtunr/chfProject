@@ -32,25 +32,9 @@ body {
   color: var(--mat-sys-on-surface);
   font: var(--mat-sys-body-medium);
 
-  // El fondo del encabezado de tabla se pinta con una clase propia mas abajo (Material
-  // no tiene token de fondo para el header); el color de texto SI es un token de Material
-  // (table-header-headline-color) y hay que pisarlo aca para que el override de fondo
-  // no deje el texto oscuro por defecto sobre un fondo de color.
-  --mat-table-header-headline-color: var(--mat-sys-on-primary);
-
   // Reset the user agent margin.
   margin: 0;
   height: 100%;
-}
-
-// Encabezados de tabla con el color primario de marca (en vez del gris por defecto).
-// El color de texto lo resuelve el token --mat-table-header-headline-color de arriba.
-// Selector de dos clases a proposito: Material define ".mat-mdc-header-row { background:
-// inherit }" con la misma especificidad que una sola clase, y su estilo se inyecta en
-// tiempo de ejecucion (despues de esta hoja global), asi que gana por orden si no le
-// subimos la especificidad.
-.mat-mdc-table .mat-mdc-header-row {
-  background-color: var(--mat-sys-primary);
 }
 
 // Filas alternadas para tablas largas (mas facil de seguir visualmente)

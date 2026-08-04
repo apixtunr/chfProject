@@ -63,15 +63,4 @@ export class CotizacionList implements OnInit {
     this.pageSize.set(event.pageSize);
     this.cargar();
   }
-
-  colorEstado(estado: string | null): string {
-    switch (estado) {
-      case 'ACEPTADA':
-        return 'primary';
-      case 'RECHAZADA':
-        return 'warn';
-      default:
-        return '';
-    }
-  }
 }
