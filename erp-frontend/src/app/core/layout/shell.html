@@ -8,7 +8,28 @@
     </button>
   </mat-toolbar>
 
-  <main class="contenido">
-    <router-outlet></router-outlet>
-  </main>
+  <mat-sidenav-container class="shell-body">
+    <mat-sidenav mode="side" opened class="sidenav">
+      <mat-nav-list dense>
+        <a mat-list-item routerLink="/" routerLinkActive="activo" [routerLinkActiveOptions]="{ exact: true }">
+          <mat-icon matListItemIcon>home</mat-icon>
+          <span matListItemTitle>Inicio</span>
+        </a>
+        <a mat-list-item routerLink="/clientes" routerLinkActive="activo">
+          <mat-icon matListItemIcon>people</mat-icon>
+          <span matListItemTitle>Clientes</span>
+        </a>
+        <a mat-list-item routerLink="/cotizaciones" routerLinkActive="activo">
+          <mat-icon matListItemIcon>request_quote</mat-icon>
+          <span matListItemTitle>Cotizaciones</span>
+        </a>
+      </mat-nav-list>
+    </mat-sidenav>
+
+    <mat-sidenav-content>
+      <main class="contenido">
+        <router-outlet></router-outlet>
+      </main>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
 </div>

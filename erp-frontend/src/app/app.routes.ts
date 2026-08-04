@@ -17,6 +17,28 @@ export const routes: Routes = [
         pathMatch: 'full',
         loadComponent: () => import('./features/home/home').then((m) => m.Home),
       },
+      {
+        path: 'clientes',
+        loadComponent: () => import('./features/clientes/cliente-list/cliente-list').then((m) => m.ClienteList),
+      },
+      {
+        path: 'clientes/nuevo',
+        loadComponent: () => import('./features/clientes/cliente-form/cliente-form').then((m) => m.ClienteForm),
+      },
+      {
+        path: 'clientes/:id/editar',
+        loadComponent: () => import('./features/clientes/cliente-form/cliente-form').then((m) => m.ClienteForm),
+      },
+      {
+        path: 'cotizaciones',
+        loadComponent: () =>
+          import('./features/cotizaciones/cotizacion-list/cotizacion-list').then((m) => m.CotizacionList),
+      },
+      {
+        path: 'cotizaciones/nueva',
+        loadComponent: () =>
+          import('./features/cotizaciones/cotizacion-form/cotizacion-form').then((m) => m.CotizacionForm),
+      },
     ],
   },
   { path: '**', redirectTo: '' },

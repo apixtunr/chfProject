@@ -4,6 +4,19 @@
   flex-direction: column;
 }
 
+.shell-body {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.sidenav {
+  width: 220px;
+}
+
+.activo {
+  background-color: var(--mat-sys-secondary-container);
+}
+
 .toolbar-oscura {
   background-color: #1f2430;
   color: white;
@@ -19,11 +32,9 @@
 }
 
 .contenido {
-  flex: 1 1 auto;
-  min-height: 0;
-  overflow-y: auto;
   padding: 24px;
   background-color: #eef1f5;
+  min-height: 100%;
 
   // Tarjeta contenedora para el contenido de cada pantalla ruteada (el elemento
   // que Angular inserta justo despues de router-outlet, nunca router-outlet en si).
