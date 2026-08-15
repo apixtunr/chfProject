@@ -41,7 +41,7 @@ export class CotizacionList implements OnInit {
   readonly pageIndex = signal(0);
   readonly pageSize = signal(20);
 
-  readonly columnas = ['cliente', 'fechaCotizacion', 'estado', 'monto'];
+  readonly columnas = ['cliente', 'fechaCotizacion', 'estado', 'monto', 'acciones'];
 
   get puedeCrear(): boolean {
     return this.authService.tienePermiso(PAGINA_URL, 'alta');

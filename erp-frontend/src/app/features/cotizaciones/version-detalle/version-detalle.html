@@ -1,0 +1,108 @@
+@if (version(); as v) {
+  <div class="encabezado">
+    <div>
+      <a [routerLink]="['/cotizaciones', idCotizacion]">&larr; Volver a la cotizacion</a>
+      <h1>
+        Version {{ v.numeroVersion }}
+        <mat-chip highlighted>{{ v.estadoNombre }}</mat-chip>
+      </h1>
+      <p class="monto">Total: Q{{ v.montoTotal | number: '1.2-2' }}</p>
+    </div>
+
+    <div class="acciones-encabezado">
+      @if (puedeImprimir) {
+        <button mat-stroked-button (click)="descargarPdf()">
+          <mat-icon>picture_as_pdf</mat-icon>
+          Descargar PDF
+        </button>
+      }
+      @if (puedeModificar) {
+        @for (estado of transicionesDisponibles; track estado.idEstado) {
+          <button mat-flat-button (click)="cambiarEstado(estado)">
+            Marcar como {{ estado.nombre }}
+          </button>
+        }
+      }
+    </div>
+  </div>
+
+  @if (esEditable) {
+    <mat-card class="tarjeta-formulario">
+      <mat-card-content>
+        <form [formGroup]="formulario" (ngSubmit)="guardarLinea()" class="formulario-linea">
+          <mat-form-field appearance="outline" class="campo-menu">
+            <mat-label>Menu</mat-label>
+            <mat-select formControlName="idMenu">
+              @for (menu of menus(); track menu.idMenu) {
+                <mat-option [value]="menu.idMenu">{{ menu.nombreMenu }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="campo-chico">
+            <mat-label>Cantidad</mat-label>
+            <input matInput type="number" formControlName="cantidadPlatos" min="1" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="campo-chico">
+            <mat-label>Precio unit. (Q)</mat-label>
+            <input matInput type="number" formControlName="precioUnitario" min="0" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="campo-observaciones">
+            <mat-label>Observaciones</mat-label>
+            <input matInput formControlName="observaciones" />
+          </mat-form-field>
+
+          <div class="botones-formulario">
+            <button mat-flat-button type="submit">
+              {{ idDetalleEditando() ? 'Guardar cambios' : 'Agregar linea' }}
+            </button>
+            @if (idDetalleEditando()) {
+              <button mat-button type="button" (click)="cancelarEdicion()">Cancelar</button>
+            }
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  }
+
+  <table mat-table [dataSource]="detalles()" class="tabla">
+    <ng-container matColumnDef="menu">
+      <th mat-header-cell *matHeaderCellDef>Menu</th>
+      <td mat-cell *matCellDef="let d">{{ d.nombreMenu }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="cantidad">
+      <th mat-header-cell *matHeaderCellDef>Cantidad</th>
+      <td mat-cell *matCellDef="let d">{{ d.cantidadPlatos }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="precio">
+      <th mat-header-cell *matHeaderCellDef>Precio unit.</th>
+      <td mat-cell *matCellDef="let d">Q{{ d.precioUnitario | number: '1.2-2' }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="subtotal">
+      <th mat-header-cell *matHeaderCellDef>Subtotal</th>
+      <td mat-cell *matCellDef="let d">Q{{ d.subtotal | number: '1.2-2' }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="acciones">
+      <th mat-header-cell *matHeaderCellDef></th>
+      <td mat-cell *matCellDef="let d">
+        @if (esEditable) {
+          <button mat-icon-button (click)="editarLinea(d)" aria-label="Editar">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-icon-button (click)="eliminarLinea(d)" aria-label="Quitar">
+            <mat-icon>delete</mat-icon>
+          </button>
+        }
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="columnas"></tr>
+    <tr mat-row *matRowDef="let row; columns: columnas"></tr>
+  </table>
+}

@@ -1,0 +1,58 @@
+.encabezado {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+h1 {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.monto {
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.acciones-encabezado {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.tarjeta-formulario {
+  margin-bottom: 16px;
+}
+
+.formulario-linea {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.campo-menu {
+  flex: 2 1 240px;
+}
+
+.campo-chico {
+  flex: 1 1 100px;
+}
+
+.campo-observaciones {
+  flex: 1 1 180px;
+}
+
+.botones-formulario {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.tabla {
+  width: 100%;
+}

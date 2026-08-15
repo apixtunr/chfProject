@@ -33,6 +33,15 @@
     <td mat-cell *matCellDef="let c">Q{{ c.ultimaVersionMonto ?? 0 | number: '1.2-2' }}</td>
   </ng-container>
 
+  <ng-container matColumnDef="acciones">
+    <th mat-header-cell *matHeaderCellDef></th>
+    <td mat-cell *matCellDef="let c">
+      <button mat-icon-button [routerLink]="['/cotizaciones', c.idCotizacion]" aria-label="Ver">
+        <mat-icon>visibility</mat-icon>
+      </button>
+    </td>
+  </ng-container>
+
   <tr mat-header-row *matHeaderRowDef="columnas"></tr>
   <tr mat-row *matRowDef="let row; columns: columnas"></tr>
 </table>

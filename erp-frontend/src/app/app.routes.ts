@@ -39,6 +39,16 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/cotizaciones/cotizacion-form/cotizacion-form').then((m) => m.CotizacionForm),
       },
+      {
+        path: 'cotizaciones/:id',
+        loadComponent: () =>
+          import('./features/cotizaciones/cotizacion-detail/cotizacion-detail').then((m) => m.CotizacionDetail),
+      },
+      {
+        path: 'cotizaciones/:id/versiones/:versionId',
+        loadComponent: () =>
+          import('./features/cotizaciones/version-detalle/version-detalle').then((m) => m.VersionDetalle),
+      },
     ],
   },
   { path: '**', redirectTo: '' },

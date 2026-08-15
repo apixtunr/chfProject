@@ -66,9 +66,9 @@ export class CotizacionForm implements OnInit {
         presupuestoCliente: valores.presupuestoCliente,
       })
       .subscribe({
-        next: () => {
+        next: (cotizacion) => {
           this.snackBar.open('Cotizacion creada', 'Cerrar', { duration: 3000 });
-          this.router.navigateByUrl('/cotizaciones');
+          this.router.navigateByUrl(`/cotizaciones/${cotizacion.idCotizacion}`);
         },
         error: () => this.guardando.set(false),
       });
