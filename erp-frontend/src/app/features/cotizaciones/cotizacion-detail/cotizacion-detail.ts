@@ -39,6 +39,11 @@ export class CotizacionDetail implements OnInit {
     return this.authService.tienePermiso(PAGINA_URL, 'alta');
   }
 
+  /** Solo se puede crear una version nueva cuando la ultima quedo RECHAZADA. */
+  get puedeCrearVersion(): boolean {
+    return this.puedeCrear && this.versiones()[0]?.estadoNombre === 'RECHAZADA';
+  }
+
   ngOnInit(): void {
     this.cargar();
   }

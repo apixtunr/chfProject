@@ -1,6 +1,6 @@
-import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatCardModule } from '@angular/material/card';
@@ -10,25 +10,25 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router, RouterLink } from '@angular/router';
+import { debounceTime, distinctUntilChanged, of, switchMap } from 'rxjs';
 import { UbicacionResponse } from '../../../core/catalogos/ubicacion';
 import { UbicacionService } from '../../../core/catalogos/ubicacion.service';
 import { ClienteResponse } from '../../clientes/dto/cliente';
 import { ClienteService } from '../../clientes/cliente.service';
 import { CotizacionResponse } from '../../cotizaciones/dto/cotizacion';
-import { CotizacionService } from '../../cotizaciones/cotizacion.service';
 import { TipoEventoResponse } from '../dto/evento';
 import { EventoService } from '../evento.service';
 
 @Component({
   selector: 'app-evento-form',
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     RouterLink,
     MatCardModule,
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
+    MatAutocompleteModule,
     MatDatepickerModule,
     MatButtonModule,
     MatButtonToggleModule,
@@ -39,23 +39,26 @@ import { EventoService } from '../evento.service';
 export class EventoForm implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly eventoService = inject(EventoService);
-  private readonly cotizacionService = inject(CotizacionService);
   private readonly clienteService = inject(ClienteService);
   private readonly ubicacionService = inject(UbicacionService);
   private readonly router = inject(Router);
   private readonly snackBar = inject(MatSnackBar);
 
-  readonly tieneCotizacion = signal(true);
+  readonly modoTocado = signal(false);
   readonly guardando = signal(false);
   readonly cotizacionesAceptadas = signal<CotizacionResponse[]>([]);
-  readonly clientes = signal<ClienteResponse[]>([]);
   readonly tiposEvento = signal<TipoEventoResponse[]>([]);
   readonly ubicaciones = signal<UbicacionResponse[]>([]);
+
+  /** Texto que el usuario escribe para buscar el cliente; separado del idCliente que en realidad se envia. */
+  readonly busquedaCliente = new FormControl('', { nonNullable: true });
+  readonly clientesFiltrados = signal<ClienteResponse[]>([]);
 
   readonly formulario = this.crearFormulario();
 
   private crearFormulario() {
     return this.fb.nonNullable.group({
+      tieneCotizacion: this.fb.control<boolean | null>(null),
       idCotizacionVersion: this.fb.control<number | null>(null),
       idCliente: this.fb.control<number | null>(null),
       idTipoEvento: this.fb.control<number | null>(null, Validators.required),
@@ -69,25 +72,69 @@ export class EventoForm implements OnInit {
   }
 
   ngOnInit(): void {
-    this.cotizacionService.listar(null, 0, 100).subscribe((page) => {
-      this.cotizacionesAceptadas.set(page.content.filter((c) => c.ultimaVersionEstado === 'ACEPTADA'));
-    });
-    this.clienteService.listar('', 0, 200).subscribe((page) => this.clientes.set(page.content));
+    this.eventoService.listarCotizacionesDisponibles().subscribe((cotizaciones) => this.cotizacionesAceptadas.set(cotizaciones));
     this.eventoService.listarTiposEvento().subscribe((t) => this.tiposEvento.set(t));
     this.ubicacionService.listar(null).subscribe((u) => this.ubicaciones.set(u));
+
+    this.formulario.controls.tieneCotizacion.valueChanges.subscribe((tieneCotizacion) => {
+      this.modoTocado.set(true);
+      this.formulario.patchValue({ idCotizacionVersion: null, idCliente: null });
+      this.busquedaCliente.setValue('', { emitEvent: false });
+      this.clientesFiltrados.set([]);
+
+      const conCotizacion = this.formulario.controls.idCotizacionVersion;
+      const directo = this.formulario.controls.idCliente;
+      conCotizacion.setValidators(tieneCotizacion === true ? Validators.required : null);
+      directo.setValidators(tieneCotizacion === false ? Validators.required : null);
+      conCotizacion.updateValueAndValidity();
+      directo.updateValueAndValidity();
+    });
+
+    this.busquedaCliente.valueChanges.subscribe((texto) => {
+      // Si el usuario edita el texto sin volver a elegir una opcion, el id queda invalido.
+      this.formulario.controls.idCliente.setValue(null);
+      // Al borrar el texto, no debe quedar ninguna sugerencia visible.
+      if (!texto.trim()) {
+        this.clientesFiltrados.set([]);
+      }
+    });
+
+    this.busquedaCliente.valueChanges
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged(),
+        switchMap((texto) => {
+          const valor = texto.trim();
+          return valor ? this.clienteService.listar(valor, 0, 10) : of(null);
+        }),
+      )
+      .subscribe((page) => this.clientesFiltrados.set(page?.content ?? []));
   }
 
-  cambiarModo(tieneCotizacion: boolean): void {
-    this.tieneCotizacion.set(tieneCotizacion);
-    this.formulario.patchValue({ idCotizacionVersion: null, idCliente: null });
+  tieneCotizacion(): boolean | null {
+    return this.formulario.controls.tieneCotizacion.value;
+  }
+
+  mostrarCliente(cliente: ClienteResponse | string | null): string {
+    if (!cliente || typeof cliente === 'string') {
+      return '';
+    }
+    return cliente.nombre;
+  }
+
+  seleccionarCliente(event: MatAutocompleteSelectedEvent): void {
+    const cliente = event.option.value as ClienteResponse;
+    this.formulario.controls.idCliente.setValue(cliente.idCliente);
   }
 
   guardar(): void {
-    const controlPrincipal = this.tieneCotizacion()
-      ? this.formulario.controls.idCotizacionVersion
-      : this.formulario.controls.idCliente;
-    if (this.formulario.invalid || !controlPrincipal.value) {
+    if (this.tieneCotizacion() === null) {
+      this.modoTocado.set(true);
+      return;
+    }
+    if (this.formulario.invalid) {
       this.formulario.markAllAsTouched();
+      this.busquedaCliente.markAsTouched();
       return;
     }
 

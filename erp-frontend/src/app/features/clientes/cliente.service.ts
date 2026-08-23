@@ -12,7 +12,7 @@ export class ClienteService {
   constructor(private readonly http: HttpClient) {}
 
   listar(nombre: string, page: number, size: number): Observable<Page<ClienteResponse>> {
-    let params = new HttpParams().set('page', page).set('size', size).set('sort', 'nombre');
+    let params = new HttpParams().set('page', page).set('size', size).set('sort', 'idCliente');
     if (nombre) {
       params = params.set('nombre', nombre);
     }

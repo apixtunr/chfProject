@@ -4,14 +4,17 @@
   </mat-card-header>
 
   <mat-card-content>
-    <p class="pregunta">¿Este evento tiene una cotizacion aprobada?</p>
-    <mat-button-toggle-group [value]="tieneCotizacion()" (change)="cambiarModo($event.value)" class="campo">
-      <mat-button-toggle [value]="true">Si, tiene cotizacion</mat-button-toggle>
-      <mat-button-toggle [value]="false">No, evento directo</mat-button-toggle>
-    </mat-button-toggle-group>
-
     <form [formGroup]="formulario" (ngSubmit)="guardar()">
-      @if (tieneCotizacion()) {
+      <p class="pregunta">¿Este evento tendra cotizacion?</p>
+      <mat-button-toggle-group formControlName="tieneCotizacion" class="interruptor">
+        <mat-button-toggle [value]="true">Si</mat-button-toggle>
+        <mat-button-toggle [value]="false">No</mat-button-toggle>
+      </mat-button-toggle-group>
+      @if (modoTocado() && tieneCotizacion() === null) {
+        <p class="error-modo">Debes elegir una opcion</p>
+      }
+
+      @if (tieneCotizacion() === true) {
         <mat-form-field appearance="outline" class="campo">
           <mat-label>Cotizacion aceptada</mat-label>
           <mat-select formControlName="idCotizacionVersion">
@@ -22,17 +25,24 @@
             }
           </mat-select>
           @if (cotizacionesAceptadas().length === 0) {
-            <mat-hint>No hay cotizaciones en estado ACEPTADA todavia</mat-hint>
+            <mat-hint>No hay cotizaciones aceptadas disponibles (sin evento asociado todavia)</mat-hint>
+          }
+          @if (formulario.controls.idCotizacionVersion.hasError('required') && formulario.controls.idCotizacionVersion.touched) {
+            <mat-error>Debes seleccionar una cotizacion</mat-error>
           }
         </mat-form-field>
-      } @else {
+      } @else if (tieneCotizacion() === false) {
         <mat-form-field appearance="outline" class="campo">
           <mat-label>Cliente</mat-label>
-          <mat-select formControlName="idCliente">
-            @for (cliente of clientes(); track cliente.idCliente) {
-              <mat-option [value]="cliente.idCliente">{{ cliente.nombre }}</mat-option>
+          <input matInput [formControl]="busquedaCliente" [matAutocomplete]="autoCliente" placeholder="Buscar cliente por nombre" />
+          <mat-autocomplete #autoCliente="matAutocomplete" [displayWith]="mostrarCliente" (optionSelected)="seleccionarCliente($event)">
+            @for (cliente of clientesFiltrados(); track cliente.idCliente) {
+              <mat-option [value]="cliente">{{ cliente.nombre }}</mat-option>
             }
-          </mat-select>
+          </mat-autocomplete>
+          @if (formulario.controls.idCliente.hasError('required') && busquedaCliente.touched) {
+            <mat-error>Debes seleccionar un cliente</mat-error>
+          }
         </mat-form-field>
       }
 

@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { API_URL } from '../../core/api-config';
 import { Page } from '../../core/models/page';
+import { CotizacionResponse } from '../cotizaciones/dto/cotizacion';
 import {
   CostoEventoRequest,
   CostoEventoResponse,
@@ -60,6 +61,11 @@ export class EventoService {
 
   listarTiposEvento(): Observable<TipoEventoResponse[]> {
     return this.http.get<TipoEventoResponse[]>(`${API_URL}/tipos-evento`);
+  }
+
+  /** Cotizaciones ACEPTADA que todavia no tienen un evento asociado. */
+  listarCotizacionesDisponibles(): Observable<CotizacionResponse[]> {
+    return this.http.get<CotizacionResponse[]>(`${BASE_URL}/cotizaciones-disponibles`);
   }
 
   // --- Costos ---

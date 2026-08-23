@@ -1,13 +1,14 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router, RouterLink } from '@angular/router';
+import { debounceTime, distinctUntilChanged, of, switchMap } from 'rxjs';
 import { ClienteResponse } from '../../clientes/dto/cliente';
 import { ClienteService } from '../../clientes/cliente.service';
 import { CotizacionService } from '../cotizacion.service';
@@ -20,7 +21,7 @@ import { CotizacionService } from '../cotizacion.service';
     MatCardModule,
     MatFormFieldModule,
     MatInputModule,
-    MatSelectModule,
+    MatAutocompleteModule,
     MatDatepickerModule,
     MatButtonModule,
   ],
@@ -34,7 +35,10 @@ export class CotizacionForm implements OnInit {
   private readonly router = inject(Router);
   private readonly snackBar = inject(MatSnackBar);
 
-  readonly clientes = signal<ClienteResponse[]>([]);
+  /** Texto que el usuario escribe para buscar; separado del idCliente que en realidad se envia. */
+  readonly busquedaCliente = new FormControl('', { nonNullable: true });
+  readonly clientesFiltrados = signal<ClienteResponse[]>([]);
+
   readonly guardando = signal(false);
 
   readonly formulario = this.crearFormulario();
@@ -48,12 +52,43 @@ export class CotizacionForm implements OnInit {
   }
 
   ngOnInit(): void {
-    this.clienteService.listar('', 0, 200).subscribe((page) => this.clientes.set(page.content));
+    this.busquedaCliente.valueChanges.subscribe((texto) => {
+      // Si el usuario edita el texto sin volver a elegir una opcion, el id queda invalido.
+      this.formulario.controls.idCliente.setValue(null);
+      // Al borrar el texto, no debe quedar ninguna sugerencia visible.
+      if (!texto.trim()) {
+        this.clientesFiltrados.set([]);
+      }
+    });
+
+    this.busquedaCliente.valueChanges
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged(),
+        switchMap((texto) => {
+          const valor = texto.trim();
+          return valor ? this.clienteService.listar(valor, 0, 10) : of(null);
+        }),
+      )
+      .subscribe((page) => this.clientesFiltrados.set(page?.content ?? []));
+  }
+
+  mostrarCliente(cliente: ClienteResponse | string | null): string {
+    if (!cliente || typeof cliente === 'string') {
+      return '';
+    }
+    return cliente.nombre;
+  }
+
+  seleccionarCliente(event: MatAutocompleteSelectedEvent): void {
+    const cliente = event.option.value as ClienteResponse;
+    this.formulario.controls.idCliente.setValue(cliente.idCliente);
   }
 
   guardar(): void {
     if (this.formulario.invalid) {
       this.formulario.markAllAsTouched();
+      this.busquedaCliente.markAsTouched();
       return;
     }
 

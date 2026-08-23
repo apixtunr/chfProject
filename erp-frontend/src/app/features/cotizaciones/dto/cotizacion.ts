@@ -55,6 +55,6 @@ export interface DetalleCotizacionResponse {
 
 /** Transiciones validas por estado (espeja CotizacionVersionServiceImpl.TRANSICIONES_VALIDAS). */
 export const TRANSICIONES_VALIDAS: Record<string, string[]> = {
-  BORRADOR: ['ENVIADA'],
+  CREADA: ['ENVIADA'],
   ENVIADA: ['ACEPTADA', 'RECHAZADA'],
 };

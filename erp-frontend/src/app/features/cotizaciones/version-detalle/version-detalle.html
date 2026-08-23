@@ -7,6 +7,13 @@
         <mat-chip highlighted>{{ v.estadoNombre }}</mat-chip>
       </h1>
       <p class="monto">Total: Q{{ v.montoTotal | number: '1.2-2' }}</p>
+      @if (presupuestoSuperado()) {
+        <p class="alerta-presupuesto">
+          <mat-icon>warning</mat-icon>
+          El presupuesto del cliente (Q{{ cotizacion()!.presupuestoCliente | number: '1.2-2' }}) fue superado por
+          Q{{ v.montoTotal - cotizacion()!.presupuestoCliente! | number: '1.2-2' }}
+        </p>
+      }
     </div>
 
     <div class="acciones-encabezado">
@@ -56,7 +63,7 @@
 
           <div class="botones-formulario">
             <button mat-flat-button color="primary" type="submit">
-              {{ idDetalleEditando() ? 'Guardar cambios' : 'Agregar linea' }}
+              {{ idDetalleEditando() ? 'Guardar cambios' : 'Agregar' }}
             </button>
             @if (idDetalleEditando()) {
               <button mat-button type="button" (click)="cancelarEdicion()">Cancelar</button>

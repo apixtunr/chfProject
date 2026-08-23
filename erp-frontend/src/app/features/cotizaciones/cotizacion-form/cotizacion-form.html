@@ -1,18 +1,19 @@
 <mat-card class="tarjeta">
   <mat-card-header>
-    <mat-card-title>Nueva cotizacion</mat-card-title>
+    <mat-card-title>Nueva cotización</mat-card-title>
   </mat-card-header>
 
   <mat-card-content>
     <form [formGroup]="formulario" (ngSubmit)="guardar()">
       <mat-form-field appearance="outline" class="campo">
         <mat-label>Cliente</mat-label>
-        <mat-select formControlName="idCliente">
-          @for (cliente of clientes(); track cliente.idCliente) {
-            <mat-option [value]="cliente.idCliente">{{ cliente.nombre }}</mat-option>
+        <input matInput [formControl]="busquedaCliente" [matAutocomplete]="autoCliente" placeholder="Buscar cliente por nombre" />
+        <mat-autocomplete #autoCliente="matAutocomplete" [displayWith]="mostrarCliente" (optionSelected)="seleccionarCliente($event)">
+          @for (cliente of clientesFiltrados(); track cliente.idCliente) {
+            <mat-option [value]="cliente">{{ cliente.nombre }}</mat-option>
           }
-        </mat-select>
-        @if (formulario.controls.idCliente.hasError('required')) {
+        </mat-autocomplete>
+        @if (formulario.controls.idCliente.hasError('required') && busquedaCliente.touched) {
           <mat-error>El cliente es obligatorio</mat-error>
         }
       </mat-form-field>

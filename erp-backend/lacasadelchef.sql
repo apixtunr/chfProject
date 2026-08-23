@@ -637,7 +637,7 @@ INSERT INTO tipo_estado (nombre_tipo) VALUES
 
 INSERT INTO estado (id_tipo_estado, nombre) VALUES
  (1, 'ACTIVO'), (1, 'INACTIVO'),
- (2, 'BORRADOR'), (2, 'ENVIADA'), (2, 'ACEPTADA'), (2, 'RECHAZADA'),
+ (2, 'CREADA'), (2, 'ENVIADA'), (2, 'ACEPTADA'), (2, 'RECHAZADA'),
  (3, 'PLANIFICADO'), (3, 'EN CURSO'), (3, 'FINALIZADO'), (3, 'CANCELADO'),
  (4, 'PENDIENTE'), (4, 'CONFIRMADO'), (4, 'ANULADO'),
  (5, 'DISPONIBLE'), (5, 'EN MANTENIMIENTO');

@@ -28,7 +28,7 @@ public class CotizacionVersionServiceImpl implements CotizacionVersionService {
 
     private static final String TABLA = "cotizacion_version";
     private static final String TIPO_ESTADO_COTIZACION = "COTIZACION";
-    private static final String ESTADO_BORRADOR = "BORRADOR";
+    private static final String ESTADO_CREADA = "CREADA";
     private static final String ESTADO_ENVIADA = "ENVIADA";
     private static final String ESTADO_ACEPTADA = "ACEPTADA";
     private static final String ESTADO_RECHAZADA = "RECHAZADA";
@@ -36,11 +36,11 @@ public class CotizacionVersionServiceImpl implements CotizacionVersionService {
     /**
      * Maquina de estados de una version de cotizacion. ACEPTADA y RECHAZADA son
      * terminales (no aparecen como llave): si el cliente pide mas cambios despues de
-     * un rechazo, se crea una version nueva (siempre nace en BORRADOR) en vez de
+     * un rechazo, se crea una version nueva (siempre nace en CREADA) en vez de
      * reabrir la rechazada.
      */
     private static final Map<String, Set<String>> TRANSICIONES_VALIDAS = Map.of(
-            ESTADO_BORRADOR, Set.of(ESTADO_ENVIADA),
+            ESTADO_CREADA, Set.of(ESTADO_ENVIADA),
             ESTADO_ENVIADA, Set.of(ESTADO_ACEPTADA, ESTADO_RECHAZADA));
 
     private final CotizacionVersionRepository cotizacionVersionRepository;
@@ -75,14 +75,19 @@ public class CotizacionVersionServiceImpl implements CotizacionVersionService {
             throw new ResourceNotFoundException("La cotizacion %d no tiene versiones previas".formatted(idCotizacion));
         }
         CotizacionVersion ultima = versiones.get(0);
+        if (!ESTADO_RECHAZADA.equalsIgnoreCase(ultima.getEstado().getNombre())) {
+            throw new BusinessException(
+                    "Solo se puede crear una nueva version cuando la ultima quedo en RECHAZADA (actual: %s)"
+                            .formatted(ultima.getEstado().getNombre()));
+        }
 
-        Estado borrador = estadoRepository.findByTipoEstadoNombreTipoAndNombre(TIPO_ESTADO_COTIZACION, ESTADO_BORRADOR)
+        Estado creada = estadoRepository.findByTipoEstadoNombreTipoAndNombre(TIPO_ESTADO_COTIZACION, ESTADO_CREADA)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "No existe el estado %s/%s (revisar datos semilla)".formatted(TIPO_ESTADO_COTIZACION, ESTADO_BORRADOR)));
+                        "No existe el estado %s/%s (revisar datos semilla)".formatted(TIPO_ESTADO_COTIZACION, ESTADO_CREADA)));
 
         CotizacionVersion nueva = new CotizacionVersion();
         nueva.setCotizacion(cotizacion);
-        nueva.setEstado(borrador);
+        nueva.setEstado(creada);
         nueva.setNumeroVersion(ultima.getNumeroVersion() + 1);
         nueva = cotizacionVersionRepository.save(nueva);
 

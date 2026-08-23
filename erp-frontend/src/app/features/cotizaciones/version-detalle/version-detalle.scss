@@ -18,6 +18,21 @@ h1 {
   font-weight: 500;
 }
 
+.alerta-presupuesto {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 4px 0 0;
+  font-size: 0.9rem;
+  color: #b26a00;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+}
+
 .acciones-encabezado {
   display: flex;
   gap: 8px;

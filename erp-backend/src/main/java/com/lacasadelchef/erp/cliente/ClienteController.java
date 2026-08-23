@@ -21,7 +21,7 @@ public class ClienteController {
 
     @GetMapping
     public Page<ClienteResponse> listar(@RequestParam(required = false) String nombre,
-                                        @PageableDefault(size = 20, sort = "nombre") Pageable pageable) {
+                                        @PageableDefault(size = 20, sort = "idCliente") Pageable pageable) {
         return clienteService.listar(nombre, pageable);
     }
 

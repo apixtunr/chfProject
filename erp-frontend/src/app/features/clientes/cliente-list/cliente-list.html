@@ -10,13 +10,18 @@
 
 <mat-form-field appearance="outline" class="buscador">
   <mat-label>Buscar por nombre</mat-label>
-  <input matInput [(ngModel)]="filtroNombre" (keyup.enter)="buscar()" />
+  <input matInput [formControl]="busqueda" (keyup.enter)="buscar()" />
   <button matSuffix mat-icon-button (click)="buscar()">
     <mat-icon>search</mat-icon>
   </button>
 </mat-form-field>
 
 <table mat-table [dataSource]="clientes()" class="tabla">
+  <ng-container matColumnDef="id">
+    <th mat-header-cell *matHeaderCellDef>ID</th>
+    <td mat-cell *matCellDef="let cliente">{{ cliente.idCliente }}</td>
+  </ng-container>
+
   <ng-container matColumnDef="nombre">
     <th mat-header-cell *matHeaderCellDef>Nombre</th>
     <td mat-cell *matCellDef="let cliente">{{ cliente.nombre }}</td>

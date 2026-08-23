@@ -24,7 +24,7 @@ import java.util.List;
 public class DetalleCotizacionServiceImpl implements DetalleCotizacionService {
 
     private static final String TABLA = "detalle_cotizacion";
-    private static final String ESTADO_BORRADOR = "BORRADOR";
+    private static final String ESTADO_CREADA = "CREADA";
     private static final String ESTADO_ACTIVO = "ACTIVO";
 
     private final DetalleCotizacionRepository detalleCotizacionRepository;
@@ -91,9 +91,9 @@ public class DetalleCotizacionServiceImpl implements DetalleCotizacionService {
     }
 
     private void validarEditable(CotizacionVersion version) {
-        if (!ESTADO_BORRADOR.equalsIgnoreCase(version.getEstado().getNombre())) {
+        if (!ESTADO_CREADA.equalsIgnoreCase(version.getEstado().getNombre())) {
             throw new BusinessException(
-                    "Solo se puede modificar el detalle de una version en estado BORRADOR (actual: %s)"
+                    "Solo se puede modificar el detalle de una version en estado CREADA (actual: %s)"
                             .formatted(version.getEstado().getNombre()));
         }
     }

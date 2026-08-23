@@ -1,5 +1,5 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -9,6 +9,7 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { RouterLink } from '@angular/router';
+import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { AuthService } from '../../../core/auth/auth.service';
 import { ConfirmDialog } from '../../../shared/confirm-dialog/confirm-dialog';
 import { ClienteService } from '../cliente.service';
@@ -19,7 +20,7 @@ const PAGINA_URL = '/api/clientes';
 @Component({
   selector: 'app-cliente-list',
   imports: [
-    FormsModule,
+    ReactiveFormsModule,
     RouterLink,
     MatTableModule,
     MatPaginatorModule,
@@ -42,7 +43,8 @@ export class ClienteList implements OnInit {
   readonly totalElements = signal(0);
   readonly pageIndex = signal(0);
   readonly pageSize = signal(20);
-  readonly filtroNombre = signal('');
+
+  readonly busqueda = new FormControl('', { nonNullable: true });
 
   readonly puedeCrear: boolean;
   readonly puedeEditar: boolean;
@@ -55,16 +57,18 @@ export class ClienteList implements OnInit {
   }
 
   get columnas(): string[] {
-    const base = ['nombre', 'correo', 'telefono', 'nit'];
+    const base = ['id', 'nombre', 'correo', 'telefono', 'nit'];
     return this.puedeEditar || this.puedeEliminar ? [...base, 'acciones'] : base;
   }
 
   ngOnInit(): void {
     this.cargar();
+
+    this.busqueda.valueChanges.pipe(debounceTime(300), distinctUntilChanged()).subscribe(() => this.buscar());
   }
 
   cargar(): void {
-    this.clienteService.listar(this.filtroNombre(), this.pageIndex(), this.pageSize()).subscribe((page) => {
+    this.clienteService.listar(this.busqueda.value.trim(), this.pageIndex(), this.pageSize()).subscribe((page) => {
       this.clientes.set(page.content);
       this.totalElements.set(page.totalElements);
     });

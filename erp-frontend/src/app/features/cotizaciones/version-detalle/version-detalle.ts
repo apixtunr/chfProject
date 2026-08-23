@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -19,7 +19,12 @@ import { MenuResponse } from '../../../core/catalogos/menu';
 import { MenuService } from '../../../core/catalogos/menu.service';
 import { ConfirmDialog } from '../../../shared/confirm-dialog/confirm-dialog';
 import { CotizacionService } from '../cotizacion.service';
-import { CotizacionVersionResponse, DetalleCotizacionResponse, TRANSICIONES_VALIDAS } from '../dto/cotizacion';
+import {
+  CotizacionResponse,
+  CotizacionVersionResponse,
+  DetalleCotizacionResponse,
+  TRANSICIONES_VALIDAS,
+} from '../dto/cotizacion';
 
 const PAGINA_URL = '/api/cotizaciones';
 const TIPO_ESTADO_COTIZACION = 'COTIZACION';
@@ -56,8 +61,16 @@ export class VersionDetalle implements OnInit {
   readonly idCotizacion: number;
   readonly idVersion: number;
 
+  readonly cotizacion = signal<CotizacionResponse | null>(null);
   readonly version = signal<CotizacionVersionResponse | null>(null);
   readonly detalles = signal<DetalleCotizacionResponse[]>([]);
+
+  /** Solo informativo: no bloquea nada, avisa si el total ya supera lo que el cliente dijo que queria gastar. */
+  readonly presupuestoSuperado = computed(() => {
+    const presupuesto = this.cotizacion()?.presupuestoCliente;
+    const total = this.version()?.montoTotal;
+    return presupuesto != null && total != null && total > presupuesto;
+  });
   readonly menus = signal<MenuResponse[]>([]);
   readonly estadosCotizacion = signal<EstadoResponse[]>([]);
   readonly idDetalleEditando = signal<number | null>(null);
@@ -81,7 +94,7 @@ export class VersionDetalle implements OnInit {
   }
 
   get esEditable(): boolean {
-    return this.version()?.estadoNombre === 'BORRADOR';
+    return this.version()?.estadoNombre === 'CREADA';
   }
 
   get puedeModificar(): boolean {
@@ -108,6 +121,7 @@ export class VersionDetalle implements OnInit {
   }
 
   cargar(): void {
+    this.cotizacionService.obtener(this.idCotizacion).subscribe((c) => this.cotizacion.set(c));
     this.cotizacionService.obtenerVersion(this.idVersion).subscribe((v) => this.version.set(v));
     this.cotizacionService.listarDetalle(this.idVersion).subscribe((d) => this.detalles.set(d));
   }
@@ -155,7 +169,7 @@ export class VersionDetalle implements OnInit {
 
   eliminarLinea(detalle: DetalleCotizacionResponse): void {
     const ref = this.dialog.open(ConfirmDialog, {
-      data: { titulo: 'Quitar linea', mensaje: `¿Quitar "${detalle.nombreMenu}" de la cotizacion?` },
+      data: { titulo: 'Eliminar', mensaje: `Quitar "${detalle.nombreMenu}" de la cotización?` },
     });
     ref.afterClosed().subscribe((confirmado) => {
       if (!confirmado) {
