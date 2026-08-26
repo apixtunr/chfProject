@@ -1,0 +1,119 @@
+<mat-card class="tarjeta">
+  <mat-card-header>
+    <mat-card-title>Nuevo evento</mat-card-title>
+  </mat-card-header>
+
+  <mat-card-content>
+    <form [formGroup]="formulario" (ngSubmit)="guardar()">
+      <p class="pregunta">¿Este evento tendrá cotización?</p>
+      <mat-button-toggle-group formControlName="tieneCotizacion" class="interruptor">
+        <mat-button-toggle [value]="true">Si</mat-button-toggle>
+        <mat-button-toggle [value]="false">No</mat-button-toggle>
+      </mat-button-toggle-group>
+      @if (modoTocado() && tieneCotizacion() === null) {
+        <p class="error-modo">Debes elegir una opción</p>
+      }
+
+      @if (tieneCotizacion() === true) {
+        <mat-form-field appearance="outline" class="campo">
+          <mat-label>Cotización aceptada</mat-label>
+          <mat-select formControlName="idCotizacionVersion">
+            @for (c of cotizacionesAceptadas(); track c.ultimaVersionId) {
+              <mat-option [value]="c.ultimaVersionId">
+                #{{ c.idCotizacion }} - {{ c.clienteNombre }} (Q{{ c.ultimaVersionMonto }})
+              </mat-option>
+            }
+          </mat-select>
+          @if (cotizacionesAceptadas().length === 0) {
+            <mat-hint>No hay cotizaciones aceptadas disponibles (sin evento asociado todavía)</mat-hint>
+          }
+          @if (formulario.controls.idCotizacionVersion.hasError('required') && formulario.controls.idCotizacionVersion.touched) {
+            <mat-error>Debes seleccionar una cotización</mat-error>
+          }
+        </mat-form-field>
+      } @else if (tieneCotizacion() === false) {
+        <mat-form-field appearance="outline" class="campo">
+          <mat-label>Cliente</mat-label>
+          <input matInput [formControl]="busquedaCliente" [matAutocomplete]="autoCliente" placeholder="Buscar cliente por nombre" />
+          <mat-autocomplete #autoCliente="matAutocomplete" [displayWith]="mostrarCliente" (optionSelected)="seleccionarCliente($event)">
+            @for (cliente of clientesFiltrados(); track cliente.idCliente) {
+              <mat-option [value]="cliente">{{ cliente.nombre }}</mat-option>
+            }
+          </mat-autocomplete>
+          @if (formulario.controls.idCliente.hasError('required') && busquedaCliente.touched) {
+            <mat-error>Debes seleccionar un cliente</mat-error>
+          }
+        </mat-form-field>
+      }
+
+      <mat-form-field appearance="outline" class="campo">
+        <mat-label>Tipo de evento</mat-label>
+        <mat-select formControlName="idTipoEvento">
+          @for (tipo of tiposEvento(); track tipo.idTipoEvento) {
+            <mat-option [value]="tipo.idTipoEvento">{{ tipo.nombreTipo }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <p class="pregunta">Ubicación del evento</p>
+      <div class="fila">
+        <mat-form-field appearance="outline" class="campo-medio">
+          <mat-label>Departamento</mat-label>
+          <mat-select formControlName="idDepartamento">
+            @for (d of departamentos(); track d.idDepartamento) {
+              <mat-option [value]="d.idDepartamento">{{ d.nombreDepartamento }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="campo-medio">
+          <mat-label>Municipio</mat-label>
+          <mat-select formControlName="idMunicipio">
+            @for (m of municipios(); track m.idMunicipio) {
+              <mat-option [value]="m.idMunicipio">{{ m.nombreMunicipio }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <mat-form-field appearance="outline" class="campo">
+        <mat-label>Dirección</mat-label>
+        <textarea matInput formControlName="direccion" rows="2"></textarea>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="campo">
+        <mat-label>Fecha del evento</mat-label>
+        <input matInput [matDatepicker]="picker" formControlName="fechaEvento" />
+        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
+      </mat-form-field>
+
+      <div class="fila">
+        <mat-form-field appearance="outline" class="campo-medio">
+          <mat-label>Hora inicio</mat-label>
+          <input matInput type="time" formControlName="horaInicio" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="campo-medio">
+          <mat-label>Hora fin</mat-label>
+          <input matInput type="time" formControlName="horaFin" />
+        </mat-form-field>
+      </div>
+
+      <mat-form-field appearance="outline" class="campo">
+        <mat-label>Cantidad de personas</mat-label>
+        <input matInput type="number" formControlName="cantidadPersonas" min="1" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="campo">
+        <mat-label>Observaciones</mat-label>
+        <textarea matInput formControlName="observaciones" rows="2"></textarea>
+      </mat-form-field>
+
+      <div class="acciones">
+        <button mat-button type="button" routerLink="/eventos">Cancelar</button>
+        <button mat-flat-button type="submit" [disabled]="guardando()">Guardar</button>
+      </div>
+    </form>
+  </mat-card-content>
+</mat-card>

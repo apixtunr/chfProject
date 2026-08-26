@@ -4,6 +4,7 @@ import com.lacasadelchef.erp.common.audit.BitacoraMovimientoService;
 import com.lacasadelchef.erp.common.audit.Operacion;
 import com.lacasadelchef.erp.common.exception.BusinessException;
 import com.lacasadelchef.erp.common.exception.ResourceNotFoundException;
+import com.lacasadelchef.erp.cotizacion.dto.CotizacionResponse;
 import com.lacasadelchef.erp.entity.Cliente;
 import com.lacasadelchef.erp.entity.CotizacionVersion;
 import com.lacasadelchef.erp.entity.Estado;
@@ -29,6 +30,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -70,6 +72,14 @@ public class EventoServiceImpl implements EventoService {
     @Transactional(readOnly = true)
     public EventoResponse obtenerPorId(Integer id) {
         return EventoResponse.desde(buscarEvento(id));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<CotizacionResponse> listarCotizacionesDisponibles() {
+        return cotizacionVersionRepository.buscarAceptadasSinEvento().stream()
+                .map(cv -> CotizacionResponse.desde(cv.getCotizacion(), cv))
+                .toList();
     }
 
     @Override
@@ -155,6 +165,11 @@ public class EventoServiceImpl implements EventoService {
                 throw new BusinessException(
                         "Solo se puede crear un evento a partir de una version de cotizacion ACEPTADA (actual: %s)"
                                 .formatted(cotizacionVersion.getEstado().getNombre()));
+            }
+            Integer idEventoActual = evento.getIdEvento() != null ? evento.getIdEvento() : -1;
+            if (eventoRepository.existsByCotizacionVersionIdCotizacionVersionAndIdEventoNot(
+                    request.idCotizacionVersion(), idEventoActual)) {
+                throw new BusinessException("Esta version de cotizacion ya tiene un evento asociado");
             }
             evento.setCotizacionVersion(cotizacionVersion);
             evento.setCliente(null);

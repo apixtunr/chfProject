@@ -49,6 +49,18 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/cotizaciones/version-detalle/version-detalle').then((m) => m.VersionDetalle),
       },
+      {
+        path: 'eventos',
+        loadComponent: () => import('./features/eventos/evento-list/evento-list').then((m) => m.EventoList),
+      },
+      {
+        path: 'eventos/nuevo',
+        loadComponent: () => import('./features/eventos/evento-form/evento-form').then((m) => m.EventoForm),
+      },
+      {
+        path: 'eventos/:id',
+        loadComponent: () => import('./features/eventos/evento-detail/evento-detail').then((m) => m.EventoDetail),
+      },
     ],
   },
   { path: '**', redirectTo: '' },

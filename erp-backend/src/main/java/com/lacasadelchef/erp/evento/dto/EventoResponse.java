@@ -3,6 +3,7 @@ package com.lacasadelchef.erp.evento.dto;
 import com.lacasadelchef.erp.entity.Evento;
 import lombok.Builder;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -24,6 +25,7 @@ public record EventoResponse(
         LocalTime horaFin,
         Integer cantidadPersonas,
         String observaciones,
+        BigDecimal montoMenu,
         LocalDateTime fechaCreacion,
         LocalDateTime fechaModificacion
 ) {
@@ -32,6 +34,7 @@ public record EventoResponse(
         boolean tieneCotizacion = evento.getCotizacionVersion() != null;
         return EventoResponse.builder()
                 .idEvento(evento.getIdEvento())
+                .montoMenu(evento.getMontoMenu())
                 .idCotizacionVersion(tieneCotizacion ? evento.getCotizacionVersion().getIdCotizacionVersion() : null)
                 .idCliente(clienteDe(evento).getIdCliente())
                 .clienteNombre(clienteDe(evento).getNombre())

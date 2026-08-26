@@ -1,0 +1,50 @@
+.encabezado {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+h1 {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.acciones-encabezado {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.contenido-tab {
+  padding: 16px 0;
+}
+
+.formulario-linea {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.campo-chico {
+  flex: 1 1 160px;
+}
+
+.campo-menu {
+  flex: 2 1 240px;
+}
+
+.aviso-menu {
+  margin: 0 0 16px;
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 0.9rem;
+}
+
+.tabla {
+  width: 100%;
+}

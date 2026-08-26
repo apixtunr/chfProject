@@ -1,0 +1,46 @@
+.tarjeta {
+  max-width: 560px;
+}
+
+.pregunta {
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.campo {
+  width: 100%;
+  margin-top: 8px;
+  display: block;
+}
+
+.interruptor {
+  width: 100%;
+  margin-top: 8px;
+
+  .mat-button-toggle {
+    flex: 1;
+  }
+}
+
+.error-modo {
+  margin: 4px 0 0;
+  font-size: 0.75rem;
+  color: var(--mat-sys-error);
+}
+
+.fila {
+  display: flex;
+  gap: 12px;
+}
+
+.campo-medio {
+  flex: 1;
+  margin-top: 8px;
+}
+
+.acciones {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 16px;
+}

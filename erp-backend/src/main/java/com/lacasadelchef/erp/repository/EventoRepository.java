@@ -19,6 +19,9 @@ public interface EventoRepository extends JpaRepository<Evento, Integer> {
     /** Para el job de estados automaticos: eventos de una fecha dada (o anterior) en cierto estado. */
     List<Evento> findByEstadoNombreAndFechaEventoLessThanEqual(String estadoNombre, LocalDate fecha);
 
+    /** Evita que dos eventos distintos se creen a partir de la misma version de cotizacion. */
+    boolean existsByCotizacionVersionIdCotizacionVersionAndIdEventoNot(Integer idCotizacionVersion, Integer idEvento);
+
     /**
      * Filtros opcionales para reportes (rentabilidad, agenda). Pasar null para omitir un filtro.
      * LEFT JOIN porque un evento puede no tener cotizacion (evento directo); el cliente en ese

@@ -1,5 +1,6 @@
 package com.lacasadelchef.erp.evento;
 
+import com.lacasadelchef.erp.cotizacion.dto.CotizacionResponse;
 import com.lacasadelchef.erp.evento.dto.CambiarEstadoRequest;
 import com.lacasadelchef.erp.evento.dto.EventoRequest;
 import com.lacasadelchef.erp.evento.dto.EventoResponse;
@@ -14,6 +15,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/eventos")
@@ -27,6 +29,11 @@ public class EventoController {
                                        @RequestParam(required = false) LocalDate fechaHasta,
                                        @PageableDefault(size = 20, sort = "fechaEvento") Pageable pageable) {
         return eventoService.listar(fechaDesde, fechaHasta, pageable);
+    }
+
+    @GetMapping("/cotizaciones-disponibles")
+    public List<CotizacionResponse> cotizacionesDisponibles() {
+        return eventoService.listarCotizacionesDisponibles();
     }
 
     @GetMapping("/{id}")

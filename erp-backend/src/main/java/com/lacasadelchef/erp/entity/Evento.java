@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
@@ -57,4 +58,8 @@ public class Evento extends Auditable {
 
     @Column(name = "observaciones", length = 500)
     private String observaciones;
+
+    /** Mantenido por trigger en la base de datos a partir de detalle_evento. */
+    @Column(name = "monto_menu", insertable = false, updatable = false, precision = 12, scale = 2)
+    private BigDecimal montoMenu;
 }
