@@ -7,6 +7,8 @@ import { CotizacionResponse } from '../cotizaciones/dto/cotizacion';
 import {
   CostoEventoRequest,
   CostoEventoResponse,
+  DetalleEventoRequest,
+  DetalleEventoResponse,
   EventoEmpleadoRequest,
   EventoEmpleadoResponse,
   EventoInventarioRequest,
@@ -66,6 +68,24 @@ export class EventoService {
   /** Cotizaciones ACEPTADA que todavia no tienen un evento asociado. */
   listarCotizacionesDisponibles(): Observable<CotizacionResponse[]> {
     return this.http.get<CotizacionResponse[]>(`${BASE_URL}/cotizaciones-disponibles`);
+  }
+
+  // --- Detalle (menu de eventos directos, sin cotizacion) ---
+
+  listarDetalle(idEvento: number): Observable<DetalleEventoResponse[]> {
+    return this.http.get<DetalleEventoResponse[]>(`${BASE_URL}/${idEvento}/detalles`);
+  }
+
+  agregarDetalle(idEvento: number, request: DetalleEventoRequest): Observable<DetalleEventoResponse> {
+    return this.http.post<DetalleEventoResponse>(`${BASE_URL}/${idEvento}/detalles`, request);
+  }
+
+  actualizarDetalle(idEvento: number, idDetalle: number, request: DetalleEventoRequest): Observable<DetalleEventoResponse> {
+    return this.http.put<DetalleEventoResponse>(`${BASE_URL}/${idEvento}/detalles/${idDetalle}`, request);
+  }
+
+  eliminarDetalle(idEvento: number, idDetalle: number): Observable<void> {
+    return this.http.delete<void>(`${BASE_URL}/${idEvento}/detalles/${idDetalle}`);
   }
 
   // --- Costos ---

@@ -5,18 +5,18 @@
 
   <mat-card-content>
     <form [formGroup]="formulario" (ngSubmit)="guardar()">
-      <p class="pregunta">¿Este evento tendra cotizacion?</p>
+      <p class="pregunta">¿Este evento tendrá cotización?</p>
       <mat-button-toggle-group formControlName="tieneCotizacion" class="interruptor">
         <mat-button-toggle [value]="true">Si</mat-button-toggle>
         <mat-button-toggle [value]="false">No</mat-button-toggle>
       </mat-button-toggle-group>
       @if (modoTocado() && tieneCotizacion() === null) {
-        <p class="error-modo">Debes elegir una opcion</p>
+        <p class="error-modo">Debes elegir una opción</p>
       }
 
       @if (tieneCotizacion() === true) {
         <mat-form-field appearance="outline" class="campo">
-          <mat-label>Cotizacion aceptada</mat-label>
+          <mat-label>Cotización aceptada</mat-label>
           <mat-select formControlName="idCotizacionVersion">
             @for (c of cotizacionesAceptadas(); track c.ultimaVersionId) {
               <mat-option [value]="c.ultimaVersionId">
@@ -25,10 +25,10 @@
             }
           </mat-select>
           @if (cotizacionesAceptadas().length === 0) {
-            <mat-hint>No hay cotizaciones aceptadas disponibles (sin evento asociado todavia)</mat-hint>
+            <mat-hint>No hay cotizaciones aceptadas disponibles (sin evento asociado todavía)</mat-hint>
           }
           @if (formulario.controls.idCotizacionVersion.hasError('required') && formulario.controls.idCotizacionVersion.touched) {
-            <mat-error>Debes seleccionar una cotizacion</mat-error>
+            <mat-error>Debes seleccionar una cotización</mat-error>
           }
         </mat-form-field>
       } @else if (tieneCotizacion() === false) {
@@ -55,13 +55,30 @@
         </mat-select>
       </mat-form-field>
 
+      <p class="pregunta">Ubicación del evento</p>
+      <div class="fila">
+        <mat-form-field appearance="outline" class="campo-medio">
+          <mat-label>Departamento</mat-label>
+          <mat-select formControlName="idDepartamento">
+            @for (d of departamentos(); track d.idDepartamento) {
+              <mat-option [value]="d.idDepartamento">{{ d.nombreDepartamento }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="campo-medio">
+          <mat-label>Municipio</mat-label>
+          <mat-select formControlName="idMunicipio">
+            @for (m of municipios(); track m.idMunicipio) {
+              <mat-option [value]="m.idMunicipio">{{ m.nombreMunicipio }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+
       <mat-form-field appearance="outline" class="campo">
-        <mat-label>Ubicacion</mat-label>
-        <mat-select formControlName="idUbicacion">
-          @for (ubicacion of ubicaciones(); track ubicacion.idUbicacion) {
-            <mat-option [value]="ubicacion.idUbicacion">{{ ubicacion.direccion }} ({{ ubicacion.municipioNombre }})</mat-option>
-          }
-        </mat-select>
+        <mat-label>Dirección</mat-label>
+        <textarea matInput formControlName="direccion" rows="2"></textarea>
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="campo">

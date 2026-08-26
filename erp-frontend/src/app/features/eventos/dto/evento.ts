@@ -27,6 +27,28 @@ export interface EventoResponse {
   horaFin: string | null;
   cantidadPersonas: number | null;
   observaciones: string | null;
+  montoMenu: number;
+  fechaCreacion: string | null;
+  fechaModificacion: string | null;
+}
+
+export interface DetalleEventoRequest {
+  idMenu: number;
+  cantidadPlatos: number;
+  precioUnitario: number;
+  observaciones: string | null;
+}
+
+export interface DetalleEventoResponse {
+  idDetalleEvento: number;
+  idEvento: number;
+  idMenu: number;
+  nombreMenu: string;
+  cantidadPlatos: number;
+  precioUnitario: number;
+  subtotal: number;
+  observaciones: string | null;
+  montoMenuEvento: number;
   fechaCreacion: string | null;
   fechaModificacion: string | null;
 }

@@ -19,7 +19,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -29,7 +28,6 @@ public class CotizacionServiceImpl implements CotizacionService {
     private static final String TABLA = "cotizacion";
     private static final String TIPO_ESTADO_COTIZACION = "COTIZACION";
     private static final String ESTADO_CREADA = "CREADA";
-    private static final String ESTADO_ACEPTADA = "ACEPTADA";
 
     private final CotizacionRepository cotizacionRepository;
     private final CotizacionVersionRepository cotizacionVersionRepository;
@@ -82,31 +80,6 @@ public class CotizacionServiceImpl implements CotizacionService {
         Cotizacion cotizacion = buscarCotizacion(id);
         cotizacionRepository.delete(cotizacion);
         bitacoraMovimientoService.registrar(TABLA, cotizacion.getIdCotizacion(), Operacion.DELETE);
-    }
-
-    @Override
-    @Transactional
-    public CotizacionVersion crearAceptadaParaEventoDirecto(Integer idCliente, LocalDate fechaEvento) {
-        Cliente cliente = clienteRepository.findById(idCliente)
-                .orElseThrow(() -> new ResourceNotFoundException("Cliente", idCliente));
-
-        Cotizacion cotizacion = new Cotizacion();
-        cotizacion.setCliente(cliente);
-        cotizacion.setFechaEvento(fechaEvento);
-        cotizacion = cotizacionRepository.save(cotizacion);
-
-        Estado aceptada = estadoRepository.findByTipoEstadoNombreTipoAndNombre(TIPO_ESTADO_COTIZACION, ESTADO_ACEPTADA)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "No existe el estado %s/%s (revisar datos semilla)".formatted(TIPO_ESTADO_COTIZACION, ESTADO_ACEPTADA)));
-
-        CotizacionVersion version = new CotizacionVersion();
-        version.setCotizacion(cotizacion);
-        version.setEstado(aceptada);
-        version.setNumeroVersion(1);
-        version = cotizacionVersionRepository.save(version);
-
-        bitacoraMovimientoService.registrar(TABLA, cotizacion.getIdCotizacion(), Operacion.INSERT);
-        return version;
     }
 
     /** Toda cotizacion nace con una version 1 en CREADA, lista para cargarle el detalle. */

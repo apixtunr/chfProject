@@ -331,7 +331,20 @@ CREATE TABLE evento (
     observaciones       VARCHAR(500),
     fecha_creacion      TIMESTAMP NOT NULL DEFAULT NOW(),
     fecha_modificacion  TIMESTAMP,
+    monto_menu          NUMERIC(12,2) NOT NULL DEFAULT 0,
     CONSTRAINT chk_evento_origen CHECK (id_cotizacion_version IS NOT NULL OR id_cliente IS NOT NULL)
+);
+
+CREATE TABLE detalle_evento (
+    id_detalle_evento   INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id_evento           INT NOT NULL REFERENCES evento(id_evento),
+    id_menu             INT NOT NULL REFERENCES menu(id_menu),
+    cantidad_platos     INT NOT NULL CHECK (cantidad_platos > 0),
+    precio_unitario     NUMERIC(12,2) NOT NULL CHECK (precio_unitario >= 0),
+    subtotal            NUMERIC(12,2) GENERATED ALWAYS AS (cantidad_platos * precio_unitario) STORED,
+    observaciones       VARCHAR(255),
+    fecha_creacion      TIMESTAMP NOT NULL DEFAULT NOW(),
+    fecha_modificacion  TIMESTAMP
 );
 
 CREATE TABLE tipo_costo (
@@ -580,6 +593,24 @@ CREATE TRIGGER trg_detalle_monto_total
 AFTER INSERT OR UPDATE OR DELETE ON detalle_cotizacion
 FOR EACH ROW EXECUTE FUNCTION fn_actualizar_monto_version();
 
+CREATE OR REPLACE FUNCTION fn_actualizar_monto_evento()
+RETURNS TRIGGER AS $$
+DECLARE v_id INT;
+BEGIN
+    v_id := COALESCE(NEW.id_evento, OLD.id_evento);
+    UPDATE evento
+       SET monto_menu = COALESCE((
+            SELECT SUM(subtotal) FROM detalle_evento
+            WHERE id_evento = v_id), 0)
+     WHERE id_evento = v_id;
+    RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_detalle_evento_monto_total
+AFTER INSERT OR UPDATE OR DELETE ON detalle_evento
+FOR EACH ROW EXECUTE FUNCTION fn_actualizar_monto_evento();
+
 -- ============================================================================
 -- 13. VISTAS FINANCIERAS (datos derivados: no se almacenan)
 -- ============================================================================
@@ -618,6 +649,7 @@ JOIN v_costos_evento c USING (id_evento);
 CREATE INDEX idx_cotizacion_cliente        ON cotizacion(id_cliente);
 CREATE INDEX idx_cot_version_cotizacion    ON cotizacion_version(id_cotizacion);
 CREATE INDEX idx_detalle_cot_version       ON detalle_cotizacion(id_cotizacion_version);
+CREATE INDEX idx_detalle_evento_evento     ON detalle_evento(id_evento);
 CREATE INDEX idx_evento_cot_version        ON evento(id_cotizacion_version);
 CREATE INDEX idx_evento_cliente            ON evento(id_cliente);
 CREATE INDEX idx_evento_fecha              ON evento(fecha_evento);

@@ -16,6 +16,8 @@ import { ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../../core/auth/auth.service';
 import { EstadoResponse } from '../../../core/catalogos/estado';
 import { EstadoService } from '../../../core/catalogos/estado.service';
+import { MenuResponse } from '../../../core/catalogos/menu';
+import { MenuService } from '../../../core/catalogos/menu.service';
 import { ProductoResponse } from '../../../core/catalogos/producto';
 import { ProductoService } from '../../../core/catalogos/producto.service';
 import { TipoCostoResponse } from '../../../core/catalogos/tipo-costo';
@@ -27,6 +29,7 @@ import { VehiculoResponse } from '../../vehiculos/dto/vehiculo';
 import { VehiculoService } from '../../vehiculos/vehiculo.service';
 import {
   CostoEventoResponse,
+  DetalleEventoResponse,
   EventoEmpleadoResponse,
   EventoInventarioResponse,
   EventoResponse,
@@ -65,6 +68,7 @@ export class EventoDetail implements OnInit {
   private readonly vehiculoService = inject(VehiculoService);
   private readonly productoService = inject(ProductoService);
   private readonly tipoCostoService = inject(TipoCostoService);
+  private readonly menuService = inject(MenuService);
   private readonly estadoService = inject(EstadoService);
   private readonly authService = inject(AuthService);
   private readonly dialog = inject(MatDialog);
@@ -76,17 +80,20 @@ export class EventoDetail implements OnInit {
   readonly personal = signal<EventoEmpleadoResponse[]>([]);
   readonly vehiculos = signal<EventoVehiculoResponse[]>([]);
   readonly inventario = signal<EventoInventarioResponse[]>([]);
+  readonly detalleMenu = signal<DetalleEventoResponse[]>([]);
 
   readonly empleadosDisponibles = signal<EmpleadoResponse[]>([]);
   readonly vehiculosDisponibles = signal<VehiculoResponse[]>([]);
   readonly productosDisponibles = signal<ProductoResponse[]>([]);
   readonly tiposCosto = signal<TipoCostoResponse[]>([]);
   readonly estadosEvento = signal<EstadoResponse[]>([]);
+  readonly menusDisponibles = signal<MenuResponse[]>([]);
 
   readonly columnasCostos = ['tipo', 'descripcion', 'monto', 'fecha', 'acciones'];
   readonly columnasPersonal = ['empleado', 'salario', 'horario', 'acciones'];
   readonly columnasVehiculos = ['placa', 'conductor', 'acciones'];
   readonly columnasInventario = ['producto', 'cantidad', 'consumo', 'acciones'];
+  readonly columnasMenu = ['menu', 'cantidad', 'precio', 'subtotal', 'acciones'];
 
   readonly formularioCosto = this.fb.nonNullable.group({
     idTipoCosto: this.fb.control<number | null>(null, Validators.required),
@@ -111,6 +118,13 @@ export class EventoDetail implements OnInit {
     cantidad: this.fb.control<number | null>(null, Validators.required),
   });
 
+  readonly formularioMenu = this.fb.nonNullable.group({
+    idMenu: this.fb.control<number | null>(null, Validators.required),
+    cantidadPlatos: [1, [Validators.required, Validators.min(1)]],
+    precioUnitario: this.fb.control<number | null>(null, Validators.required),
+    observaciones: [''],
+  });
+
   constructor() {
     this.idEvento = Number(this.route.snapshot.paramMap.get('id'));
   }
@@ -121,6 +135,12 @@ export class EventoDetail implements OnInit {
 
   get puedeCancelar(): boolean {
     return this.authService.esAdministrador();
+  }
+
+  /** El menu solo se puede armar aqui cuando el evento es directo (sin cotizacion) y sigue PLANIFICADO. */
+  get puedeEditarMenu(): boolean {
+    const e = this.evento();
+    return this.puedeModificar && !!e && e.idCotizacionVersion === null && e.estadoNombre === 'PLANIFICADO';
   }
 
   get transicionesDisponibles(): EstadoResponse[] {
@@ -140,6 +160,7 @@ export class EventoDetail implements OnInit {
     this.productoService.listarTodos().subscribe((p) => this.productosDisponibles.set(p));
     this.tipoCostoService.listar().subscribe((t) => this.tiposCosto.set(t));
     this.estadoService.listarPorTipo(TIPO_ESTADO_EVENTO).subscribe((e) => this.estadosEvento.set(e));
+    this.menuService.listarActivos().subscribe((m) => this.menusDisponibles.set(m));
     this.cargar();
   }
 
@@ -149,6 +170,7 @@ export class EventoDetail implements OnInit {
     this.eventoService.listarPersonal(this.idEvento).subscribe((p) => this.personal.set(p));
     this.eventoService.listarVehiculos(this.idEvento).subscribe((v) => this.vehiculos.set(v));
     this.eventoService.listarInventario(this.idEvento).subscribe((i) => this.inventario.set(i));
+    this.eventoService.listarDetalle(this.idEvento).subscribe((d) => this.detalleMenu.set(d));
   }
 
   cambiarEstado(estado: EstadoResponse): void {
@@ -266,6 +288,34 @@ export class EventoDetail implements OnInit {
         this.snackBar.open('Consumo confirmado, stock actualizado', 'Cerrar', { duration: 3000 });
         this.cargar();
       });
+    });
+  }
+
+  // --- Menu (solo eventos directos, sin cotizacion) ---
+
+  agregarLineaMenu(): void {
+    if (this.formularioMenu.invalid) {
+      this.formularioMenu.markAllAsTouched();
+      return;
+    }
+    const v = this.formularioMenu.getRawValue();
+    this.eventoService
+      .agregarDetalle(this.idEvento, {
+        idMenu: v.idMenu!,
+        cantidadPlatos: v.cantidadPlatos,
+        precioUnitario: v.precioUnitario!,
+        observaciones: v.observaciones || null,
+      })
+      .subscribe(() => {
+        this.formularioMenu.reset({ idMenu: null, cantidadPlatos: 1, precioUnitario: null, observaciones: '' });
+        this.cargar();
+      });
+  }
+
+  eliminarLineaMenu(detalle: DetalleEventoResponse): void {
+    this.eventoService.eliminarDetalle(this.idEvento, detalle.idDetalleEvento).subscribe(() => {
+      this.snackBar.open('Linea eliminada', 'Cerrar', { duration: 3000 });
+      this.cargar();
     });
   }
 }

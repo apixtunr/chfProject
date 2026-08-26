@@ -35,6 +35,16 @@ h1 {
   flex: 1 1 160px;
 }
 
+.campo-menu {
+  flex: 2 1 240px;
+}
+
+.aviso-menu {
+  margin: 0 0 16px;
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 0.9rem;
+}
+
 .tabla {
   width: 100%;
 }

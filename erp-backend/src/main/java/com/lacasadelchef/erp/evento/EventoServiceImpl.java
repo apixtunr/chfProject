@@ -4,8 +4,8 @@ import com.lacasadelchef.erp.common.audit.BitacoraMovimientoService;
 import com.lacasadelchef.erp.common.audit.Operacion;
 import com.lacasadelchef.erp.common.exception.BusinessException;
 import com.lacasadelchef.erp.common.exception.ResourceNotFoundException;
-import com.lacasadelchef.erp.cotizacion.CotizacionService;
 import com.lacasadelchef.erp.cotizacion.dto.CotizacionResponse;
+import com.lacasadelchef.erp.entity.Cliente;
 import com.lacasadelchef.erp.entity.CotizacionVersion;
 import com.lacasadelchef.erp.entity.Estado;
 import com.lacasadelchef.erp.entity.Evento;
@@ -14,6 +14,7 @@ import com.lacasadelchef.erp.entity.Ubicacion;
 import com.lacasadelchef.erp.entity.Usuario;
 import com.lacasadelchef.erp.evento.dto.EventoRequest;
 import com.lacasadelchef.erp.evento.dto.EventoResponse;
+import com.lacasadelchef.erp.repository.ClienteRepository;
 import com.lacasadelchef.erp.repository.CotizacionVersionRepository;
 import com.lacasadelchef.erp.repository.EstadoRepository;
 import com.lacasadelchef.erp.repository.EventoRepository;
@@ -52,7 +53,7 @@ public class EventoServiceImpl implements EventoService {
 
     private final EventoRepository eventoRepository;
     private final CotizacionVersionRepository cotizacionVersionRepository;
-    private final CotizacionService cotizacionService;
+    private final ClienteRepository clienteRepository;
     private final TipoEventoRepository tipoEventoRepository;
     private final UbicacionRepository ubicacionRepository;
     private final EstadoRepository estadoRepository;
@@ -171,18 +172,17 @@ public class EventoServiceImpl implements EventoService {
                 throw new BusinessException("Esta version de cotizacion ya tiene un evento asociado");
             }
             evento.setCotizacionVersion(cotizacionVersion);
+            evento.setCliente(null);
         } else {
             if (request.idCliente() == null) {
                 throw new BusinessException(
                         "Un evento sin cotizacion debe indicar el cliente directamente (idCliente)");
             }
-            // Evento directo: se crea por debajo una cotizacion interna ya ACEPTADA (sin
-            // negociacion) solo para poder reutilizar el mecanismo de detalle/versiones.
-            CotizacionVersion versionInterna = cotizacionService.crearAceptadaParaEventoDirecto(
-                    request.idCliente(), request.fechaEvento());
-            evento.setCotizacionVersion(versionInterna);
+            Cliente cliente = clienteRepository.findById(request.idCliente())
+                    .orElseThrow(() -> new ResourceNotFoundException("Cliente", request.idCliente()));
+            evento.setCliente(cliente);
+            evento.setCotizacionVersion(null);
         }
-        evento.setCliente(null);
 
         evento.setTipoEvento(tipoEvento);
         evento.setUbicacion(ubicacion);
