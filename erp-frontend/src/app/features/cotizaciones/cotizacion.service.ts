@@ -9,6 +9,8 @@ import {
   CotizacionVersionResponse,
   DetalleCotizacionRequest,
   DetalleCotizacionResponse,
+  ServicioCotizacionRequest,
+  ServicioCotizacionResponse,
 } from './dto/cotizacion';
 
 const BASE_URL = `${API_URL}/cotizaciones`;
@@ -87,5 +89,27 @@ export class CotizacionService {
 
   eliminarDetalle(idVersion: number, idDetalle: number): Observable<void> {
     return this.http.delete<void>(`${VERSIONES_URL}/${idVersion}/detalles/${idDetalle}`);
+  }
+
+  // --- Servicios extra (bebidas, decoracion, personal, etc.) ---
+
+  listarServicios(idVersion: number): Observable<ServicioCotizacionResponse[]> {
+    return this.http.get<ServicioCotizacionResponse[]>(`${VERSIONES_URL}/${idVersion}/servicios`);
+  }
+
+  agregarServicio(idVersion: number, request: ServicioCotizacionRequest): Observable<ServicioCotizacionResponse> {
+    return this.http.post<ServicioCotizacionResponse>(`${VERSIONES_URL}/${idVersion}/servicios`, request);
+  }
+
+  actualizarServicio(
+    idVersion: number,
+    idServicio: number,
+    request: ServicioCotizacionRequest,
+  ): Observable<ServicioCotizacionResponse> {
+    return this.http.put<ServicioCotizacionResponse>(`${VERSIONES_URL}/${idVersion}/servicios/${idServicio}`, request);
+  }
+
+  eliminarServicio(idVersion: number, idServicio: number): Observable<void> {
+    return this.http.delete<void>(`${VERSIONES_URL}/${idVersion}/servicios/${idServicio}`);
   }
 }

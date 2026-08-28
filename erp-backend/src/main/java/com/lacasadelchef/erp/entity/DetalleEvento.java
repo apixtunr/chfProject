@@ -30,6 +30,10 @@ public class DetalleEvento extends Auditable {
     @JoinColumn(name = "id_menu", nullable = false)
     private Menu menu;
 
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "id_plato", nullable = false)
+    private Plato plato;
+
     @Column(name = "cantidad_platos", nullable = false)
     private Integer cantidadPlatos;
 

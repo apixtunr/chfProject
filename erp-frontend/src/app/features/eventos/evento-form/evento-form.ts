@@ -1,4 +1,5 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { DatePipe } from '@angular/common';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
@@ -25,6 +26,7 @@ import { EventoService } from '../evento.service';
 @Component({
   selector: 'app-evento-form',
   imports: [
+    DatePipe,
     ReactiveFormsModule,
     RouterLink,
     MatCardModule,
@@ -52,6 +54,10 @@ export class EventoForm implements OnInit {
   readonly modoTocado = signal(false);
   readonly guardando = signal(false);
   readonly cotizacionesAceptadas = signal<CotizacionResponse[]>([]);
+  readonly idCotizacionVersionSeleccionada = signal<number | null>(null);
+  readonly cotizacionSeleccionada = computed(() =>
+    this.cotizacionesAceptadas().find((c) => c.ultimaVersionId === this.idCotizacionVersionSeleccionada()) ?? null,
+  );
   readonly tiposEvento = signal<TipoEventoResponse[]>([]);
   readonly departamentos = signal<DepartamentoResponse[]>([]);
   readonly municipios = signal<MunicipioResponse[]>([]);
@@ -84,6 +90,10 @@ export class EventoForm implements OnInit {
     this.eventoService.listarTiposEvento().subscribe((t) => this.tiposEvento.set(t));
     this.departamentoService.listar().subscribe((d) => this.departamentos.set(d));
 
+    this.formulario.controls.idCotizacionVersion.valueChanges.subscribe((idCotizacionVersion) => {
+      this.idCotizacionVersionSeleccionada.set(idCotizacionVersion);
+    });
+
     this.formulario.controls.idDepartamento.valueChanges.subscribe((idDepartamento) => {
       this.formulario.controls.idMunicipio.setValue(null);
       this.municipios.set([]);
@@ -104,6 +114,24 @@ export class EventoForm implements OnInit {
       directo.setValidators(tieneCotizacion === false ? Validators.required : null);
       conCotizacion.updateValueAndValidity();
       directo.updateValueAndValidity();
+
+      // Si viene de una cotizacion, el tipo/ubicacion/fecha/personas ya se aceptaron ahi:
+      // no se vuelven a pedir en este formulario.
+      const esDirecto = tieneCotizacion === false;
+      const camposSimples = [
+        this.formulario.controls.idTipoEvento,
+        this.formulario.controls.idDepartamento,
+        this.formulario.controls.idMunicipio,
+        this.formulario.controls.fechaEvento,
+      ];
+      for (const campo of camposSimples) {
+        campo.setValidators(esDirecto ? Validators.required : null);
+        campo.updateValueAndValidity();
+      }
+      this.formulario.controls.direccion.setValidators(
+        esDirecto ? [Validators.required, Validators.maxLength(255)] : [Validators.maxLength(255)],
+      );
+      this.formulario.controls.direccion.updateValueAndValidity();
     });
 
     this.busquedaCliente.valueChanges.subscribe((texto) => {
@@ -157,13 +185,38 @@ export class EventoForm implements OnInit {
     this.guardando.set(true);
     const v = this.formulario.getRawValue();
 
+    if (this.tieneCotizacion()) {
+      // Tipo de evento, ubicacion, fecha y cantidad de personas ya se aceptaron en la
+      // cotizacion: el backend los toma de ahi, no se vuelven a pedir ni a enviar.
+      this.eventoService
+        .crear({
+          idCotizacionVersion: v.idCotizacionVersion,
+          idCliente: null,
+          idTipoEvento: null,
+          idUbicacion: null,
+          fechaEvento: null,
+          horaInicio: v.horaInicio || null,
+          horaFin: v.horaFin || null,
+          cantidadPersonas: null,
+          observaciones: v.observaciones || null,
+        })
+        .subscribe({
+          next: (evento) => {
+            this.snackBar.open('Evento creado', 'Cerrar', { duration: 3000 });
+            this.router.navigateByUrl(`/eventos/${evento.idEvento}`);
+          },
+          error: () => this.guardando.set(false),
+        });
+      return;
+    }
+
     // La ubicacion es propia de este evento: se crea primero, y luego se usa su id al crear el evento.
     this.ubicacionService.crear({ idCliente: null, idMunicipio: v.idMunicipio!, direccion: v.direccion }).subscribe({
       next: (ubicacion) => {
         this.eventoService
           .crear({
-            idCotizacionVersion: this.tieneCotizacion() ? v.idCotizacionVersion : null,
-            idCliente: this.tieneCotizacion() ? null : v.idCliente,
+            idCotizacionVersion: null,
+            idCliente: v.idCliente,
             idTipoEvento: v.idTipoEvento!,
             idUbicacion: ubicacion.idUbicacion,
             fechaEvento: this.aFechaIso(v.fechaEvento!),

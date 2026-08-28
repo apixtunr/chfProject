@@ -43,13 +43,14 @@ public class MenuServiceImpl implements MenuService {
         Page<Menu> page = (nombre == null || nombre.isBlank())
                 ? menuRepository.findAll(pageable)
                 : menuRepository.findByNombreMenuContainingIgnoreCase(nombre.trim(), pageable);
-        return page.map(MenuResponse::desde);
+        return page.map(menu -> MenuResponse.desde(menu, menuPlatoRepository.sumarPrecioPorMenu(menu.getIdMenu())));
     }
 
     @Override
     @Transactional(readOnly = true)
     public MenuResponse obtenerPorId(Integer id) {
-        return MenuResponse.desde(buscarMenu(id));
+        Menu menu = buscarMenu(id);
+        return MenuResponse.desde(menu, menuPlatoRepository.sumarPrecioPorMenu(id));
     }
 
     @Override
@@ -59,7 +60,7 @@ public class MenuServiceImpl implements MenuService {
         aplicar(request, menu);
         menu = menuRepository.save(menu);
         bitacoraMovimientoService.registrar(TABLA_MENU, menu.getIdMenu(), Operacion.INSERT);
-        return MenuResponse.desde(menu);
+        return MenuResponse.desde(menu, menuPlatoRepository.sumarPrecioPorMenu(menu.getIdMenu()));
     }
 
     @Override
@@ -69,7 +70,7 @@ public class MenuServiceImpl implements MenuService {
         aplicar(request, menu);
         menu = menuRepository.save(menu);
         bitacoraMovimientoService.registrar(TABLA_MENU, menu.getIdMenu(), Operacion.UPDATE);
-        return MenuResponse.desde(menu);
+        return MenuResponse.desde(menu, menuPlatoRepository.sumarPrecioPorMenu(id));
     }
 
     @Override

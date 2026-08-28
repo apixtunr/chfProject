@@ -46,47 +46,66 @@
         </mat-form-field>
       }
 
-      <mat-form-field appearance="outline" class="campo">
-        <mat-label>Tipo de evento</mat-label>
-        <mat-select formControlName="idTipoEvento">
-          @for (tipo of tiposEvento(); track tipo.idTipoEvento) {
-            <mat-option [value]="tipo.idTipoEvento">{{ tipo.nombreTipo }}</mat-option>
+      @if (tieneCotizacion() === true && cotizacionSeleccionada(); as c) {
+        <div class="resumen-cotizacion">
+          <p class="resumen-titulo"><strong>DATOS DE LA COTIZACIÓN:</strong></p>
+          <p><strong>Tipo de evento:</strong> {{ c.tipoEventoNombre }}</p>
+          <p><strong>Ubicación:</strong> {{ c.direccionUbicacion }}</p>
+          <p><strong>Cantidad de personas:</strong> {{ c.cantidadPersonas }}</p>
+          @if (c.fechaEvento) {
+            <p><strong>Fecha del evento:</strong> {{ c.fechaEvento | date: 'dd/MM/yyyy' }}</p>
           }
-        </mat-select>
-      </mat-form-field>
+        </div>
+      }
 
-      <p class="pregunta">Ubicación del evento</p>
-      <div class="fila">
-        <mat-form-field appearance="outline" class="campo-medio">
-          <mat-label>Departamento</mat-label>
-          <mat-select formControlName="idDepartamento">
-            @for (d of departamentos(); track d.idDepartamento) {
-              <mat-option [value]="d.idDepartamento">{{ d.nombreDepartamento }}</mat-option>
+      @if (tieneCotizacion() === false) {
+        <mat-form-field appearance="outline" class="campo">
+          <mat-label>Tipo de evento</mat-label>
+          <mat-select formControlName="idTipoEvento">
+            @for (tipo of tiposEvento(); track tipo.idTipoEvento) {
+              <mat-option [value]="tipo.idTipoEvento">{{ tipo.nombreTipo }}</mat-option>
             }
           </mat-select>
         </mat-form-field>
 
-        <mat-form-field appearance="outline" class="campo-medio">
-          <mat-label>Municipio</mat-label>
-          <mat-select formControlName="idMunicipio">
-            @for (m of municipios(); track m.idMunicipio) {
-              <mat-option [value]="m.idMunicipio">{{ m.nombreMunicipio }}</mat-option>
-            }
-          </mat-select>
+        <p class="pregunta">Ubicación del evento</p>
+        <div class="fila">
+          <mat-form-field appearance="outline" class="campo-medio">
+            <mat-label>Departamento</mat-label>
+            <mat-select formControlName="idDepartamento">
+              @for (d of departamentos(); track d.idDepartamento) {
+                <mat-option [value]="d.idDepartamento">{{ d.nombreDepartamento }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="campo-medio">
+            <mat-label>Municipio</mat-label>
+            <mat-select formControlName="idMunicipio">
+              @for (m of municipios(); track m.idMunicipio) {
+                <mat-option [value]="m.idMunicipio">{{ m.nombreMunicipio }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <mat-form-field appearance="outline" class="campo">
+          <mat-label>Dirección</mat-label>
+          <textarea matInput formControlName="direccion" rows="2"></textarea>
         </mat-form-field>
-      </div>
 
-      <mat-form-field appearance="outline" class="campo">
-        <mat-label>Dirección</mat-label>
-        <textarea matInput formControlName="direccion" rows="2"></textarea>
-      </mat-form-field>
+        <mat-form-field appearance="outline" class="campo">
+          <mat-label>Fecha del evento</mat-label>
+          <input matInput [matDatepicker]="picker" formControlName="fechaEvento" />
+          <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+          <mat-datepicker #picker></mat-datepicker>
+        </mat-form-field>
 
-      <mat-form-field appearance="outline" class="campo">
-        <mat-label>Fecha del evento</mat-label>
-        <input matInput [matDatepicker]="picker" formControlName="fechaEvento" />
-        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-        <mat-datepicker #picker></mat-datepicker>
-      </mat-form-field>
+        <mat-form-field appearance="outline" class="campo">
+          <mat-label>Cantidad de personas</mat-label>
+          <input matInput type="number" formControlName="cantidadPersonas" min="1" />
+        </mat-form-field>
+      }
 
       <div class="fila">
         <mat-form-field appearance="outline" class="campo-medio">
@@ -99,11 +118,6 @@
           <input matInput type="time" formControlName="horaFin" />
         </mat-form-field>
       </div>
-
-      <mat-form-field appearance="outline" class="campo">
-        <mat-label>Cantidad de personas</mat-label>
-        <input matInput type="number" formControlName="cantidadPersonas" min="1" />
-      </mat-form-field>
 
       <mat-form-field appearance="outline" class="campo">
         <mat-label>Observaciones</mat-label>

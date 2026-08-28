@@ -1,6 +1,9 @@
 /** Espeja cotizacion/dto/*.java del backend. */
 export interface CotizacionRequest {
   idCliente: number;
+  idTipoEvento: number;
+  idUbicacion: number;
+  cantidadPersonas: number;
   fechaEvento: string | null;
   presupuestoCliente: number | null;
 }
@@ -9,6 +12,11 @@ export interface CotizacionResponse {
   idCotizacion: number;
   idCliente: number;
   clienteNombre: string;
+  idTipoEvento: number;
+  tipoEventoNombre: string;
+  idUbicacion: number;
+  direccionUbicacion: string;
+  cantidadPersonas: number;
   fechaCotizacion: string;
   fechaEvento: string | null;
   presupuestoCliente: number | null;
@@ -34,8 +42,8 @@ export interface CotizacionVersionResponse {
 
 export interface DetalleCotizacionRequest {
   idMenu: number;
+  idPlato: number;
   cantidadPlatos: number;
-  precioUnitario: number;
   observaciones: string | null;
 }
 
@@ -44,10 +52,30 @@ export interface DetalleCotizacionResponse {
   idCotizacionVersion: number;
   idMenu: number;
   nombreMenu: string;
+  idPlato: number;
+  nombrePlato: string;
   cantidadPlatos: number;
   precioUnitario: number;
   subtotal: number;
   observaciones: string | null;
+  montoTotalVersion: number;
+  fechaCreacion: string | null;
+  fechaModificacion: string | null;
+}
+
+export interface ServicioCotizacionRequest {
+  idTipoServicio: number;
+  descripcion: string | null;
+  monto: number;
+}
+
+export interface ServicioCotizacionResponse {
+  idServicioCotizacion: number;
+  idCotizacionVersion: number;
+  idTipoServicio: number;
+  tipoServicioNombre: string;
+  descripcion: string | null;
+  monto: number;
   montoTotalVersion: number;
   fechaCreacion: string | null;
   fechaModificacion: string | null;

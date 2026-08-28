@@ -9,8 +9,11 @@ import com.lacasadelchef.erp.evento.dto.DetalleEventoResponse;
 import com.lacasadelchef.erp.entity.DetalleEvento;
 import com.lacasadelchef.erp.entity.Evento;
 import com.lacasadelchef.erp.entity.Menu;
+import com.lacasadelchef.erp.entity.MenuPlato;
+import com.lacasadelchef.erp.entity.id.MenuPlatoId;
 import com.lacasadelchef.erp.repository.DetalleEventoRepository;
 import com.lacasadelchef.erp.repository.EventoRepository;
+import com.lacasadelchef.erp.repository.MenuPlatoRepository;
 import com.lacasadelchef.erp.repository.MenuRepository;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +33,7 @@ public class DetalleEventoServiceImpl implements DetalleEventoService {
     private final DetalleEventoRepository detalleEventoRepository;
     private final EventoRepository eventoRepository;
     private final MenuRepository menuRepository;
+    private final MenuPlatoRepository menuPlatoRepository;
     private final BitacoraMovimientoService bitacoraMovimientoService;
     private final EntityManager entityManager;
 
@@ -45,12 +49,11 @@ public class DetalleEventoServiceImpl implements DetalleEventoService {
     @Transactional
     public DetalleEventoResponse agregar(Integer idEvento, DetalleEventoRequest request) {
         Evento evento = buscarEventoEditable(idEvento);
-        Menu menu = buscarMenu(request.idMenu());
+        MenuPlato menuPlato = buscarMenuPlato(request.idMenu(), request.idPlato());
 
         DetalleEvento detalle = new DetalleEvento();
         detalle.setEvento(evento);
-        detalle.setMenu(menu);
-        aplicar(request, detalle);
+        aplicar(request, menuPlato, detalle);
         detalle = detalleEventoRepository.save(detalle);
 
         entityManager.refresh(evento);
@@ -63,9 +66,8 @@ public class DetalleEventoServiceImpl implements DetalleEventoService {
     public DetalleEventoResponse actualizar(Integer idEvento, Integer idDetalle, DetalleEventoRequest request) {
         DetalleEvento detalle = buscarDetalle(idEvento, idDetalle);
         validarEditable(detalle.getEvento());
-        Menu menu = buscarMenu(request.idMenu());
-        detalle.setMenu(menu);
-        aplicar(request, detalle);
+        MenuPlato menuPlato = buscarMenuPlato(request.idMenu(), request.idPlato());
+        aplicar(request, menuPlato, detalle);
         detalle = detalleEventoRepository.save(detalle);
 
         Evento evento = detalle.getEvento();
@@ -102,14 +104,17 @@ public class DetalleEventoServiceImpl implements DetalleEventoService {
         }
     }
 
-    private Menu buscarMenu(Integer idMenu) {
+    /** El precio nunca lo manda el cliente: se toma del menu_plato configurado en Administracion. */
+    private MenuPlato buscarMenuPlato(Integer idMenu, Integer idPlato) {
         Menu menu = menuRepository.findById(idMenu)
                 .orElseThrow(() -> new ResourceNotFoundException("Menu", idMenu));
         if (!ESTADO_ACTIVO.equalsIgnoreCase(menu.getEstado().getNombre())) {
             throw new BusinessException(
                     "El menu '%s' no esta activo".formatted(menu.getNombreMenu()));
         }
-        return menu;
+        return menuPlatoRepository.findById(new MenuPlatoId(idMenu, idPlato))
+                .orElseThrow(() -> new BusinessException(
+                        "Ese plato no pertenece al menu '%s'".formatted(menu.getNombreMenu())));
     }
 
     private DetalleEvento buscarDetalle(Integer idEvento, Integer idDetalle) {
@@ -121,9 +126,11 @@ public class DetalleEventoServiceImpl implements DetalleEventoService {
         return detalle;
     }
 
-    private void aplicar(DetalleEventoRequest request, DetalleEvento detalle) {
+    private void aplicar(DetalleEventoRequest request, MenuPlato menuPlato, DetalleEvento detalle) {
+        detalle.setMenu(menuPlato.getMenu());
+        detalle.setPlato(menuPlato.getPlato());
         detalle.setCantidadPlatos(request.cantidadPlatos());
-        detalle.setPrecioUnitario(request.precioUnitario());
+        detalle.setPrecioUnitario(menuPlato.getPrecioUnitario());
         detalle.setObservaciones(request.observaciones());
     }
 }

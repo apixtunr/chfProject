@@ -8,21 +8,26 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { finalize, timer, zip } from 'rxjs';
 import { AuthService } from '../../../core/auth/auth.service';
 import { EstadoResponse } from '../../../core/catalogos/estado';
 import { EstadoService } from '../../../core/catalogos/estado.service';
-import { MenuResponse } from '../../../core/catalogos/menu';
+import { MenuPlatoResponse, MenuResponse } from '../../../core/catalogos/menu';
 import { MenuService } from '../../../core/catalogos/menu.service';
+import { TipoServicioResponse } from '../../../core/catalogos/tipo-servicio';
+import { TipoServicioService } from '../../../core/catalogos/tipo-servicio.service';
 import { ConfirmDialog } from '../../../shared/confirm-dialog/confirm-dialog';
 import { CotizacionService } from '../cotizacion.service';
 import {
   CotizacionResponse,
   CotizacionVersionResponse,
   DetalleCotizacionResponse,
+  ServicioCotizacionResponse,
   TRANSICIONES_VALIDAS,
 } from '../dto/cotizacion';
 
@@ -44,6 +49,7 @@ const TIPO_ESTADO_COTIZACION = 'COTIZACION';
     MatIconModule,
     MatChipsModule,
     MatDialogModule,
+    MatProgressSpinnerModule,
   ],
   templateUrl: './version-detalle.html',
   styleUrl: './version-detalle.scss',
@@ -53,6 +59,7 @@ export class VersionDetalle implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly cotizacionService = inject(CotizacionService);
   private readonly menuService = inject(MenuService);
+  private readonly tipoServicioService = inject(TipoServicioService);
   private readonly estadoService = inject(EstadoService);
   private readonly authService = inject(AuthService);
   private readonly dialog = inject(MatDialog);
@@ -72,12 +79,22 @@ export class VersionDetalle implements OnInit {
     return presupuesto != null && total != null && total > presupuesto;
   });
   readonly menus = signal<MenuResponse[]>([]);
+  /** Platos disponibles dentro del menu (categoria) elegido en el formulario. */
+  readonly platosDelMenu = signal<MenuPlatoResponse[]>([]);
+  readonly precioSeleccionado = signal<number | null>(null);
   readonly estadosCotizacion = signal<EstadoResponse[]>([]);
   readonly idDetalleEditando = signal<number | null>(null);
+  readonly descargandoPdf = signal(false);
+
+  readonly servicios = signal<ServicioCotizacionResponse[]>([]);
+  readonly tiposServicio = signal<TipoServicioResponse[]>([]);
+  readonly idServicioEditando = signal<number | null>(null);
 
   readonly columnas = ['menu', 'cantidad', 'precio', 'subtotal', 'acciones'];
+  readonly columnasServicios = ['tipo', 'descripcion', 'monto', 'acciones'];
 
   readonly formulario = this.crearFormulario();
+  readonly formularioServicio = this.crearFormularioServicio();
 
   constructor() {
     this.idCotizacion = Number(this.route.snapshot.paramMap.get('id'));
@@ -87,9 +104,17 @@ export class VersionDetalle implements OnInit {
   private crearFormulario() {
     return this.fb.nonNullable.group({
       idMenu: this.fb.control<number | null>(null, Validators.required),
+      idPlato: this.fb.control<number | null>(null, Validators.required),
       cantidadPlatos: [1, [Validators.required, Validators.min(1)]],
-      precioUnitario: this.fb.control<number | null>(null, Validators.required),
       observaciones: [''],
+    });
+  }
+
+  private crearFormularioServicio() {
+    return this.fb.nonNullable.group({
+      idTipoServicio: this.fb.control<number | null>(null, Validators.required),
+      descripcion: [''],
+      monto: this.fb.control<number | null>(null, [Validators.required, Validators.min(0)]),
     });
   }
 
@@ -116,29 +141,55 @@ export class VersionDetalle implements OnInit {
 
   ngOnInit(): void {
     this.menuService.listarActivos().subscribe((menus) => this.menus.set(menus));
+    this.tipoServicioService.listar().subscribe((tipos) => this.tiposServicio.set(tipos));
     this.estadoService.listarPorTipo(TIPO_ESTADO_COTIZACION).subscribe((estados) => this.estadosCotizacion.set(estados));
     this.cargar();
+
+    this.formulario.controls.idMenu.valueChanges.subscribe((idMenu) => {
+      this.formulario.controls.idPlato.setValue(null);
+      this.precioSeleccionado.set(null);
+      if (idMenu == null) {
+        this.platosDelMenu.set([]);
+        return;
+      }
+      this.menuService.listarPlatosDeMenu(idMenu).subscribe((platos) => this.platosDelMenu.set(platos));
+    });
+
+    this.formulario.controls.idPlato.valueChanges.subscribe((idPlato) => {
+      const plato = this.platosDelMenu().find((p) => p.idPlato === idPlato);
+      this.precioSeleccionado.set(plato?.precioUnitario ?? null);
+    });
   }
 
   cargar(): void {
     this.cotizacionService.obtener(this.idCotizacion).subscribe((c) => this.cotizacion.set(c));
     this.cotizacionService.obtenerVersion(this.idVersion).subscribe((v) => this.version.set(v));
     this.cotizacionService.listarDetalle(this.idVersion).subscribe((d) => this.detalles.set(d));
+    this.cotizacionService.listarServicios(this.idVersion).subscribe((s) => this.servicios.set(s));
   }
 
   editarLinea(detalle: DetalleCotizacionResponse): void {
     this.idDetalleEditando.set(detalle.idDetalleCotizacion);
-    this.formulario.setValue({
-      idMenu: detalle.idMenu,
-      cantidadPlatos: detalle.cantidadPlatos,
-      precioUnitario: detalle.precioUnitario,
-      observaciones: detalle.observaciones ?? '',
+    this.menuService.listarPlatosDeMenu(detalle.idMenu).subscribe((platos) => {
+      this.platosDelMenu.set(platos);
+      this.formulario.setValue(
+        {
+          idMenu: detalle.idMenu,
+          idPlato: detalle.idPlato,
+          cantidadPlatos: detalle.cantidadPlatos,
+          observaciones: detalle.observaciones ?? '',
+        },
+        { emitEvent: false },
+      );
+      this.precioSeleccionado.set(detalle.precioUnitario);
     });
   }
 
   cancelarEdicion(): void {
     this.idDetalleEditando.set(null);
-    this.formulario.reset({ idMenu: null, cantidadPlatos: 1, precioUnitario: null, observaciones: '' });
+    this.platosDelMenu.set([]);
+    this.precioSeleccionado.set(null);
+    this.formulario.reset({ idMenu: null, idPlato: null, cantidadPlatos: 1, observaciones: '' });
   }
 
   guardarLinea(): void {
@@ -150,8 +201,8 @@ export class VersionDetalle implements OnInit {
     const valores = this.formulario.getRawValue();
     const request = {
       idMenu: valores.idMenu!,
+      idPlato: valores.idPlato!,
       cantidadPlatos: valores.cantidadPlatos,
-      precioUnitario: valores.precioUnitario!,
       observaciones: valores.observaciones || null,
     };
 
@@ -169,7 +220,7 @@ export class VersionDetalle implements OnInit {
 
   eliminarLinea(detalle: DetalleCotizacionResponse): void {
     const ref = this.dialog.open(ConfirmDialog, {
-      data: { titulo: 'Eliminar', mensaje: `Quitar "${detalle.nombreMenu}" de la cotización?` },
+      data: { titulo: 'Eliminar', mensaje: `Quitar "${detalle.nombrePlato}" de la cotización?` },
     });
     ref.afterClosed().subscribe((confirmado) => {
       if (!confirmado) {
@@ -177,6 +228,62 @@ export class VersionDetalle implements OnInit {
       }
       this.cotizacionService.eliminarDetalle(this.idVersion, detalle.idDetalleCotizacion).subscribe(() => {
         this.snackBar.open('Linea eliminada', 'Cerrar', { duration: 3000 });
+        this.cargar();
+      });
+    });
+  }
+
+  // --- Servicios extra (bebidas, decoracion, personal, etc.) ---
+
+  editarServicio(servicio: ServicioCotizacionResponse): void {
+    this.idServicioEditando.set(servicio.idServicioCotizacion);
+    this.formularioServicio.setValue({
+      idTipoServicio: servicio.idTipoServicio,
+      descripcion: servicio.descripcion ?? '',
+      monto: servicio.monto,
+    });
+  }
+
+  cancelarEdicionServicio(): void {
+    this.idServicioEditando.set(null);
+    this.formularioServicio.reset({ idTipoServicio: null, descripcion: '', monto: null });
+  }
+
+  guardarServicio(): void {
+    if (this.formularioServicio.invalid) {
+      this.formularioServicio.markAllAsTouched();
+      return;
+    }
+
+    const valores = this.formularioServicio.getRawValue();
+    const request = {
+      idTipoServicio: valores.idTipoServicio!,
+      descripcion: valores.descripcion || null,
+      monto: valores.monto!,
+    };
+
+    const idEditando = this.idServicioEditando();
+    const operacion = idEditando
+      ? this.cotizacionService.actualizarServicio(this.idVersion, idEditando, request)
+      : this.cotizacionService.agregarServicio(this.idVersion, request);
+
+    operacion.subscribe(() => {
+      this.snackBar.open(idEditando ? 'Servicio actualizado' : 'Servicio agregado', 'Cerrar', { duration: 3000 });
+      this.cancelarEdicionServicio();
+      this.cargar();
+    });
+  }
+
+  eliminarServicio(servicio: ServicioCotizacionResponse): void {
+    const ref = this.dialog.open(ConfirmDialog, {
+      data: { titulo: 'Eliminar', mensaje: `¿Quitar "${servicio.tipoServicioNombre}" de la cotización?` },
+    });
+    ref.afterClosed().subscribe((confirmado) => {
+      if (!confirmado) {
+        return;
+      }
+      this.cotizacionService.eliminarServicio(this.idVersion, servicio.idServicioCotizacion).subscribe(() => {
+        this.snackBar.open('Servicio eliminado', 'Cerrar', { duration: 3000 });
         this.cargar();
       });
     });
@@ -198,13 +305,17 @@ export class VersionDetalle implements OnInit {
   }
 
   descargarPdf(): void {
-    this.cotizacionService.descargarPdf(this.idVersion).subscribe((blob) => {
-      const url = URL.createObjectURL(blob);
-      const enlace = document.createElement('a');
-      enlace.href = url;
-      enlace.download = `cotizacion-${this.idVersion}.pdf`;
-      enlace.click();
-      URL.revokeObjectURL(url);
-    });
+    this.descargandoPdf.set(true);
+    // Espera minima para que el spinner sea perceptible incluso si el PDF llega al instante.
+    zip(this.cotizacionService.descargarPdf(this.idVersion), timer(500))
+      .pipe(finalize(() => this.descargandoPdf.set(false)))
+      .subscribe(([blob]) => {
+        const url = URL.createObjectURL(blob);
+        const enlace = document.createElement('a');
+        enlace.href = url;
+        enlace.download = `cotizacion-${this.idVersion}.pdf`;
+        enlace.click();
+        URL.revokeObjectURL(url);
+      });
   }
 }

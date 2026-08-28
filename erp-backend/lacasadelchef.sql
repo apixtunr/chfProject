@@ -267,9 +267,19 @@ CREATE TABLE menu_plato (
 -- 7. COTIZACIONES (con versionado)
 -- ============================================================================
 
+CREATE TABLE tipo_evento (
+    id_tipo_evento      INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    nombre_tipo         VARCHAR(80) NOT NULL UNIQUE,
+    fecha_creacion      TIMESTAMP NOT NULL DEFAULT NOW(),
+    fecha_modificacion  TIMESTAMP
+);
+
 CREATE TABLE cotizacion (
     id_cotizacion       INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     id_cliente          INT NOT NULL REFERENCES cliente(id_cliente),
+    id_tipo_evento      INT NOT NULL REFERENCES tipo_evento(id_tipo_evento),
+    id_ubicacion        INT NOT NULL REFERENCES ubicacion(id_ubicacion),
+    cantidad_personas   INT NOT NULL CHECK (cantidad_personas > 0),
     fecha_cotizacion    DATE NOT NULL DEFAULT CURRENT_DATE,
     fecha_evento        DATE,
     presupuesto_cliente NUMERIC(12,2),
@@ -293,24 +303,47 @@ CREATE TABLE detalle_cotizacion (
     id_detalle_cotizacion INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     id_cotizacion_version INT NOT NULL REFERENCES cotizacion_version(id_cotizacion_version),
     id_menu             INT NOT NULL REFERENCES menu(id_menu),
+    id_plato            INT NOT NULL REFERENCES plato(id_plato),
     cantidad_platos     INT NOT NULL CHECK (cantidad_platos > 0),
     precio_unitario     NUMERIC(12,2) NOT NULL CHECK (precio_unitario >= 0),
     subtotal            NUMERIC(12,2) GENERATED ALWAYS AS (cantidad_platos * precio_unitario) STORED,
     observaciones       VARCHAR(255),
     fecha_creacion      TIMESTAMP NOT NULL DEFAULT NOW(),
+    fecha_modificacion  TIMESTAMP,
+    FOREIGN KEY (id_menu, id_plato) REFERENCES menu_plato(id_menu, id_plato)
+);
+
+CREATE TABLE tipo_costo (
+    id_tipo_costo       INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    nombre_tipo         VARCHAR(80) NOT NULL UNIQUE,
+    descripcion         VARCHAR(255),
+    fecha_creacion      TIMESTAMP NOT NULL DEFAULT NOW(),
     fecha_modificacion  TIMESTAMP
+);
+
+-- Catalogo de servicios extra no-menu que se cotizan al cliente (bebidas, decoracion,
+-- personal...). Distinto de tipo_costo, que son gastos internos del negocio.
+CREATE TABLE tipo_servicio (
+    id_tipo_servicio    INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    nombre_tipo         VARCHAR(80) NOT NULL UNIQUE,
+    descripcion         VARCHAR(255),
+    fecha_creacion      TIMESTAMP NOT NULL DEFAULT NOW(),
+    fecha_modificacion  TIMESTAMP
+);
+
+CREATE TABLE servicio_cotizacion (
+    id_servicio_cotizacion INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id_cotizacion_version  INT NOT NULL REFERENCES cotizacion_version(id_cotizacion_version),
+    id_tipo_servicio       INT NOT NULL REFERENCES tipo_servicio(id_tipo_servicio),
+    descripcion            VARCHAR(255),
+    monto                  NUMERIC(12,2) NOT NULL CHECK (monto >= 0),
+    fecha_creacion         TIMESTAMP NOT NULL DEFAULT NOW(),
+    fecha_modificacion     TIMESTAMP
 );
 
 -- ============================================================================
 -- 8. EVENTOS
 -- ============================================================================
-
-CREATE TABLE tipo_evento (
-    id_tipo_evento      INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    nombre_tipo         VARCHAR(80) NOT NULL UNIQUE,
-    fecha_creacion      TIMESTAMP NOT NULL DEFAULT NOW(),
-    fecha_modificacion  TIMESTAMP
-);
 
 -- Ajuste 10: id_cotizacion_version es nullable y se agrega id_cliente para permitir
 -- eventos directos (sin pasar por cotizacion). Si id_cotizacion_version esta presente,
@@ -339,20 +372,14 @@ CREATE TABLE detalle_evento (
     id_detalle_evento   INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     id_evento           INT NOT NULL REFERENCES evento(id_evento),
     id_menu             INT NOT NULL REFERENCES menu(id_menu),
+    id_plato            INT NOT NULL REFERENCES plato(id_plato),
     cantidad_platos     INT NOT NULL CHECK (cantidad_platos > 0),
     precio_unitario     NUMERIC(12,2) NOT NULL CHECK (precio_unitario >= 0),
     subtotal            NUMERIC(12,2) GENERATED ALWAYS AS (cantidad_platos * precio_unitario) STORED,
     observaciones       VARCHAR(255),
     fecha_creacion      TIMESTAMP NOT NULL DEFAULT NOW(),
-    fecha_modificacion  TIMESTAMP
-);
-
-CREATE TABLE tipo_costo (
-    id_tipo_costo       INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    nombre_tipo         VARCHAR(80) NOT NULL UNIQUE,
-    descripcion         VARCHAR(255),
-    fecha_creacion      TIMESTAMP NOT NULL DEFAULT NOW(),
-    fecha_modificacion  TIMESTAMP
+    fecha_modificacion  TIMESTAMP,
+    FOREIGN KEY (id_menu, id_plato) REFERENCES menu_plato(id_menu, id_plato)
 );
 
 CREATE TABLE costo_evento (
@@ -574,7 +601,8 @@ CREATE TRIGGER trg_movimiento_stock
 AFTER INSERT ON movimiento_inventario
 FOR EACH ROW EXECUTE FUNCTION fn_actualizar_stock();
 
--- 12.3 monto_total de la version de cotizacion
+-- 12.3 monto_total de la version de cotizacion: suma el detalle de menu/plato
+-- y los servicios extra no-menu (bebidas, decoracion, personal, etc.)
 CREATE OR REPLACE FUNCTION fn_actualizar_monto_version()
 RETURNS TRIGGER AS $$
 DECLARE v_id INT;
@@ -584,6 +612,9 @@ BEGIN
        SET monto_total = COALESCE((
             SELECT SUM(subtotal) FROM detalle_cotizacion
             WHERE id_cotizacion_version = v_id), 0)
+          + COALESCE((
+            SELECT SUM(monto) FROM servicio_cotizacion
+            WHERE id_cotizacion_version = v_id), 0)
      WHERE id_cotizacion_version = v_id;
     RETURN NULL;
 END;
@@ -591,6 +622,10 @@ $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER trg_detalle_monto_total
 AFTER INSERT OR UPDATE OR DELETE ON detalle_cotizacion
+FOR EACH ROW EXECUTE FUNCTION fn_actualizar_monto_version();
+
+CREATE TRIGGER trg_servicio_cotizacion_monto_total
+AFTER INSERT OR UPDATE OR DELETE ON servicio_cotizacion
 FOR EACH ROW EXECUTE FUNCTION fn_actualizar_monto_version();
 
 CREATE OR REPLACE FUNCTION fn_actualizar_monto_evento()
@@ -745,7 +780,8 @@ FROM (VALUES
     ('Lineas de vehiculo',       11, '/api/lineas-vehiculo'),
     ('Tipos de placa',           12, '/api/tipos-placa'),
     ('Tipos de inventario',      13, '/api/tipos-inventario'),
-    ('Categorias de producto',   14, '/api/categorias-producto')
+    ('Categorias de producto',   14, '/api/categorias-producto'),
+    ('Tipos de servicio',        15, '/api/tipos-servicio')
 ) AS o(nombre_opcion, orden, pagina_url)
 JOIN modulo m ON m.nombre = 'Administracion'
 JOIN menu_vista mv ON mv.id_modulo = m.id_modulo AND mv.nombre = 'Catalogos';

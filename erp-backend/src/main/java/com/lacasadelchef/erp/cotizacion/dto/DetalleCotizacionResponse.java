@@ -12,6 +12,8 @@ public record DetalleCotizacionResponse(
         Integer idCotizacionVersion,
         Integer idMenu,
         String nombreMenu,
+        Integer idPlato,
+        String nombrePlato,
         Integer cantidadPlatos,
         BigDecimal precioUnitario,
         BigDecimal subtotal,
@@ -31,6 +33,8 @@ public record DetalleCotizacionResponse(
                 .idCotizacionVersion(detalle.getCotizacionVersion().getIdCotizacionVersion())
                 .idMenu(detalle.getMenu().getIdMenu())
                 .nombreMenu(detalle.getMenu().getNombreMenu())
+                .idPlato(detalle.getPlato().getIdPlato())
+                .nombrePlato(detalle.getPlato().getNombrePlato())
                 .cantidadPlatos(detalle.getCantidadPlatos())
                 .precioUnitario(detalle.getPrecioUnitario())
                 .subtotal(detalle.getSubtotal())

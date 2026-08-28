@@ -16,7 +16,7 @@ import { ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../../core/auth/auth.service';
 import { EstadoResponse } from '../../../core/catalogos/estado';
 import { EstadoService } from '../../../core/catalogos/estado.service';
-import { MenuResponse } from '../../../core/catalogos/menu';
+import { MenuPlatoResponse, MenuResponse } from '../../../core/catalogos/menu';
 import { MenuService } from '../../../core/catalogos/menu.service';
 import { ProductoResponse } from '../../../core/catalogos/producto';
 import { ProductoService } from '../../../core/catalogos/producto.service';
@@ -27,6 +27,8 @@ import { EmpleadoResponse } from '../../empleados/dto/empleado';
 import { EmpleadoService } from '../../empleados/empleado.service';
 import { VehiculoResponse } from '../../vehiculos/dto/vehiculo';
 import { VehiculoService } from '../../vehiculos/vehiculo.service';
+import { CotizacionService } from '../../cotizaciones/cotizacion.service';
+import { DetalleCotizacionResponse, ServicioCotizacionResponse } from '../../cotizaciones/dto/cotizacion';
 import {
   CostoEventoResponse,
   DetalleEventoResponse,
@@ -69,6 +71,7 @@ export class EventoDetail implements OnInit {
   private readonly productoService = inject(ProductoService);
   private readonly tipoCostoService = inject(TipoCostoService);
   private readonly menuService = inject(MenuService);
+  private readonly cotizacionService = inject(CotizacionService);
   private readonly estadoService = inject(EstadoService);
   private readonly authService = inject(AuthService);
   private readonly dialog = inject(MatDialog);
@@ -81,6 +84,9 @@ export class EventoDetail implements OnInit {
   readonly vehiculos = signal<EventoVehiculoResponse[]>([]);
   readonly inventario = signal<EventoInventarioResponse[]>([]);
   readonly detalleMenu = signal<DetalleEventoResponse[]>([]);
+  /** Cuando el evento nacio de una cotizacion, su menu es el que ahi se acepto (solo lectura). */
+  readonly detalleCotizacionOrigen = signal<DetalleCotizacionResponse[]>([]);
+  readonly serviciosCotizacionOrigen = signal<ServicioCotizacionResponse[]>([]);
 
   readonly empleadosDisponibles = signal<EmpleadoResponse[]>([]);
   readonly vehiculosDisponibles = signal<VehiculoResponse[]>([]);
@@ -88,12 +94,16 @@ export class EventoDetail implements OnInit {
   readonly tiposCosto = signal<TipoCostoResponse[]>([]);
   readonly estadosEvento = signal<EstadoResponse[]>([]);
   readonly menusDisponibles = signal<MenuResponse[]>([]);
+  readonly platosDelMenu = signal<MenuPlatoResponse[]>([]);
+  readonly precioSeleccionado = signal<number | null>(null);
 
   readonly columnasCostos = ['tipo', 'descripcion', 'monto', 'fecha', 'acciones'];
   readonly columnasPersonal = ['empleado', 'salario', 'horario', 'acciones'];
   readonly columnasVehiculos = ['placa', 'conductor', 'acciones'];
   readonly columnasInventario = ['producto', 'cantidad', 'consumo', 'acciones'];
   readonly columnasMenu = ['menu', 'cantidad', 'precio', 'subtotal', 'acciones'];
+  readonly columnasMenuCotizacion = ['menu', 'cantidad', 'precio', 'subtotal'];
+  readonly columnasServiciosCotizacion = ['tipo', 'descripcion', 'monto'];
 
   readonly formularioCosto = this.fb.nonNullable.group({
     idTipoCosto: this.fb.control<number | null>(null, Validators.required),
@@ -120,8 +130,8 @@ export class EventoDetail implements OnInit {
 
   readonly formularioMenu = this.fb.nonNullable.group({
     idMenu: this.fb.control<number | null>(null, Validators.required),
+    idPlato: this.fb.control<number | null>(null, Validators.required),
     cantidadPlatos: [1, [Validators.required, Validators.min(1)]],
-    precioUnitario: this.fb.control<number | null>(null, Validators.required),
     observaciones: [''],
   });
 
@@ -162,10 +172,31 @@ export class EventoDetail implements OnInit {
     this.estadoService.listarPorTipo(TIPO_ESTADO_EVENTO).subscribe((e) => this.estadosEvento.set(e));
     this.menuService.listarActivos().subscribe((m) => this.menusDisponibles.set(m));
     this.cargar();
+
+    this.formularioMenu.controls.idMenu.valueChanges.subscribe((idMenu) => {
+      this.formularioMenu.controls.idPlato.setValue(null);
+      this.precioSeleccionado.set(null);
+      if (idMenu == null) {
+        this.platosDelMenu.set([]);
+        return;
+      }
+      this.menuService.listarPlatosDeMenu(idMenu).subscribe((platos) => this.platosDelMenu.set(platos));
+    });
+
+    this.formularioMenu.controls.idPlato.valueChanges.subscribe((idPlato) => {
+      const plato = this.platosDelMenu().find((p) => p.idPlato === idPlato);
+      this.precioSeleccionado.set(plato?.precioUnitario ?? null);
+    });
   }
 
   cargar(): void {
-    this.eventoService.obtener(this.idEvento).subscribe((e) => this.evento.set(e));
+    this.eventoService.obtener(this.idEvento).subscribe((e) => {
+      this.evento.set(e);
+      if (e.idCotizacionVersion !== null) {
+        this.cotizacionService.listarDetalle(e.idCotizacionVersion).subscribe((d) => this.detalleCotizacionOrigen.set(d));
+        this.cotizacionService.listarServicios(e.idCotizacionVersion).subscribe((s) => this.serviciosCotizacionOrigen.set(s));
+      }
+    });
     this.eventoService.listarCostos(this.idEvento).subscribe((c) => this.costos.set(c));
     this.eventoService.listarPersonal(this.idEvento).subscribe((p) => this.personal.set(p));
     this.eventoService.listarVehiculos(this.idEvento).subscribe((v) => this.vehiculos.set(v));
@@ -302,12 +333,14 @@ export class EventoDetail implements OnInit {
     this.eventoService
       .agregarDetalle(this.idEvento, {
         idMenu: v.idMenu!,
+        idPlato: v.idPlato!,
         cantidadPlatos: v.cantidadPlatos,
-        precioUnitario: v.precioUnitario!,
         observaciones: v.observaciones || null,
       })
       .subscribe(() => {
-        this.formularioMenu.reset({ idMenu: null, cantidadPlatos: 1, precioUnitario: null, observaciones: '' });
+        this.platosDelMenu.set([]);
+        this.precioSeleccionado.set(null);
+        this.formularioMenu.reset({ idMenu: null, idPlato: null, cantidadPlatos: 1, observaciones: '' });
         this.cargar();
       });
   }

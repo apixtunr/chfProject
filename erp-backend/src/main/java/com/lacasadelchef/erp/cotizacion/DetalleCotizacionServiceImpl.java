@@ -9,8 +9,11 @@ import com.lacasadelchef.erp.cotizacion.dto.DetalleCotizacionResponse;
 import com.lacasadelchef.erp.entity.CotizacionVersion;
 import com.lacasadelchef.erp.entity.DetalleCotizacion;
 import com.lacasadelchef.erp.entity.Menu;
+import com.lacasadelchef.erp.entity.MenuPlato;
+import com.lacasadelchef.erp.entity.id.MenuPlatoId;
 import com.lacasadelchef.erp.repository.CotizacionVersionRepository;
 import com.lacasadelchef.erp.repository.DetalleCotizacionRepository;
+import com.lacasadelchef.erp.repository.MenuPlatoRepository;
 import com.lacasadelchef.erp.repository.MenuRepository;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +33,7 @@ public class DetalleCotizacionServiceImpl implements DetalleCotizacionService {
     private final DetalleCotizacionRepository detalleCotizacionRepository;
     private final CotizacionVersionRepository cotizacionVersionRepository;
     private final MenuRepository menuRepository;
+    private final MenuPlatoRepository menuPlatoRepository;
     private final BitacoraMovimientoService bitacoraMovimientoService;
     private final EntityManager entityManager;
 
@@ -45,12 +49,11 @@ public class DetalleCotizacionServiceImpl implements DetalleCotizacionService {
     @Transactional
     public DetalleCotizacionResponse agregar(Integer idCotizacionVersion, DetalleCotizacionRequest request) {
         CotizacionVersion version = buscarVersionEditable(idCotizacionVersion);
-        Menu menu = buscarMenu(request.idMenu());
+        MenuPlato menuPlato = buscarMenuPlato(request.idMenu(), request.idPlato());
 
         DetalleCotizacion detalle = new DetalleCotizacion();
         detalle.setCotizacionVersion(version);
-        detalle.setMenu(menu);
-        aplicar(request, detalle);
+        aplicar(request, menuPlato, detalle);
         detalle = detalleCotizacionRepository.save(detalle);
 
         entityManager.refresh(version);
@@ -63,9 +66,8 @@ public class DetalleCotizacionServiceImpl implements DetalleCotizacionService {
     public DetalleCotizacionResponse actualizar(Integer idCotizacionVersion, Integer idDetalle, DetalleCotizacionRequest request) {
         DetalleCotizacion detalle = buscarDetalle(idCotizacionVersion, idDetalle);
         validarEditable(detalle.getCotizacionVersion());
-        Menu menu = buscarMenu(request.idMenu());
-        detalle.setMenu(menu);
-        aplicar(request, detalle);
+        MenuPlato menuPlato = buscarMenuPlato(request.idMenu(), request.idPlato());
+        aplicar(request, menuPlato, detalle);
         detalle = detalleCotizacionRepository.save(detalle);
 
         CotizacionVersion version = detalle.getCotizacionVersion();
@@ -98,14 +100,17 @@ public class DetalleCotizacionServiceImpl implements DetalleCotizacionService {
         }
     }
 
-    private Menu buscarMenu(Integer idMenu) {
+    /** El precio nunca lo manda el cliente: se toma del menu_plato configurado en Administracion. */
+    private MenuPlato buscarMenuPlato(Integer idMenu, Integer idPlato) {
         Menu menu = menuRepository.findById(idMenu)
                 .orElseThrow(() -> new ResourceNotFoundException("Menu", idMenu));
         if (!ESTADO_ACTIVO.equalsIgnoreCase(menu.getEstado().getNombre())) {
             throw new BusinessException(
                     "El menu '%s' no esta activo y no se puede cotizar".formatted(menu.getNombreMenu()));
         }
-        return menu;
+        return menuPlatoRepository.findById(new MenuPlatoId(idMenu, idPlato))
+                .orElseThrow(() -> new BusinessException(
+                        "Ese plato no pertenece al menu '%s'".formatted(menu.getNombreMenu())));
     }
 
     private DetalleCotizacion buscarDetalle(Integer idCotizacionVersion, Integer idDetalle) {
@@ -117,9 +122,11 @@ public class DetalleCotizacionServiceImpl implements DetalleCotizacionService {
         return detalle;
     }
 
-    private void aplicar(DetalleCotizacionRequest request, DetalleCotizacion detalle) {
+    private void aplicar(DetalleCotizacionRequest request, MenuPlato menuPlato, DetalleCotizacion detalle) {
+        detalle.setMenu(menuPlato.getMenu());
+        detalle.setPlato(menuPlato.getPlato());
         detalle.setCantidadPlatos(request.cantidadPlatos());
-        detalle.setPrecioUnitario(request.precioUnitario());
+        detalle.setPrecioUnitario(menuPlato.getPrecioUnitario());
         detalle.setObservaciones(request.observaciones());
     }
 }

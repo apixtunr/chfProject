@@ -13,6 +13,11 @@ public record CotizacionResponse(
         Integer idCotizacion,
         Integer idCliente,
         String clienteNombre,
+        Integer idTipoEvento,
+        String tipoEventoNombre,
+        Integer idUbicacion,
+        String direccionUbicacion,
+        Integer cantidadPersonas,
         LocalDate fechaCotizacion,
         LocalDate fechaEvento,
         BigDecimal presupuestoCliente,
@@ -30,6 +35,11 @@ public record CotizacionResponse(
                 .idCotizacion(cotizacion.getIdCotizacion())
                 .idCliente(cotizacion.getCliente().getIdCliente())
                 .clienteNombre(cotizacion.getCliente().getNombre())
+                .idTipoEvento(cotizacion.getTipoEvento().getIdTipoEvento())
+                .tipoEventoNombre(cotizacion.getTipoEvento().getNombreTipo())
+                .idUbicacion(cotizacion.getUbicacion().getIdUbicacion())
+                .direccionUbicacion(cotizacion.getUbicacion().getDireccion())
+                .cantidadPersonas(cotizacion.getCantidadPersonas())
                 .fechaCotizacion(cotizacion.getFechaCotizacion())
                 .fechaEvento(cotizacion.getFechaEvento())
                 .presupuestoCliente(cotizacion.getPresupuestoCliente())

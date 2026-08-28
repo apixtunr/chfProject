@@ -1,12 +1,17 @@
 /** Espeja evento/dto/*.java del backend. */
 export interface EventoRequest {
   idCotizacionVersion: number | null;
+  /** Obligatorio solo si idCotizacionVersion viene vacio (evento directo). */
   idCliente: number | null;
-  idTipoEvento: number;
-  idUbicacion: number;
-  fechaEvento: string;
+  /** Obligatorio solo si idCotizacionVersion viene vacio; si no, se toma de la cotizacion. */
+  idTipoEvento: number | null;
+  /** Obligatorio solo si idCotizacionVersion viene vacio; si no, se toma de la cotizacion. */
+  idUbicacion: number | null;
+  /** Obligatoria solo si idCotizacionVersion viene vacio; si no, se toma de la cotizacion. */
+  fechaEvento: string | null;
   horaInicio: string | null;
   horaFin: string | null;
+  /** Obligatoria solo si idCotizacionVersion viene vacio; si no, se toma de la cotizacion. */
   cantidadPersonas: number | null;
   observaciones: string | null;
 }
@@ -34,8 +39,8 @@ export interface EventoResponse {
 
 export interface DetalleEventoRequest {
   idMenu: number;
+  idPlato: number;
   cantidadPlatos: number;
-  precioUnitario: number;
   observaciones: string | null;
 }
 
@@ -44,6 +49,8 @@ export interface DetalleEventoResponse {
   idEvento: number;
   idMenu: number;
   nombreMenu: string;
+  idPlato: number;
+  nombrePlato: string;
   cantidadPlatos: number;
   precioUnitario: number;
   subtotal: number;

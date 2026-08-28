@@ -12,6 +12,8 @@ public record DetalleEventoResponse(
         Integer idEvento,
         Integer idMenu,
         String nombreMenu,
+        Integer idPlato,
+        String nombrePlato,
         Integer cantidadPlatos,
         BigDecimal precioUnitario,
         BigDecimal subtotal,
@@ -31,6 +33,8 @@ public record DetalleEventoResponse(
                 .idEvento(detalle.getEvento().getIdEvento())
                 .idMenu(detalle.getMenu().getIdMenu())
                 .nombreMenu(detalle.getMenu().getNombreMenu())
+                .idPlato(detalle.getPlato().getIdPlato())
+                .nombrePlato(detalle.getPlato().getNombrePlato())
                 .cantidadPlatos(detalle.getCantidadPlatos())
                 .precioUnitario(detalle.getPrecioUnitario())
                 .subtotal(detalle.getSubtotal())

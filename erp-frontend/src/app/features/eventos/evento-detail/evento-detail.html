@@ -6,13 +6,13 @@
         <mat-chip highlighted>{{ e.estadoNombre }}</mat-chip>
       </h1>
       <p><strong>Cliente:</strong> {{ e.clienteNombre }}</p>
-      <p><strong>Ubicacion:</strong> {{ e.direccionUbicacion }}</p>
+      <p><strong>Ubicación:</strong> {{ e.direccionUbicacion }}</p>
       <p><strong>Fecha:</strong> {{ e.fechaEvento | date: 'dd/MM/yyyy' }} {{ e.horaInicio }} - {{ e.horaFin }}</p>
       @if (e.cantidadPersonas) {
         <p><strong>Personas:</strong> {{ e.cantidadPersonas }}</p>
       }
       @if (e.idCotizacionVersion === null) {
-        <p><strong>Total del menu:</strong> Q{{ e.montoMenu | number: '1.2-2' }}</p>
+        <p><strong>Total del menú:</strong> Q{{ e.montoMenu | number: '1.2-2' }}</p>
       }
     </div>
 
@@ -26,27 +26,82 @@
   </div>
 
   <mat-tab-group>
-    <mat-tab label="Menu">
+    <mat-tab label="Menú">
       <div class="contenido-tab">
         @if (e.idCotizacionVersion !== null) {
-          <p class="aviso-menu">
-            Este evento nacio de una cotizacion; su menu se define en el detalle de esa cotizacion, no aqui.
-          </p>
-        } @else if (e.estadoNombre !== 'PLANIFICADO') {
-          <p class="aviso-menu">
-            El menu solo se puede modificar mientras el evento esta en estado PLANIFICADO (actual: {{ e.estadoNombre }}).
-          </p>
-        }
+          <p><strong class="aviso-menu">
+            DETALLE:
+          </strong></p>
 
-        @if (puedeEditarMenu) {
+          <table mat-table [dataSource]="detalleCotizacionOrigen()" class="tabla">
+            <ng-container matColumnDef="menu">
+              <th mat-header-cell *matHeaderCellDef>Menú / Plato</th>
+              <td mat-cell *matCellDef="let d">{{ d.nombreMenu }} - {{ d.nombrePlato }}</td>
+            </ng-container>
+            <ng-container matColumnDef="cantidad">
+              <th mat-header-cell *matHeaderCellDef>Cantidad</th>
+              <td mat-cell *matCellDef="let d">{{ d.cantidadPlatos }}</td>
+            </ng-container>
+            <ng-container matColumnDef="precio">
+              <th mat-header-cell *matHeaderCellDef>Precio unit.</th>
+              <td mat-cell *matCellDef="let d">Q{{ d.precioUnitario | number: '1.2-2' }}</td>
+            </ng-container>
+            <ng-container matColumnDef="subtotal">
+              <th mat-header-cell *matHeaderCellDef>Subtotal</th>
+              <td mat-cell *matCellDef="let d">Q{{ d.subtotal | number: '1.2-2' }}</td>
+            </ng-container>
+            <tr mat-header-row *matHeaderRowDef="columnasMenuCotizacion"></tr>
+            <tr mat-row *matRowDef="let row; columns: columnasMenuCotizacion"></tr>
+          </table>
+
+          @if (serviciosCotizacionOrigen().length) {
+            <h3 class="subtitulo-tab">Servicios extra</h3>
+            <table mat-table [dataSource]="serviciosCotizacionOrigen()" class="tabla">
+              <ng-container matColumnDef="tipo">
+                <th mat-header-cell *matHeaderCellDef>Tipo</th>
+                <td mat-cell *matCellDef="let s">{{ s.tipoServicioNombre }}</td>
+              </ng-container>
+              <ng-container matColumnDef="descripcion">
+                <th mat-header-cell *matHeaderCellDef>Descripción</th>
+                <td mat-cell *matCellDef="let s">{{ s.descripcion || '-' }}</td>
+              </ng-container>
+              <ng-container matColumnDef="monto">
+                <th mat-header-cell *matHeaderCellDef>Monto</th>
+                <td mat-cell *matCellDef="let s">Q{{ s.monto | number: '1.2-2' }}</td>
+              </ng-container>
+              <tr mat-header-row *matHeaderRowDef="columnasServiciosCotizacion"></tr>
+              <tr mat-row *matRowDef="let row; columns: columnasServiciosCotizacion"></tr>
+            </table>
+          }
+        } @else {
+          @if (e.estadoNombre !== 'PLANIFICADO') {
+            <p class="aviso-menu">
+              El menú solo se puede modificar mientras el evento esta en estado PLANIFICADO (actual: {{ e.estadoNombre }}).
+            </p>
+          }
+
+          @if (puedeEditarMenu) {
           <form [formGroup]="formularioMenu" (ngSubmit)="agregarLineaMenu()" class="formulario-linea">
             <mat-form-field appearance="outline" class="campo-menu">
-              <mat-label>Menu</mat-label>
+              <mat-label>Menú</mat-label>
               <mat-select formControlName="idMenu">
                 @for (menu of menusDisponibles(); track menu.idMenu) {
                   <mat-option [value]="menu.idMenu">{{ menu.nombreMenu }}</mat-option>
                 }
               </mat-select>
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="campo-menu">
+              <mat-label>Plato</mat-label>
+              <mat-select formControlName="idPlato">
+                @for (plato of platosDelMenu(); track plato.idPlato) {
+                  <mat-option [value]="plato.idPlato">
+                    {{ plato.nombrePlato }} (Q{{ plato.precioUnitario | number: '1.2-2' }})
+                  </mat-option>
+                }
+              </mat-select>
+              @if (formularioMenu.controls.idMenu.value && !platosDelMenu().length) {
+                <mat-hint>Ese menú no tiene platos configurados</mat-hint>
+              }
             </mat-form-field>
             <mat-form-field appearance="outline" class="campo-chico">
               <mat-label>Cantidad</mat-label>
@@ -54,7 +109,8 @@
             </mat-form-field>
             <mat-form-field appearance="outline" class="campo-chico">
               <mat-label>Precio unit. (Q)</mat-label>
-              <input matInput type="number" formControlName="precioUnitario" min="0" />
+              <input matInput type="text" [value]="precioSeleccionado() ?? ''" disabled />
+              <mat-hint>Se toma del plato elegido</mat-hint>
             </mat-form-field>
             <mat-form-field appearance="outline" class="campo-chico">
               <mat-label>Observaciones</mat-label>
@@ -66,8 +122,8 @@
 
         <table mat-table [dataSource]="detalleMenu()" class="tabla">
           <ng-container matColumnDef="menu">
-            <th mat-header-cell *matHeaderCellDef>Menu</th>
-            <td mat-cell *matCellDef="let d">{{ d.nombreMenu }}</td>
+            <th mat-header-cell *matHeaderCellDef>Menú / Plato</th>
+            <td mat-cell *matCellDef="let d">{{ d.nombreMenu }} - {{ d.nombrePlato }}</td>
           </ng-container>
           <ng-container matColumnDef="cantidad">
             <th mat-header-cell *matHeaderCellDef>Cantidad</th>
@@ -92,6 +148,7 @@
           <tr mat-header-row *matHeaderRowDef="columnasMenu"></tr>
           <tr mat-row *matRowDef="let row; columns: columnasMenu"></tr>
         </table>
+        }
       </div>
     </mat-tab>
 
@@ -108,7 +165,7 @@
               </mat-select>
             </mat-form-field>
             <mat-form-field appearance="outline" class="campo-chico">
-              <mat-label>Descripcion</mat-label>
+              <mat-label>Descripción</mat-label>
               <input matInput formControlName="descripcion" />
             </mat-form-field>
             <mat-form-field appearance="outline" class="campo-chico">
@@ -125,7 +182,7 @@
             <td mat-cell *matCellDef="let c">{{ c.tipoCostoNombre }}</td>
           </ng-container>
           <ng-container matColumnDef="descripcion">
-            <th mat-header-cell *matHeaderCellDef>Descripcion</th>
+            <th mat-header-cell *matHeaderCellDef>Descripción</th>
             <td mat-cell *matCellDef="let c">{{ c.descripcion }}</td>
           </ng-container>
           <ng-container matColumnDef="monto">

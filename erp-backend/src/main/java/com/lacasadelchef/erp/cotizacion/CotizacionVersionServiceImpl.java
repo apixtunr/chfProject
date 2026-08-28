@@ -9,10 +9,12 @@ import com.lacasadelchef.erp.entity.Cotizacion;
 import com.lacasadelchef.erp.entity.CotizacionVersion;
 import com.lacasadelchef.erp.entity.DetalleCotizacion;
 import com.lacasadelchef.erp.entity.Estado;
+import com.lacasadelchef.erp.entity.ServicioCotizacion;
 import com.lacasadelchef.erp.repository.CotizacionRepository;
 import com.lacasadelchef.erp.repository.CotizacionVersionRepository;
 import com.lacasadelchef.erp.repository.DetalleCotizacionRepository;
 import com.lacasadelchef.erp.repository.EstadoRepository;
+import com.lacasadelchef.erp.repository.ServicioCotizacionRepository;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -46,6 +48,7 @@ public class CotizacionVersionServiceImpl implements CotizacionVersionService {
     private final CotizacionVersionRepository cotizacionVersionRepository;
     private final CotizacionRepository cotizacionRepository;
     private final DetalleCotizacionRepository detalleCotizacionRepository;
+    private final ServicioCotizacionRepository servicioCotizacionRepository;
     private final EstadoRepository estadoRepository;
     private final BitacoraMovimientoService bitacoraMovimientoService;
     private final EntityManager entityManager;
@@ -98,14 +101,28 @@ public class CotizacionVersionServiceImpl implements CotizacionVersionService {
                 DetalleCotizacion copia = new DetalleCotizacion();
                 copia.setCotizacionVersion(nueva);
                 copia.setMenu(original.getMenu());
+                copia.setPlato(original.getPlato());
                 copia.setCantidadPlatos(original.getCantidadPlatos());
                 copia.setPrecioUnitario(original.getPrecioUnitario());
                 copia.setObservaciones(original.getObservaciones());
                 entityManager.persist(copia);
             }
-            if (!detallesAnteriores.isEmpty()) {
-                // El trigger de detalle_cotizacion actualiza monto_total de otra fila (cotizacion_version);
-                // hay que refrescar para no devolver el valor en cero con el que se creo "nueva".
+
+            List<ServicioCotizacion> serviciosAnteriores =
+                    servicioCotizacionRepository.findByCotizacionVersionIdCotizacionVersion(ultima.getIdCotizacionVersion());
+            for (ServicioCotizacion original : serviciosAnteriores) {
+                ServicioCotizacion copia = new ServicioCotizacion();
+                copia.setCotizacionVersion(nueva);
+                copia.setTipoServicio(original.getTipoServicio());
+                copia.setDescripcion(original.getDescripcion());
+                copia.setMonto(original.getMonto());
+                entityManager.persist(copia);
+            }
+
+            if (!detallesAnteriores.isEmpty() || !serviciosAnteriores.isEmpty()) {
+                // El trigger de detalle_cotizacion/servicio_cotizacion actualiza monto_total de otra
+                // fila (cotizacion_version); hay que refrescar para no devolver el valor en cero con
+                // el que se creo "nueva".
                 entityManager.flush();
                 entityManager.refresh(nueva);
             }

@@ -3,6 +3,9 @@
     <mat-card-content>
       <h1>Cotizacion #{{ c.idCotizacion }}</h1>
       <p><strong>Cliente:</strong> {{ c.clienteNombre }}</p>
+      <p><strong>Tipo de evento:</strong> {{ c.tipoEventoNombre }}</p>
+      <p><strong>Ubicación:</strong> {{ c.direccionUbicacion }}</p>
+      <p><strong>Cantidad de personas:</strong> {{ c.cantidadPersonas }}</p>
       <p><strong>Fecha de cotizacion:</strong> {{ c.fechaCotizacion | date: 'dd/MM/yyyy' }}</p>
       @if (c.fechaEvento) {
         <p><strong>Fecha estimada del evento:</strong> {{ c.fechaEvento | date: 'dd/MM/yyyy' }}</p>

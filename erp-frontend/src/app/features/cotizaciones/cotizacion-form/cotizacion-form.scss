@@ -7,6 +7,21 @@
   margin-top: 8px;
 }
 
+.pregunta {
+  font-weight: 500;
+  margin: 16px 0 8px;
+}
+
+.fila {
+  display: flex;
+  gap: 12px;
+}
+
+.campo-medio {
+  flex: 1;
+  margin-top: 8px;
+}
+
 .acciones {
   display: flex;
   justify-content: flex-end;

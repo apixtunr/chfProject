@@ -1,7 +1,6 @@
 package com.lacasadelchef.erp.evento.dto;
 
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 import java.time.LocalDate;
@@ -15,19 +14,20 @@ public record EventoRequest(
         /** Obligatorio solo si idCotizacionVersion viene vacio (evento directo). */
         Integer idCliente,
 
-        @NotNull(message = "El tipo de evento es obligatorio")
+        /** Obligatorio solo si idCotizacionVersion viene vacio; si no, se toma de la cotizacion. */
         Integer idTipoEvento,
 
-        @NotNull(message = "La ubicacion es obligatoria")
+        /** Obligatorio solo si idCotizacionVersion viene vacio; si no, se toma de la cotizacion. */
         Integer idUbicacion,
 
-        @NotNull(message = "La fecha del evento es obligatoria")
+        /** Obligatorio solo si idCotizacionVersion viene vacio; si no, se toma de la cotizacion. */
         LocalDate fechaEvento,
 
         LocalTime horaInicio,
 
         LocalTime horaFin,
 
+        /** Obligatoria solo si idCotizacionVersion viene vacio; si no, se toma de la cotizacion. */
         @Min(value = 1, message = "La cantidad de personas debe ser mayor a 0")
         Integer cantidadPersonas,
 

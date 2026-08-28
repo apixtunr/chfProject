@@ -9,10 +9,14 @@ import com.lacasadelchef.erp.entity.Cliente;
 import com.lacasadelchef.erp.entity.Cotizacion;
 import com.lacasadelchef.erp.entity.CotizacionVersion;
 import com.lacasadelchef.erp.entity.Estado;
+import com.lacasadelchef.erp.entity.TipoEvento;
+import com.lacasadelchef.erp.entity.Ubicacion;
 import com.lacasadelchef.erp.repository.ClienteRepository;
 import com.lacasadelchef.erp.repository.CotizacionRepository;
 import com.lacasadelchef.erp.repository.CotizacionVersionRepository;
 import com.lacasadelchef.erp.repository.EstadoRepository;
+import com.lacasadelchef.erp.repository.TipoEventoRepository;
+import com.lacasadelchef.erp.repository.UbicacionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -32,6 +36,8 @@ public class CotizacionServiceImpl implements CotizacionService {
     private final CotizacionRepository cotizacionRepository;
     private final CotizacionVersionRepository cotizacionVersionRepository;
     private final ClienteRepository clienteRepository;
+    private final TipoEventoRepository tipoEventoRepository;
+    private final UbicacionRepository ubicacionRepository;
     private final EstadoRepository estadoRepository;
     private final BitacoraMovimientoService bitacoraMovimientoService;
 
@@ -108,7 +114,14 @@ public class CotizacionServiceImpl implements CotizacionService {
     private void aplicar(CotizacionRequest request, Cotizacion cotizacion) {
         Cliente cliente = clienteRepository.findById(request.idCliente())
                 .orElseThrow(() -> new ResourceNotFoundException("Cliente", request.idCliente()));
+        TipoEvento tipoEvento = tipoEventoRepository.findById(request.idTipoEvento())
+                .orElseThrow(() -> new ResourceNotFoundException("TipoEvento", request.idTipoEvento()));
+        Ubicacion ubicacion = ubicacionRepository.findById(request.idUbicacion())
+                .orElseThrow(() -> new ResourceNotFoundException("Ubicacion", request.idUbicacion()));
         cotizacion.setCliente(cliente);
+        cotizacion.setTipoEvento(tipoEvento);
+        cotizacion.setUbicacion(ubicacion);
+        cotizacion.setCantidadPersonas(request.cantidadPersonas());
         cotizacion.setFechaEvento(request.fechaEvento());
         cotizacion.setPresupuestoCliente(request.presupuestoCliente());
     }

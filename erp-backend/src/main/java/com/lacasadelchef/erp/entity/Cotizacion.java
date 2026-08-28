@@ -25,6 +25,17 @@ public class Cotizacion extends Auditable {
     @JoinColumn(name = "id_cliente", nullable = false)
     private Cliente cliente;
 
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "id_tipo_evento", nullable = false)
+    private TipoEvento tipoEvento;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "id_ubicacion", nullable = false)
+    private Ubicacion ubicacion;
+
+    @Column(name = "cantidad_personas", nullable = false)
+    private Integer cantidadPersonas;
+
     @Column(name = "fecha_cotizacion", nullable = false)
     private LocalDate fechaCotizacion = LocalDate.now();
 

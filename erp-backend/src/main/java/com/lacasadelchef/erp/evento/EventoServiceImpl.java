@@ -153,11 +153,6 @@ public class EventoServiceImpl implements EventoService {
     }
 
     private void aplicar(EventoRequest request, Evento evento) {
-        TipoEvento tipoEvento = tipoEventoRepository.findById(request.idTipoEvento())
-                .orElseThrow(() -> new ResourceNotFoundException("TipoEvento", request.idTipoEvento()));
-        Ubicacion ubicacion = ubicacionRepository.findById(request.idUbicacion())
-                .orElseThrow(() -> new ResourceNotFoundException("Ubicacion", request.idUbicacion()));
-
         if (request.idCotizacionVersion() != null) {
             CotizacionVersion cotizacionVersion = cotizacionVersionRepository.findById(request.idCotizacionVersion())
                     .orElseThrow(() -> new ResourceNotFoundException("CotizacionVersion", request.idCotizacionVersion()));
@@ -171,25 +166,43 @@ public class EventoServiceImpl implements EventoService {
                     request.idCotizacionVersion(), idEventoActual)) {
                 throw new BusinessException("Esta version de cotizacion ya tiene un evento asociado");
             }
+
+            // Lo que el cliente acepto en la cotizacion es lo que lleva el evento:
+            // tipo, ubicacion, fecha y cantidad de personas no se vuelven a pedir.
+            var cotizacion = cotizacionVersion.getCotizacion();
             evento.setCotizacionVersion(cotizacionVersion);
             evento.setCliente(null);
+            evento.setTipoEvento(cotizacion.getTipoEvento());
+            evento.setUbicacion(cotizacion.getUbicacion());
+            evento.setFechaEvento(cotizacion.getFechaEvento());
+            evento.setCantidadPersonas(cotizacion.getCantidadPersonas());
         } else {
             if (request.idCliente() == null) {
                 throw new BusinessException(
                         "Un evento sin cotizacion debe indicar el cliente directamente (idCliente)");
             }
+            if (request.idTipoEvento() == null || request.idUbicacion() == null
+                    || request.fechaEvento() == null || request.cantidadPersonas() == null) {
+                throw new BusinessException(
+                        "Un evento sin cotizacion debe indicar tipo de evento, ubicacion, fecha y cantidad de personas");
+            }
             Cliente cliente = clienteRepository.findById(request.idCliente())
                     .orElseThrow(() -> new ResourceNotFoundException("Cliente", request.idCliente()));
+            TipoEvento tipoEvento = tipoEventoRepository.findById(request.idTipoEvento())
+                    .orElseThrow(() -> new ResourceNotFoundException("TipoEvento", request.idTipoEvento()));
+            Ubicacion ubicacion = ubicacionRepository.findById(request.idUbicacion())
+                    .orElseThrow(() -> new ResourceNotFoundException("Ubicacion", request.idUbicacion()));
+
             evento.setCliente(cliente);
             evento.setCotizacionVersion(null);
+            evento.setTipoEvento(tipoEvento);
+            evento.setUbicacion(ubicacion);
+            evento.setFechaEvento(request.fechaEvento());
+            evento.setCantidadPersonas(request.cantidadPersonas());
         }
 
-        evento.setTipoEvento(tipoEvento);
-        evento.setUbicacion(ubicacion);
-        evento.setFechaEvento(request.fechaEvento());
         evento.setHoraInicio(request.horaInicio());
         evento.setHoraFin(request.horaFin());
-        evento.setCantidadPersonas(request.cantidadPersonas());
         evento.setObservaciones(request.observaciones());
     }
 
