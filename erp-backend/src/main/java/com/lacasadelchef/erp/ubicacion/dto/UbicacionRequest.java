@@ -1,13 +1,10 @@
-package com.lacasadelchef.erp.cliente.dto;
+package com.lacasadelchef.erp.ubicacion.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 public record UbicacionRequest(
-
-        /** Nullable: permite registrar salones propios o de terceros, no solo del cliente. */
-        Integer idCliente,
 
         @NotNull(message = "El municipio es obligatorio")
         Integer idMunicipio,

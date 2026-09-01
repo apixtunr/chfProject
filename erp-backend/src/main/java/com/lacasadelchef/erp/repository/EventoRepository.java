@@ -23,22 +23,63 @@ public interface EventoRepository extends JpaRepository<Evento, Integer> {
     boolean existsByCotizacionVersionIdCotizacionVersionAndIdEventoNot(Integer idCotizacionVersion, Integer idEvento);
 
     /**
-     * Filtros opcionales para reportes (rentabilidad, agenda). Pasar null para omitir un filtro.
-     * LEFT JOIN porque un evento puede no tener cotizacion (evento directo); el cliente en ese
-     * caso sale de e.cliente en vez de c.cliente.
+     * Filtros opcionales para reportes (rentabilidad, agenda) y el dashboard de eventos.
+     * Pasar null para omitir un filtro. LEFT JOIN porque un evento puede no tener cotizacion
+     * (evento directo); el cliente en ese caso sale de e.cliente en vez de c.cliente.
      */
     @Query("""
             SELECT e FROM Evento e
             LEFT JOIN e.cotizacionVersion cv
             LEFT JOIN cv.cotizacion c
-            WHERE (:fechaDesde IS NULL OR e.fechaEvento >= :fechaDesde)
-              AND (:fechaHasta IS NULL OR e.fechaEvento <= :fechaHasta)
-              AND (:idCliente IS NULL OR c.cliente.idCliente = :idCliente OR e.cliente.idCliente = :idCliente)
-              AND (:idTipoEvento IS NULL OR e.tipoEvento.idTipoEvento = :idTipoEvento)
+            WHERE (CAST(:fechaDesde AS date) IS NULL OR e.fechaEvento >= :fechaDesde)
+              AND (CAST(:fechaHasta AS date) IS NULL OR e.fechaEvento <= :fechaHasta)
+              AND (CAST(:idCliente AS integer) IS NULL OR c.cliente.idCliente = :idCliente OR e.cliente.idCliente = :idCliente)
+              AND (CAST(:idTipoEvento AS integer) IS NULL OR e.tipoEvento.idTipoEvento = :idTipoEvento)
+              AND (CAST(:idEstado AS integer) IS NULL OR e.estado.idEstado = :idEstado)
             """)
     Page<Evento> buscarPorFiltros(@Param("fechaDesde") LocalDate fechaDesde,
                                    @Param("fechaHasta") LocalDate fechaHasta,
                                    @Param("idCliente") Integer idCliente,
                                    @Param("idTipoEvento") Integer idTipoEvento,
+                                   @Param("idEstado") Integer idEstado,
                                    Pageable pageable);
+
+    /** Conteo de eventos agrupado por estado, para el dashboard. Mismos filtros que buscarPorFiltros. */
+    @Query("""
+            SELECT e.estado.nombre AS etiqueta, COUNT(e) AS cantidad
+            FROM Evento e
+            LEFT JOIN e.cotizacionVersion cv
+            LEFT JOIN cv.cotizacion c
+            WHERE (CAST(:fechaDesde AS date) IS NULL OR e.fechaEvento >= :fechaDesde)
+              AND (CAST(:fechaHasta AS date) IS NULL OR e.fechaEvento <= :fechaHasta)
+              AND (CAST(:idCliente AS integer) IS NULL OR c.cliente.idCliente = :idCliente OR e.cliente.idCliente = :idCliente)
+              AND (CAST(:idTipoEvento AS integer) IS NULL OR e.tipoEvento.idTipoEvento = :idTipoEvento)
+            GROUP BY e.estado.nombre
+            """)
+    List<ConteoProjection> contarPorEstado(@Param("fechaDesde") LocalDate fechaDesde,
+                                            @Param("fechaHasta") LocalDate fechaHasta,
+                                            @Param("idCliente") Integer idCliente,
+                                            @Param("idTipoEvento") Integer idTipoEvento);
+
+    /** Conteo de eventos agrupado por tipo de evento, para el dashboard. Mismos filtros que buscarPorFiltros. */
+    @Query("""
+            SELECT e.tipoEvento.nombreTipo AS etiqueta, COUNT(e) AS cantidad
+            FROM Evento e
+            LEFT JOIN e.cotizacionVersion cv
+            LEFT JOIN cv.cotizacion c
+            WHERE (CAST(:fechaDesde AS date) IS NULL OR e.fechaEvento >= :fechaDesde)
+              AND (CAST(:fechaHasta AS date) IS NULL OR e.fechaEvento <= :fechaHasta)
+              AND (CAST(:idCliente AS integer) IS NULL OR c.cliente.idCliente = :idCliente OR e.cliente.idCliente = :idCliente)
+              AND (CAST(:idEstado AS integer) IS NULL OR e.estado.idEstado = :idEstado)
+            GROUP BY e.tipoEvento.nombreTipo
+            """)
+    List<ConteoProjection> contarPorTipo(@Param("fechaDesde") LocalDate fechaDesde,
+                                          @Param("fechaHasta") LocalDate fechaHasta,
+                                          @Param("idCliente") Integer idCliente,
+                                          @Param("idEstado") Integer idEstado);
+
+    interface ConteoProjection {
+        String getEtiqueta();
+        Long getCantidad();
+    }
 }

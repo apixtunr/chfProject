@@ -129,7 +129,7 @@ export class CotizacionForm implements OnInit {
     const v = this.formulario.getRawValue();
 
     // La ubicacion es propia de esta cotizacion: se crea primero, y luego se usa su id.
-    this.ubicacionService.crear({ idCliente: null, idMunicipio: v.idMunicipio!, direccion: v.direccion }).subscribe({
+    this.ubicacionService.crear({ idMunicipio: v.idMunicipio!, direccion: v.direccion }).subscribe({
       next: (ubicacion) => {
         this.cotizacionService
           .crear({

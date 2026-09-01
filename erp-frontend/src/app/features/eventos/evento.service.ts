@@ -15,8 +15,10 @@ import {
   EventoInventarioResponse,
   EventoRequest,
   EventoResponse,
+  EventoResumenResponse,
   EventoVehiculoRequest,
   EventoVehiculoResponse,
+  FiltrosEvento,
   TipoEventoResponse,
 } from './dto/evento';
 
@@ -28,21 +30,34 @@ export class EventoService {
 
   // --- Cabecera ---
 
-  listar(
-    fechaDesde: string | null,
-    fechaHasta: string | null,
-    page: number,
-    size: number,
-    orden = 'fechaEvento,desc',
-  ): Observable<Page<EventoResponse>> {
-    let params = new HttpParams().set('page', page).set('size', size).set('sort', orden);
-    if (fechaDesde) {
-      params = params.set('fechaDesde', fechaDesde);
-    }
-    if (fechaHasta) {
-      params = params.set('fechaHasta', fechaHasta);
-    }
+  listar(filtros: FiltrosEvento, page: number, size: number, orden = 'fechaEvento,desc'): Observable<Page<EventoResponse>> {
+    const params = this.aParams(filtros).set('page', page).set('size', size).set('sort', orden);
     return this.http.get<Page<EventoResponse>>(BASE_URL, { params });
+  }
+
+  /** Conteos por estado y por tipo de evento, para el dashboard. */
+  resumen(filtros: FiltrosEvento): Observable<EventoResumenResponse> {
+    return this.http.get<EventoResumenResponse>(`${BASE_URL}/resumen`, { params: this.aParams(filtros) });
+  }
+
+  private aParams(filtros: FiltrosEvento): HttpParams {
+    let params = new HttpParams();
+    if (filtros.fechaDesde) {
+      params = params.set('fechaDesde', filtros.fechaDesde);
+    }
+    if (filtros.fechaHasta) {
+      params = params.set('fechaHasta', filtros.fechaHasta);
+    }
+    if (filtros.idCliente) {
+      params = params.set('idCliente', filtros.idCliente);
+    }
+    if (filtros.idTipoEvento) {
+      params = params.set('idTipoEvento', filtros.idTipoEvento);
+    }
+    if (filtros.idEstado) {
+      params = params.set('idEstado', filtros.idEstado);
+    }
+    return params;
   }
 
   obtener(id: number): Observable<EventoResponse> {

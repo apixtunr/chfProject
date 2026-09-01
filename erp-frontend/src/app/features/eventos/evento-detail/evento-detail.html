@@ -52,6 +52,11 @@
             </ng-container>
             <tr mat-header-row *matHeaderRowDef="columnasMenuCotizacion"></tr>
             <tr mat-row *matRowDef="let row; columns: columnasMenuCotizacion"></tr>
+            <tr *matNoDataRow>
+              <td class="mensaje-vacio" [attr.colspan]="columnasMenuCotizacion.length">
+                No hay platos en el menú de esta cotización.
+              </td>
+            </tr>
           </table>
 
           @if (serviciosCotizacionOrigen().length) {
@@ -71,6 +76,11 @@
               </ng-container>
               <tr mat-header-row *matHeaderRowDef="columnasServiciosCotizacion"></tr>
               <tr mat-row *matRowDef="let row; columns: columnasServiciosCotizacion"></tr>
+              <tr *matNoDataRow>
+                <td class="mensaje-vacio" [attr.colspan]="columnasServiciosCotizacion.length">
+                  No hay servicios extra en esta cotización.
+                </td>
+              </tr>
             </table>
           }
         } @else {
@@ -147,6 +157,9 @@
           </ng-container>
           <tr mat-header-row *matHeaderRowDef="columnasMenu"></tr>
           <tr mat-row *matRowDef="let row; columns: columnasMenu"></tr>
+          <tr *matNoDataRow>
+            <td class="mensaje-vacio" [attr.colspan]="columnasMenu.length">No hay platos agregados al menú todavía.</td>
+          </tr>
         </table>
         }
       </div>
@@ -203,6 +216,9 @@
           </ng-container>
           <tr mat-header-row *matHeaderRowDef="columnasCostos"></tr>
           <tr mat-row *matRowDef="let row; columns: columnasCostos"></tr>
+          <tr *matNoDataRow>
+            <td class="mensaje-vacio" [attr.colspan]="columnasCostos.length">No hay costos agregados todavía.</td>
+          </tr>
         </table>
       </div>
     </mat-tab>
@@ -258,6 +274,9 @@
           </ng-container>
           <tr mat-header-row *matHeaderRowDef="columnasPersonal"></tr>
           <tr mat-row *matRowDef="let row; columns: columnasPersonal"></tr>
+          <tr *matNoDataRow>
+            <td class="mensaje-vacio" [attr.colspan]="columnasPersonal.length">No hay personal asignado todavía.</td>
+          </tr>
         </table>
       </div>
     </mat-tab>
@@ -306,6 +325,9 @@
           </ng-container>
           <tr mat-header-row *matHeaderRowDef="columnasVehiculos"></tr>
           <tr mat-row *matRowDef="let row; columns: columnasVehiculos"></tr>
+          <tr *matNoDataRow>
+            <td class="mensaje-vacio" [attr.colspan]="columnasVehiculos.length">No hay vehículos asignados todavía.</td>
+          </tr>
         </table>
       </div>
     </mat-tab>
@@ -360,6 +382,9 @@
           </ng-container>
           <tr mat-header-row *matHeaderRowDef="columnasInventario"></tr>
           <tr mat-row *matRowDef="let row; columns: columnasInventario"></tr>
+          <tr *matNoDataRow>
+            <td class="mensaje-vacio" [attr.colspan]="columnasInventario.length">No hay productos planificados todavía.</td>
+          </tr>
         </table>
       </div>
     </mat-tab>

@@ -18,11 +18,6 @@ public class Ubicacion extends Auditable {
     @Column(name = "id_ubicacion")
     private Integer idUbicacion;
 
-    /** Nullable: permite registrar salones propios o de terceros. */
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_cliente")
-    private Cliente cliente;
-
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "id_municipio", nullable = false)
     private Municipio municipio;

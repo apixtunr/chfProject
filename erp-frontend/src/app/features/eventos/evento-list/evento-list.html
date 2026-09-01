@@ -1,5 +1,5 @@
 <div class="encabezado">
-  <h1>Eventos</h1>
+  <h1>Gestión de eventos</h1>
   @if (puedeCrear) {
     <button mat-flat-button color="primary" routerLink="/eventos/nuevo">
       <mat-icon>add</mat-icon>
@@ -34,7 +34,7 @@
   <ng-container matColumnDef="acciones">
     <th mat-header-cell *matHeaderCellDef></th>
     <td mat-cell *matCellDef="let e">
-      <button mat-icon-button [routerLink]="['/eventos', e.idEvento]" aria-label="Ver">
+      <button mat-icon-button [routerLink]="['/eventos', e.idEvento]" matTooltip="Ver evento" aria-label="Ver">
         <mat-icon>visibility</mat-icon>
       </button>
     </td>

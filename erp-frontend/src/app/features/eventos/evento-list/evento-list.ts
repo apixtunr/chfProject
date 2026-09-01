@@ -5,16 +5,27 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatTableModule } from '@angular/material/table';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/auth/auth.service';
 import { EventoService } from '../evento.service';
 import { EventoResponse } from '../dto/evento';
 
 const PAGINA_URL = '/api/eventos';
+const SIN_FILTROS = { fechaDesde: null, fechaHasta: null, idCliente: null, idTipoEvento: null, idEstado: null };
 
 @Component({
   selector: 'app-evento-list',
-  imports: [CommonModule, RouterLink, MatTableModule, MatPaginatorModule, MatButtonModule, MatIconModule, MatChipsModule],
+  imports: [
+    CommonModule,
+    RouterLink,
+    MatTableModule,
+    MatPaginatorModule,
+    MatButtonModule,
+    MatIconModule,
+    MatChipsModule,
+    MatTooltipModule,
+  ],
   templateUrl: './evento-list.html',
   styleUrl: './evento-list.scss',
 })
@@ -40,7 +51,7 @@ export class EventoList implements OnInit {
   }
 
   cargar(): void {
-    this.eventoService.listar(null, null, this.pageIndex(), this.pageSize()).subscribe((page) => {
+    this.eventoService.listar(SIN_FILTROS, this.pageIndex(), this.pageSize()).subscribe((page) => {
       this.eventos.set(page.content);
       this.totalElements.set(page.totalElements);
     });

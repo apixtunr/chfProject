@@ -4,6 +4,7 @@ import com.lacasadelchef.erp.cotizacion.dto.CotizacionResponse;
 import com.lacasadelchef.erp.evento.dto.CambiarEstadoRequest;
 import com.lacasadelchef.erp.evento.dto.EventoRequest;
 import com.lacasadelchef.erp.evento.dto.EventoResponse;
+import com.lacasadelchef.erp.evento.dto.EventoResumenResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -27,8 +28,19 @@ public class EventoController {
     @GetMapping
     public Page<EventoResponse> listar(@RequestParam(required = false) LocalDate fechaDesde,
                                        @RequestParam(required = false) LocalDate fechaHasta,
+                                       @RequestParam(required = false) Integer idCliente,
+                                       @RequestParam(required = false) Integer idTipoEvento,
+                                       @RequestParam(required = false) Integer idEstado,
                                        @PageableDefault(size = 20, sort = "fechaEvento") Pageable pageable) {
-        return eventoService.listar(fechaDesde, fechaHasta, pageable);
+        return eventoService.listar(fechaDesde, fechaHasta, idCliente, idTipoEvento, idEstado, pageable);
+    }
+
+    @GetMapping("/resumen")
+    public EventoResumenResponse resumen(@RequestParam(required = false) LocalDate fechaDesde,
+                                         @RequestParam(required = false) LocalDate fechaHasta,
+                                         @RequestParam(required = false) Integer idCliente,
+                                         @RequestParam(required = false) Integer idTipoEvento) {
+        return eventoService.resumen(fechaDesde, fechaHasta, idCliente, idTipoEvento);
     }
 
     @GetMapping("/cotizaciones-disponibles")

@@ -37,6 +37,25 @@ export interface EventoResponse {
   fechaModificacion: string | null;
 }
 
+export interface ConteoResponse {
+  etiqueta: string;
+  cantidad: number;
+}
+
+export interface EventoResumenResponse {
+  totalEventos: number;
+  porEstado: ConteoResponse[];
+  porTipo: ConteoResponse[];
+}
+
+export interface FiltrosEvento {
+  fechaDesde: string | null;
+  fechaHasta: string | null;
+  idCliente: number | null;
+  idTipoEvento: number | null;
+  idEstado: number | null;
+}
+
 export interface DetalleEventoRequest {
   idMenu: number;
   idPlato: number;

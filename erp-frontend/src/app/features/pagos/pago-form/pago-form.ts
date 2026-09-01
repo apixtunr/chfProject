@@ -40,7 +40,9 @@ export class PagoForm implements OnInit {
   });
 
   ngOnInit(): void {
-    this.eventoService.listar(null, null, 0, 200).subscribe((p) => this.eventos.set(p.content));
+    this.eventoService
+      .listar({ fechaDesde: null, fechaHasta: null, idCliente: null, idTipoEvento: null, idEstado: null }, 0, 200)
+      .subscribe((p) => this.eventos.set(p.content));
     this.pagoService.listarMetodos().subscribe((m) => this.metodos.set(m));
 
     // La referencia es obligatoria solo si el metodo la requiere

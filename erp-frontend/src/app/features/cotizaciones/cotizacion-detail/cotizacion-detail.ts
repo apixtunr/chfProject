@@ -6,6 +6,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/auth/auth.service';
 import { CotizacionService } from '../cotizacion.service';
@@ -15,7 +16,16 @@ const PAGINA_URL = '/api/cotizaciones';
 
 @Component({
   selector: 'app-cotizacion-detail',
-  imports: [CommonModule, RouterLink, MatCardModule, MatTableModule, MatButtonModule, MatIconModule, MatChipsModule],
+  imports: [
+    CommonModule,
+    RouterLink,
+    MatCardModule,
+    MatTableModule,
+    MatButtonModule,
+    MatIconModule,
+    MatChipsModule,
+    MatTooltipModule,
+  ],
   templateUrl: './cotizacion-detail.html',
   styleUrl: './cotizacion-detail.scss',
 })

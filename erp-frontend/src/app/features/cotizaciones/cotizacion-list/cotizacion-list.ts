@@ -8,6 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatTableModule } from '@angular/material/table';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/auth/auth.service';
 import { CotizacionService } from '../cotizacion.service';
@@ -28,6 +29,7 @@ const PAGINA_URL = '/api/cotizaciones';
     MatButtonModule,
     MatIconModule,
     MatChipsModule,
+    MatTooltipModule,
   ],
   templateUrl: './cotizacion-list.html',
   styleUrl: './cotizacion-list.scss',

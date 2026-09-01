@@ -1,16 +1,14 @@
-package com.lacasadelchef.erp.cliente;
+package com.lacasadelchef.erp.ubicacion;
 
-import com.lacasadelchef.erp.cliente.dto.UbicacionRequest;
-import com.lacasadelchef.erp.cliente.dto.UbicacionResponse;
 import com.lacasadelchef.erp.common.audit.BitacoraMovimientoService;
 import com.lacasadelchef.erp.common.audit.Operacion;
 import com.lacasadelchef.erp.common.exception.ResourceNotFoundException;
-import com.lacasadelchef.erp.entity.Cliente;
 import com.lacasadelchef.erp.entity.Municipio;
 import com.lacasadelchef.erp.entity.Ubicacion;
-import com.lacasadelchef.erp.repository.ClienteRepository;
 import com.lacasadelchef.erp.repository.MunicipioRepository;
 import com.lacasadelchef.erp.repository.UbicacionRepository;
+import com.lacasadelchef.erp.ubicacion.dto.UbicacionRequest;
+import com.lacasadelchef.erp.ubicacion.dto.UbicacionResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,17 +22,13 @@ public class UbicacionServiceImpl implements UbicacionService {
     private static final String TABLA = "ubicacion";
 
     private final UbicacionRepository ubicacionRepository;
-    private final ClienteRepository clienteRepository;
     private final MunicipioRepository municipioRepository;
     private final BitacoraMovimientoService bitacoraMovimientoService;
 
     @Override
     @Transactional(readOnly = true)
-    public List<UbicacionResponse> listar(Integer idCliente) {
-        List<Ubicacion> ubicaciones = (idCliente == null)
-                ? ubicacionRepository.findAll()
-                : ubicacionRepository.findByClienteIdCliente(idCliente);
-        return ubicaciones.stream().map(UbicacionResponse::desde).toList();
+    public List<UbicacionResponse> listar() {
+        return ubicacionRepository.findAll().stream().map(UbicacionResponse::desde).toList();
     }
 
     @Override
@@ -79,15 +73,9 @@ public class UbicacionServiceImpl implements UbicacionService {
     }
 
     private void aplicar(UbicacionRequest request, Ubicacion ubicacion) {
-        Cliente cliente = null;
-        if (request.idCliente() != null) {
-            cliente = clienteRepository.findById(request.idCliente())
-                    .orElseThrow(() -> new ResourceNotFoundException("Cliente", request.idCliente()));
-        }
         Municipio municipio = municipioRepository.findById(request.idMunicipio())
                 .orElseThrow(() -> new ResourceNotFoundException("Municipio", request.idMunicipio()));
 
-        ubicacion.setCliente(cliente);
         ubicacion.setMunicipio(municipio);
         ubicacion.setDireccion(request.direccion().trim());
     }

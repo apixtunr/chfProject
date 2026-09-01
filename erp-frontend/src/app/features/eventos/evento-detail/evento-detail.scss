@@ -52,3 +52,10 @@ h1 {
 .tabla {
   width: 100%;
 }
+
+.mensaje-vacio {
+  text-align: center;
+  font-style: italic;
+  color: var(--mat-sys-on-surface-variant);
+  padding: 20px 0;
+}

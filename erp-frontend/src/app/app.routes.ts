@@ -73,6 +73,11 @@ export const routes: Routes = [
         loadComponent: () => import('./features/eventos/evento-form/evento-form').then((m) => m.EventoForm),
       },
       {
+        path: 'eventos/reporte',
+        canActivate: [permisoGuard('/api/eventos')],
+        loadComponent: () => import('./features/eventos/evento-reporte/evento-reporte').then((m) => m.EventoReporte),
+      },
+      {
         path: 'eventos/:id',
         canActivate: [permisoGuard('/api/eventos')],
         loadComponent: () => import('./features/eventos/evento-detail/evento-detail').then((m) => m.EventoDetail),

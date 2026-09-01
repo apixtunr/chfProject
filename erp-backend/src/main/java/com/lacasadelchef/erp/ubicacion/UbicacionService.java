@@ -1,13 +1,13 @@
-package com.lacasadelchef.erp.cliente;
+package com.lacasadelchef.erp.ubicacion;
 
-import com.lacasadelchef.erp.cliente.dto.UbicacionRequest;
-import com.lacasadelchef.erp.cliente.dto.UbicacionResponse;
+import com.lacasadelchef.erp.ubicacion.dto.UbicacionRequest;
+import com.lacasadelchef.erp.ubicacion.dto.UbicacionResponse;
 
 import java.util.List;
 
 public interface UbicacionService {
 
-    List<UbicacionResponse> listar(Integer idCliente);
+    List<UbicacionResponse> listar();
 
     UbicacionResponse obtenerPorId(Integer id);
 

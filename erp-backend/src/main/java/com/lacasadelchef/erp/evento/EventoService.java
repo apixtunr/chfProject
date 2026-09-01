@@ -3,6 +3,7 @@ package com.lacasadelchef.erp.evento;
 import com.lacasadelchef.erp.cotizacion.dto.CotizacionResponse;
 import com.lacasadelchef.erp.evento.dto.EventoRequest;
 import com.lacasadelchef.erp.evento.dto.EventoResponse;
+import com.lacasadelchef.erp.evento.dto.EventoResumenResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -11,7 +12,11 @@ import java.util.List;
 
 public interface EventoService {
 
-    Page<EventoResponse> listar(LocalDate fechaDesde, LocalDate fechaHasta, Pageable pageable);
+    Page<EventoResponse> listar(LocalDate fechaDesde, LocalDate fechaHasta, Integer idCliente,
+                                 Integer idTipoEvento, Integer idEstado, Pageable pageable);
+
+    /** Conteos por estado y por tipo de evento, para el dashboard. Mismos filtros que listar (sin idEstado). */
+    EventoResumenResponse resumen(LocalDate fechaDesde, LocalDate fechaHasta, Integer idCliente, Integer idTipoEvento);
 
     EventoResponse obtenerPorId(Integer id);
 

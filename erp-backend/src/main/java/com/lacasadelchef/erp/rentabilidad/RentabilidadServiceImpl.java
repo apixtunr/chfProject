@@ -33,7 +33,7 @@ public class RentabilidadServiceImpl implements RentabilidadService {
     @Transactional(readOnly = true)
     public Page<RentabilidadEventoResponse> listarPorEvento(LocalDate fechaDesde, LocalDate fechaHasta,
                                                              Integer idCliente, Integer idTipoEvento, Pageable pageable) {
-        Page<Evento> eventos = eventoRepository.buscarPorFiltros(fechaDesde, fechaHasta, idCliente, idTipoEvento, pageable);
+        Page<Evento> eventos = eventoRepository.buscarPorFiltros(fechaDesde, fechaHasta, idCliente, idTipoEvento, null, pageable);
         Map<Integer, VRentabilidadEvento> vistasPorEvento = vistasPorEvento(eventos.getContent());
         return eventos.map(evento -> RentabilidadEventoResponse.desde(evento, vistasPorEvento.get(evento.getIdEvento())));
     }
@@ -52,7 +52,7 @@ public class RentabilidadServiceImpl implements RentabilidadService {
     public RentabilidadResumenResponse resumen(LocalDate fechaDesde, LocalDate fechaHasta,
                                                Integer idCliente, Integer idTipoEvento) {
         List<Evento> eventos = eventoRepository
-                .buscarPorFiltros(fechaDesde, fechaHasta, idCliente, idTipoEvento, Pageable.unpaged())
+                .buscarPorFiltros(fechaDesde, fechaHasta, idCliente, idTipoEvento, null, Pageable.unpaged())
                 .getContent();
         List<VRentabilidadEvento> vistas = vRentabilidadEventoRepository.findAllById(
                 eventos.stream().map(Evento::getIdEvento).toList());

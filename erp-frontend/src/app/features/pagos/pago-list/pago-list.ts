@@ -65,7 +65,9 @@ export class PagoList implements OnInit {
 
   ngOnInit(): void {
     // Eventos para el filtro (los mas recientes)
-    this.eventoService.listar(null, null, 0, 200).subscribe((p) => this.eventos.set(p.content));
+    this.eventoService
+      .listar({ fechaDesde: null, fechaHasta: null, idCliente: null, idTipoEvento: null, idEstado: null }, 0, 200)
+      .subscribe((p) => this.eventos.set(p.content));
     this.cargar();
   }
 

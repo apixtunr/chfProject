@@ -1,7 +1,7 @@
-package com.lacasadelchef.erp.cliente;
+package com.lacasadelchef.erp.ubicacion;
 
-import com.lacasadelchef.erp.cliente.dto.UbicacionRequest;
-import com.lacasadelchef.erp.cliente.dto.UbicacionResponse;
+import com.lacasadelchef.erp.ubicacion.dto.UbicacionRequest;
+import com.lacasadelchef.erp.ubicacion.dto.UbicacionResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,8 +19,8 @@ public class UbicacionController {
     private final UbicacionService ubicacionService;
 
     @GetMapping
-    public List<UbicacionResponse> listar(@RequestParam(required = false) Integer idCliente) {
-        return ubicacionService.listar(idCliente);
+    public List<UbicacionResponse> listar() {
+        return ubicacionService.listar();
     }
 
     @GetMapping("/{id}")

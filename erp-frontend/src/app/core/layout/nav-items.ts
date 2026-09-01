@@ -38,7 +38,10 @@ export const NAV_GROUPS: NavGroup[] = [
     modulo: 'Eventos',
     icon: 'event',
     color: '#00ACC1',
-    items: [{ label: 'Eventos', route: '/eventos', paginaUrl: '/api/eventos', icon: 'event' }],
+    items: [
+      { label: 'Gestión Eventos', route: '/eventos', paginaUrl: '/api/eventos', icon: 'event' },
+      { label: 'Reporte Eventos', route: '/eventos/reporte', paginaUrl: '/api/eventos', icon: 'insights' },
+    ],
   },
   {
     modulo: 'Inventarios',

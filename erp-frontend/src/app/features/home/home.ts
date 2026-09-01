@@ -44,7 +44,8 @@ export class Home {
       // Traigo varios (no solo el primero): el mas cercano en fecha puede estar
       // CANCELADO, y ese no cuenta como "proximo evento" real.
       const ESTADOS_VIGENTES = ['PLANIFICADO', 'EN CURSO'];
-      this.eventoService.listar(hoy, null, 0, 10, 'fechaEvento,asc').subscribe({
+      const filtrosProximoEvento = { fechaDesde: hoy, fechaHasta: null, idCliente: null, idTipoEvento: null, idEstado: null };
+      this.eventoService.listar(filtrosProximoEvento, 0, 10, 'fechaEvento,asc').subscribe({
         next: (page) =>
           this.proximoEvento.set(page.content.find((e) => ESTADOS_VIGENTES.includes(e.estadoNombre)) ?? null),
         error: () => this.proximoEvento.set(null),

@@ -8,6 +8,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { AuthService } from '../../../core/auth/auth.service';
@@ -29,6 +30,7 @@ const PAGINA_URL = '/api/clientes';
     MatButtonModule,
     MatIconModule,
     MatDialogModule,
+    MatTooltipModule,
   ],
   templateUrl: './cliente-list.html',
   styleUrl: './cliente-list.scss',

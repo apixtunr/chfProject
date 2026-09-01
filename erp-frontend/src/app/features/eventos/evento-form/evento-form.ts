@@ -211,7 +211,7 @@ export class EventoForm implements OnInit {
     }
 
     // La ubicacion es propia de este evento: se crea primero, y luego se usa su id al crear el evento.
-    this.ubicacionService.crear({ idCliente: null, idMunicipio: v.idMunicipio!, direccion: v.direccion }).subscribe({
+    this.ubicacionService.crear({ idMunicipio: v.idMunicipio!, direccion: v.direccion }).subscribe({
       next: (ubicacion) => {
         this.eventoService
           .crear({

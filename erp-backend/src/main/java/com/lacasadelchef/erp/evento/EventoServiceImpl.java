@@ -12,8 +12,10 @@ import com.lacasadelchef.erp.entity.Evento;
 import com.lacasadelchef.erp.entity.TipoEvento;
 import com.lacasadelchef.erp.entity.Ubicacion;
 import com.lacasadelchef.erp.entity.Usuario;
+import com.lacasadelchef.erp.evento.dto.ConteoResponse;
 import com.lacasadelchef.erp.evento.dto.EventoRequest;
 import com.lacasadelchef.erp.evento.dto.EventoResponse;
+import com.lacasadelchef.erp.evento.dto.EventoResumenResponse;
 import com.lacasadelchef.erp.repository.ClienteRepository;
 import com.lacasadelchef.erp.repository.CotizacionVersionRepository;
 import com.lacasadelchef.erp.repository.EstadoRepository;
@@ -61,11 +63,30 @@ public class EventoServiceImpl implements EventoService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<EventoResponse> listar(LocalDate fechaDesde, LocalDate fechaHasta, Pageable pageable) {
-        Page<Evento> page = (fechaDesde == null || fechaHasta == null)
-                ? eventoRepository.findAll(pageable)
-                : eventoRepository.findByFechaEventoBetween(fechaDesde, fechaHasta, pageable);
-        return page.map(EventoResponse::desde);
+    public Page<EventoResponse> listar(LocalDate fechaDesde, LocalDate fechaHasta, Integer idCliente,
+                                        Integer idTipoEvento, Integer idEstado, Pageable pageable) {
+        return eventoRepository.buscarPorFiltros(fechaDesde, fechaHasta, idCliente, idTipoEvento, idEstado, pageable)
+                .map(EventoResponse::desde);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public EventoResumenResponse resumen(LocalDate fechaDesde, LocalDate fechaHasta, Integer idCliente, Integer idTipoEvento) {
+        long total = eventoRepository.buscarPorFiltros(fechaDesde, fechaHasta, idCliente, idTipoEvento, null, Pageable.unpaged())
+                .getTotalElements();
+        List<ConteoResponse> porEstado = eventoRepository.contarPorEstado(fechaDesde, fechaHasta, idCliente, idTipoEvento)
+                .stream()
+                .map(c -> ConteoResponse.builder().etiqueta(c.getEtiqueta()).cantidad(c.getCantidad()).build())
+                .toList();
+        List<ConteoResponse> porTipo = eventoRepository.contarPorTipo(fechaDesde, fechaHasta, idCliente, null)
+                .stream()
+                .map(c -> ConteoResponse.builder().etiqueta(c.getEtiqueta()).cantidad(c.getCantidad()).build())
+                .toList();
+        return EventoResumenResponse.builder()
+                .totalEventos(total)
+                .porEstado(porEstado)
+                .porTipo(porTipo)
+                .build();
     }
 
     @Override

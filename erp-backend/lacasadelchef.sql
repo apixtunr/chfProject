@@ -78,7 +78,6 @@ CREATE TABLE cliente (
 -- id_cliente nullable: permite salones propios o de terceros
 CREATE TABLE ubicacion (
     id_ubicacion        INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    id_cliente          INT REFERENCES cliente(id_cliente),
     id_municipio        INT NOT NULL REFERENCES municipio(id_municipio),
     direccion           VARCHAR(255) NOT NULL,
     fecha_creacion      TIMESTAMP NOT NULL DEFAULT NOW(),

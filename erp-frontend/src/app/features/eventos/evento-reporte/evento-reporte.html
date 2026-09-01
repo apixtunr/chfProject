@@ -1,0 +1,143 @@
+<div class="encabezado">
+  <h1>Reporte de eventos</h1>
+</div>
+
+<mat-card class="tarjeta-filtros">
+  <mat-card-content>
+    <form [formGroup]="formulario" (ngSubmit)="aplicarFiltros()" class="filtros">
+      <mat-form-field appearance="outline">
+        <mat-label>Desde</mat-label>
+        <input matInput type="date" formControlName="fechaDesde" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Hasta</mat-label>
+        <input matInput type="date" formControlName="fechaHasta" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="filtro-ancho">
+        <mat-label>Cliente</mat-label>
+        <mat-select formControlName="idCliente">
+          <mat-option [value]="null">Todos</mat-option>
+          @for (cliente of clientes(); track cliente.idCliente) {
+            <mat-option [value]="cliente.idCliente">{{ cliente.nombre }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Tipo de evento</mat-label>
+        <mat-select formControlName="idTipoEvento">
+          <mat-option [value]="null">Todos</mat-option>
+          @for (tipo of tiposEvento(); track tipo.idTipoEvento) {
+            <mat-option [value]="tipo.idTipoEvento">{{ tipo.nombreTipo }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Estado</mat-label>
+        <mat-select formControlName="idEstado">
+          <mat-option [value]="null">Todos</mat-option>
+          @for (estado of estadosEvento(); track estado.idEstado) {
+            <mat-option [value]="estado.idEstado">{{ estado.nombre }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <div class="acciones-filtros">
+        <button mat-flat-button color="primary" type="submit">Aplicar</button>
+        <button mat-button type="button" (click)="limpiarFiltros()">Limpiar</button>
+      </div>
+    </form>
+  </mat-card-content>
+</mat-card>
+
+<div class="tarjetas-resumen">
+  <mat-card class="kpi">
+    <span class="kpi-valor">{{ resumen()?.totalEventos ?? 0 }}</span>
+    <span class="kpi-etiqueta">Eventos</span>
+  </mat-card>
+  @if (rentabilidadResumen(); as r) {
+    <mat-card class="kpi">
+      <span class="kpi-valor">Q {{ r.totalIngresos | number: '1.2-2' }}</span>
+      <span class="kpi-etiqueta">Ingresos</span>
+    </mat-card>
+    <mat-card class="kpi">
+      <span class="kpi-valor">Q {{ r.totalCostos | number: '1.2-2' }}</span>
+      <span class="kpi-etiqueta">Costos</span>
+    </mat-card>
+    <mat-card class="kpi" [class.kpi-negativo]="r.gananciaTotal < 0">
+      <span class="kpi-valor">Q {{ r.gananciaTotal | number: '1.2-2' }}</span>
+      <span class="kpi-etiqueta">Ganancia</span>
+    </mat-card>
+    <mat-card class="kpi">
+      <span class="kpi-valor">{{ r.margenPromedio | number: '1.1-1' }}%</span>
+      <span class="kpi-etiqueta">Margen promedio</span>
+    </mat-card>
+  }
+</div>
+
+<div class="tarjetas-graficas">
+  <mat-card class="tarjeta-grafica">
+    <mat-card-header>
+      <mat-card-title>Eventos por estado</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      @if ((resumen()?.porEstado?.length ?? 0) > 0) {
+        <app-chart type="doughnut" [data]="datosPorEstado()" />
+      } @else {
+        <p class="sin-datos">Sin eventos en este periodo</p>
+      }
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card class="tarjeta-grafica">
+    <mat-card-header>
+      <mat-card-title>Eventos por tipo</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      @if ((resumen()?.porTipo?.length ?? 0) > 0) {
+        <app-chart type="bar" [data]="datosPorTipo()" [options]="opcionesBarras" />
+      } @else {
+        <p class="sin-datos">Sin eventos en este periodo</p>
+      }
+    </mat-card-content>
+  </mat-card>
+</div>
+
+<table mat-table [dataSource]="eventos()" class="tabla">
+  <ng-container matColumnDef="cliente">
+    <th mat-header-cell *matHeaderCellDef>Cliente</th>
+    <td mat-cell *matCellDef="let e">{{ e.clienteNombre }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="tipo">
+    <th mat-header-cell *matHeaderCellDef>Tipo</th>
+    <td mat-cell *matCellDef="let e">{{ e.tipoEventoNombre }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="fecha">
+    <th mat-header-cell *matHeaderCellDef>Fecha</th>
+    <td mat-cell *matCellDef="let e">{{ e.fechaEvento | date: 'dd/MM/yyyy' }} {{ e.horaInicio }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="estado">
+    <th mat-header-cell *matHeaderCellDef>Estado</th>
+    <td mat-cell *matCellDef="let e">
+      <mat-chip [color]="colorEstado(e.estadoNombre)" highlighted>{{ e.estadoNombre }}</mat-chip>
+    </td>
+  </ng-container>
+
+  <tr mat-header-row *matHeaderRowDef="columnas"></tr>
+  <tr mat-row *matRowDef="let row; columns: columnas"></tr>
+</table>
+
+<mat-paginator
+  [length]="totalElements()"
+  [pageIndex]="pageIndex()"
+  [pageSize]="pageSize()"
+  [pageSizeOptions]="[10, 20, 50]"
+  (page)="onPageChange($event)"
+>
+</mat-paginator>
