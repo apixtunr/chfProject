@@ -5,7 +5,7 @@
 
   <mat-card-content>
     <form [formGroup]="formulario" (ngSubmit)="guardar()">
-      <p class="pregunta">¿Este evento tendrá cotización?</p>
+      <p class="pregunta">¿Tiene cotización?</p>
       <mat-button-toggle-group formControlName="tieneCotizacion" class="interruptor">
         <mat-button-toggle [value]="true">Si</mat-button-toggle>
         <mat-button-toggle [value]="false">No</mat-button-toggle>
@@ -25,7 +25,7 @@
             }
           </mat-select>
           @if (cotizacionesAceptadas().length === 0) {
-            <mat-hint>No hay cotizaciones aceptadas disponibles (sin evento asociado todavía)</mat-hint>
+            <mat-hint>No hay cotizaciones aceptadas disponibles, cree una o ingrese un evento sin cotización</mat-hint>
           }
           @if (formulario.controls.idCotizacionVersion.hasError('required') && formulario.controls.idCotizacionVersion.touched) {
             <mat-error>Debes seleccionar una cotización</mat-error>
@@ -107,17 +107,14 @@
         </mat-form-field>
       }
 
-      <div class="fila">
-        <mat-form-field appearance="outline" class="campo-medio">
-          <mat-label>Hora inicio</mat-label>
-          <input matInput type="time" formControlName="horaInicio" />
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" class="campo-medio">
-          <mat-label>Hora fin</mat-label>
-          <input matInput type="time" formControlName="horaFin" />
-        </mat-form-field>
-      </div>
+      <mat-form-field appearance="outline" class="campo">
+        <mat-label>Horario</mat-label>
+        <mat-select formControlName="horaInicio">
+          @for (h of horarios; track h.label) {
+            <mat-option [value]="h.horaInicio">{{ h.label }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
 
       <mat-form-field appearance="outline" class="campo">
         <mat-label>Observaciones</mat-label>

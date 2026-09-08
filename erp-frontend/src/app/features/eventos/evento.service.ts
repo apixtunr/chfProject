@@ -68,6 +68,7 @@ export class EventoService {
     return this.http.post<EventoResponse>(BASE_URL, request);
   }
 
+  // Servicio que se utilizara a futuro para poder editar, guardar, consultar, eliminar x funcionalidad
   actualizar(id: number, request: EventoRequest): Observable<EventoResponse> {
     return this.http.put<EventoResponse>(`${BASE_URL}/${id}`, request);
   }
@@ -95,6 +96,7 @@ export class EventoService {
     return this.http.post<DetalleEventoResponse>(`${BASE_URL}/${idEvento}/detalles`, request);
   }
 
+  // Servicio que se utilizara a futuro para poder editar, guardar, consultar, eliminar x funcionalidad
   actualizarDetalle(idEvento: number, idDetalle: number, request: DetalleEventoRequest): Observable<DetalleEventoResponse> {
     return this.http.put<DetalleEventoResponse>(`${BASE_URL}/${idEvento}/detalles/${idDetalle}`, request);
   }

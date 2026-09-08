@@ -2,7 +2,6 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -30,6 +29,9 @@ import { VehiculoService } from '../../vehiculos/vehiculo.service';
 import { CotizacionService } from '../../cotizaciones/cotizacion.service';
 import { DetalleCotizacionResponse, ServicioCotizacionResponse } from '../../cotizaciones/dto/cotizacion';
 import {
+  ColorEstado,
+  COLOR_ESTADO_EVENTO_DEFECTO,
+  COLOR_POR_ESTADO_EVENTO,
   CostoEventoResponse,
   DetalleEventoResponse,
   EventoEmpleadoResponse,
@@ -48,7 +50,6 @@ const TIPO_ESTADO_EVENTO = 'EVENTO';
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    MatCardModule,
     MatTabsModule,
     MatTableModule,
     MatFormFieldModule,
@@ -139,8 +140,9 @@ export class EventoDetail implements OnInit {
     this.idEvento = Number(this.route.snapshot.paramMap.get('id'));
   }
 
+  /** Un evento CANCELADO queda de solo lectura: ya no se le agrega ni quita nada. */
   get puedeModificar(): boolean {
-    return this.authService.tienePermiso(PAGINA_URL, 'modificacion');
+    return this.authService.tienePermiso(PAGINA_URL, 'modificacion') && this.evento()?.estadoNombre !== 'CANCELADO';
   }
 
   get puedeCancelar(): boolean {
@@ -162,6 +164,10 @@ export class EventoDetail implements OnInit {
     return this.estadosEvento().filter(
       (e) => permitidos.includes(e.nombre) && (e.nombre !== 'CANCELADO' || this.puedeCancelar),
     );
+  }
+
+  colorEstado(estado: string): ColorEstado {
+    return COLOR_POR_ESTADO_EVENTO[estado.toUpperCase()] ?? COLOR_ESTADO_EVENTO_DEFECTO;
   }
 
   ngOnInit(): void {

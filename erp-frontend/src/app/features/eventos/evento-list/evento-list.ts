@@ -9,7 +9,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/auth/auth.service';
 import { EventoService } from '../evento.service';
-import { EventoResponse } from '../dto/evento';
+import { ColorEstado, COLOR_ESTADO_EVENTO_DEFECTO, COLOR_POR_ESTADO_EVENTO, EventoResponse } from '../dto/evento';
 
 const PAGINA_URL = '/api/eventos';
 const SIN_FILTROS = { fechaDesde: null, fechaHasta: null, idCliente: null, idTipoEvento: null, idEstado: null };
@@ -63,14 +63,7 @@ export class EventoList implements OnInit {
     this.cargar();
   }
 
-  colorEstado(estado: string): string {
-    switch (estado) {
-      case 'FINALIZADO':
-        return 'primary';
-      case 'CANCELADO':
-        return 'warn';
-      default:
-        return '';
-    }
+  colorEstado(estado: string): ColorEstado {
+    return COLOR_POR_ESTADO_EVENTO[estado.toUpperCase()] ?? COLOR_ESTADO_EVENTO_DEFECTO;
   }
 }

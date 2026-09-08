@@ -153,3 +153,17 @@ export const TRANSICIONES_VALIDAS_EVENTO: Record<string, string[]> = {
   PLANIFICADO: ['EN CURSO', 'CANCELADO'],
   'EN CURSO': ['FINALIZADO', 'CANCELADO'],
 };
+
+export interface ColorEstado {
+  bg: string;
+  text: string;
+}
+
+/** Colores fijos por estado de evento (fondo suave + texto), compartidos entre los chips y la grafica de Reporte de eventos. */
+export const COLOR_POR_ESTADO_EVENTO: Record<string, ColorEstado> = {
+  FINALIZADO: { bg: '#ECFDF5', text: '#047857' },
+  CANCELADO: { bg: '#FFF1F2', text: '#BE123C' },
+  PLANIFICADO: { bg: '#EFF6FF', text: '#1D4ED8' },
+  'EN CURSO': { bg: '#FFFBEB', text: '#92400E' },
+};
+export const COLOR_ESTADO_EVENTO_DEFECTO: ColorEstado = { bg: '#F3F4F6', text: '#374151' };

@@ -33,28 +33,56 @@ body {
   font: var(--mat-sys-body-medium);
 
   // El fondo del encabezado de tabla se pinta con una clase propia mas abajo (Material
-  // no tiene token de fondo para el header); el color de texto SI es un token de Material
-  // (table-header-headline-color) y hay que pisarlo aca para que el override de fondo
-  // no deje el texto oscuro por defecto sobre un fondo de color.
-  --mat-table-header-headline-color: var(--mat-sys-on-primary);
+  // no tiene token de fondo para el header); el color de texto se pisa aca para que el
+  // override de fondo no deje el texto oscuro por defecto sobre un fondo oscuro.
+  --mat-table-header-headline-color: #ffffff;
 
   // Reset the user agent margin.
   margin: 0;
   height: 100%;
 }
 
-// Encabezados de tabla con el color primario de marca (en vez del gris por defecto).
-// El color de texto lo resuelve el token --mat-table-header-headline-color de arriba.
+// Encabezados de tabla con el mismo azul oscuro de la barra superior (.toolbar-oscura
+// en shell.scss), para que toda la app use un solo tono de "marca" consistente en vez
+// del cyan generico de Material. El color de texto lo resuelve el token de arriba.
 // Selector de dos clases a proposito: Material define ".mat-mdc-header-row { background:
 // inherit }" con la misma especificidad que una sola clase, y su estilo se inyecta en
 // tiempo de ejecucion (despues de esta hoja global), asi que gana por orden si no le
 // subimos la especificidad.
 .mat-mdc-table .mat-mdc-header-row {
-  background-color: var(--mat-sys-primary);
+  background-color: #0f172a;
 }
 
 // Filas alternadas para tablas largas (mas facil de seguir visualmente)
 .mat-mdc-row:nth-child(even) {
   background-color: rgba(0, 0, 0, 0.02);
+}
+
+// Botones (Agregar, Guardar, Nuevo...) con el mismo azul oscuro de la barra
+// superior, en vez del cyan generico de Material. NOTA: el input color="..."
+// de MatButton (M2) no tiene ningun efecto bajo el theming M3 que usa este
+// proyecto (mat.theme()) — Angular Material lo documenta asi explicitamente.
+// Por eso el override va sobre las custom properties reales de esta version
+// (--mat-button-*, no --mdc-*), a nivel global: hoy todos los botones ya se
+// ven iguales entre si sin importar el color="" que tengan puesto.
+html {
+  --mat-button-filled-container-color: #0f172a;
+  --mat-button-filled-label-text-color: #ffffff;
+  --mat-button-protected-container-color: #0f172a;
+  --mat-button-protected-label-text-color: #ffffff;
+  --mat-button-outlined-label-text-color: #0f172a;
+  --mat-button-outlined-outline-color: #0f172a;
+  --mat-button-text-label-text-color: #0f172a;
+}
+
+// Boton de peligro suave, para acciones destructivas (ej. "Confirmar" en el dialogo
+// de confirmacion). Se pisan las mismas custom properties de arriba, pero solo dentro
+// de esta clase, para no afectar al resto de los botones "filled" de la app.
+.btn-danger-soft {
+  --mat-button-filled-container-color: #fff1f2;
+  --mat-button-filled-label-text-color: #be123c;
+  --mat-button-filled-container-shape: 8px;
+  height: 40px !important;
+  font-weight: 600;
 }
 /* You can add global styles to this file, and also import other style files */

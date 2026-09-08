@@ -13,12 +13,24 @@
 
 .sidenav {
   width: 240px;
+
+  // Angular Material inserta el contenido del sidenav dentro de un
+  // .mat-drawer-inner-container propio (no es hijo directo estilable sin
+  // ::ng-deep); hay que volverlo flex-column ahi para que el margin-top:
+  // auto del logo lo empuje hasta el fondo real del sidenav.
+  ::ng-deep .mat-drawer-inner-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
 }
 
-.lista-inicio {
-  padding-bottom: 4px;
-  margin-bottom: 4px;
-  border-bottom: 1px solid var(--mat-sys-outline-variant);
+.logo-sidebar {
+  display: block;
+  width: 150px;
+  height: 150px;
+  object-fit: contain;
+  margin: auto auto 16px;
 }
 
 .activo {
@@ -60,7 +72,7 @@
 }
 
 .toolbar-oscura {
-  background-color: #1f2430;
+  background-color: #0f172a;
   color: white;
 }
 

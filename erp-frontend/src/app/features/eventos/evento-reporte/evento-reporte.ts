@@ -19,18 +19,17 @@ import { ClienteResponse } from '../../clientes/dto/cliente';
 import { RentabilidadService } from '../../rentabilidad/rentabilidad.service';
 import { RentabilidadResumenResponse } from '../../rentabilidad/dto/rentabilidad';
 import { EventoService } from '../evento.service';
-import { EventoResponse, EventoResumenResponse, FiltrosEvento, TipoEventoResponse } from '../dto/evento';
+import {
+  ColorEstado,
+  COLOR_ESTADO_EVENTO_DEFECTO,
+  COLOR_POR_ESTADO_EVENTO,
+  EventoResponse,
+  EventoResumenResponse,
+  FiltrosEvento,
+  TipoEventoResponse,
+} from '../dto/evento';
 
 const TIPO_ESTADO_EVENTO = 'EVENTO';
-
-/** Colores fijos por estado (consistentes con los chips de Gestion de eventos); cualquier otro cae al gris. */
-const COLOR_POR_ESTADO: Record<string, string> = {
-  PLANIFICADO: '#5c6bc0',
-  'EN CURSO': '#fb8c00',
-  FINALIZADO: '#43a047',
-  CANCELADO: '#e53935',
-};
-const COLOR_DEFECTO = '#9e9e9e';
 const PALETA_TIPOS = ['#5c6bc0', '#26a69a', '#fb8c00', '#8d6e63', '#7e57c2', '#26c6da', '#ec407a', '#9ccc65', '#5d4037', '#78909c'];
 
 @Component({
@@ -88,7 +87,9 @@ export class EventoReporte implements OnInit {
       datasets: [
         {
           data: conteos.map((c) => c.cantidad),
-          backgroundColor: conteos.map((c) => COLOR_POR_ESTADO[c.etiqueta] ?? COLOR_DEFECTO),
+          // Para la grafica se usa el tono de texto (mas saturado), no el fondo pastel del
+          // chip: ese fondo se ve casi invisible como relleno solido sobre el card blanco.
+          backgroundColor: conteos.map((c) => (COLOR_POR_ESTADO_EVENTO[c.etiqueta] ?? COLOR_ESTADO_EVENTO_DEFECTO).text),
         },
       ],
     };
@@ -164,14 +165,7 @@ export class EventoReporte implements OnInit {
     this.cargar();
   }
 
-  colorEstado(estado: string): string {
-    switch (estado) {
-      case 'FINALIZADO':
-        return 'primary';
-      case 'CANCELADO':
-        return 'warn';
-      default:
-        return '';
-    }
+  colorEstado(estado: string): ColorEstado {
+    return COLOR_POR_ESTADO_EVENTO[estado.toUpperCase()] ?? COLOR_ESTADO_EVENTO_DEFECTO;
   }
 }

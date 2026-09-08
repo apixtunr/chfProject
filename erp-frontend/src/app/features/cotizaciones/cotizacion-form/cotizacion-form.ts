@@ -88,8 +88,10 @@ export class CotizacionForm implements OnInit {
     this.busquedaCliente.valueChanges.subscribe((texto) => {
       // Si el usuario edita el texto sin volver a elegir una opcion, el id queda invalido.
       this.formulario.controls.idCliente.setValue(null);
-      // Al borrar el texto, no debe quedar ninguna sugerencia visible.
-      if (!texto.trim()) {
+      // Al seleccionar una opcion, el autocomplete guarda el ClienteResponse completo
+      // (no un string) como valor del control; solo hay texto libre que evaluar cuando
+      // sigue siendo un string.
+      if (typeof texto === 'string' && !texto.trim()) {
         this.clientesFiltrados.set([]);
       }
     });
@@ -99,7 +101,7 @@ export class CotizacionForm implements OnInit {
         debounceTime(300),
         distinctUntilChanged(),
         switchMap((texto) => {
-          const valor = texto.trim();
+          const valor = typeof texto === 'string' ? texto.trim() : '';
           return valor ? this.clienteService.listar(valor, 0, 10) : of(null);
         }),
       )

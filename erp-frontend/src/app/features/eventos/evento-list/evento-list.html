@@ -27,7 +27,12 @@
   <ng-container matColumnDef="estado">
     <th mat-header-cell *matHeaderCellDef>Estado</th>
     <td mat-cell *matCellDef="let e">
-      <mat-chip [color]="colorEstado(e.estadoNombre)" highlighted>{{ e.estadoNombre }}</mat-chip>
+      <mat-chip
+        highlighted
+        [style.--mat-chip-elevated-container-color]="colorEstado(e.estadoNombre).bg"
+        [style.--mat-chip-label-text-color]="colorEstado(e.estadoNombre).text"
+        [style.--mat-chip-outline-color]="colorEstado(e.estadoNombre).text"
+      >{{ e.estadoNombre }}</mat-chip>
     </td>
   </ng-container>
 

@@ -3,7 +3,12 @@
     <div>
       <h1>
         Evento #{{ e.idEvento }} - {{ e.tipoEventoNombre }}
-        <mat-chip highlighted>{{ e.estadoNombre }}</mat-chip>
+        <mat-chip
+          highlighted
+          [style.--mat-chip-elevated-container-color]="colorEstado(e.estadoNombre).bg"
+          [style.--mat-chip-label-text-color]="colorEstado(e.estadoNombre).text"
+          [style.--mat-chip-outline-color]="colorEstado(e.estadoNombre).text"
+        >{{ e.estadoNombre }}</mat-chip>
       </h1>
       <p><strong>Cliente:</strong> {{ e.clienteNombre }}</p>
       <p><strong>Ubicación:</strong> {{ e.direccionUbicacion }}</p>
@@ -29,9 +34,7 @@
     <mat-tab label="Menú">
       <div class="contenido-tab">
         @if (e.idCotizacionVersion !== null) {
-          <p><strong class="aviso-menu">
-            DETALLE:
-          </strong></p>
+          <h3 class="subtitulo-tab">Menú de la cotización</h3>
 
           <table mat-table [dataSource]="detalleCotizacionOrigen()" class="tabla">
             <ng-container matColumnDef="menu">
@@ -119,8 +122,7 @@
             </mat-form-field>
             <mat-form-field appearance="outline" class="campo-chico">
               <mat-label>Precio unit. (Q)</mat-label>
-              <input matInput type="text" [value]="precioSeleccionado() ?? ''" disabled />
-              <mat-hint>Se toma del plato elegido</mat-hint>
+              <input matInput type="text" [value]="precioSeleccionado() ?? ''" readonly />
             </mat-form-field>
             <mat-form-field appearance="outline" class="campo-chico">
               <mat-label>Observaciones</mat-label>

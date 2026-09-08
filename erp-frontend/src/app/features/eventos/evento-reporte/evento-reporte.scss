@@ -69,3 +69,21 @@
 .tabla {
   width: 100%;
 }
+
+// Chip de estado en forma de pildora (no el rectangulo redondeado por defecto de M3)
+// con un contorno del mismo color que el texto, como en el diseno de referencia.
+// Tambien mas chico que el chip por defecto de Material (se veia enorme en la tabla).
+.mat-mdc-chip.mat-mdc-chip-highlighted {
+  --mat-chip-container-shape-radius: 999px;
+  --mat-chip-outline-width: 1px;
+  --mat-chip-container-height: 24px;
+  --mat-chip-label-text-size: 12px;
+  --mat-chip-label-text-line-height: 16px;
+
+  // .mdc-evolution-chip__action--primary vive dentro del template interno de MatChip,
+  // no en el nuestro: sin ::ng-deep el selector nunca llega a coincidir.
+  ::ng-deep .mdc-evolution-chip__action--primary {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+}

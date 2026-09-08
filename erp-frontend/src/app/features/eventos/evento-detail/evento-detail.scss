@@ -59,3 +59,17 @@ h1 {
   color: var(--mat-sys-on-surface-variant);
   padding: 20px 0;
 }
+
+// Chip de estado en forma de pildora, mismo criterio que evento-list y evento-reporte.
+.mat-mdc-chip.mat-mdc-chip-highlighted {
+  --mat-chip-container-shape-radius: 999px;
+  --mat-chip-outline-width: 1px;
+  --mat-chip-container-height: 24px;
+  --mat-chip-label-text-size: 12px;
+  --mat-chip-label-text-line-height: 16px;
+
+  ::ng-deep .mdc-evolution-chip__action--primary {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+}

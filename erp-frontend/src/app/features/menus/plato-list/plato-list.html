@@ -16,6 +16,7 @@
   </button>
 </mat-form-field>
 
+<div class="tabla-contenedor">
 <table mat-table [dataSource]="platos()" class="tabla">
   <ng-container matColumnDef="nombrePlato">
     <th mat-header-cell *matHeaderCellDef>Plato</th>
@@ -55,3 +56,4 @@
   (page)="onPageChange($event)"
 >
 </mat-paginator>
+</div>
