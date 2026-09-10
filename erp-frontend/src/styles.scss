@@ -75,6 +75,31 @@ html {
   --mat-button-text-label-text-color: #0f172a;
 }
 
+// Los botones de icono y los checkboxes tienen un "area tactil" invisible mas grande
+// que el control visible (accesibilidad para pantallas tactiles). El problema es que
+// esa area cuenta como contenido real dentro de contenedores flex/con scroll, y hace
+// que se desborden por unos pixeles sin que se note visualmente por que (confirmado
+// con el inspector: el boton del datepicker y el checkbox de "El cliente cubre este
+// costo" desbordaban su mat-form-field/formulario-linea por 4px, y eso se propagaba
+// hasta disparar un scroll horizontal en toda la pestaña). Esta app es de escritorio,
+// no se pierde nada relevante al desactivarla en toda la app.
+html {
+  --mat-icon-button-touch-target-display: none;
+  --mat-checkbox-touch-target-display: none;
+}
+
+// Checkbox con el mismo azul oscuro del resto de la app, en vez del cyan generico
+// de Material (mismo motivo que los botones: color="..." no tiene efecto en M3).
+html {
+  --mat-checkbox-selected-icon-color: #0f172a;
+  --mat-checkbox-selected-focus-icon-color: #0f172a;
+  --mat-checkbox-selected-hover-icon-color: #0f172a;
+  --mat-checkbox-selected-checkmark-color: #ffffff;
+  --mat-checkbox-selected-focus-state-layer-color: #0f172a;
+  --mat-checkbox-selected-hover-state-layer-color: #0f172a;
+  --mat-checkbox-selected-pressed-state-layer-color: #0f172a;
+}
+
 // Boton de peligro suave, para acciones destructivas (ej. "Confirmar" en el dialogo
 // de confirmacion). Se pisan las mismas custom properties de arriba, pero solo dentro
 // de esta clase, para no afectar al resto de los botones "filled" de la app.

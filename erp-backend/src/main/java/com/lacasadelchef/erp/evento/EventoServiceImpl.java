@@ -44,14 +44,15 @@ public class EventoServiceImpl implements EventoService {
     private static final String TIPO_ESTADO_EVENTO = "EVENTO";
     private static final String ESTADO_PLANIFICADO = "PLANIFICADO";
     private static final String ESTADO_EN_CURSO = "EN CURSO";
-    private static final String ESTADO_FINALIZADO = "FINALIZADO";
     private static final String ESTADO_CANCELADO = "CANCELADO";
     private static final String ESTADO_COTIZACION_ACEPTADA = "ACEPTADA";
     private static final String ROL_ADMINISTRADOR = "ADMINISTRADOR";
 
+    // EN CURSO y FINALIZADO los pone solo EventoEstadoAutomaticoJob, en base a la fecha/hora
+    // cargada; CANCELADO es la unica transicion que un usuario puede disparar a mano.
     private static final Map<String, Set<String>> TRANSICIONES_VALIDAS = Map.of(
-            ESTADO_PLANIFICADO, Set.of(ESTADO_EN_CURSO, ESTADO_CANCELADO),
-            ESTADO_EN_CURSO, Set.of(ESTADO_FINALIZADO, ESTADO_CANCELADO));
+            ESTADO_PLANIFICADO, Set.of(ESTADO_CANCELADO),
+            ESTADO_EN_CURSO, Set.of(ESTADO_CANCELADO));
 
     private final EventoRepository eventoRepository;
     private final CotizacionVersionRepository cotizacionVersionRepository;

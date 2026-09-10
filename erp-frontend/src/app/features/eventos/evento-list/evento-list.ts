@@ -38,7 +38,7 @@ export class EventoList implements OnInit {
   readonly pageIndex = signal(0);
   readonly pageSize = signal(20);
 
-  readonly columnas = ['cliente', 'tipo', 'fecha', 'estado', 'acciones'];
+  readonly columnas = ['cliente', 'tipo', 'fecha', 'horario', 'estado', 'acciones'];
 
   readonly puedeCrear: boolean;
 

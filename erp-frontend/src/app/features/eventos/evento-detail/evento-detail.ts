@@ -2,7 +2,9 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -12,6 +14,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
 import { ActivatedRoute } from '@angular/router';
+import { of, switchMap } from 'rxjs';
 import { AuthService } from '../../../core/auth/auth.service';
 import { EstadoResponse } from '../../../core/catalogos/estado';
 import { EstadoService } from '../../../core/catalogos/estado.service';
@@ -26,6 +29,8 @@ import { EmpleadoResponse } from '../../empleados/dto/empleado';
 import { EmpleadoService } from '../../empleados/empleado.service';
 import { VehiculoResponse } from '../../vehiculos/dto/vehiculo';
 import { VehiculoService } from '../../vehiculos/vehiculo.service';
+import { MetodoPagoResponse } from '../../pagos/dto/pago';
+import { PagoService } from '../../pagos/pago.service';
 import { CotizacionService } from '../../cotizaciones/cotizacion.service';
 import { DetalleCotizacionResponse, ServicioCotizacionResponse } from '../../cotizaciones/dto/cotizacion';
 import {
@@ -44,6 +49,8 @@ import { EventoService } from '../evento.service';
 
 const PAGINA_URL = '/api/eventos';
 const TIPO_ESTADO_EVENTO = 'EVENTO';
+const TIPO_ESTADO_PAGO = 'PAGO';
+const ESTADO_PAGO_CONFIRMADO = 'CONFIRMADO';
 
 @Component({
   selector: 'app-evento-detail',
@@ -59,6 +66,8 @@ const TIPO_ESTADO_EVENTO = 'EVENTO';
     MatIconModule,
     MatChipsModule,
     MatDialogModule,
+    MatDatepickerModule,
+    MatCheckboxModule,
   ],
   templateUrl: './evento-detail.html',
   styleUrl: './evento-detail.scss',
@@ -73,6 +82,7 @@ export class EventoDetail implements OnInit {
   private readonly tipoCostoService = inject(TipoCostoService);
   private readonly menuService = inject(MenuService);
   private readonly cotizacionService = inject(CotizacionService);
+  private readonly pagoService = inject(PagoService);
   private readonly estadoService = inject(EstadoService);
   private readonly authService = inject(AuthService);
   private readonly dialog = inject(MatDialog);
@@ -94,6 +104,8 @@ export class EventoDetail implements OnInit {
   readonly productosDisponibles = signal<ProductoResponse[]>([]);
   readonly tiposCosto = signal<TipoCostoResponse[]>([]);
   readonly estadosEvento = signal<EstadoResponse[]>([]);
+  readonly estadosPago = signal<EstadoResponse[]>([]);
+  readonly metodosPago = signal<MetodoPagoResponse[]>([]);
   readonly menusDisponibles = signal<MenuResponse[]>([]);
   readonly platosDelMenu = signal<MenuPlatoResponse[]>([]);
   readonly precioSeleccionado = signal<number | null>(null);
@@ -110,6 +122,12 @@ export class EventoDetail implements OnInit {
     idTipoCosto: this.fb.control<number | null>(null, Validators.required),
     descripcion: [''],
     monto: this.fb.control<number | null>(null, Validators.required),
+    /** Si se deja vacio, el backend usa la fecha de hoy. */
+    fechaCosto: this.fb.control<Date | null>(null),
+    /** Si el cliente cubre este costo, se crea de una vez el pago correspondiente. */
+    recargarCliente: false,
+    idMetodoPago: this.fb.control<number | null>(null),
+    referenciaTransaccion: [''],
   });
 
   readonly formularioPersonal = this.fb.nonNullable.group({
@@ -170,14 +188,46 @@ export class EventoDetail implements OnInit {
     return COLOR_POR_ESTADO_EVENTO[estado.toUpperCase()] ?? COLOR_ESTADO_EVENTO_DEFECTO;
   }
 
+  metodoRequiereReferencia(idMetodoPago: number | null): boolean {
+    return this.metodosPago().find((m) => m.idMetodoPago === idMetodoPago)?.requiereReferencia ?? false;
+  }
+
   ngOnInit(): void {
     this.empleadoService.listar('', 0, 200).subscribe((p) => this.empleadosDisponibles.set(p.content));
     this.vehiculoService.listar(0, 200).subscribe((p) => this.vehiculosDisponibles.set(p.content));
     this.productoService.listarTodos().subscribe((p) => this.productosDisponibles.set(p));
     this.tipoCostoService.listar().subscribe((t) => this.tiposCosto.set(t));
     this.estadoService.listarPorTipo(TIPO_ESTADO_EVENTO).subscribe((e) => this.estadosEvento.set(e));
+    this.estadoService.listarPorTipo(TIPO_ESTADO_PAGO).subscribe((e) => this.estadosPago.set(e));
+    this.pagoService.listarMetodos().subscribe((m) => this.metodosPago.set(m));
     this.menuService.listarActivos().subscribe((m) => this.menusDisponibles.set(m));
     this.cargar();
+
+    // Si el cliente cubre el costo, hay que elegir metodo de pago; y si ese
+    // metodo exige referencia (tarjeta, transferencia), tambien se vuelve obligatoria.
+    this.formularioCosto.controls.recargarCliente.valueChanges.subscribe((recargar) => {
+      const metodo = this.formularioCosto.controls.idMetodoPago;
+      metodo.setValidators(recargar ? Validators.required : null);
+      if (!recargar) {
+        metodo.setValue(null);
+        this.formularioCosto.controls.referenciaTransaccion.setValue('');
+      }
+      metodo.updateValueAndValidity();
+    });
+
+    this.formularioCosto.controls.idMetodoPago.valueChanges.subscribe((idMetodoPago) => {
+      const referencia = this.formularioCosto.controls.referenciaTransaccion;
+      const requiere = this.metodoRequiereReferencia(idMetodoPago);
+      referencia.setValidators(requiere ? Validators.required : null);
+      if (requiere) {
+        referencia.enable();
+      } else {
+        // Efectivo, por ejemplo, no tiene numero de referencia: se bloquea y se limpia.
+        referencia.setValue('');
+        referencia.disable();
+      }
+      referencia.updateValueAndValidity();
+    });
 
     this.formularioMenu.controls.idMenu.valueChanges.subscribe((idMenu) => {
       this.formularioMenu.controls.idPlato.setValue(null);
@@ -234,11 +284,47 @@ export class EventoDetail implements OnInit {
     }
     const v = this.formularioCosto.getRawValue();
     this.eventoService
-      .agregarCosto(this.idEvento, { idTipoCosto: v.idTipoCosto!, descripcion: v.descripcion || null, monto: v.monto!, fechaCosto: null })
+      .agregarCosto(this.idEvento, {
+        idTipoCosto: v.idTipoCosto!,
+        descripcion: v.descripcion || null,
+        monto: v.monto!,
+        fechaCosto: this.aFechaIso(v.fechaCosto),
+      })
+      .pipe(
+        switchMap(() =>
+          v.recargarCliente
+            ? this.crearPagoDeRecargo(v.monto!, v.idMetodoPago!, v.referenciaTransaccion, v.descripcion)
+            : of(null),
+        ),
+      )
       .subscribe(() => {
         this.formularioCosto.reset();
+        this.snackBar.open(
+          v.recargarCliente ? 'Costo y pago del cliente registrados' : 'Costo agregado',
+          'Cerrar',
+          { duration: 3000 },
+        );
         this.cargar();
       });
+  }
+
+  /** Crea el pago del recargo y lo deja CONFIRMADO de una vez (el cliente ya lo cubrio). */
+  private crearPagoDeRecargo(monto: number, idMetodoPago: number, referencia: string, descripcionCosto: string) {
+    return this.pagoService
+      .crear({
+        idEvento: this.idEvento,
+        idMetodoPago,
+        monto,
+        referenciaTransaccion: referencia || null,
+        observaciones: descripcionCosto ? `Recargo por: ${descripcionCosto}` : 'Recargo por costo extra del evento',
+        fechaPago: null,
+      })
+      .pipe(
+        switchMap((pago) => {
+          const confirmado = this.estadosPago().find((e) => e.nombre === ESTADO_PAGO_CONFIRMADO);
+          return confirmado ? this.pagoService.cambiarEstado(pago.idPago, confirmado.idEstado) : of(pago);
+        }),
+      );
   }
 
   eliminarCosto(costo: CostoEventoResponse): void {
@@ -356,5 +442,15 @@ export class EventoDetail implements OnInit {
       this.snackBar.open('Linea eliminada', 'Cerrar', { duration: 3000 });
       this.cargar();
     });
+  }
+
+  private aFechaIso(fecha: Date | null): string | null {
+    if (!fecha) {
+      return null;
+    }
+    const anio = fecha.getFullYear();
+    const mes = String(fecha.getMonth() + 1).padStart(2, '0');
+    const dia = String(fecha.getDate()).padStart(2, '0');
+    return `${anio}-${mes}-${dia}`;
   }
 }

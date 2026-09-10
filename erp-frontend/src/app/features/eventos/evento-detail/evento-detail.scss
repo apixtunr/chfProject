@@ -39,6 +39,19 @@ h1 {
   flex: 2 1 240px;
 }
 
+.fila-recargo {
+  flex: 1 1 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.campos-recargo {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
 .aviso-menu {
   margin: 0 0 16px;
   color: var(--mat-sys-on-surface-variant);
@@ -51,6 +64,19 @@ h1 {
 
 .tabla {
   width: 100%;
+}
+
+// Envuelve cada tabla (no se le pone overflow a la tabla misma: display:block
+// en un <table> rompe su algoritmo de layout y la encoge al ancho del contenido).
+// Asi, si una celda es mas ancha de lo esperado, scrollea aqui adentro en vez
+// de desbordar la pagina completa.
+.tabla-scroll {
+  overflow-x: auto;
+  // Sin esto, el navegador activa tambien un scroll vertical (regla CSS: si un eje
+  // tiene overflow distinto de "visible" y el otro queda en "visible", el otro pasa
+  // a "auto" solo). Esta tabla nunca deberia necesitar scroll vertical.
+  overflow-y: hidden;
+  max-width: 100%;
 }
 
 .mensaje-vacio {

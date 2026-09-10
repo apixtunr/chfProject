@@ -21,7 +21,12 @@
 
   <ng-container matColumnDef="fecha">
     <th mat-header-cell *matHeaderCellDef>Fecha</th>
-    <td mat-cell *matCellDef="let e">{{ e.fechaEvento | date: 'dd/MM/yyyy' }} {{ e.horaInicio }}</td>
+    <td mat-cell *matCellDef="let e">{{ e.fechaEvento | date: 'dd/MM/yyyy' }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="horario">
+    <th mat-header-cell *matHeaderCellDef>Horario</th>
+    <td mat-cell *matCellDef="let e">{{ e.horaInicio?.slice(0, 5) }} a {{ e.horaFin?.slice(0, 5) }} hrs.</td>
   </ng-container>
 
   <ng-container matColumnDef="estado">

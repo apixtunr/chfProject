@@ -148,10 +148,12 @@ export interface TipoEventoResponse {
   nombreTipo: string;
 }
 
-/** Transiciones validas por estado (espeja EventoServiceImpl.TRANSICIONES_VALIDAS). */
+// EN CURSO y FINALIZADO los pone solo el job automatico del backend, en base a la
+// fecha/hora cargada; CANCELADO es la unica transicion que un usuario dispara a mano
+// (espeja EventoServiceImpl.TRANSICIONES_VALIDAS).
 export const TRANSICIONES_VALIDAS_EVENTO: Record<string, string[]> = {
-  PLANIFICADO: ['EN CURSO', 'CANCELADO'],
-  'EN CURSO': ['FINALIZADO', 'CANCELADO'],
+  PLANIFICADO: ['CANCELADO'],
+  'EN CURSO': ['CANCELADO'],
 };
 
 export interface ColorEstado {
