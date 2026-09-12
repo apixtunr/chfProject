@@ -61,6 +61,7 @@ public class EventoServiceImpl implements EventoService {
     private final UbicacionRepository ubicacionRepository;
     private final EstadoRepository estadoRepository;
     private final BitacoraMovimientoService bitacoraMovimientoService;
+    private final EventoEstadoSchedulerService estadoSchedulerService;
 
     @Override
     @Transactional(readOnly = true)
@@ -112,6 +113,7 @@ public class EventoServiceImpl implements EventoService {
         evento.setEstado(buscarEstado(TIPO_ESTADO_EVENTO, ESTADO_PLANIFICADO));
         evento = eventoRepository.save(evento);
         bitacoraMovimientoService.registrar(TABLA, evento.getIdEvento(), Operacion.INSERT);
+        estadoSchedulerService.programar(evento);
         return EventoResponse.desde(evento);
     }
 
@@ -122,6 +124,7 @@ public class EventoServiceImpl implements EventoService {
         aplicar(request, evento);
         evento = eventoRepository.save(evento);
         bitacoraMovimientoService.registrar(TABLA, evento.getIdEvento(), Operacion.UPDATE);
+        estadoSchedulerService.programar(evento);
         return EventoResponse.desde(evento);
     }
 
@@ -133,6 +136,7 @@ public class EventoServiceImpl implements EventoService {
         Evento evento = buscarEvento(id);
         eventoRepository.delete(evento);
         bitacoraMovimientoService.registrar(TABLA, evento.getIdEvento(), Operacion.DELETE);
+        estadoSchedulerService.cancelarTareas(id);
     }
 
     @Override
@@ -160,6 +164,9 @@ public class EventoServiceImpl implements EventoService {
         evento.setEstado(estado);
         evento = eventoRepository.save(evento);
         bitacoraMovimientoService.registrar(TABLA, evento.getIdEvento(), Operacion.UPDATE);
+        // Unica transicion manual (ver TRANSICIONES_VALIDAS): siempre termina en CANCELADO,
+        // que no tiene ningun temporizador pendiente que programar, solo cancelar el que haya.
+        estadoSchedulerService.cancelarTareas(evento.getIdEvento());
         return EventoResponse.desde(evento);
     }
 

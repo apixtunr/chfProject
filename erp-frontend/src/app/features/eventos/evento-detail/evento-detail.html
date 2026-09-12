@@ -92,8 +92,8 @@
           }
         } @else {
           @if (e.estadoNombre !== 'PLANIFICADO') {
-            <p class="aviso-menu">
-              El menú solo se puede modificar mientras el evento esta en estado PLANIFICADO (actual: {{ e.estadoNombre }}).
+            <p class="aviso-menu" style="font-style: italic;">
+              El menú solo se puede modificar si el evento se encuentra en estado Planificado
             </p>
           }
 
@@ -173,7 +173,15 @@
       </div>
     </mat-tab>
 
-    <mat-tab label="Costos">
+    <mat-tab>
+      <ng-template mat-tab-label>
+        <span
+          matTooltip="Aquí puede registrar un costo extra que pudo haber sido pagado el día del evento o en otra fecha"
+          matTooltipClass="tooltip-justificado"
+        >
+          Registro de costo extra
+        </span>
+      </ng-template>
       <div class="contenido-tab">
         @if (puedeModificar) {
           <form [formGroup]="formularioCosto" (ngSubmit)="agregarCosto()" class="formulario-linea">
@@ -194,7 +202,7 @@
               <input matInput type="number" formControlName="monto" />
             </mat-form-field>
             <mat-form-field appearance="outline" class="campo-chico">
-              <mat-label>Fecha</mat-label>
+              <mat-label>Fecha del costo extra</mat-label>
               <input matInput [matDatepicker]="pickerCosto" formControlName="fechaCosto" />
               <mat-hint>Si no elije una fecha, se usará la fecha actual</mat-hint>
               <mat-datepicker-toggle matSuffix [for]="pickerCosto"></mat-datepicker-toggle>
@@ -267,9 +275,9 @@
       </div>
     </mat-tab>
 
-    <mat-tab label="Personal">
+    <mat-tab label="Asignación de Personal">
       <div class="contenido-tab">
-        @if (puedeModificar) {
+        @if (puedeAsignarRecursos) {
           <form [formGroup]="formularioPersonal" (ngSubmit)="asignarEmpleado()" class="formulario-linea">
             <mat-form-field appearance="outline" class="campo-chico">
               <mat-label>Empleado</mat-label>
@@ -280,16 +288,8 @@
               </mat-select>
             </mat-form-field>
             <mat-form-field appearance="outline" class="campo-chico">
-              <mat-label>Salario (Q)</mat-label>
+              <mat-label>Pago por evento (Q)</mat-label>
               <input matInput type="number" formControlName="salarioEvento" />
-            </mat-form-field>
-            <mat-form-field appearance="outline" class="campo-chico">
-              <mat-label>Hora inicio</mat-label>
-              <input matInput type="time" formControlName="horaInicio" />
-            </mat-form-field>
-            <mat-form-field appearance="outline" class="campo-chico">
-              <mat-label>Hora fin</mat-label>
-              <input matInput type="time" formControlName="horaFin" />
             </mat-form-field>
             <button mat-flat-button color="primary" type="submit">Asignar</button>
           </form>
@@ -302,7 +302,7 @@
               <td mat-cell *matCellDef="let p">{{ p.nombreEmpleado }}</td>
             </ng-container>
             <ng-container matColumnDef="salario">
-              <th mat-header-cell *matHeaderCellDef>Salario</th>
+              <th mat-header-cell *matHeaderCellDef>Pago por evento</th>
               <td mat-cell *matCellDef="let p">Q{{ p.salarioEvento | number: '1.2-2' }}</td>
             </ng-container>
             <ng-container matColumnDef="horario">
@@ -312,7 +312,7 @@
             <ng-container matColumnDef="acciones">
               <th mat-header-cell *matHeaderCellDef></th>
               <td mat-cell *matCellDef="let p">
-                @if (puedeModificar) {
+                @if (puedeAsignarRecursos) {
                   <button mat-icon-button (click)="quitarEmpleado(p)"><mat-icon>delete</mat-icon></button>
                 }
               </td>
@@ -327,9 +327,9 @@
       </div>
     </mat-tab>
 
-    <mat-tab label="Vehiculos">
+    <mat-tab label="Asignación de Vehículos">
       <div class="contenido-tab">
-        @if (puedeModificar) {
+        @if (puedeAsignarRecursos) {
           <form [formGroup]="formularioVehiculo" (ngSubmit)="asignarVehiculo()" class="formulario-linea">
             <mat-form-field appearance="outline" class="campo-chico">
               <mat-label>Vehiculo</mat-label>
@@ -365,7 +365,7 @@
             <ng-container matColumnDef="acciones">
               <th mat-header-cell *matHeaderCellDef></th>
               <td mat-cell *matCellDef="let v">
-                @if (puedeModificar) {
+                @if (puedeAsignarRecursos) {
                   <button mat-icon-button (click)="quitarVehiculo(v)"><mat-icon>delete</mat-icon></button>
                 }
               </td>
@@ -380,9 +380,9 @@
       </div>
     </mat-tab>
 
-    <mat-tab label="Inventario">
+    <mat-tab label="Registro de Inventario">
       <div class="contenido-tab">
-        @if (puedeModificar) {
+        @if (puedeAsignarRecursos) {
           <form [formGroup]="formularioInventario" (ngSubmit)="planificarProducto()" class="formulario-linea">
             <mat-form-field appearance="outline" class="campo-chico">
               <mat-label>Producto</mat-label>
@@ -423,7 +423,7 @@
             <ng-container matColumnDef="acciones">
               <th mat-header-cell *matHeaderCellDef></th>
               <td mat-cell *matCellDef="let i">
-                @if (puedeModificar && !i.fechaConsumo) {
+                @if (puedeAsignarRecursos && !i.fechaConsumo) {
                   <button mat-button color="primary" (click)="confirmarConsumo(i)">Confirmar consumo</button>
                   <button mat-icon-button (click)="quitarProducto(i)"><mat-icon>delete</mat-icon></button>
                 }

@@ -19,6 +19,9 @@ public interface EventoRepository extends JpaRepository<Evento, Integer> {
     /** Para el job de estados automaticos: eventos de una fecha dada (o anterior) en cierto estado. */
     List<Evento> findByEstadoNombreAndFechaEventoLessThanEqual(String estadoNombre, LocalDate fecha);
 
+    /** Para reconstruir los temporizadores de EventoEstadoSchedulerService al arrancar. */
+    List<Evento> findByEstadoNombreIn(List<String> estadoNombres);
+
     /** Evita que dos eventos distintos se creen a partir de la misma version de cotizacion. */
     boolean existsByCotizacionVersionIdCotizacionVersionAndIdEventoNot(Integer idCotizacionVersion, Integer idEvento);
 

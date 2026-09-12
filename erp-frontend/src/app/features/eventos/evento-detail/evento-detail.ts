@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -13,8 +14,9 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute } from '@angular/router';
-import { of, switchMap } from 'rxjs';
+import { interval, of, switchMap } from 'rxjs';
 import { AuthService } from '../../../core/auth/auth.service';
 import { EstadoResponse } from '../../../core/catalogos/estado';
 import { EstadoService } from '../../../core/catalogos/estado.service';
@@ -68,12 +70,14 @@ const ESTADO_PAGO_CONFIRMADO = 'CONFIRMADO';
     MatDialogModule,
     MatDatepickerModule,
     MatCheckboxModule,
+    MatTooltipModule,
   ],
   templateUrl: './evento-detail.html',
   styleUrl: './evento-detail.scss',
 })
 export class EventoDetail implements OnInit {
   private readonly route = inject(ActivatedRoute);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly fb = inject(FormBuilder);
   private readonly eventoService = inject(EventoService);
   private readonly empleadoService = inject(EmpleadoService);
@@ -133,8 +137,6 @@ export class EventoDetail implements OnInit {
   readonly formularioPersonal = this.fb.nonNullable.group({
     idEmpleado: this.fb.control<number | null>(null, Validators.required),
     salarioEvento: this.fb.control<number | null>(null, Validators.required),
-    horaInicio: [''],
-    horaFin: [''],
   });
 
   readonly formularioVehiculo = this.fb.nonNullable.group({
@@ -173,6 +175,15 @@ export class EventoDetail implements OnInit {
     return this.puedeModificar && !!e && e.idCotizacionVersion === null && e.estadoNombre === 'PLANIFICADO';
   }
 
+  /**
+   * Personal, vehiculos e inventario se definen antes del evento: una vez que ya inicio (EN
+   * CURSO) o termino (FINALIZADO), ya no tiene sentido seguir agregando o quitando. Lo unico
+   * que se puede seguir ingresando en cualquier estado no cancelado es un costo extra.
+   */
+  get puedeAsignarRecursos(): boolean {
+    return this.puedeModificar && this.evento()?.estadoNombre === 'PLANIFICADO';
+  }
+
   get transicionesDisponibles(): EstadoResponse[] {
     const actual = this.evento()?.estadoNombre;
     if (!actual) {
@@ -202,6 +213,13 @@ export class EventoDetail implements OnInit {
     this.pagoService.listarMetodos().subscribe((m) => this.metodosPago.set(m));
     this.menuService.listarActivos().subscribe((m) => this.menusDisponibles.set(m));
     this.cargar();
+
+    // El backend cambia EN CURSO/FINALIZADO solo, en el instante exacto de la hora
+    // cargada; sin esto, la pantalla se queda mostrando el estado viejo hasta que el
+    // usuario haga algo que recargue los datos (F5, cambiar de tab, etc.).
+    interval(20000)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.eventoService.obtener(this.idEvento).subscribe((e) => this.evento.set(e)));
 
     // Si el cliente cubre el costo, hay que elegir metodo de pago; y si ese
     // metodo exige referencia (tarjeta, transferencia), tambien se vuelve obligatoria.
@@ -339,11 +357,15 @@ export class EventoDetail implements OnInit {
       return;
     }
     const v = this.formularioPersonal.getRawValue();
+    // El personal se asigna por la duracion completa del evento, no se pide hora
+    // aparte: si alguien se queda mas tiempo del previsto, eso se registra como
+    // costo extra (Personal extra), no como un horario distinto aqui.
+    const evento = this.evento();
     this.eventoService
       .asignarEmpleado(this.idEvento, v.idEmpleado!, {
         salarioEvento: v.salarioEvento!,
-        horaInicio: v.horaInicio || null,
-        horaFin: v.horaFin || null,
+        horaInicio: evento?.horaInicio ?? null,
+        horaFin: evento?.horaFin ?? null,
         idEstado: null,
       })
       .subscribe(() => {

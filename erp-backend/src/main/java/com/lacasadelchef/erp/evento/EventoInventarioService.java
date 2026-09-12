@@ -17,4 +17,12 @@ public interface EventoInventarioService {
 
     /** Confirma que el producto planificado se consumio de verdad: genera la salida de stock real. */
     EventoInventarioResponse confirmarConsumo(Integer idEvento, Integer idProducto);
+
+    /**
+     * Confirma de una vez todo lo planificado y aun no confirmado de un evento (se llama cuando
+     * el evento pasa a EN CURSO en automatico). A diferencia de {@link #confirmarConsumo}, un
+     * producto sin stock suficiente no interrumpe a los demas: se omite y queda registrado en el
+     * log para revision manual, ya que esto corre sin un usuario presente para decidir que hacer.
+     */
+    void confirmarConsumoAutomatico(Integer idEvento);
 }

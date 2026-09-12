@@ -9,4 +9,6 @@ import java.util.List;
 public interface EventoInventarioRepository extends JpaRepository<EventoInventario, EventoInventarioId> {
 
     List<EventoInventario> findByEventoIdEvento(Integer idEvento);
+
+    List<EventoInventario> findByEventoIdEventoAndFechaConsumoIsNull(Integer idEvento);
 }

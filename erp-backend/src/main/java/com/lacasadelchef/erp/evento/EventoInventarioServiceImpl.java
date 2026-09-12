@@ -16,12 +16,14 @@ import com.lacasadelchef.erp.repository.EventoInventarioRepository;
 import com.lacasadelchef.erp.repository.EventoRepository;
 import com.lacasadelchef.erp.repository.ProductoRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class EventoInventarioServiceImpl implements EventoInventarioService {
@@ -88,20 +90,40 @@ public class EventoInventarioServiceImpl implements EventoInventarioService {
                     "El consumo de este producto ya fue confirmado para este evento el %s"
                             .formatted(eventoInventario.getFechaConsumo()));
         }
+        confirmarUnaLinea(eventoInventario, idEvento, "Consumo del evento #%d".formatted(idEvento));
+        return EventoInventarioResponse.desde(eventoInventario);
+    }
 
-        // Genera la salida de stock real recien ahora; mientras solo estaba "planificado"
-        // (fecha_consumo en blanco) no tocaba el inventario.
+    @Override
+    @Transactional
+    public void confirmarConsumoAutomatico(Integer idEvento) {
+        String motivo = "Consumo automatico al iniciar el evento #%d".formatted(idEvento);
+        for (EventoInventario item : eventoInventarioRepository.findByEventoIdEventoAndFechaConsumoIsNull(idEvento)) {
+            try {
+                confirmarUnaLinea(item, idEvento, motivo);
+            } catch (BusinessException e) {
+                // Sin un usuario presente para decidir que hacer (esto corre desde el scheduler),
+                // se omite ese producto y se sigue con los demas en vez de bloquear al evento.
+                log.warn("No se pudo confirmar consumo automatico del producto {} en el evento {}: {}",
+                        item.getProducto().getIdProducto(), idEvento, e.getMessage());
+            }
+        }
+    }
+
+    // Genera la salida de stock real recien ahora; mientras solo estaba "planificado"
+    // (fecha_consumo en blanco) no tocaba el inventario.
+    private void confirmarUnaLinea(EventoInventario eventoInventario, Integer idEvento, String motivo) {
         movimientoInventarioService.registrar(new MovimientoInventarioRequest(
-                idProducto,
+                eventoInventario.getProducto().getIdProducto(),
                 TIPO_SALIDA,
                 eventoInventario.getCantidad(),
-                "Consumo del evento #%d".formatted(idEvento),
+                motivo,
                 idEvento));
 
         eventoInventario.setFechaConsumo(LocalDateTime.now());
-        eventoInventario = eventoInventarioRepository.save(eventoInventario);
-        bitacoraMovimientoService.registrar(TABLA, idEvento + "-" + idProducto, Operacion.UPDATE);
-        return EventoInventarioResponse.desde(eventoInventario);
+        eventoInventarioRepository.save(eventoInventario);
+        bitacoraMovimientoService.registrar(
+                TABLA, idEvento + "-" + eventoInventario.getProducto().getIdProducto(), Operacion.UPDATE);
     }
 
     private EventoInventario buscar(Integer idEvento, Integer idProducto) {
