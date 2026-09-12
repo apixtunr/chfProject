@@ -11,6 +11,13 @@
   min-height: 0;
 }
 
+// mat-sidenav-content es el que realmente scrollea segun el contenido de cada pantalla
+// ruteada; sin esto, pasar de una pantalla corta a una larga (que si necesita scroll)
+// le resta ~15-17px de ancho aqui adentro, corriendo el contenido cada vez que cambia.
+mat-sidenav-content {
+  scrollbar-gutter: stable;
+}
+
 .sidenav {
   width: 240px;
 
@@ -74,6 +81,10 @@
 .toolbar-oscura {
   background-color: #0f172a;
   color: white;
+  // Sin esto, Flexbox puede encoger el navbar por debajo de su alto fijo (64px) si el
+  // contenido de abajo pide mas espacio del que hay en los 100vh del .shell -eso paso,
+  // se veia mas chico en pantallas con mas contenido, sin que ninguna regla CSS "ganara".
+  flex-shrink: 0;
 }
 
 .spacer {

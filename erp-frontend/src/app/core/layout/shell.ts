@@ -59,10 +59,13 @@ export class Shell {
   private readonly modulosExpandidos = signal<ReadonlySet<string>>(new Set());
 
   constructor() {
+    // Al navegar, deja abierto unicamente el modulo de la pantalla activa (no se van
+    // acumulando los anteriores). Un clic manual en otro modulo si puede abrir varios
+    // a la vez, hasta la siguiente navegacion.
     effect(() => {
       const activo = this.moduloActivo();
-      if (activo && !this.modulosExpandidos().has(activo)) {
-        this.modulosExpandidos.update((actual) => new Set(actual).add(activo));
+      if (activo) {
+        this.modulosExpandidos.set(new Set([activo]));
       }
     });
   }

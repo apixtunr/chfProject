@@ -76,14 +76,23 @@
 .mat-mdc-chip.mat-mdc-chip-highlighted {
   --mat-chip-container-shape-radius: 999px;
   --mat-chip-outline-width: 1px;
-  --mat-chip-container-height: 24px;
+  --mat-chip-container-height: 22px;
   --mat-chip-label-text-size: 12px;
   --mat-chip-label-text-line-height: 16px;
+  // Ancho aproximado de "PLANIFICADO" (el mas largo) con este padding: los demas
+  // estados quedan igual de anchos.
+  min-width: 96px;
 
   // .mdc-evolution-chip__action--primary vive dentro del template interno de MatChip,
   // no en el nuestro: sin ::ng-deep el selector nunca llega a coincidir.
   ::ng-deep .mdc-evolution-chip__action--primary {
-    padding-left: 10px;
-    padding-right: 10px;
+    padding-left: 6px;
+    padding-right: 6px;
+  }
+
+  // El que realmente ocupa todo el ancho de la pildora (flex-basis: 100%) es este,
+  // no el de arriba: el justify-content va aqui para que el texto quede centrado.
+  ::ng-deep .mdc-evolution-chip__cell--primary {
+    justify-content: center;
   }
 }

@@ -7,6 +7,12 @@
 
 html {
   height: 100%;
+  // Reserva siempre el espacio de la barra de scroll vertical, aparezca o no.
+  // Sin esto, cambiar a una pantalla con mas contenido (que si necesita scroll)
+  // le resta ~15-17px de ancho a toda la pagina -incluyendo la barra superior-
+  // y eso se ve como si la barra "se moviera" al cambiar de opcion en el menu.
+  overflow-y: scroll;
+  scrollbar-gutter: stable;
   @include mat.theme(
     (
       color: (
