@@ -1,5 +1,7 @@
 package com.lacasadelchef.erp.evento;
 
+import com.lacasadelchef.erp.evento.dto.EventoInventarioConfirmacionMasivaResponse;
+import com.lacasadelchef.erp.evento.dto.EventoInventarioCorreccionRequest;
 import com.lacasadelchef.erp.evento.dto.EventoInventarioRequest;
 import com.lacasadelchef.erp.evento.dto.EventoInventarioResponse;
 import jakarta.validation.Valid;
@@ -49,5 +51,18 @@ public class EventoInventarioController {
     @PreAuthorize("@permisoService.tienePermiso('/api/eventos', T(com.lacasadelchef.erp.security.TipoPermiso).MODIFICACION)")
     public EventoInventarioResponse confirmarConsumo(@PathVariable Integer idEvento, @PathVariable Integer idProducto) {
         return eventoInventarioService.confirmarConsumo(idEvento, idProducto);
+    }
+
+    @PutMapping("/consumir-todo")
+    @PreAuthorize("@permisoService.tienePermiso('/api/eventos', T(com.lacasadelchef.erp.security.TipoPermiso).MODIFICACION)")
+    public EventoInventarioConfirmacionMasivaResponse confirmarTodo(@PathVariable Integer idEvento) {
+        return eventoInventarioService.confirmarTodo(idEvento);
+    }
+
+    @PutMapping("/{idProducto}/corregir")
+    @PreAuthorize("@permisoService.tienePermiso('/api/eventos', T(com.lacasadelchef.erp.security.TipoPermiso).MODIFICACION)")
+    public EventoInventarioResponse corregirConsumo(@PathVariable Integer idEvento, @PathVariable Integer idProducto,
+                                                    @Valid @RequestBody EventoInventarioCorreccionRequest request) {
+        return eventoInventarioService.corregirConsumo(idEvento, idProducto, request);
     }
 }

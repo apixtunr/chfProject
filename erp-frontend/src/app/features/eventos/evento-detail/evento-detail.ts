@@ -117,7 +117,7 @@ export class EventoDetail implements OnInit {
   readonly columnasCostos = ['tipo', 'descripcion', 'monto', 'fecha', 'acciones'];
   readonly columnasPersonal = ['empleado', 'salario', 'horario', 'acciones'];
   readonly columnasVehiculos = ['placa', 'conductor', 'acciones'];
-  readonly columnasInventario = ['producto', 'cantidad', 'consumo', 'acciones'];
+  private readonly columnasInventarioBase = ['producto', 'cantidad', 'consumo', 'fechaConfirmacion'];
   readonly columnasMenu = ['menu', 'cantidad', 'precio', 'subtotal', 'acciones'];
   readonly columnasMenuCotizacion = ['menu', 'cantidad', 'precio', 'subtotal'];
   readonly columnasServiciosCotizacion = ['tipo', 'descripcion', 'monto'];
@@ -148,6 +148,10 @@ export class EventoDetail implements OnInit {
     idProducto: this.fb.control<number | null>(null, Validators.required),
     cantidad: this.fb.control<number | null>(null, Validators.required),
   });
+
+  /** Producto cuya fila de inventario ya confirmada se esta corrigiendo (null = ninguna). */
+  readonly idProductoCorrigiendo = signal<number | null>(null);
+  readonly controlCorreccion = this.fb.control<number | null>(null, [Validators.required, Validators.min(0)]);
 
   readonly formularioMenu = this.fb.nonNullable.group({
     idMenu: this.fb.control<number | null>(null, Validators.required),
@@ -418,19 +422,71 @@ export class EventoDetail implements OnInit {
     this.eventoService.quitarProducto(this.idEvento, item.idProducto).subscribe(() => this.cargar());
   }
 
-  confirmarConsumo(item: EventoInventarioResponse): void {
+  get hayInventarioPendiente(): boolean {
+    return this.inventario().some((i) => !i.fechaConsumo);
+  }
+
+  /** La columna de acciones se muestra si alguna fila tiene algo que hacer: eliminar (pendiente,
+   * solo mientras se puede asignar recursos) o corregir (ya confirmado, en cualquier estado no
+   * cancelado). Si ninguna fila califica, la columna no aporta nada y se oculta. */
+  get columnasInventario(): string[] {
+    const hayAccionPosible = this.inventario().some((i) =>
+      i.fechaConsumo ? this.puedeModificar : this.puedeAsignarRecursos,
+    );
+    return hayAccionPosible ? [...this.columnasInventarioBase, 'acciones'] : this.columnasInventarioBase;
+  }
+
+  iniciarCorreccionInventario(item: EventoInventarioResponse): void {
+    this.idProductoCorrigiendo.set(item.idProducto);
+    this.controlCorreccion.setValue(item.cantidad);
+  }
+
+  cancelarCorreccionInventario(): void {
+    this.idProductoCorrigiendo.set(null);
+  }
+
+  guardarCorreccionInventario(item: EventoInventarioResponse): void {
+    if (this.controlCorreccion.invalid) {
+      this.controlCorreccion.markAsTouched();
+      return;
+    }
+    const cantidadCorrecta = this.controlCorreccion.value!;
     const ref = this.dialog.open(ConfirmDialog, {
       data: {
-        titulo: 'Confirmar consumo',
-        mensaje: `¿Confirmar que se consumieron ${item.cantidad} de "${item.nombreProducto}"? Esto descuenta el stock real.`,
+        titulo: 'Corregir consumo confirmado',
+        mensaje: `¿Corregir "${item.nombreProducto}" de ${item.cantidad} a ${cantidadCorrecta}?, esto ajustará el stock en el inventario`,
       },
     });
     ref.afterClosed().subscribe((confirmado) => {
       if (!confirmado) {
         return;
       }
-      this.eventoService.confirmarConsumo(this.idEvento, item.idProducto).subscribe(() => {
-        this.snackBar.open('Consumo confirmado, stock actualizado', 'Cerrar', { duration: 3000 });
+      this.eventoService.corregirConsumo(this.idEvento, item.idProducto, { cantidadCorrecta }).subscribe(() => {
+        this.snackBar.open('Consumo corregido, stock ajustado', 'Cerrar', { duration: 3000 });
+        this.idProductoCorrigiendo.set(null);
+        this.cargar();
+      });
+    });
+  }
+
+  confirmarTodoInventario(): void {
+    const pendientes = this.inventario().filter((i) => !i.fechaConsumo).length;
+    const ref = this.dialog.open(ConfirmDialog, {
+      data: {
+        titulo: 'Confirmar todo el consumo',
+        mensaje: `¿Confirmar el consumo de los ${pendientes} productos registrados?, Esto se descontará del stock disponible.`,
+      },
+    });
+    ref.afterClosed().subscribe((confirmado) => {
+      if (!confirmado) {
+        return;
+      }
+      this.eventoService.confirmarTodoInventario(this.idEvento).subscribe((resultado) => {
+        const mensaje = resultado.fallidos.length
+          ? `${resultado.confirmados.length} confirmados. ${resultado.fallidos.length} sin stock suficiente: ` +
+            resultado.fallidos.map((f) => f.nombreProducto).join(', ')
+          : `${resultado.confirmados.length} productos confirmados, stock actualizado`;
+        this.snackBar.open(mensaje, 'Cerrar', { duration: resultado.fallidos.length ? 8000 : 3000 });
         this.cargar();
       });
     });

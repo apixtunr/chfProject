@@ -8,6 +8,9 @@ import com.lacasadelchef.erp.entity.Evento;
 import com.lacasadelchef.erp.entity.EventoInventario;
 import com.lacasadelchef.erp.entity.Producto;
 import com.lacasadelchef.erp.entity.id.EventoInventarioId;
+import com.lacasadelchef.erp.evento.dto.EventoInventarioConfirmacionMasivaResponse;
+import com.lacasadelchef.erp.evento.dto.EventoInventarioCorreccionRequest;
+import com.lacasadelchef.erp.evento.dto.EventoInventarioFalloResponse;
 import com.lacasadelchef.erp.evento.dto.EventoInventarioRequest;
 import com.lacasadelchef.erp.evento.dto.EventoInventarioResponse;
 import com.lacasadelchef.erp.inventario.MovimientoInventarioService;
@@ -20,7 +23,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -30,6 +35,7 @@ public class EventoInventarioServiceImpl implements EventoInventarioService {
 
     private static final String TABLA = "evento_inventario";
     private static final String TIPO_SALIDA = "SALIDA";
+    private static final String TIPO_AJUSTE = "AJUSTE";
 
     private final EventoInventarioRepository eventoInventarioRepository;
     private final EventoRepository eventoRepository;
@@ -108,6 +114,52 @@ public class EventoInventarioServiceImpl implements EventoInventarioService {
                         item.getProducto().getIdProducto(), idEvento, e.getMessage());
             }
         }
+    }
+
+    @Override
+    @Transactional
+    public EventoInventarioConfirmacionMasivaResponse confirmarTodo(Integer idEvento) {
+        String motivo = "Consumo confirmado evento id %d".formatted(idEvento);
+        List<EventoInventarioResponse> confirmados = new ArrayList<>();
+        List<EventoInventarioFalloResponse> fallidos = new ArrayList<>();
+        for (EventoInventario item : eventoInventarioRepository.findByEventoIdEventoAndFechaConsumoIsNull(idEvento)) {
+            try {
+                confirmarUnaLinea(item, idEvento, motivo);
+                confirmados.add(EventoInventarioResponse.desde(item));
+            } catch (BusinessException e) {
+                fallidos.add(new EventoInventarioFalloResponse(item.getProducto().getNombreProducto(), e.getMessage()));
+            }
+        }
+        return new EventoInventarioConfirmacionMasivaResponse(confirmados, fallidos);
+    }
+
+    @Override
+    @Transactional
+    public EventoInventarioResponse corregirConsumo(Integer idEvento, Integer idProducto,
+                                                     EventoInventarioCorreccionRequest request) {
+        EventoInventario item = buscar(idEvento, idProducto);
+        if (item.getFechaConsumo() == null) {
+            throw new BusinessException(
+                    "Este producto todavia no se ha confirmado; edite la cantidad planificada en vez de corregirla");
+        }
+        BigDecimal cantidadAnterior = item.getCantidad();
+        BigDecimal cantidadCorrecta = request.cantidadCorrecta();
+        // Cuanto hay que devolverle al stock (positivo) o quitarle de mas (negativo) para que
+        // el stock real quede como si desde el principio se hubiera confirmado la cantidad
+        // correcta, sin borrar el movimiento SALIDA original del historial.
+        BigDecimal ajuste = cantidadAnterior.subtract(cantidadCorrecta);
+        if (ajuste.compareTo(BigDecimal.ZERO) != 0) {
+            movimientoInventarioService.registrar(new MovimientoInventarioRequest(
+                    idProducto,
+                    TIPO_AJUSTE,
+                    ajuste,
+                    "Correccion consumo evento id %d: de %s a %s".formatted(idEvento, cantidadAnterior, cantidadCorrecta),
+                    idEvento));
+        }
+        item.setCantidad(cantidadCorrecta);
+        eventoInventarioRepository.save(item);
+        bitacoraMovimientoService.registrar(TABLA, idEvento + "-" + idProducto, Operacion.UPDATE);
+        return EventoInventarioResponse.desde(item);
     }
 
     // Genera la salida de stock real recien ahora; mientras solo estaba "planificado"

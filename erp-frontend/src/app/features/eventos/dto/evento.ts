@@ -143,6 +143,20 @@ export interface EventoInventarioResponse {
   fechaConsumo: string | null;
 }
 
+export interface EventoInventarioCorreccionRequest {
+  cantidadCorrecta: number;
+}
+
+export interface EventoInventarioFalloResponse {
+  nombreProducto: string;
+  motivo: string;
+}
+
+export interface EventoInventarioConfirmacionMasivaResponse {
+  confirmados: EventoInventarioResponse[];
+  fallidos: EventoInventarioFalloResponse[];
+}
+
 export interface TipoEventoResponse {
   idTipoEvento: number;
   nombreTipo: string;

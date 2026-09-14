@@ -11,6 +11,8 @@ import {
   DetalleEventoResponse,
   EventoEmpleadoRequest,
   EventoEmpleadoResponse,
+  EventoInventarioConfirmacionMasivaResponse,
+  EventoInventarioCorreccionRequest,
   EventoInventarioRequest,
   EventoInventarioResponse,
   EventoRequest,
@@ -161,7 +163,11 @@ export class EventoService {
     return this.http.delete<void>(`${BASE_URL}/${idEvento}/inventario/${idProducto}`);
   }
 
-  confirmarConsumo(idEvento: number, idProducto: number): Observable<EventoInventarioResponse> {
-    return this.http.put<EventoInventarioResponse>(`${BASE_URL}/${idEvento}/inventario/${idProducto}/consumir`, null);
+  confirmarTodoInventario(idEvento: number): Observable<EventoInventarioConfirmacionMasivaResponse> {
+    return this.http.put<EventoInventarioConfirmacionMasivaResponse>(`${BASE_URL}/${idEvento}/inventario/consumir-todo`, null);
+  }
+
+  corregirConsumo(idEvento: number, idProducto: number, request: EventoInventarioCorreccionRequest): Observable<EventoInventarioResponse> {
+    return this.http.put<EventoInventarioResponse>(`${BASE_URL}/${idEvento}/inventario/${idProducto}/corregir`, request);
   }
 }

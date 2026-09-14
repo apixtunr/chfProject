@@ -88,6 +88,25 @@ h1 {
   max-width: 100%;
 }
 
+.boton-confirmar-todo {
+  margin-bottom: 16px;
+}
+
+.campo-correccion {
+  width: 90px;
+
+  // La tabla de Material fija el alto de fila (52px); sin achicar el form-field su
+  // padding/hint reservado hace que esa fila se vea mas alta que las demas.
+  ::ng-deep .mat-mdc-text-field-wrapper {
+    height: 40px;
+  }
+  ::ng-deep .mat-mdc-form-field-infix {
+    min-height: 0;
+    padding-top: 8px;
+    padding-bottom: 8px;
+  }
+}
+
 .mensaje-vacio {
   text-align: center;
   font-style: italic;
