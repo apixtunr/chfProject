@@ -16,7 +16,7 @@ import { InventarioResponse } from '../dto/inventario';
       <p>{{ data.nombreProducto }}</p>
       <mat-form-field appearance="outline" class="campo">
         <mat-label>Cantidad minima</mat-label>
-        <input matInput type="number" min="0" step="0.01" [(ngModel)]="cantidadMinima" />
+        <input matInput type="number" min="0" step="1" [(ngModel)]="cantidadMinima" />
       </mat-form-field>
     </mat-dialog-content>
     <mat-dialog-actions align="end">

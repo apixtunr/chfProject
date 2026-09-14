@@ -5,6 +5,13 @@
 // custom components at https://material.angular.dev/guide/theming
 @use '@angular/material' as mat;
 
+// Todos los formularios de la app usan esta misma clase (mat-card con max-width);
+// sin margin:auto un bloque con ancho menor al de su contenedor queda pegado a la
+// izquierda en vez de centrarse. Global aqui para no repetirlo en ~15 componentes.
+.tarjeta {
+  margin: 0 auto;
+}
+
 html {
   height: 100%;
   // Reserva siempre el espacio de la barra de scroll vertical, aparezca o no.

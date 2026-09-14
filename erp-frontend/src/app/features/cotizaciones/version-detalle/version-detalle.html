@@ -71,8 +71,7 @@
 
           <mat-form-field appearance="outline" class="campo-chico">
             <mat-label>Precio unit. (Q)</mat-label>
-            <input matInput type="text" [value]="precioSeleccionado() ?? ''" disabled />
-            <mat-hint>Se toma del plato elegido</mat-hint>
+            <input matInput type="text" [value]="precioSeleccionado() ?? ''" readonly />
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="campo-observaciones">

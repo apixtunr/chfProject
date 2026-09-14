@@ -11,26 +11,26 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/cotizaciones/versiones")
+@RequestMapping("/api/cotizaciones/versiones/{id}")
 @RequiredArgsConstructor
 public class CotizacionVersionController {
 
     private final CotizacionVersionService cotizacionVersionService;
     private final CotizacionPdfService cotizacionPdfService;
 
-    @GetMapping("/{id}")
+    @GetMapping
     public CotizacionVersionResponse obtener(@PathVariable Integer id) {
         return cotizacionVersionService.obtenerPorId(id);
     }
 
-    @PutMapping("/{id}/estado")
+    @PutMapping("/estado")
     @PreAuthorize("@permisoService.tienePermiso('/api/cotizaciones', T(com.lacasadelchef.erp.security.TipoPermiso).MODIFICACION)")
     public CotizacionVersionResponse cambiarEstado(@PathVariable Integer id,
                                                     @Valid @RequestBody CambiarEstadoRequest request) {
         return cotizacionVersionService.cambiarEstado(id, request.idEstado());
     }
 
-    @GetMapping("/{id}/pdf")
+    @GetMapping("/pdf")
     @PreAuthorize("@permisoService.tienePermiso('/api/cotizaciones', T(com.lacasadelchef.erp.security.TipoPermiso).IMPRIMIR)")
     public ResponseEntity<byte[]> descargarPdf(@PathVariable Integer id) {
         byte[] pdf = cotizacionPdfService.generar(id);
