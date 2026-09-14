@@ -96,7 +96,7 @@
 
         <mat-form-field appearance="outline" class="campo">
           <mat-label>Fecha del evento</mat-label>
-          <input matInput [matDatepicker]="picker" formControlName="fechaEvento" />
+          <input matInput [matDatepicker]="picker" [min]="fechaMinima" formControlName="fechaEvento" />
           <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
           <mat-datepicker #picker></mat-datepicker>
         </mat-form-field>

@@ -3,6 +3,15 @@
   margin: 0 auto;
 }
 
+// El calendario del datepicker se renderiza en un overlay fuera de este componente,
+// pero conserva el atributo de encapsulacion (igual que el tooltip de "Registro de
+// costo extra"), asi que ::ng-deep si alcanza. Hoy sale deshabilitado (no se puede
+// crear un evento para hoy) pero Material igual le dibuja un aro para marcarlo como
+// "hoy" -no hace falta, con que se vea deshabilitado como cualquier otro dia basta.
+::ng-deep .mat-datepicker-content {
+  --mat-datepicker-calendar-date-today-disabled-state-outline-color: transparent;
+}
+
 .pregunta {
   font-weight: 500;
   margin-bottom: 8px;

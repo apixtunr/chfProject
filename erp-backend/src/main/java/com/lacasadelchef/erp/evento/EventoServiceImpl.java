@@ -110,6 +110,7 @@ public class EventoServiceImpl implements EventoService {
     public EventoResponse crear(EventoRequest request) {
         Evento evento = new Evento();
         aplicar(request, evento);
+        validarNoEnElPasado(evento);
         evento.setEstado(buscarEstado(TIPO_ESTADO_EVENTO, ESTADO_PLANIFICADO));
         evento = eventoRepository.save(evento);
         bitacoraMovimientoService.registrar(TABLA, evento.getIdEvento(), Operacion.INSERT);
@@ -233,6 +234,16 @@ public class EventoServiceImpl implements EventoService {
         evento.setHoraInicio(request.horaInicio());
         evento.setHoraFin(request.horaFin());
         evento.setObservaciones(request.observaciones());
+    }
+
+    // Regla provisional mientras se define con gerencia cuantos dias de anticipacion se
+    // exigen para reservar: por ahora no se permite crear un evento el mismo dia, tiene
+    // que ser una fecha futura. Solo aplica al crear; un evento existente (ya en curso o
+    // finalizado) puede tener fecha pasada sin que eso impida actualizar otros datos.
+    private void validarNoEnElPasado(Evento evento) {
+        if (!evento.getFechaEvento().isAfter(LocalDate.now())) {
+            throw new BusinessException("No se pueden crear eventos en la fecha actual");
+        }
     }
 
     private String rolUsuarioActual() {

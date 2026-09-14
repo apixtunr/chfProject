@@ -76,6 +76,12 @@ export class EventoForm implements OnInit {
 
   readonly formulario = this.crearFormulario();
 
+  /**
+   * Tope minimo del datepicker: no se permite crear eventos el mismo dia, solo a futuro.
+   * El backend igual lo valida, esto solo evita el viaje al servidor.
+   */
+  readonly fechaMinima = this.calcularManana();
+
   /** Franjas de horario validas segun los horarios de servicio del negocio. */
   readonly horarios: { horaInicio: Date; label: string }[] = this.crearHorarios();
 
@@ -255,6 +261,12 @@ export class EventoForm implements OnInit {
       },
       error: () => this.guardando.set(false),
     });
+  }
+
+  private calcularManana(): Date {
+    const manana = new Date();
+    manana.setDate(manana.getDate() + 1);
+    return manana;
   }
 
   private aFechaIso(fecha: Date): string {
