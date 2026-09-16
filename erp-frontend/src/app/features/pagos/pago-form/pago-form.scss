@@ -7,6 +7,31 @@
   margin-top: 8px;
 }
 
+.resumen-evento {
+  background: var(--mat-sys-surface-container, #f2f2f2);
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin: 8px 0 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  div {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .etiqueta-resumen {
+    color: var(--mat-sys-on-surface-variant);
+  }
+
+  .pendiente {
+    font-weight: 600;
+    padding-top: 4px;
+    border-top: 1px solid var(--mat-sys-outline-variant);
+  }
+}
+
 .acciones {
   display: flex;
   justify-content: flex-end;

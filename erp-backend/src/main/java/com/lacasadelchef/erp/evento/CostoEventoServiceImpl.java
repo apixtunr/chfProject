@@ -10,12 +10,15 @@ import com.lacasadelchef.erp.evento.dto.CostoEventoRequest;
 import com.lacasadelchef.erp.evento.dto.CostoEventoResponse;
 import com.lacasadelchef.erp.repository.CostoEventoRepository;
 import com.lacasadelchef.erp.repository.EventoRepository;
+import com.lacasadelchef.erp.repository.PagoRepository;
 import com.lacasadelchef.erp.repository.TipoCostoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -26,13 +29,21 @@ public class CostoEventoServiceImpl implements CostoEventoService {
     private final CostoEventoRepository costoEventoRepository;
     private final EventoRepository eventoRepository;
     private final TipoCostoRepository tipoCostoRepository;
+    private final PagoRepository pagoRepository;
     private final BitacoraMovimientoService bitacoraMovimientoService;
 
     @Override
     @Transactional(readOnly = true)
     public List<CostoEventoResponse> listar(Integer idEvento) {
+        // Un solo select para saber cuales costos ya tienen su reembolso, en vez de
+        // preguntar uno por uno (N+1) por cada fila de la lista.
+        Set<Integer> idsConPago = pagoRepository.findByEventoIdEvento(idEvento).stream()
+                .filter(pago -> pago.getCostoEvento() != null)
+                .map(pago -> pago.getCostoEvento().getIdCostoEvento())
+                .collect(Collectors.toSet());
+
         return costoEventoRepository.findByEventoIdEvento(idEvento).stream()
-                .map(CostoEventoResponse::desde)
+                .map(costo -> CostoEventoResponse.desde(costo, idsConPago.contains(costo.getIdCostoEvento())))
                 .toList();
     }
 

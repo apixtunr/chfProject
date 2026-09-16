@@ -14,11 +14,14 @@ export interface PagoRequest {
   referenciaTransaccion: string | null;
   observaciones: string | null;
   fechaPago: string | null;
+  /** Si viene con valor, este pago es el reembolso de ese costo extra, no un abono al menu. */
+  idCostoEvento: number | null;
 }
 
 export interface PagoResponse {
   idPago: number;
   idEvento: number;
+  clienteNombre: string;
   idUsuario: number;
   usernameUsuario: string;
   idMetodoPago: number;
@@ -31,6 +34,7 @@ export interface PagoResponse {
   fechaPago: string;
   fechaCreacion: string;
   fechaModificacion: string | null;
+  idCostoEvento: number | null;
 }
 
 export interface ComprobantePagoRequest {

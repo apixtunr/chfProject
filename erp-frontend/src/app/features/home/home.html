@@ -45,13 +45,6 @@
         <p class="stat-valor">{{ cotizacionesPendientes() }}</p>
       </a>
     }
-    @if (montoPorConfirmar() !== null) {
-      <a class="tarjeta-stat" routerLink="/pagos" style="--color-stat: #16a085">
-        <span class="stat-icono"><mat-icon>payments</mat-icon></span>
-        <p class="stat-etiqueta">Pagos por confirmar</p>
-        <p class="stat-valor">Q{{ montoPorConfirmar() | number: '1.2-2' }}</p>
-      </a>
-    }
   </div>
 </div>
 

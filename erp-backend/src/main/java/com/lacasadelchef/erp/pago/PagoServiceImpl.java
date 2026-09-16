@@ -4,6 +4,7 @@ import com.lacasadelchef.erp.common.audit.BitacoraMovimientoService;
 import com.lacasadelchef.erp.common.audit.Operacion;
 import com.lacasadelchef.erp.common.exception.BusinessException;
 import com.lacasadelchef.erp.common.exception.ResourceNotFoundException;
+import com.lacasadelchef.erp.entity.CostoEvento;
 import com.lacasadelchef.erp.entity.Estado;
 import com.lacasadelchef.erp.entity.Evento;
 import com.lacasadelchef.erp.entity.MetodoPago;
@@ -11,6 +12,7 @@ import com.lacasadelchef.erp.entity.Pago;
 import com.lacasadelchef.erp.entity.Usuario;
 import com.lacasadelchef.erp.pago.dto.PagoRequest;
 import com.lacasadelchef.erp.pago.dto.PagoResponse;
+import com.lacasadelchef.erp.repository.CostoEventoRepository;
 import com.lacasadelchef.erp.repository.EstadoRepository;
 import com.lacasadelchef.erp.repository.EventoRepository;
 import com.lacasadelchef.erp.repository.MetodoPagoRepository;
@@ -30,12 +32,16 @@ public class PagoServiceImpl implements PagoService {
 
     private static final String TABLA = "pago";
     private static final String TIPO_ESTADO_PAGO = "PAGO";
-    private static final String ESTADO_PENDIENTE = "PENDIENTE";
+    // Registrar un pago ya ES la confirmacion (no hay un paso de aprobacion aparte en este
+    // negocio); nace CONFIRMADO. ANULADO sigue existiendo para cuando un pago valido se
+    // invalida despues (cheque rebotado, transferencia reversada), sin borrar el registro.
+    private static final String ESTADO_CONFIRMADO = "CONFIRMADO";
 
     private final PagoRepository pagoRepository;
     private final EventoRepository eventoRepository;
     private final MetodoPagoRepository metodoPagoRepository;
     private final EstadoRepository estadoRepository;
+    private final CostoEventoRepository costoEventoRepository;
     private final BitacoraMovimientoService bitacoraMovimientoService;
 
     @Override
@@ -63,7 +69,7 @@ public class PagoServiceImpl implements PagoService {
         Pago pago = new Pago();
         aplicar(request, pago);
         pago.setUsuario(usuario);
-        pago.setEstado(buscarEstado(TIPO_ESTADO_PAGO, ESTADO_PENDIENTE));
+        pago.setEstado(buscarEstado(TIPO_ESTADO_PAGO, ESTADO_CONFIRMADO));
         pago = pagoRepository.save(pago);
         bitacoraMovimientoService.registrar(TABLA, pago.getIdPago(), Operacion.INSERT);
         return PagoResponse.desde(pago);
@@ -127,8 +133,15 @@ public class PagoServiceImpl implements PagoService {
                     "El metodo de pago %s requiere una referencia de transaccion".formatted(metodoPago.getNombreMetodo()));
         }
 
+        CostoEvento costoEvento = null;
+        if (request.idCostoEvento() != null) {
+            costoEvento = costoEventoRepository.findById(request.idCostoEvento())
+                    .orElseThrow(() -> new ResourceNotFoundException("CostoEvento", request.idCostoEvento()));
+        }
+
         pago.setEvento(evento);
         pago.setMetodoPago(metodoPago);
+        pago.setCostoEvento(costoEvento);
         pago.setMonto(request.monto());
         pago.setReferenciaTransaccion(request.referenciaTransaccion());
         pago.setObservaciones(request.observaciones());

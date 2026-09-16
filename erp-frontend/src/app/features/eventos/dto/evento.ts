@@ -96,6 +96,7 @@ export interface CostoEventoResponse {
   fechaCosto: string;
   fechaCreacion: string | null;
   fechaModificacion: string | null;
+  pagado: boolean;
 }
 
 export interface EventoEmpleadoRequest {

@@ -25,6 +25,9 @@ public record PagoRequest(
         @Size(max = 255)
         String observaciones,
 
-        LocalDateTime fechaPago
+        LocalDateTime fechaPago,
+
+        /** Si viene con valor, este pago es el reembolso de ese costo extra, no un abono al menu. */
+        Integer idCostoEvento
 ) {
 }

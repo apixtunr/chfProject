@@ -1,4 +1,3 @@
-import { DecimalPipe } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
@@ -7,11 +6,10 @@ import { CotizacionService } from '../cotizaciones/cotizacion.service';
 import { EventoResponse } from '../eventos/dto/evento';
 import { EventoService } from '../eventos/evento.service';
 import { InventarioService } from '../inventario/inventario.service';
-import { PagoService } from '../pagos/pago.service';
 
 @Component({
   selector: 'app-home',
-  imports: [RouterLink, MatIconModule, DecimalPipe],
+  imports: [RouterLink, MatIconModule],
   templateUrl: './home.html',
   styleUrl: './home.scss',
 })
@@ -19,7 +17,6 @@ export class Home {
   private readonly authService = inject(AuthService);
   private readonly eventoService = inject(EventoService);
   private readonly cotizacionService = inject(CotizacionService);
-  private readonly pagoService = inject(PagoService);
   private readonly inventarioService = inject(InventarioService);
 
   readonly usuario = computed(() => this.authService.usuarioActual());
@@ -33,7 +30,6 @@ export class Home {
 
   readonly proximoEvento = signal<EventoResponse | null | undefined>(undefined);
   readonly cotizacionesPendientes = signal<number | null>(null);
-  readonly montoPorConfirmar = signal<number | null>(null);
   readonly alertasInventario = signal<number | null>(null);
 
   constructor() {
@@ -59,18 +55,6 @@ export class Home {
             page.content.filter((c) => c.ultimaVersionEstado === 'ENVIADA').length,
           ),
         error: () => this.cotizacionesPendientes.set(null),
-      });
-    }
-
-    if (puedeVer('/api/pagos')) {
-      this.pagoService.listar(null, 0, 200).subscribe({
-        next: (page) =>
-          this.montoPorConfirmar.set(
-            page.content
-              .filter((p) => p.estadoNombre === 'PENDIENTE')
-              .reduce((acc, p) => acc + p.monto, 0),
-          ),
-        error: () => this.montoPorConfirmar.set(null),
       });
     }
 

@@ -1,5 +1,7 @@
 package com.lacasadelchef.erp.pago.dto;
 
+import com.lacasadelchef.erp.entity.Cliente;
+import com.lacasadelchef.erp.entity.Evento;
 import com.lacasadelchef.erp.entity.Pago;
 import lombok.Builder;
 
@@ -10,6 +12,7 @@ import java.time.LocalDateTime;
 public record PagoResponse(
         Integer idPago,
         Integer idEvento,
+        String clienteNombre,
         Integer idUsuario,
         String usernameUsuario,
         Integer idMetodoPago,
@@ -21,13 +24,15 @@ public record PagoResponse(
         String observaciones,
         LocalDateTime fechaPago,
         LocalDateTime fechaCreacion,
-        LocalDateTime fechaModificacion
+        LocalDateTime fechaModificacion,
+        Integer idCostoEvento
 ) {
 
     public static PagoResponse desde(Pago pago) {
         return PagoResponse.builder()
                 .idPago(pago.getIdPago())
                 .idEvento(pago.getEvento().getIdEvento())
+                .clienteNombre(clienteDe(pago.getEvento()).getNombre())
                 .idUsuario(pago.getUsuario().getIdUsuario())
                 .usernameUsuario(pago.getUsuario().getUsername())
                 .idMetodoPago(pago.getMetodoPago().getIdMetodoPago())
@@ -40,6 +45,14 @@ public record PagoResponse(
                 .fechaPago(pago.getFechaPago())
                 .fechaCreacion(pago.getFechaCreacion())
                 .fechaModificacion(pago.getFechaModificacion())
+                .idCostoEvento(pago.getCostoEvento() != null ? pago.getCostoEvento().getIdCostoEvento() : null)
                 .build();
+    }
+
+    // El evento puede ser directo (cliente propio) o venir de una cotizacion (cliente ahi).
+    private static Cliente clienteDe(Evento evento) {
+        return evento.getCotizacionVersion() != null
+                ? evento.getCotizacionVersion().getCotizacion().getCliente()
+                : evento.getCliente();
     }
 }

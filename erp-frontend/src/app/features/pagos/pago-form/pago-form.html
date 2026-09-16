@@ -14,6 +14,14 @@
         </mat-select>
       </mat-form-field>
 
+      @if (resumenEvento(); as r) {
+        <div class="resumen-evento">
+          <div><span class="etiqueta-resumen">Total del evento</span><span>Q {{ r.total | number: '1.2-2' }}</span></div>
+          <div><span class="etiqueta-resumen">Abonado</span><span>Q {{ r.abonado | number: '1.2-2' }}</span></div>
+          <div class="pendiente"><span class="etiqueta-resumen">Pendiente</span><span>Q {{ r.pendiente | number: '1.2-2' }}</span></div>
+        </div>
+      }
+
       <mat-form-field appearance="outline" class="campo">
         <mat-label>Metodo de pago</mat-label>
         <mat-select formControlName="idMetodoPago">
@@ -34,6 +42,14 @@
         @if (formulario.controls.referenciaTransaccion.hasError('required')) {
           <mat-error>Este metodo de pago requiere una referencia</mat-error>
         }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="campo">
+        <mat-label>Fecha del pago</mat-label>
+        <input matInput [matDatepicker]="pickerFechaPago" formControlName="fechaPago" />
+        <mat-hint>Si no elije una fecha, se usará la fecha y hora actual</mat-hint>
+        <mat-datepicker-toggle matSuffix [for]="pickerFechaPago"></mat-datepicker-toggle>
+        <mat-datepicker #pickerFechaPago></mat-datepicker>
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="campo">

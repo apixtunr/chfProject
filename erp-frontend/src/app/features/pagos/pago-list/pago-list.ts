@@ -8,6 +8,7 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/auth/auth.service';
 import { ConfirmDialog } from '../../../shared/confirm-dialog/confirm-dialog';
@@ -30,6 +31,7 @@ const PAGINA_URL = '/api/pagos';
     MatDialogModule,
     MatFormFieldModule,
     MatSelectModule,
+    MatTooltipModule,
   ],
   templateUrl: './pago-list.html',
   styleUrl: './pago-list.scss',

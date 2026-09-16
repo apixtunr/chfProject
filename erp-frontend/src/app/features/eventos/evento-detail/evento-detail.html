@@ -1,8 +1,8 @@
 @if (evento(); as e) {
-  <div class="encabezado">
-    <div>
+  <mat-card class="tarjeta-encabezado">
+    <div class="fila-titulo">
       <h1>
-        Evento #{{ e.idEvento }} - {{ e.tipoEventoNombre }}
+        Evento #{{ e.idEvento }} — {{ e.tipoEventoNombre }}
         <mat-chip
           highlighted
           [style.--mat-chip-elevated-container-color]="colorEstado(e.estadoNombre).bg"
@@ -10,25 +10,42 @@
           [style.--mat-chip-outline-color]="colorEstado(e.estadoNombre).text"
         >{{ e.estadoNombre }}</mat-chip>
       </h1>
-      <p><strong>Cliente:</strong> {{ e.clienteNombre }}</p>
-      <p><strong>Ubicación:</strong> {{ e.direccionUbicacion }}</p>
-      <p><strong>Fecha:</strong> {{ e.fechaEvento | date: 'dd/MM/yyyy' }} <strong>Horario:</strong> {{ e.horaInicio?.slice(0, 5) }} a {{ e.horaFin?.slice(0, 5) }}</p>
-      @if (e.cantidadPersonas) {
-        <p><strong>Personas:</strong> {{ e.cantidadPersonas }}</p>
-      }
-      @if (e.idCotizacionVersion === null) {
-        <p><strong>Total del menú:</strong> Q{{ e.montoMenu | number: '1.2-2' }}</p>
+
+      @if (puedeModificar) {
+        <div class="acciones-encabezado">
+          @for (estado of transicionesDisponibles; track estado.idEstado) {
+            <button mat-flat-button class="btn-danger-soft" (click)="cambiarEstado(estado)">
+              <mat-icon>close</mat-icon>
+              CANCELAR EVENTO
+            </button>
+          }
+        </div>
       }
     </div>
 
-    @if (puedeModificar) {
-      <div class="acciones-encabezado">
-        @for (estado of transicionesDisponibles; track estado.idEstado) {
-          <button mat-flat-button color="primary" (click)="cambiarEstado(estado)">CANCELAR EVENTO</button>
-        }
+    <hr class="separador-encabezado" />
+
+    <div class="grid-info">
+      <div class="campo-info">
+        <span class="etiqueta-info">Cliente</span>
+        <span class="valor-info">{{ e.clienteNombre }}</span>
       </div>
-    }
-  </div>
+      <div class="campo-info">
+        <span class="etiqueta-info">Ubicación</span>
+        <span class="valor-info valor-truncado" [matTooltip]="e.direccionUbicacion">{{ e.direccionUbicacion }}</span>
+      </div>
+      <div class="campo-info">
+        <span class="etiqueta-info">Fecha y horario</span>
+        <span class="valor-info">{{ e.fechaEvento | date: 'dd/MM/yyyy' }} • {{ e.horaInicio?.slice(0, 5) }} a {{ e.horaFin?.slice(0, 5) }}</span>
+      </div>
+      @if (e.cantidadPersonas) {
+        <div class="campo-info">
+          <span class="etiqueta-info">Invitados</span>
+          <span class="valor-info valor-con-icono"><mat-icon>group</mat-icon> {{ e.cantidadPersonas }} personas</span>
+        </div>
+      }
+    </div>
+  </mat-card>
 
   <mat-tab-group>
     <mat-tab label="Menú">
@@ -259,6 +276,14 @@
               <th mat-header-cell *matHeaderCellDef>Fecha</th>
               <td mat-cell *matCellDef="let c">{{ c.fechaCosto | date: 'dd/MM/yyyy' }}</td>
             </ng-container>
+            <ng-container matColumnDef="pagado">
+              <th mat-header-cell *matHeaderCellDef>Pagado</th>
+              <td mat-cell *matCellDef="let c">
+                @if (c.pagado) {
+                  <mat-icon class="icono-pagado" matTooltip="El cliente ya cubrió este costo">check_circle</mat-icon>
+                }
+              </td>
+            </ng-container>
             <ng-container matColumnDef="acciones">
               <th mat-header-cell *matHeaderCellDef></th>
               <td mat-cell *matCellDef="let c">
@@ -471,6 +496,131 @@
             </tr>
           </table>
         </div>
+      </div>
+    </mat-tab>
+
+    <mat-tab label="Detalle">
+      <div class="contenido-tab">
+        <div class="encabezado-detalle">
+          <p class="aviso-menu">Resumen de lo agregado al evento.</p>
+          @if (puedeVerRentabilidad) {
+            <button mat-stroked-button color="primary" routerLink="/rentabilidad">Ver rentabilidad</button>
+          }
+        </div>
+
+        <div class="tarjetas-detalle">
+          <mat-card class="tarjeta-detalle">
+            <div class="encabezado-tarjeta">
+              <h3><span class="punto punto-verde"></span> Menú</h3>
+              <span class="contador">{{ contadorTexto(lineasMenuDetalle.length, 'item registrado', 'items registrados') }}</span>
+            </div>
+            <ul class="lista-detalle">
+              @for (d of lineasMenuDetalle; track $index) {
+                <li><span class="nombre-item">{{ d.nombrePlato }} x{{ d.cantidadPlatos }}</span><span>Q{{ d.subtotal | number: '1.2-2' }}</span></li>
+              } @empty {
+                <li class="vacio">Sin platos</li>
+              }
+            </ul>
+            <div class="pie-tarjeta">
+              <span class="etiqueta-subtotal">Subtotal menú</span>
+              <span class="valor-subtotal">Q{{ subtotalMenuDetalle | number: '1.2-2' }}</span>
+            </div>
+          </mat-card>
+
+          <mat-card class="tarjeta-detalle">
+            <div class="encabezado-tarjeta">
+              <h3><span class="punto punto-teal"></span> Servicios extra</h3>
+              <span class="contador">{{ contadorTexto(serviciosCotizacionOrigen().length, 'servicio', 'servicios') }}</span>
+            </div>
+            <ul class="lista-detalle">
+              @for (s of serviciosCotizacionOrigen(); track $index) {
+                <li><span class="nombre-item">{{ s.tipoServicioNombre }}</span><span>Q{{ s.monto | number: '1.2-2' }}</span></li>
+              } @empty {
+                <li class="vacio">Sin servicios extra</li>
+              }
+            </ul>
+            <div class="pie-tarjeta">
+              <span class="etiqueta-subtotal">Subtotal servicios extra</span>
+              <span class="valor-subtotal">Q{{ subtotalServiciosDetalle | number: '1.2-2' }}</span>
+            </div>
+          </mat-card>
+
+          <mat-card class="tarjeta-detalle">
+            <div class="encabezado-tarjeta">
+              <h3><span class="punto punto-naranja"></span> Costos extra</h3>
+              <span class="contador">{{ contadorTexto(costos().length, 'concepto', 'conceptos') }}</span>
+            </div>
+            <ul class="lista-detalle">
+              @for (c of costos(); track $index) {
+                <li><span class="nombre-item">{{ c.tipoCostoNombre }}</span><span>Q{{ c.monto | number: '1.2-2' }}</span></li>
+              } @empty {
+                <li class="vacio">Sin costos</li>
+              }
+            </ul>
+            <div class="pie-tarjeta">
+              <span class="etiqueta-subtotal">Subtotal costos extra</span>
+              <span class="valor-subtotal">Q{{ subtotalCostosDetalle | number: '1.2-2' }}</span>
+            </div>
+          </mat-card>
+
+          <mat-card class="tarjeta-detalle">
+            <div class="encabezado-tarjeta">
+              <h3><span class="punto punto-morado"></span> Personal</h3>
+              <span class="contador">{{ contadorTexto(personal().length, 'integrante asignado', 'integrantes asignados') }}</span>
+            </div>
+            <ul class="lista-detalle">
+              @for (p of personal(); track $index) {
+                <li><span class="nombre-item">{{ p.nombreEmpleado }}</span><span>Q{{ p.salarioEvento | number: '1.2-2' }}</span></li>
+              } @empty {
+                <li class="vacio">Sin personal asignado</li>
+              }
+            </ul>
+            <div class="pie-tarjeta">
+              <span class="etiqueta-subtotal">Subtotal personal</span>
+              <span class="valor-subtotal">Q{{ subtotalPersonalDetalle | number: '1.2-2' }}</span>
+            </div>
+          </mat-card>
+
+          <mat-card class="tarjeta-detalle">
+            <div class="encabezado-tarjeta">
+              <h3><span class="punto punto-azul"></span> Vehículos</h3>
+              <span class="contador">{{ contadorTexto(vehiculos().length, 'vehículo asignado', 'vehículos asignados') }}</span>
+            </div>
+            <ul class="lista-detalle">
+              @for (v of vehiculos(); track $index) {
+                <li><span class="nombre-item">{{ v.placaVehiculo }}</span><span>{{ v.nombreConductor ?? 'Sin conductor' }}</span></li>
+              } @empty {
+                <li class="vacio">Sin vehículos asignados</li>
+              }
+            </ul>
+            <div class="pie-tarjeta">
+              <mat-icon class="icono-informativo" matTooltip="Solo informativo, sin costo asociado">local_shipping</mat-icon>
+            </div>
+          </mat-card>
+
+          <mat-card class="tarjeta-detalle">
+            <div class="encabezado-tarjeta">
+              <h3><span class="punto punto-rojo"></span> Inventario</h3>
+              <span class="contador">{{ contadorTexto(inventario().length, 'producto registrado', 'productos registrados') }}</span>
+            </div>
+            <ul class="lista-detalle">
+              @for (i of inventario(); track $index) {
+                <li>
+                  <span class="nombre-item">{{ i.nombreProducto }} x{{ i.cantidad }} ({{ i.fechaConsumo ? 'Confirmado' : 'Planificado' }})</span>
+                  <span>{{ i.fechaConsumo ? 'Q' + (costoInventarioLinea(i) | number: '1.2-2') : '-' }}</span>
+                </li>
+              } @empty {
+                <li class="vacio">Sin productos registrados</li>
+              }
+            </ul>
+            <div class="pie-tarjeta">
+              <span class="etiqueta-subtotal">Subtotal inventario consumido</span>
+              <span class="valor-subtotal">Q{{ subtotalInventarioDetalle | number: '1.2-2' }}</span>
+            </div>
+          </mat-card>
+        </div>
+
+        <p class="total-general">Total gastos operativos (costos + personal + inventario): Q{{ totalGastosDetalle | number: '1.2-2' }}</p>
       </div>
     </mat-tab>
   </mat-tab-group>

@@ -3,6 +3,7 @@ import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -15,7 +16,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { interval, of, switchMap } from 'rxjs';
 import { AuthService } from '../../../core/auth/auth.service';
 import { EstadoResponse } from '../../../core/catalogos/estado';
@@ -51,13 +52,13 @@ import { EventoService } from '../evento.service';
 
 const PAGINA_URL = '/api/eventos';
 const TIPO_ESTADO_EVENTO = 'EVENTO';
-const TIPO_ESTADO_PAGO = 'PAGO';
-const ESTADO_PAGO_CONFIRMADO = 'CONFIRMADO';
 
 @Component({
   selector: 'app-evento-detail',
   imports: [
     CommonModule,
+    RouterLink,
+    MatCardModule,
     ReactiveFormsModule,
     MatTabsModule,
     MatTableModule,
@@ -108,13 +109,12 @@ export class EventoDetail implements OnInit {
   readonly productosDisponibles = signal<ProductoResponse[]>([]);
   readonly tiposCosto = signal<TipoCostoResponse[]>([]);
   readonly estadosEvento = signal<EstadoResponse[]>([]);
-  readonly estadosPago = signal<EstadoResponse[]>([]);
   readonly metodosPago = signal<MetodoPagoResponse[]>([]);
   readonly menusDisponibles = signal<MenuResponse[]>([]);
   readonly platosDelMenu = signal<MenuPlatoResponse[]>([]);
   readonly precioSeleccionado = signal<number | null>(null);
 
-  readonly columnasCostos = ['tipo', 'descripcion', 'monto', 'fecha', 'acciones'];
+  readonly columnasCostos = ['tipo', 'descripcion', 'monto', 'fecha', 'pagado', 'acciones'];
   readonly columnasPersonal = ['empleado', 'salario', 'horario', 'acciones'];
   readonly columnasVehiculos = ['placa', 'conductor', 'acciones'];
   private readonly columnasInventarioBase = ['producto', 'cantidad', 'consumo', 'fechaConfirmacion'];
@@ -173,6 +173,10 @@ export class EventoDetail implements OnInit {
     return this.authService.esAdministrador();
   }
 
+  get puedeVerRentabilidad(): boolean {
+    return this.authService.puedeVer('/api/rentabilidad');
+  }
+
   /** El menu solo se puede armar aqui cuando el evento es directo (sin cotizacion) y sigue PLANIFICADO. */
   get puedeEditarMenu(): boolean {
     const e = this.evento();
@@ -213,7 +217,6 @@ export class EventoDetail implements OnInit {
     this.productoService.listarTodos().subscribe((p) => this.productosDisponibles.set(p));
     this.tipoCostoService.listar().subscribe((t) => this.tiposCosto.set(t));
     this.estadoService.listarPorTipo(TIPO_ESTADO_EVENTO).subscribe((e) => this.estadosEvento.set(e));
-    this.estadoService.listarPorTipo(TIPO_ESTADO_PAGO).subscribe((e) => this.estadosPago.set(e));
     this.pagoService.listarMetodos().subscribe((m) => this.metodosPago.set(m));
     this.menuService.listarActivos().subscribe((m) => this.menusDisponibles.set(m));
     this.cargar();
@@ -313,9 +316,9 @@ export class EventoDetail implements OnInit {
         fechaCosto: this.aFechaIso(v.fechaCosto),
       })
       .pipe(
-        switchMap(() =>
+        switchMap((costoCreado) =>
           v.recargarCliente
-            ? this.crearPagoDeRecargo(v.monto!, v.idMetodoPago!, v.referenciaTransaccion, v.descripcion)
+            ? this.crearPagoDeRecargo(costoCreado.idCostoEvento, v.monto!, v.idMetodoPago!, v.referenciaTransaccion, v.descripcion)
             : of(null),
         ),
       )
@@ -330,23 +333,23 @@ export class EventoDetail implements OnInit {
       });
   }
 
-  /** Crea el pago del recargo y lo deja CONFIRMADO de una vez (el cliente ya lo cubrio). */
-  private crearPagoDeRecargo(monto: number, idMetodoPago: number, referencia: string, descripcionCosto: string) {
-    return this.pagoService
-      .crear({
-        idEvento: this.idEvento,
-        idMetodoPago,
-        monto,
-        referenciaTransaccion: referencia || null,
-        observaciones: descripcionCosto ? `Recargo por: ${descripcionCosto}` : 'Recargo por costo extra del evento',
-        fechaPago: null,
-      })
-      .pipe(
-        switchMap((pago) => {
-          const confirmado = this.estadosPago().find((e) => e.nombre === ESTADO_PAGO_CONFIRMADO);
-          return confirmado ? this.pagoService.cambiarEstado(pago.idPago, confirmado.idEstado) : of(pago);
-        }),
-      );
+  /** Crea el pago del recargo (nace CONFIRMADO de una vez, registrar el pago ya es confirmarlo). */
+  private crearPagoDeRecargo(
+    idCostoEvento: number,
+    monto: number,
+    idMetodoPago: number,
+    referencia: string,
+    descripcionCosto: string,
+  ) {
+    return this.pagoService.crear({
+      idEvento: this.idEvento,
+      idMetodoPago,
+      monto,
+      referenciaTransaccion: referencia || null,
+      observaciones: descripcionCosto ? `Recargo por: ${descripcionCosto}` : 'Recargo por costo extra del evento',
+      fechaPago: null,
+      idCostoEvento,
+    });
   }
 
   eliminarCosto(costo: CostoEventoResponse): void {
@@ -434,6 +437,56 @@ export class EventoDetail implements OnInit {
       i.fechaConsumo ? this.puedeModificar : this.puedeAsignarRecursos,
     );
     return hayAccionPosible ? [...this.columnasInventarioBase, 'acciones'] : this.columnasInventarioBase;
+  }
+
+  // --- Detalle: solo listas y sumas simples de lo que ya esta cargado en cada pestana.
+  // La ganancia real (ingresos por Pagos menos costos) vive en Rentabilidad, no aqui. ---
+
+  /** El menu viene de la cotizacion de origen si el evento nacio de una, si no del propio evento. */
+  get lineasMenuDetalle(): (DetalleEventoResponse | DetalleCotizacionResponse)[] {
+    return this.evento()?.idCotizacionVersion != null ? this.detalleCotizacionOrigen() : this.detalleMenu();
+  }
+
+  get subtotalMenuDetalle(): number {
+    return this.lineasMenuDetalle.reduce((acc, d) => acc + d.subtotal, 0);
+  }
+
+  /** Solo existe si el evento nacio de una cotizacion; un evento directo nunca tiene. */
+  get subtotalServiciosDetalle(): number {
+    return this.serviciosCotizacionOrigen().reduce((acc, s) => acc + s.monto, 0);
+  }
+
+  get subtotalCostosDetalle(): number {
+    return this.costos().reduce((acc, c) => acc + c.monto, 0);
+  }
+
+  get subtotalPersonalDetalle(): number {
+    return this.personal().reduce((acc, p) => acc + p.salarioEvento, 0);
+  }
+
+  /** precio_unitario del producto no viaja en EventoInventarioResponse; se busca en el
+   * catalogo ya cargado (productosDisponibles) por idProducto. */
+  precioUnitarioProducto(idProducto: number): number {
+    return this.productosDisponibles().find((p) => p.idProducto === idProducto)?.precioUnitario ?? 0;
+  }
+
+  /** Solo lo ya Confirmado representa un gasto real; lo Planificado todavia no se uso. */
+  costoInventarioLinea(item: EventoInventarioResponse): number {
+    return item.fechaConsumo ? item.cantidad * this.precioUnitarioProducto(item.idProducto) : 0;
+  }
+
+  get subtotalInventarioDetalle(): number {
+    return this.inventario().reduce((acc, i) => acc + this.costoInventarioLinea(i), 0);
+  }
+
+  /** Gasto operativo simple (no es la ganancia: le falta restar contra los ingresos reales,
+   * eso lo hace Rentabilidad con los Pagos). Vehiculos no entra, no tiene costo registrado. */
+  get totalGastosDetalle(): number {
+    return this.subtotalCostosDetalle + this.subtotalPersonalDetalle + this.subtotalInventarioDetalle;
+  }
+
+  contadorTexto(cantidad: number, singular: string, plural: string): string {
+    return `${cantidad} ${cantidad === 1 ? singular : plural}`;
   }
 
   iniciarCorreccionInventario(item: EventoInventarioResponse): void {
