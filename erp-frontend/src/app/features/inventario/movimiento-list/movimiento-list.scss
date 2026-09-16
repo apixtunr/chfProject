@@ -5,6 +5,16 @@
   margin-bottom: 16px;
 }
 
+.fila-filtros {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.filtro-tipo {
+  width: 200px;
+}
+
 .filtro {
   width: 320px;
 }

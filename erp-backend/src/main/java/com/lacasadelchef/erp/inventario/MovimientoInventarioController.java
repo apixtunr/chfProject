@@ -20,8 +20,9 @@ public class MovimientoInventarioController {
 
     @GetMapping
     public Page<MovimientoInventarioResponse> listar(@RequestParam(required = false) Integer idProducto,
+                                                      @RequestParam(required = false) Integer idEvento,
                                                       @PageableDefault(size = 20, sort = "fechaMovimiento") Pageable pageable) {
-        return movimientoInventarioService.listar(idProducto, pageable);
+        return movimientoInventarioService.listar(idProducto, idEvento, pageable);
     }
 
     @PostMapping

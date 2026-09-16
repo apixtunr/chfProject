@@ -7,7 +7,7 @@ import org.springframework.data.domain.Pageable;
 
 public interface MovimientoInventarioService {
 
-    Page<MovimientoInventarioResponse> listar(Integer idProducto, Pageable pageable);
+    Page<MovimientoInventarioResponse> listar(Integer idProducto, Integer idEvento, Pageable pageable);
 
     MovimientoInventarioResponse registrar(MovimientoInventarioRequest request);
 }

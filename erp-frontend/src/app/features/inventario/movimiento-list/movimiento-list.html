@@ -8,15 +8,41 @@
   }
 </div>
 
-<mat-form-field appearance="outline" class="filtro">
-  <mat-label>Filtrar por producto</mat-label>
-  <mat-select [value]="idProductoFiltro()" (selectionChange)="filtrarPorProducto($event.value)">
-    <mat-option [value]="null">Todos</mat-option>
-    @for (producto of productos(); track producto.idProducto) {
-      <mat-option [value]="producto.idProducto">{{ producto.nombreProducto }}</mat-option>
-    }
-  </mat-select>
-</mat-form-field>
+<div class="fila-filtros">
+  <mat-form-field appearance="outline" class="filtro-tipo">
+    <mat-label>Filtrar por</mat-label>
+    <mat-select [value]="tipoFiltro()" (selectionChange)="cambiarTipoFiltro($event.value)">
+      <mat-option value="producto">Producto</mat-option>
+      <mat-option value="evento">ID de evento</mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  @if (tipoFiltro() === 'producto') {
+    <mat-form-field appearance="outline" class="filtro">
+      <mat-label>Producto</mat-label>
+      <mat-select [value]="idProductoFiltro()" (selectionChange)="filtrarPorProducto($event.value)">
+        <mat-option [value]="null">Todos</mat-option>
+        @for (producto of productos(); track producto.idProducto) {
+          <mat-option [value]="producto.idProducto">{{ producto.nombreProducto }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  } @else {
+    <mat-form-field appearance="outline" class="filtro">
+      <mat-label>ID de evento</mat-label>
+      <input matInput type="number" [(ngModel)]="idEventoInput" (keyup.enter)="filtrarPorEvento()" />
+      @if (idEventoFiltro() !== null) {
+        <button matSuffix mat-icon-button (click)="limpiarFiltroEvento()" matTooltip="Quitar filtro" aria-label="Quitar filtro">
+          <mat-icon>close</mat-icon>
+        </button>
+      } @else {
+        <button matSuffix mat-icon-button (click)="filtrarPorEvento()" matTooltip="Buscar" aria-label="Buscar">
+          <mat-icon>search</mat-icon>
+        </button>
+      }
+    </mat-form-field>
+  }
+</div>
 
 <table mat-table [dataSource]="movimientos()" class="tabla">
   <ng-container matColumnDef="fechaMovimiento">

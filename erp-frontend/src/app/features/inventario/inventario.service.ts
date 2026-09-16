@@ -65,10 +65,18 @@ export class InventarioService {
 
   // --- Movimientos ---
 
-  listarMovimientos(idProducto: number | null, page: number, size: number): Observable<Page<MovimientoInventarioResponse>> {
+  listarMovimientos(
+    idProducto: number | null,
+    idEvento: number | null,
+    page: number,
+    size: number,
+  ): Observable<Page<MovimientoInventarioResponse>> {
     let params = new HttpParams().set('page', page).set('size', size).set('sort', 'fechaMovimiento,desc');
     if (idProducto) {
       params = params.set('idProducto', idProducto);
+    }
+    if (idEvento) {
+      params = params.set('idEvento', idEvento);
     }
     return this.http.get<Page<MovimientoInventarioResponse>>(`${API_URL}/movimientos-inventario`, { params });
   }

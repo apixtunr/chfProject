@@ -11,8 +11,10 @@ import { AuthService } from '../../../core/auth/auth.service';
 import { InventarioService } from '../inventario.service';
 import { InventarioResponse } from '../dto/inventario';
 import { MinimoDialog } from './minimo-dialog';
+import { AgregarStockDialog } from './agregar-stock-dialog';
 
 const PAGINA_URL = '/api/inventarios';
+const PAGINA_URL_MOVIMIENTOS = '/api/movimientos-inventario';
 
 @Component({
   selector: 'app-stock-list',
@@ -41,14 +43,16 @@ export class StockList implements OnInit {
   readonly pageSize = signal(20);
 
   readonly puedeEditarMinimo: boolean;
+  readonly puedeAgregarStock: boolean;
 
   constructor() {
     this.puedeEditarMinimo = this.authService.tienePermiso(PAGINA_URL, 'modificacion');
+    this.puedeAgregarStock = this.authService.tienePermiso(PAGINA_URL_MOVIMIENTOS, 'alta');
   }
 
   get columnas(): string[] {
     const base = ['nombreProducto', 'cantidadTotal', 'cantidadMinima', 'situacion'];
-    return this.puedeEditarMinimo ? [...base, 'acciones'] : base;
+    return this.puedeEditarMinimo || this.puedeAgregarStock ? [...base, 'acciones'] : base;
   }
 
   ngOnInit(): void {
@@ -84,6 +88,28 @@ export class StockList implements OnInit {
         this.snackBar.open('Stock minimo actualizado', 'Cerrar', { duration: 3000 });
         this.cargar();
       });
+    });
+  }
+
+  agregarStock(inv: InventarioResponse): void {
+    const ref = this.dialog.open(AgregarStockDialog, { data: inv, width: '360px' });
+
+    ref.afterClosed().subscribe((resultado) => {
+      if (!resultado) {
+        return;
+      }
+      this.inventarioService
+        .registrarMovimiento({
+          idProducto: inv.idProducto,
+          tipoMovimiento: 'ENTRADA',
+          cantidad: resultado.cantidad,
+          descripcion: resultado.descripcion,
+          idEvento: null,
+        })
+        .subscribe(() => {
+          this.snackBar.open('Stock agregado', 'Cerrar', { duration: 3000 });
+          this.cargar();
+        });
     });
   }
 }

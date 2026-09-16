@@ -37,10 +37,15 @@ public class MovimientoInventarioServiceImpl implements MovimientoInventarioServ
 
     @Override
     @Transactional(readOnly = true)
-    public Page<MovimientoInventarioResponse> listar(Integer idProducto, Pageable pageable) {
-        Page<MovimientoInventario> page = (idProducto == null)
-                ? movimientoInventarioRepository.findAll(pageable)
-                : movimientoInventarioRepository.findByProductoIdProducto(idProducto, pageable);
+    public Page<MovimientoInventarioResponse> listar(Integer idProducto, Integer idEvento, Pageable pageable) {
+        Page<MovimientoInventario> page;
+        if (idEvento != null) {
+            page = movimientoInventarioRepository.findByEventoIdEvento(idEvento, pageable);
+        } else if (idProducto != null) {
+            page = movimientoInventarioRepository.findByProductoIdProducto(idProducto, pageable);
+        } else {
+            page = movimientoInventarioRepository.findAll(pageable);
+        }
         return page.map(m -> MovimientoInventarioResponse.desde(m, stockActual(m.getProducto().getIdProducto())));
     }
 
