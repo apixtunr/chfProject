@@ -54,11 +54,11 @@ export const NAV_GROUPS: NavGroup[] = [
     ],
   },
   {
-    modulo: 'Menus y platos',
+    modulo: 'Menús y platos',
     icon: 'restaurant_menu',
     color: '#27AE60',
     items: [
-      { label: 'Menus', route: '/menus', paginaUrl: '/api/menus', icon: 'restaurant_menu' },
+      { label: 'Menús', route: '/menus', paginaUrl: '/api/menus', icon: 'restaurant_menu' },
       { label: 'Platos', route: '/menus/platos', paginaUrl: '/api/platos', icon: 'restaurant' },
     ],
   },

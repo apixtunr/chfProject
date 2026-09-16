@@ -9,11 +9,11 @@
 
   <p class="subtitulo">
     Estado: {{ m.estadoNombre }} · {{ platosDelMenu().length }} plato(s) ·
-    Precio del menÚ completo: <strong>Q {{ precioTotal() | number: '1.2-2' }}</strong> por persona
+    Precio del menú completo: <strong>Q {{ precioTotal() | number: '1.2-2' }}</strong> por persona
   </p>
 
   <div class="encabezado seccion">
-    <h2>Platos del menÚ</h2>
+    <h2>Platos del menú</h2>
     @if (puedeAgregar && !agregando()) {
       <button mat-stroked-button (click)="agregando.set(true)" [disabled]="platosDisponibles().length === 0">
         <mat-icon>add</mat-icon>
