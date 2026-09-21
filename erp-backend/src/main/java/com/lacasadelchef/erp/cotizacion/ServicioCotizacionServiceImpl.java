@@ -64,7 +64,6 @@ public class ServicioCotizacionServiceImpl implements ServicioCotizacionService 
 
         CotizacionVersion version = servicio.getCotizacionVersion();
         entityManager.refresh(version);
-        bitacoraMovimientoService.registrar(TABLA, servicio.getIdServicioCotizacion(), Operacion.UPDATE);
         return ServicioCotizacionResponse.desde(servicio, version.getMontoTotal());
     }
 

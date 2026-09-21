@@ -50,7 +50,6 @@ public class TipoCostoServiceImpl implements TipoCostoService {
         TipoCosto tipoCosto = buscar(id);
         aplicar(request, tipoCosto);
         tipoCosto = tipoCostoRepository.save(tipoCosto);
-        bitacoraMovimientoService.registrar(TABLA, tipoCosto.getIdTipoCosto(), Operacion.UPDATE);
         return TipoCostoResponse.desde(tipoCosto);
     }
 

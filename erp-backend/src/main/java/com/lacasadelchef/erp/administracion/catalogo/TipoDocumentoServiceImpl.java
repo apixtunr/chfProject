@@ -50,7 +50,6 @@ public class TipoDocumentoServiceImpl implements TipoDocumentoService {
         TipoDocumento tipoDocumento = buscar(id);
         aplicar(request, tipoDocumento);
         tipoDocumento = tipoDocumentoRepository.save(tipoDocumento);
-        bitacoraMovimientoService.registrar(TABLA, tipoDocumento.getIdTipoDocumento(), Operacion.UPDATE);
         return TipoDocumentoResponse.desde(tipoDocumento);
     }
 

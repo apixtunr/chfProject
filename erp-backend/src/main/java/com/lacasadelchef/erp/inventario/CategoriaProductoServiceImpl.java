@@ -55,7 +55,6 @@ public class CategoriaProductoServiceImpl implements CategoriaProductoService {
         CategoriaProducto categoria = buscar(id);
         aplicar(request, categoria);
         categoria = categoriaProductoRepository.save(categoria);
-        bitacoraMovimientoService.registrar(TABLA, categoria.getIdCategoria(), Operacion.UPDATE);
         return CategoriaProductoResponse.desde(categoria);
     }
 

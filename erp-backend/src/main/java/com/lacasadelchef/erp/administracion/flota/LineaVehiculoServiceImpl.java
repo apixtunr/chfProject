@@ -56,7 +56,6 @@ public class LineaVehiculoServiceImpl implements LineaVehiculoService {
         LineaVehiculo linea = buscar(id);
         aplicar(request, linea);
         linea = lineaVehiculoRepository.save(linea);
-        bitacoraMovimientoService.registrar(TABLA, linea.getIdLineaVehiculo(), Operacion.UPDATE);
         return LineaVehiculoResponse.desde(linea);
     }
 

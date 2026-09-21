@@ -61,7 +61,6 @@ public class DocumentoEmpleadoServiceImpl implements DocumentoEmpleadoService {
         DocumentoEmpleado documento = buscar(idEmpleado, idTipoDocumento);
         documento.setNumeroDocumento(request.numeroDocumento().trim());
         documento = documentoEmpleadoRepository.save(documento);
-        bitacoraMovimientoService.registrar(TABLA, idEmpleado + "-" + idTipoDocumento, Operacion.UPDATE);
         return DocumentoEmpleadoResponse.desde(documento);
     }
 

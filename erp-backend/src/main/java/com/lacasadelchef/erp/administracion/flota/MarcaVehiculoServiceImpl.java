@@ -50,7 +50,6 @@ public class MarcaVehiculoServiceImpl implements MarcaVehiculoService {
         MarcaVehiculo marca = buscar(id);
         aplicar(request, marca);
         marca = marcaVehiculoRepository.save(marca);
-        bitacoraMovimientoService.registrar(TABLA, marca.getIdMarcaVehiculo(), Operacion.UPDATE);
         return MarcaVehiculoResponse.desde(marca);
     }
 

@@ -66,7 +66,6 @@ public class EventoEmpleadoServiceImpl implements EventoEmpleadoService {
         EventoEmpleado eventoEmpleado = buscar(idEvento, idEmpleado);
         aplicar(request, eventoEmpleado);
         eventoEmpleado = eventoEmpleadoRepository.save(eventoEmpleado);
-        bitacoraMovimientoService.registrar(TABLA, idEvento + "-" + idEmpleado, Operacion.UPDATE);
         return EventoEmpleadoResponse.desde(eventoEmpleado);
     }
 

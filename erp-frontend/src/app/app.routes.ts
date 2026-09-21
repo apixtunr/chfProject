@@ -243,6 +243,11 @@ export const routes: Routes = [
         loadComponent: () => import('./features/administracion/usuarios/usuario-form').then((m) => m.UsuarioForm),
       },
       {
+        path: 'admin/bitacora',
+        canActivate: [permisoGuard('/api/bitacora')],
+        loadComponent: () => import('./features/bitacora/bitacora').then((m) => m.Bitacora),
+      },
+      {
         path: 'rentabilidad',
         canActivate: [permisoGuard('/api/rentabilidad')],
         loadComponent: () =>

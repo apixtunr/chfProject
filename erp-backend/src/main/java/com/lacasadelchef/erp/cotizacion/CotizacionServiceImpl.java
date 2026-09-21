@@ -74,7 +74,6 @@ public class CotizacionServiceImpl implements CotizacionService {
         Cotizacion cotizacion = buscarCotizacion(id);
         aplicar(request, cotizacion);
         cotizacion = cotizacionRepository.save(cotizacion);
-        bitacoraMovimientoService.registrar(TABLA, cotizacion.getIdCotizacion(), Operacion.UPDATE);
         return CotizacionResponse.desde(cotizacion, buscarUltimaVersion(id));
     }
 

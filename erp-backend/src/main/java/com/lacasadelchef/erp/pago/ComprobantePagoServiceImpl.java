@@ -52,7 +52,6 @@ public class ComprobantePagoServiceImpl implements ComprobantePagoService {
         ComprobantePago comprobante = buscar(idPago, idComprobante);
         aplicar(request, comprobante);
         comprobante = comprobantePagoRepository.save(comprobante);
-        bitacoraMovimientoService.registrar(TABLA, comprobante.getIdComprobante(), Operacion.UPDATE);
         return ComprobantePagoResponse.desde(comprobante);
     }
 

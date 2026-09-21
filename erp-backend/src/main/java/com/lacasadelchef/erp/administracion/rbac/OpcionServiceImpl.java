@@ -57,7 +57,6 @@ public class OpcionServiceImpl implements OpcionService {
         Opcion opcion = buscar(id);
         aplicar(request, opcion);
         opcion = opcionRepository.save(opcion);
-        bitacoraMovimientoService.registrar(TABLA, opcion.getIdOpcion(), Operacion.UPDATE);
         return OpcionResponse.desde(opcion);
     }
 

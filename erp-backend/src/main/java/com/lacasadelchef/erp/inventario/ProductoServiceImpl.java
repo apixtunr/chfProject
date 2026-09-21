@@ -56,7 +56,6 @@ public class ProductoServiceImpl implements ProductoService {
         Producto producto = buscarProducto(id);
         aplicar(request, producto);
         producto = productoRepository.save(producto);
-        bitacoraMovimientoService.registrar(TABLA, producto.getIdProducto(), Operacion.UPDATE);
         return ProductoResponse.desde(producto);
     }
 

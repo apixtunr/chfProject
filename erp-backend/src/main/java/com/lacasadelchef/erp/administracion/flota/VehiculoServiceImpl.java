@@ -59,7 +59,6 @@ public class VehiculoServiceImpl implements VehiculoService {
         Vehiculo vehiculo = buscar(id);
         aplicar(request, vehiculo);
         vehiculo = vehiculoRepository.save(vehiculo);
-        bitacoraMovimientoService.registrar(TABLA, vehiculo.getIdVehiculo(), Operacion.UPDATE);
         return VehiculoResponse.desde(vehiculo);
     }
 

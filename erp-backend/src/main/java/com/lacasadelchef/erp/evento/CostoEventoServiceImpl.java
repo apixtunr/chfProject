@@ -65,7 +65,6 @@ public class CostoEventoServiceImpl implements CostoEventoService {
         CostoEvento costoEvento = buscarCosto(idEvento, idCostoEvento);
         aplicar(request, costoEvento);
         costoEvento = costoEventoRepository.save(costoEvento);
-        bitacoraMovimientoService.registrar(TABLA, costoEvento.getIdCostoEvento(), Operacion.UPDATE);
         return CostoEventoResponse.desde(costoEvento);
     }
 

@@ -1,0 +1,182 @@
+<div class="encabezado">
+  <h1>Bitácora</h1>
+</div>
+
+<mat-tab-group>
+  <mat-tab label="Movimientos">
+    <form [formGroup]="filtroMovimientos" (ngSubmit)="aplicarFiltroMovimientos()" class="filtros">
+      <mat-form-field appearance="outline" class="campo">
+        <mat-label>Tabla</mat-label>
+        <mat-select formControlName="tabla">
+          <mat-option [value]="null">Todas</mat-option>
+          @for (t of tablasDisponibles(); track t) {
+            <mat-option [value]="t">{{ t }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="campo">
+        <mat-label>Desde</mat-label>
+        <input matInput [matDatepicker]="pickerDesdeMov" formControlName="fechaDesde" />
+        <mat-datepicker-toggle matSuffix [for]="pickerDesdeMov"></mat-datepicker-toggle>
+        <mat-datepicker #pickerDesdeMov></mat-datepicker>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="campo">
+        <mat-label>Hasta</mat-label>
+        <input matInput [matDatepicker]="pickerHastaMov" formControlName="fechaHasta" />
+        <mat-datepicker-toggle matSuffix [for]="pickerHastaMov"></mat-datepicker-toggle>
+        <mat-datepicker #pickerHastaMov></mat-datepicker>
+      </mat-form-field>
+
+      <div class="acciones-filtro">
+        <button mat-button type="button" (click)="limpiarFiltroMovimientos()">Limpiar</button>
+        <button mat-flat-button color="primary" type="submit">Filtrar</button>
+      </div>
+    </form>
+
+    <table mat-table [dataSource]="movimientos()" class="tabla">
+      <ng-container matColumnDef="fechaMovimiento">
+        <th mat-header-cell *matHeaderCellDef>Fecha</th>
+        <td mat-cell *matCellDef="let m">{{ m.fechaMovimiento | date: 'dd/MM/yyyy HH:mm:ss' }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="usuario">
+        <th mat-header-cell *matHeaderCellDef>Usuario</th>
+        <td mat-cell *matCellDef="let m">{{ m.usernameUsuario ?? '-' }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="tablaAfectada">
+        <th mat-header-cell *matHeaderCellDef>Tabla</th>
+        <td mat-cell *matCellDef="let m">{{ m.tablaAfectada }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="registroId">
+        <th mat-header-cell *matHeaderCellDef>Registro</th>
+        <td mat-cell *matCellDef="let m">{{ m.registroId ?? '-' }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="operacion">
+        <th mat-header-cell *matHeaderCellDef>Operación</th>
+        <td mat-cell *matCellDef="let m">
+          <span class="chip" [class]="'chip-' + m.operacion.toLowerCase()">{{ m.operacion }}</span>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="nombreAtributo">
+        <th mat-header-cell *matHeaderCellDef>Campo</th>
+        <td mat-cell *matCellDef="let m">{{ m.nombreAtributo ?? '-' }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="valorAnterior">
+        <th mat-header-cell *matHeaderCellDef>Valor anterior</th>
+        <td mat-cell *matCellDef="let m" [matTooltip]="m.valorAnterior ?? ''" class="col-valor">
+          {{ m.valorAnterior ?? '-' }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="valorNuevo">
+        <th mat-header-cell *matHeaderCellDef>Valor nuevo</th>
+        <td mat-cell *matCellDef="let m" [matTooltip]="m.valorNuevo ?? ''" class="col-valor">
+          {{ m.valorNuevo ?? '-' }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="ipOrigen">
+        <th mat-header-cell *matHeaderCellDef>IP</th>
+        <td mat-cell *matCellDef="let m">{{ m.ipOrigen ?? '-' }}</td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="columnasMovimientos"></tr>
+      <tr mat-row *matRowDef="let row; columns: columnasMovimientos"></tr>
+    </table>
+
+    <mat-paginator
+      [length]="totalMovimientos()"
+      [pageIndex]="pageIndexMovimientos()"
+      [pageSize]="pageSizeMovimientos()"
+      [pageSizeOptions]="[10, 20, 50]"
+      (page)="onPageChangeMovimientos($event)"
+    >
+    </mat-paginator>
+  </mat-tab>
+
+  <mat-tab label="Accesos">
+    <form [formGroup]="filtroAccesos" (ngSubmit)="aplicarFiltroAccesos()" class="filtros">
+      <mat-form-field appearance="outline" class="campo">
+        <mat-label>Resultado</mat-label>
+        <mat-select formControlName="resultado">
+          <mat-option [value]="null">Todos</mat-option>
+          @for (r of resultadosAcceso; track r) {
+            <mat-option [value]="r">{{ r }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="campo">
+        <mat-label>Desde</mat-label>
+        <input matInput [matDatepicker]="pickerDesdeAcc" formControlName="fechaDesde" />
+        <mat-datepicker-toggle matSuffix [for]="pickerDesdeAcc"></mat-datepicker-toggle>
+        <mat-datepicker #pickerDesdeAcc></mat-datepicker>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="campo">
+        <mat-label>Hasta</mat-label>
+        <input matInput [matDatepicker]="pickerHastaAcc" formControlName="fechaHasta" />
+        <mat-datepicker-toggle matSuffix [for]="pickerHastaAcc"></mat-datepicker-toggle>
+        <mat-datepicker #pickerHastaAcc></mat-datepicker>
+      </mat-form-field>
+
+      <div class="acciones-filtro">
+        <button mat-button type="button" (click)="limpiarFiltroAccesos()">Limpiar</button>
+        <button mat-flat-button color="primary" type="submit">Filtrar</button>
+      </div>
+    </form>
+
+    <table mat-table [dataSource]="accesos()" class="tabla">
+      <ng-container matColumnDef="fechaAcceso">
+        <th mat-header-cell *matHeaderCellDef>Fecha</th>
+        <td mat-cell *matCellDef="let a">{{ a.fechaAcceso | date: 'dd/MM/yyyy HH:mm:ss' }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="usuario">
+        <th mat-header-cell *matHeaderCellDef>Usuario</th>
+        <td mat-cell *matCellDef="let a">{{ a.usernameUsuario ?? '-' }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="accion">
+        <th mat-header-cell *matHeaderCellDef>Acción</th>
+        <td mat-cell *matCellDef="let a">{{ a.accion }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="resultado">
+        <th mat-header-cell *matHeaderCellDef>Resultado</th>
+        <td mat-cell *matCellDef="let a">
+          <span class="chip" [class]="'chip-' + (a.resultado ?? '').toLowerCase()">{{ a.resultado ?? '-' }}</span>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="ipOrigen">
+        <th mat-header-cell *matHeaderCellDef>IP</th>
+        <td mat-cell *matCellDef="let a">{{ a.ipOrigen ?? '-' }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="navegador">
+        <th mat-header-cell *matHeaderCellDef>Navegador</th>
+        <td mat-cell *matCellDef="let a" [matTooltip]="a.navegador ?? ''" class="col-navegador">{{ a.navegador ?? '-' }}</td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="columnasAccesos"></tr>
+      <tr mat-row *matRowDef="let row; columns: columnasAccesos"></tr>
+    </table>
+
+    <mat-paginator
+      [length]="totalAccesos()"
+      [pageIndex]="pageIndexAccesos()"
+      [pageSize]="pageSizeAccesos()"
+      [pageSizeOptions]="[10, 20, 50]"
+      (page)="onPageChangeAccesos($event)"
+    >
+    </mat-paginator>
+  </mat-tab>
+</mat-tab-group>

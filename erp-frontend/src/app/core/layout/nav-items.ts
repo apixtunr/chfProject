@@ -84,6 +84,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { label: 'Empleados', route: '/empleados', paginaUrl: '/api/empleados', icon: 'badge' },
       { label: 'Vehiculos', route: '/vehiculos', paginaUrl: '/api/vehiculos', icon: 'local_shipping' },
       { label: 'Catalogos', route: '/admin/catalogos', paginaUrl: '/api/estados', icon: 'list_alt' },
+      { label: 'Bitácora', route: '/admin/bitacora', paginaUrl: '/api/bitacora', icon: 'history' },
     ],
   },
 ];

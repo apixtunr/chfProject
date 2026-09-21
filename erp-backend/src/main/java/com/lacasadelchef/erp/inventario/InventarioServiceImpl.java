@@ -56,8 +56,9 @@ public class InventarioServiceImpl implements InventarioService {
         boolean esNuevo = inventario.getIdInventario() == null;
         inventario.setCantidadMinima(request.cantidadMinima());
         inventario = inventarioRepository.save(inventario);
-        bitacoraMovimientoService.registrar(TABLA, inventario.getIdInventario(),
-                esNuevo ? Operacion.INSERT : Operacion.UPDATE);
+        if (esNuevo) {
+            bitacoraMovimientoService.registrar(TABLA, inventario.getIdInventario(), Operacion.INSERT);
+        }
         return InventarioResponse.desde(inventario);
     }
 

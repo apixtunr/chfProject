@@ -50,7 +50,6 @@ public class GeneroServiceImpl implements GeneroService {
         Genero genero = buscar(id);
         aplicar(request, genero);
         genero = generoRepository.save(genero);
-        bitacoraMovimientoService.registrar(TABLA, genero.getIdGenero(), Operacion.UPDATE);
         return GeneroResponse.desde(genero);
     }
 

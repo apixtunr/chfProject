@@ -56,7 +56,6 @@ public class MunicipioServiceImpl implements MunicipioService {
         Municipio municipio = buscar(id);
         aplicar(request, municipio);
         municipio = municipioRepository.save(municipio);
-        bitacoraMovimientoService.registrar(TABLA, municipio.getIdMunicipio(), Operacion.UPDATE);
         return MunicipioResponse.desde(municipio);
     }
 

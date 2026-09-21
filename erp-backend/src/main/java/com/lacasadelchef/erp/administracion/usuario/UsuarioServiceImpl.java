@@ -69,7 +69,6 @@ public class UsuarioServiceImpl implements UsuarioService {
         Usuario usuario = buscar(id);
         aplicarRolEstadoEmpleado(request.idRol(), request.idEstado(), request.idEmpleado(), usuario);
         usuario = usuarioRepository.save(usuario);
-        bitacoraMovimientoService.registrar(TABLA, usuario.getIdUsuario(), Operacion.UPDATE);
         return UsuarioResponse.desde(usuario);
     }
 
@@ -90,7 +89,6 @@ public class UsuarioServiceImpl implements UsuarioService {
         usuario.setPasswordHash(passwordEncoder.encode(request.password()));
         usuario.setIntentosAcceso(0);
         usuarioRepository.save(usuario);
-        bitacoraMovimientoService.registrar(TABLA, usuario.getIdUsuario(), Operacion.UPDATE);
     }
 
     @Override
@@ -99,7 +97,6 @@ public class UsuarioServiceImpl implements UsuarioService {
         Usuario usuario = buscar(id);
         usuario.setIntentosAcceso(0);
         usuario = usuarioRepository.save(usuario);
-        bitacoraMovimientoService.registrar(TABLA, usuario.getIdUsuario(), Operacion.UPDATE);
         return UsuarioResponse.desde(usuario);
     }
 

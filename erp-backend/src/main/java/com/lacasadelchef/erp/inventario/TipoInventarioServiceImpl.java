@@ -52,7 +52,6 @@ public class TipoInventarioServiceImpl implements TipoInventarioService {
         TipoInventario tipoInventario = buscar(id);
         aplicar(request, tipoInventario);
         tipoInventario = tipoInventarioRepository.save(tipoInventario);
-        bitacoraMovimientoService.registrar(TABLA, tipoInventario.getIdTipoInventario(), Operacion.UPDATE);
         return TipoInventarioResponse.desde(tipoInventario);
     }
 

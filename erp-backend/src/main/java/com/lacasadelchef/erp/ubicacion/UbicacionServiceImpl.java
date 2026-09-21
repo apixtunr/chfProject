@@ -53,7 +53,6 @@ public class UbicacionServiceImpl implements UbicacionService {
         Ubicacion ubicacion = buscar(id);
         aplicar(request, ubicacion);
         ubicacion = ubicacionRepository.save(ubicacion);
-        bitacoraMovimientoService.registrar(TABLA, ubicacion.getIdUbicacion(), Operacion.UPDATE);
         return UbicacionResponse.desde(ubicacion);
     }
 

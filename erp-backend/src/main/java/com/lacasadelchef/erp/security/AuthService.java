@@ -1,5 +1,6 @@
 package com.lacasadelchef.erp.security;
 
+import com.lacasadelchef.erp.common.audit.ContextoAuditoria;
 import com.lacasadelchef.erp.common.exception.BusinessException;
 import com.lacasadelchef.erp.config.AppProperties;
 import com.lacasadelchef.erp.entity.Accion;
@@ -40,10 +41,6 @@ public class AuthService {
     private final JwtService jwtService;
     private final AppProperties appProperties;
 
-    // Sin noRollbackFor, Spring deshace toda la transaccion (incluyendo el incremento de
-    // intentos_acceso y el INSERT en bitacora_acceso) cada vez que este metodo lanza una
-    // de estas excepciones para rechazar el login — dejando el conteo de intentos y la
-    // bitacora de accesos fallidos completamente inoperantes.
     @Transactional(noRollbackFor = {BadCredentialsException.class, BusinessException.class})
     public LoginResponse login(LoginRequest request, HttpServletRequest http) {
         Usuario usuario = usuarioRepository.findByUsername(request.username())
@@ -83,15 +80,11 @@ public class AuthService {
                 .build();
     }
 
-    /**
-     * Revoca todos los tokens vigentes del usuario (JWT es stateless: sin esta
-     * marca, un token robado o de otra pestana seguiria valido hasta expirar).
-     */
     @Transactional
     public void logout(HttpServletRequest http) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !(auth.getPrincipal() instanceof UsuarioPrincipal principal)) {
-            return; // sin sesion activa, nada que revocar
+            return; 
         }
         Usuario usuario = usuarioRepository.findById(principal.getUsuario().getIdUsuario())
                 .orElseThrow(() -> new IllegalStateException("Usuario de la sesion no existe"));
@@ -121,7 +114,7 @@ public class AuthService {
         BitacoraAcceso registro = new BitacoraAcceso();
         registro.setUsuario(usuario);
         registro.setAccion(acc);
-        registro.setIpOrigen(http.getRemoteAddr());
+        registro.setIpOrigen(ContextoAuditoria.ipDe(http));
         registro.setNavegador(http.getHeader("User-Agent"));
         registro.setResultado(resultado);
         bitacoraAccesoRepository.save(registro);

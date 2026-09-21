@@ -154,7 +154,6 @@ public class CotizacionVersionServiceImpl implements CotizacionVersionService {
 
         version.setEstado(estado);
         version = cotizacionVersionRepository.save(version);
-        bitacoraMovimientoService.registrar(TABLA, version.getIdCotizacionVersion(), Operacion.UPDATE);
         return CotizacionVersionResponse.desde(version);
     }
 

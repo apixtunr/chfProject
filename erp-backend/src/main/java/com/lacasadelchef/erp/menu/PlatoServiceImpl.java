@@ -56,7 +56,6 @@ public class PlatoServiceImpl implements PlatoService {
         Plato plato = buscarPlato(id);
         aplicar(request, plato);
         plato = platoRepository.save(plato);
-        bitacoraMovimientoService.registrar(TABLA, plato.getIdPlato(), Operacion.UPDATE);
         return PlatoResponse.desde(plato);
     }
 

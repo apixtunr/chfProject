@@ -64,7 +64,6 @@ public class EventoVehiculoServiceImpl implements EventoVehiculoService {
         EventoVehiculo eventoVehiculo = buscar(idEvento, idVehiculo);
         aplicar(request, eventoVehiculo);
         eventoVehiculo = eventoVehiculoRepository.save(eventoVehiculo);
-        bitacoraMovimientoService.registrar(TABLA, idEvento + "-" + idVehiculo, Operacion.UPDATE);
         return EventoVehiculoResponse.desde(eventoVehiculo);
     }
 

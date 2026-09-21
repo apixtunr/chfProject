@@ -50,7 +50,6 @@ public class TipoServicioServiceImpl implements TipoServicioService {
         TipoServicio tipoServicio = buscar(id);
         aplicar(request, tipoServicio);
         tipoServicio = tipoServicioRepository.save(tipoServicio);
-        bitacoraMovimientoService.registrar(TABLA, tipoServicio.getIdTipoServicio(), Operacion.UPDATE);
         return TipoServicioResponse.desde(tipoServicio);
     }
 

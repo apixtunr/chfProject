@@ -50,7 +50,6 @@ public class PuestoEmpleadoServiceImpl implements PuestoEmpleadoService {
         PuestoEmpleado puestoEmpleado = buscar(id);
         aplicar(request, puestoEmpleado);
         puestoEmpleado = puestoEmpleadoRepository.save(puestoEmpleado);
-        bitacoraMovimientoService.registrar(TABLA, puestoEmpleado.getIdPuestoEmpleado(), Operacion.UPDATE);
         return PuestoEmpleadoResponse.desde(puestoEmpleado);
     }
 

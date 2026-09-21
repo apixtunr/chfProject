@@ -50,7 +50,6 @@ public class ModuloServiceImpl implements ModuloService {
         Modulo modulo = buscar(id);
         aplicar(request, modulo);
         modulo = moduloRepository.save(modulo);
-        bitacoraMovimientoService.registrar(TABLA, modulo.getIdModulo(), Operacion.UPDATE);
         return ModuloResponse.desde(modulo);
     }
 

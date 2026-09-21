@@ -50,7 +50,6 @@ public class TipoPlacaServiceImpl implements TipoPlacaService {
         TipoPlaca tipoPlaca = buscar(id);
         aplicar(request, tipoPlaca);
         tipoPlaca = tipoPlacaRepository.save(tipoPlaca);
-        bitacoraMovimientoService.registrar(TABLA, tipoPlaca.getIdTipoPlaca(), Operacion.UPDATE);
         return TipoPlacaResponse.desde(tipoPlaca);
     }
 

@@ -55,7 +55,6 @@ public class MetodoPagoServiceImpl implements MetodoPagoService {
         MetodoPago metodoPago = buscar(id);
         aplicar(request, metodoPago);
         metodoPago = metodoPagoRepository.save(metodoPago);
-        bitacoraMovimientoService.registrar(TABLA, metodoPago.getIdMetodoPago(), Operacion.UPDATE);
         return MetodoPagoResponse.desde(metodoPago);
     }
 

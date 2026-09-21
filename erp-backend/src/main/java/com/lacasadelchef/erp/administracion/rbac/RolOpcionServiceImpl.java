@@ -67,7 +67,6 @@ public class RolOpcionServiceImpl implements RolOpcionService {
         RolOpcion rolOpcion = buscar(idRol, idOpcion);
         aplicar(request, rolOpcion);
         rolOpcion = rolOpcionRepository.save(rolOpcion);
-        bitacoraMovimientoService.registrar(TABLA, idRol + "-" + idOpcion, Operacion.UPDATE);
         return RolOpcionResponse.desde(rolOpcion);
     }
 

@@ -52,7 +52,6 @@ public class DepartamentoServiceImpl implements DepartamentoService {
         Departamento departamento = buscar(id);
         aplicar(request, departamento);
         departamento = departamentoRepository.save(departamento);
-        bitacoraMovimientoService.registrar(TABLA, departamento.getIdDepartamento(), Operacion.UPDATE);
         return DepartamentoResponse.desde(departamento);
     }
 

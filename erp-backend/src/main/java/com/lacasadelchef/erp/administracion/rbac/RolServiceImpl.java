@@ -50,7 +50,6 @@ public class RolServiceImpl implements RolService {
         Rol rol = buscar(id);
         aplicar(request, rol);
         rol = rolRepository.save(rol);
-        bitacoraMovimientoService.registrar(TABLA, rol.getIdRol(), Operacion.UPDATE);
         return RolResponse.desde(rol);
     }
 

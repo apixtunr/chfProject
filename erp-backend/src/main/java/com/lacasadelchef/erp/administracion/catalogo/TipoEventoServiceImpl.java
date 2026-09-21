@@ -50,7 +50,6 @@ public class TipoEventoServiceImpl implements TipoEventoService {
         TipoEvento tipoEvento = buscar(id);
         aplicar(request, tipoEvento);
         tipoEvento = tipoEventoRepository.save(tipoEvento);
-        bitacoraMovimientoService.registrar(TABLA, tipoEvento.getIdTipoEvento(), Operacion.UPDATE);
         return TipoEventoResponse.desde(tipoEvento);
     }
 

@@ -69,7 +69,6 @@ public class MenuServiceImpl implements MenuService {
         Menu menu = buscarMenu(id);
         aplicar(request, menu);
         menu = menuRepository.save(menu);
-        bitacoraMovimientoService.registrar(TABLA_MENU, menu.getIdMenu(), Operacion.UPDATE);
         return MenuResponse.desde(menu, menuPlatoRepository.sumarPrecioPorMenu(id));
     }
 
@@ -113,7 +112,6 @@ public class MenuServiceImpl implements MenuService {
         MenuPlato menuPlato = buscarMenuPlato(idMenu, idPlato);
         aplicar(request, menuPlato);
         menuPlato = menuPlatoRepository.save(menuPlato);
-        bitacoraMovimientoService.registrar(TABLA_MENU_PLATO, idMenu + "-" + idPlato, Operacion.UPDATE);
         return MenuPlatoResponse.desde(menuPlato);
     }
 

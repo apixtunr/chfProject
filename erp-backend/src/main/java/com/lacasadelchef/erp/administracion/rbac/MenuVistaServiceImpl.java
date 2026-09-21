@@ -57,7 +57,6 @@ public class MenuVistaServiceImpl implements MenuVistaService {
         MenuVista menuVista = buscar(id);
         aplicar(request, menuVista);
         menuVista = menuVistaRepository.save(menuVista);
-        bitacoraMovimientoService.registrar(TABLA, menuVista.getIdMenuVista(), Operacion.UPDATE);
         return MenuVistaResponse.desde(menuVista);
     }
 

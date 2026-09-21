@@ -53,7 +53,6 @@ public class ClienteServiceImpl implements ClienteService {
         Cliente cliente = buscarCliente(id);
         aplicar(request, cliente);
         cliente = clienteRepository.save(cliente);
-        bitacoraMovimientoService.registrar(TABLA, cliente.getIdCliente(), Operacion.UPDATE);
         return ClienteResponse.desde(cliente);
     }
 

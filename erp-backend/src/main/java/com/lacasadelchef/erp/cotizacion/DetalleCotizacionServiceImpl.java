@@ -72,7 +72,6 @@ public class DetalleCotizacionServiceImpl implements DetalleCotizacionService {
 
         CotizacionVersion version = detalle.getCotizacionVersion();
         entityManager.refresh(version);
-        bitacoraMovimientoService.registrar(TABLA, detalle.getIdDetalleCotizacion(), Operacion.UPDATE);
         return DetalleCotizacionResponse.desde(detalle, version.getMontoTotal());
     }
 

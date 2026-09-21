@@ -57,7 +57,6 @@ public class EstadoServiceImpl implements EstadoService {
         Estado estado = buscar(id);
         aplicar(request, estado);
         estado = estadoRepository.save(estado);
-        bitacoraMovimientoService.registrar(TABLA, estado.getIdEstado(), Operacion.UPDATE);
         return EstadoResponse.desde(estado);
     }
 

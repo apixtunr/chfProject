@@ -63,7 +63,6 @@ public class EmpleadoServiceImpl implements EmpleadoService {
         Empleado empleado = buscar(id);
         aplicar(request, empleado);
         empleado = empleadoRepository.save(empleado);
-        bitacoraMovimientoService.registrar(TABLA, empleado.getIdEmpleado(), Operacion.UPDATE);
         return EmpleadoResponse.desde(empleado);
     }
 

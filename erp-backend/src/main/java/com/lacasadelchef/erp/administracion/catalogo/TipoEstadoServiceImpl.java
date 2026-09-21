@@ -50,7 +50,6 @@ public class TipoEstadoServiceImpl implements TipoEstadoService {
         TipoEstado tipoEstado = buscar(id);
         aplicar(request, tipoEstado);
         tipoEstado = tipoEstadoRepository.save(tipoEstado);
-        bitacoraMovimientoService.registrar(TABLA, tipoEstado.getIdTipoEstado(), Operacion.UPDATE);
         return TipoEstadoResponse.desde(tipoEstado);
     }
 
