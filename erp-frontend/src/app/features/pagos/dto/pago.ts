@@ -37,6 +37,20 @@ export interface PagoResponse {
   idCostoEvento: number | null;
 }
 
+/** Saldo de un evento (total/abonado/pendiente), para la pantalla principal de Pagos. */
+export interface EventoPagoResponse {
+  idEvento: number;
+  fechaEvento: string;
+  idEstado: number;
+  estadoNombre: string;
+  tipoEventoNombre: string;
+  idCliente: number;
+  clienteNombre: string;
+  total: number;
+  abonado: number;
+  pendiente: number;
+}
+
 export interface ComprobantePagoRequest {
   numeroComprobante: string;
   archivoUrl: string | null;

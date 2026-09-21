@@ -150,7 +150,12 @@ export const routes: Routes = [
         loadComponent: () => import('./features/pagos/pago-list/pago-list').then((m) => m.PagoList),
       },
       {
-        path: 'pagos/nuevo',
+        path: 'pagos/evento/:idEvento',
+        canActivate: [permisoGuard('/api/pagos')],
+        loadComponent: () => import('./features/pagos/pago-evento/pago-evento').then((m) => m.PagoEvento),
+      },
+      {
+        path: 'pagos/evento/:idEvento/nuevo',
         canActivate: [permisoGuard('/api/pagos')],
         loadComponent: () => import('./features/pagos/pago-form/pago-form').then((m) => m.PagoForm),
       },

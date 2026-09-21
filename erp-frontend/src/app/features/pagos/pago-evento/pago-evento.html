@@ -1,0 +1,97 @@
+@if (evento(); as e) {
+  <div class="encabezado">
+    <div>
+      <h1>Pagos del evento #{{ e.idEvento }}</h1>
+      <p class="subtitulo">{{ e.clienteNombre }} · {{ e.fechaEvento | date: 'dd/MM/yyyy' }} · {{ e.tipoEventoNombre }}</p>
+    </div>
+    <button mat-button routerLink="/pagos">
+      <mat-icon>arrow_back</mat-icon>
+      Volver
+    </button>
+  </div>
+
+  @if (resumen(); as r) {
+    <mat-card class="tarjeta-resumen">
+      <mat-card-content class="resumen">
+        <div><span class="etiqueta-resumen">Total del evento</span><span>Q {{ r.total | number: '1.2-2' }}</span></div>
+        <div><span class="etiqueta-resumen">Abonado</span><span>Q {{ r.abonado | number: '1.2-2' }}</span></div>
+        <div class="pendiente"><span class="etiqueta-resumen">Pendiente</span><span>Q {{ r.pendiente | number: '1.2-2' }}</span></div>
+      </mat-card-content>
+    </mat-card>
+  }
+
+  <div class="encabezado seccion">
+    <h2>Abonos registrados</h2>
+    @if (puedeCrear) {
+      <button mat-flat-button color="primary" [routerLink]="['/pagos/evento', idEvento, 'nuevo']">
+        <mat-icon>add</mat-icon>
+        Registrar abono
+      </button>
+    }
+  </div>
+
+  <table mat-table [dataSource]="pagos()" class="tabla">
+    <ng-container matColumnDef="fechaPago">
+      <th mat-header-cell *matHeaderCellDef>Fecha</th>
+      <td mat-cell *matCellDef="let p">{{ p.fechaPago | date: 'dd/MM/yyyy HH:mm' }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="tipo">
+      <th mat-header-cell *matHeaderCellDef>Tipo</th>
+      <td mat-cell *matCellDef="let p">{{ etiquetaTipo(p) }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="metodo">
+      <th mat-header-cell *matHeaderCellDef>Metodo</th>
+      <td mat-cell *matCellDef="let p">{{ p.nombreMetodoPago }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="monto">
+      <th mat-header-cell *matHeaderCellDef>Monto</th>
+      <td mat-cell *matCellDef="let p">Q {{ p.monto | number: '1.2-2' }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="estado">
+      <th mat-header-cell *matHeaderCellDef>Estado</th>
+      <td mat-cell *matCellDef="let p">
+        <span class="chip" [class]="'chip-' + p.estadoNombre.toLowerCase()">{{ p.estadoNombre }}</span>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="usuario">
+      <th mat-header-cell *matHeaderCellDef>Registrado por</th>
+      <td mat-cell *matCellDef="let p">{{ p.usernameUsuario }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="acciones">
+      <th mat-header-cell *matHeaderCellDef></th>
+      <td mat-cell *matCellDef="let p">
+        <button mat-icon-button [routerLink]="['/pagos', p.idPago]" matTooltip="Ver detalle" aria-label="Ver detalle">
+          <mat-icon>visibility</mat-icon>
+        </button>
+        @if (puedeEditar) {
+          <button mat-icon-button [routerLink]="['/pagos', p.idPago, 'editar']" matTooltip="Editar" aria-label="Editar">
+            <mat-icon>edit</mat-icon>
+          </button>
+        }
+        @if (puedeEliminar) {
+          <button mat-icon-button (click)="eliminar(p)" matTooltip="Eliminar" aria-label="Eliminar">
+            <mat-icon>delete</mat-icon>
+          </button>
+        }
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="columnas"></tr>
+    <tr mat-row *matRowDef="let row; columns: columnas"></tr>
+  </table>
+
+  <mat-paginator
+    [length]="totalElements()"
+    [pageIndex]="pageIndex()"
+    [pageSize]="pageSize()"
+    [pageSizeOptions]="[10, 20, 50]"
+    (page)="onPageChange($event)"
+  >
+  </mat-paginator>
+}

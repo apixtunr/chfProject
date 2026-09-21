@@ -1,7 +1,7 @@
 @if (pago(); as p) {
   <div class="encabezado">
     <h1>Pago #{{ p.idPago }}</h1>
-    <button mat-button routerLink="/pagos">
+    <button mat-button [routerLink]="['/pagos/evento', p.idEvento]">
       <mat-icon>arrow_back</mat-icon>
       Volver
     </button>

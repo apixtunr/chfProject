@@ -49,13 +49,13 @@ export class PagoForm implements OnInit {
   private readonly snackBar = inject(MatSnackBar);
 
   readonly idPago = signal<number | null>(null);
+  readonly idEvento = signal<number | null>(null);
   readonly guardando = signal(false);
-  readonly eventos = signal<EventoResponse[]>([]);
+  readonly evento = signal<EventoResponse | null>(null);
   readonly metodos = signal<MetodoPagoResponse[]>([]);
   readonly resumenEvento = signal<ResumenEvento | null>(null);
 
   readonly formulario = this.fb.nonNullable.group({
-    idEvento: this.fb.control<number | null>(null, Validators.required),
     idMetodoPago: this.fb.control<number | null>(null, Validators.required),
     monto: this.fb.control<number | null>(null, [Validators.required, Validators.min(0.01)]),
     referenciaTransaccion: this.fb.nonNullable.control('', Validators.maxLength(100)),
@@ -69,37 +69,36 @@ export class PagoForm implements OnInit {
   private idCostoEventoActual: number | null = null;
 
   ngOnInit(): void {
-    this.eventoService
-      .listar({ fechaDesde: null, fechaHasta: null, idCliente: null, idTipoEvento: null, idEstado: null }, 0, 200)
-      .subscribe((p) => {
-        this.eventos.set(p.content);
-        // Por si el evento ya venia seleccionado (editar) antes de que esta lista cargara.
-        this.cargarResumenEvento(this.formulario.controls.idEvento.value);
-      });
     this.pagoService.listarMetodos().subscribe((m) => this.metodos.set(m));
 
     // La referencia es obligatoria solo si el metodo la requiere
     this.formulario.controls.idMetodoPago.valueChanges.subscribe(() => this.ajustarValidacionReferencia());
 
-    this.formulario.controls.idEvento.valueChanges.subscribe((idEvento) => this.cargarResumenEvento(idEvento));
+    const idPagoParam = this.route.snapshot.paramMap.get('id');
+    const idEventoParam = this.route.snapshot.paramMap.get('idEvento');
 
-    const idParam = this.route.snapshot.paramMap.get('id');
-    if (!idParam) {
-      return;
-    }
-    const id = Number(idParam);
-    this.idPago.set(id);
-    this.pagoService.obtener(id).subscribe((pago) => {
-      this.idCostoEventoActual = pago.idCostoEvento;
-      this.formulario.patchValue({
-        idEvento: pago.idEvento,
-        idMetodoPago: pago.idMetodoPago,
-        monto: pago.monto,
-        referenciaTransaccion: pago.referenciaTransaccion ?? '',
-        observaciones: pago.observaciones ?? '',
-        fechaPago: new Date(pago.fechaPago),
+    if (idPagoParam) {
+      // Editar: el evento del pago ya existe y no se puede cambiar aqui.
+      const id = Number(idPagoParam);
+      this.idPago.set(id);
+      this.pagoService.obtener(id).subscribe((pago) => {
+        this.idCostoEventoActual = pago.idCostoEvento;
+        this.idEvento.set(pago.idEvento);
+        this.cargarEventoYResumen(pago.idEvento);
+        this.formulario.patchValue({
+          idMetodoPago: pago.idMetodoPago,
+          monto: pago.monto,
+          referenciaTransaccion: pago.referenciaTransaccion ?? '',
+          observaciones: pago.observaciones ?? '',
+          fechaPago: new Date(pago.fechaPago),
+        });
       });
-    });
+    } else if (idEventoParam) {
+      // Registrar un abono nuevo: el evento viene fijo desde la ruta (se eligio en /pagos).
+      const idEvento = Number(idEventoParam);
+      this.idEvento.set(idEvento);
+      this.cargarEventoYResumen(idEvento);
+    }
   }
 
   get metodoRequiereReferencia(): boolean {
@@ -117,36 +116,27 @@ export class PagoForm implements OnInit {
     control.updateValueAndValidity();
   }
 
-  etiquetaEvento(e: EventoResponse): string {
-    return `#${e.idEvento} · ${e.clienteNombre} · ${e.fechaEvento}`;
-  }
-
   /**
-   * Muestra Total/Abonado/Pendiente del evento elegido, para que quien registra el pago
-   * sepa cuanto falta en vez de escribir un monto a ciegas. El "Total" es el precio pactado
-   * (menu directo, o el monto total de la cotizacion si el evento viene de ahi); "Abonado"
-   * suma solo los pagos que NO son reembolso de un costo extra (idCostoEvento nulo), porque
-   * un reembolso no es un abono al precio del evento, es una devolucion de un gasto aparte.
+   * Muestra Total/Abonado/Pendiente del evento, para que quien registra el pago sepa cuanto
+   * falta en vez de escribir un monto a ciegas. El "Total" es el precio pactado (menu directo,
+   * o el monto total de la cotizacion si el evento viene de ahi); "Abonado" suma solo los pagos
+   * que NO son reembolso de un costo extra (idCostoEvento nulo), porque un reembolso no es un
+   * abono al precio del evento, es una devolucion de un gasto aparte.
    */
-  private cargarResumenEvento(idEvento: number | null): void {
-    if (!idEvento) {
-      this.resumenEvento.set(null);
-      return;
-    }
-    const evento = this.eventos().find((e) => e.idEvento === idEvento);
-    if (!evento) {
-      return;
-    }
-    const total$ = evento.idCotizacionVersion
-      ? this.cotizacionService.obtenerVersion(evento.idCotizacionVersion).pipe(map((v) => v.montoTotal))
-      : of(evento.montoMenu);
+  private cargarEventoYResumen(idEvento: number): void {
+    this.eventoService.obtener(idEvento).subscribe((evento) => {
+      this.evento.set(evento);
+      const total$ = evento.idCotizacionVersion
+        ? this.cotizacionService.obtenerVersion(evento.idCotizacionVersion).pipe(map((v) => v.montoTotal))
+        : of(evento.montoMenu);
 
-    total$.subscribe((total) => {
-      this.pagoService.listar(idEvento, 0, 200).subscribe((pagina) => {
-        const abonado = pagina.content
-          .filter((p) => p.idCostoEvento === null)
-          .reduce((acc, p) => acc + p.monto, 0);
-        this.resumenEvento.set({ total, abonado, pendiente: total - abonado });
+      total$.subscribe((total) => {
+        this.pagoService.listar(idEvento, 0, 200).subscribe((pagina) => {
+          const abonado = pagina.content
+            .filter((p) => p.idCostoEvento === null && p.estadoNombre !== 'ANULADO')
+            .reduce((acc, p) => acc + p.monto, 0);
+          this.resumenEvento.set({ total, abonado, pendiente: total - abonado });
+        });
       });
     });
   }
@@ -160,7 +150,7 @@ export class PagoForm implements OnInit {
     this.guardando.set(true);
     const v = this.formulario.getRawValue();
     const request = {
-      idEvento: v.idEvento!,
+      idEvento: this.idEvento()!,
       idMetodoPago: v.idMetodoPago!,
       monto: v.monto!,
       referenciaTransaccion: v.referenciaTransaccion.trim() || null,
@@ -175,7 +165,7 @@ export class PagoForm implements OnInit {
     operacion.subscribe({
       next: () => {
         this.snackBar.open(id ? 'Pago actualizado' : 'Pago registrado', 'Cerrar', { duration: 3000 });
-        this.router.navigateByUrl('/pagos');
+        this.router.navigate(['/pagos/evento', this.idEvento()]);
       },
       error: () => this.guardando.set(false),
     });

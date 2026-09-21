@@ -6,6 +6,7 @@ import { Page } from '../../core/models/page';
 import {
   ComprobantePagoRequest,
   ComprobantePagoResponse,
+  EventoPagoResponse,
   MetodoPagoResponse,
   PagoRequest,
   PagoResponse,
@@ -23,6 +24,15 @@ export class PagoService {
       params = params.set('idEvento', idEvento);
     }
     return this.http.get<Page<PagoResponse>>(BASE_URL, { params });
+  }
+
+  /** Eventos con su saldo (total/abonado/pendiente). filtro: PENDIENTE (default) o PAGADO. */
+  listarEventosConSaldo(filtro: string | null, page: number, size: number): Observable<Page<EventoPagoResponse>> {
+    let params = new HttpParams().set('page', page).set('size', size).set('sort', 'fechaEvento,desc');
+    if (filtro) {
+      params = params.set('filtro', filtro);
+    }
+    return this.http.get<Page<EventoPagoResponse>>(`${BASE_URL}/eventos`, { params });
   }
 
   obtener(id: number): Observable<PagoResponse> {

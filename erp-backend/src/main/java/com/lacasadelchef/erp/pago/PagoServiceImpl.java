@@ -10,6 +10,7 @@ import com.lacasadelchef.erp.entity.Evento;
 import com.lacasadelchef.erp.entity.MetodoPago;
 import com.lacasadelchef.erp.entity.Pago;
 import com.lacasadelchef.erp.entity.Usuario;
+import com.lacasadelchef.erp.pago.dto.EventoPagoResponse;
 import com.lacasadelchef.erp.pago.dto.PagoRequest;
 import com.lacasadelchef.erp.pago.dto.PagoResponse;
 import com.lacasadelchef.erp.repository.CostoEventoRepository;
@@ -17,6 +18,7 @@ import com.lacasadelchef.erp.repository.EstadoRepository;
 import com.lacasadelchef.erp.repository.EventoRepository;
 import com.lacasadelchef.erp.repository.MetodoPagoRepository;
 import com.lacasadelchef.erp.repository.PagoRepository;
+import com.lacasadelchef.erp.repository.VPagoEventoRepository;
 import com.lacasadelchef.erp.security.UsuarioPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -25,6 +27,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDate;
 
 @Service
 @RequiredArgsConstructor
@@ -42,6 +48,7 @@ public class PagoServiceImpl implements PagoService {
     private final MetodoPagoRepository metodoPagoRepository;
     private final EstadoRepository estadoRepository;
     private final CostoEventoRepository costoEventoRepository;
+    private final VPagoEventoRepository vPagoEventoRepository;
     private final BitacoraMovimientoService bitacoraMovimientoService;
 
     @Override
@@ -51,6 +58,15 @@ public class PagoServiceImpl implements PagoService {
                 ? pagoRepository.findAll(pageable)
                 : pagoRepository.findByEventoIdEvento(idEvento, pageable);
         return page.map(PagoResponse::desde);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<EventoPagoResponse> listarEventosConSaldo(String filtro, Integer idCliente,
+                                                           LocalDate fechaDesde, LocalDate fechaHasta, Pageable pageable) {
+        String filtroEfectivo = (filtro == null || filtro.isBlank()) ? "PENDIENTE" : filtro.toUpperCase();
+        return vPagoEventoRepository.buscar(filtroEfectivo, idCliente, fechaDesde, fechaHasta, pageable)
+                .map(EventoPagoResponse::desde);
     }
 
     @Override
@@ -81,7 +97,6 @@ public class PagoServiceImpl implements PagoService {
         Pago pago = buscarPago(id);
         aplicar(request, pago);
         pago = pagoRepository.save(pago);
-        bitacoraMovimientoService.registrar(TABLA, pago.getIdPago(), Operacion.UPDATE);
         return PagoResponse.desde(pago);
     }
 
@@ -107,7 +122,6 @@ public class PagoServiceImpl implements PagoService {
         }
         pago.setEstado(estado);
         pago = pagoRepository.save(pago);
-        bitacoraMovimientoService.registrar(TABLA, pago.getIdPago(), Operacion.UPDATE);
         return PagoResponse.desde(pago);
     }
 
@@ -139,6 +153,12 @@ public class PagoServiceImpl implements PagoService {
                     .orElseThrow(() -> new ResourceNotFoundException("CostoEvento", request.idCostoEvento()));
         }
 
+        // El limite de "no exceder el pendiente" solo aplica a abonos al precio del evento; un
+        // reembolso de costo extra es un concepto aparte (ver Pago.costoEvento) y no cuenta contra ese saldo.
+        if (costoEvento == null) {
+            validarNoExcedePendiente(evento, request.monto(), pago.getIdPago());
+        }
+
         pago.setEvento(evento);
         pago.setMetodoPago(metodoPago);
         pago.setCostoEvento(costoEvento);
@@ -147,6 +167,18 @@ public class PagoServiceImpl implements PagoService {
         pago.setObservaciones(request.observaciones());
         if (request.fechaPago() != null) {
             pago.setFechaPago(request.fechaPago());
+        }
+    }
+
+    private void validarNoExcedePendiente(Evento evento, BigDecimal monto, Integer idPagoActual) {
+        BigDecimal total = evento.getCotizacionVersion() != null
+                ? evento.getCotizacionVersion().getMontoTotal()
+                : evento.getMontoMenu();
+        BigDecimal abonado = pagoRepository.sumarAbonado(evento.getIdEvento(), idPagoActual);
+        BigDecimal pendiente = total.subtract(abonado).setScale(2, RoundingMode.HALF_UP);
+        if (monto.compareTo(pendiente) > 0) {
+            throw new BusinessException(
+                    "El pago no puede exceder el saldo pendiente de Q %s".formatted(pendiente));
         }
     }
 

@@ -1,72 +1,65 @@
 <div class="encabezado">
   <h1>Pagos</h1>
-  @if (puedeCrear) {
-    <button mat-flat-button color="primary" routerLink="/pagos/nuevo">
-      <mat-icon>add</mat-icon>
-      Registrar pago
-    </button>
-  }
 </div>
 
 <mat-form-field appearance="outline" class="filtro">
-  <mat-label>Filtrar por evento</mat-label>
-  <mat-select [value]="idEventoFiltro()" (selectionChange)="filtrarPorEvento($event.value)">
-    <mat-option [value]="null">Todos</mat-option>
-    @for (evento of eventos(); track evento.idEvento) {
-      <mat-option [value]="evento.idEvento">{{ etiquetaEvento(evento) }}</mat-option>
-    }
+  <mat-label>Mostrar</mat-label>
+  <mat-select [value]="filtro()" (selectionChange)="filtrar($event.value)">
+    <mat-option value="PENDIENTE">Pendientes</mat-option>
+    <mat-option value="PAGADO">Pagados</mat-option>
   </mat-select>
 </mat-form-field>
 
-<table mat-table [dataSource]="pagos()" class="tabla">
-  <ng-container matColumnDef="fechaPago">
+<table mat-table [dataSource]="eventos()" class="tabla">
+  <ng-container matColumnDef="fechaEvento">
     <th mat-header-cell *matHeaderCellDef>Fecha</th>
-    <td mat-cell *matCellDef="let p">{{ p.fechaPago | date: 'dd/MM/yyyy HH:mm' }}</td>
+    <td mat-cell *matCellDef="let e">{{ e.fechaEvento | date: 'dd/MM/yyyy' }}</td>
   </ng-container>
 
-  <ng-container matColumnDef="evento">
-    <th mat-header-cell *matHeaderCellDef>Evento</th>
-    <td mat-cell *matCellDef="let p">#{{ p.idEvento }} - {{ p.clienteNombre }}</td>
+  <ng-container matColumnDef="cliente">
+    <th mat-header-cell *matHeaderCellDef>Cliente</th>
+    <td mat-cell *matCellDef="let e">#{{ e.idEvento }} - {{ e.clienteNombre }}</td>
   </ng-container>
 
-  <ng-container matColumnDef="metodo">
-    <th mat-header-cell *matHeaderCellDef>Metodo</th>
-    <td mat-cell *matCellDef="let p">{{ p.nombreMetodoPago }}</td>
+  <ng-container matColumnDef="tipo">
+    <th mat-header-cell *matHeaderCellDef>Tipo</th>
+    <td mat-cell *matCellDef="let e">{{ e.tipoEventoNombre }}</td>
   </ng-container>
 
-  <ng-container matColumnDef="monto">
-    <th mat-header-cell *matHeaderCellDef>Monto</th>
-    <td mat-cell *matCellDef="let p">Q {{ p.monto }}</td>
+  <ng-container matColumnDef="total">
+    <th mat-header-cell *matHeaderCellDef>Total</th>
+    <td mat-cell *matCellDef="let e">Q {{ e.total | number: '1.2-2' }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="abonado">
+    <th mat-header-cell *matHeaderCellDef>Abonado</th>
+    <td mat-cell *matCellDef="let e">Q {{ e.abonado | number: '1.2-2' }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="pendiente">
+    <th mat-header-cell *matHeaderCellDef>Pendiente</th>
+    <td mat-cell *matCellDef="let e" [class.pendiente-alto]="e.pendiente > 0">Q {{ e.pendiente | number: '1.2-2' }}</td>
   </ng-container>
 
   <ng-container matColumnDef="estado">
-    <th mat-header-cell *matHeaderCellDef>Estado</th>
-    <td mat-cell *matCellDef="let p">
-      <span class="chip" [class]="'chip-' + p.estadoNombre.toLowerCase()">{{ p.estadoNombre }}</span>
+    <th mat-header-cell *matHeaderCellDef>Estado del evento</th>
+    <td mat-cell *matCellDef="let e">
+      <mat-chip
+        highlighted
+        [style.--mat-chip-elevated-container-color]="colorEstado(e.estadoNombre).bg"
+        [style.--mat-chip-label-text-color]="colorEstado(e.estadoNombre).text"
+        [style.--mat-chip-outline-color]="colorEstado(e.estadoNombre).text"
+      >{{ e.estadoNombre }}</mat-chip>
     </td>
-  </ng-container>
-
-  <ng-container matColumnDef="usuario">
-    <th mat-header-cell *matHeaderCellDef>Registrado por</th>
-    <td mat-cell *matCellDef="let p">{{ p.usernameUsuario }}</td>
   </ng-container>
 
   <ng-container matColumnDef="acciones">
     <th mat-header-cell *matHeaderCellDef></th>
-    <td mat-cell *matCellDef="let p">
-      <button mat-icon-button [routerLink]="['/pagos', p.idPago]" matTooltip="Ver detalle" aria-label="Ver detalle">
-        <mat-icon>visibility</mat-icon>
+    <td mat-cell *matCellDef="let e">
+      <button mat-stroked-button [routerLink]="['/pagos/evento', e.idEvento]" matTooltip="Ver y registrar pagos de este evento">
+        <mat-icon>payments</mat-icon>
+        Ver pagos
       </button>
-      @if (puedeEditar) {
-        <button mat-icon-button [routerLink]="['/pagos', p.idPago, 'editar']" matTooltip="Editar" aria-label="Editar">
-          <mat-icon>edit</mat-icon>
-        </button>
-      }
-      @if (puedeEliminar) {
-        <button mat-icon-button (click)="eliminar(p)" matTooltip="Eliminar" aria-label="Eliminar">
-          <mat-icon>delete</mat-icon>
-        </button>
-      }
     </td>
   </ng-container>
 

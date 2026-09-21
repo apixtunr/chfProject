@@ -2,6 +2,14 @@
   max-width: 480px;
 }
 
+.evento-fijo {
+  margin: 0 0 4px;
+
+  .etiqueta-resumen {
+    color: var(--mat-sys-on-surface-variant);
+  }
+}
+
 .campo {
   width: 100%;
   margin-top: 8px;
