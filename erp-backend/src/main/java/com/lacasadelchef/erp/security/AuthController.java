@@ -24,7 +24,6 @@ public class AuthController {
         return ResponseEntity.ok(authService.login(request, http));
     }
 
-    /** Revoca los tokens vigentes del usuario autenticado y registra la bitacora LOGOUT. */
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(HttpServletRequest http) {
         authService.logout(http);

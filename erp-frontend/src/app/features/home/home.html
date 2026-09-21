@@ -20,7 +20,7 @@
         <div>
           <p class="hero-titulo">{{ evento.tipoEventoNombre }} — {{ evento.clienteNombre }}</p>
           <ul class="hero-lista">
-            <li><mat-icon>calendar_today</mat-icon>{{ evento.fechaEvento }}</li>
+            <li><mat-icon>calendar_today</mat-icon>{{ evento.fechaEvento | date: 'dd/MM/yyyy' }}</li>
             <li><mat-icon>place</mat-icon>{{ evento.direccionUbicacion }}</li>
             @if (evento.cantidadPersonas) {
               <li><mat-icon>groups</mat-icon>{{ evento.cantidadPersonas }} invitados</li>

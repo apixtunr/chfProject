@@ -1,3 +1,4 @@
+import { DatePipe } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
@@ -9,7 +10,7 @@ import { InventarioService } from '../inventario/inventario.service';
 
 @Component({
   selector: 'app-home',
-  imports: [RouterLink, MatIconModule],
+  imports: [RouterLink, MatIconModule, DatePipe],
   templateUrl: './home.html',
   styleUrl: './home.scss',
 })
