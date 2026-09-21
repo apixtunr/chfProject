@@ -24,7 +24,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,7 +33,6 @@ import java.util.List;
 public class EventoInventarioServiceImpl implements EventoInventarioService {
 
     private static final String TABLA = "evento_inventario";
-    private static final String TIPO_SALIDA = "SALIDA";
     private static final String TIPO_AJUSTE = "AJUSTE";
 
     private final EventoInventarioRepository eventoInventarioRepository;
@@ -42,6 +40,7 @@ public class EventoInventarioServiceImpl implements EventoInventarioService {
     private final ProductoRepository productoRepository;
     private final MovimientoInventarioService movimientoInventarioService;
     private final BitacoraMovimientoService bitacoraMovimientoService;
+    private final EventoInventarioLineaConfirmador lineaConfirmador;
 
     @Override
     @Transactional(readOnly = true)
@@ -75,7 +74,6 @@ public class EventoInventarioServiceImpl implements EventoInventarioService {
         EventoInventario eventoInventario = buscar(idEvento, idProducto);
         aplicar(request, eventoInventario);
         eventoInventario = eventoInventarioRepository.save(eventoInventario);
-        bitacoraMovimientoService.registrar(TABLA, idEvento + "-" + idProducto, Operacion.UPDATE);
         return EventoInventarioResponse.desde(eventoInventario);
     }
 
@@ -96,7 +94,7 @@ public class EventoInventarioServiceImpl implements EventoInventarioService {
                     "El consumo de este producto ya fue confirmado para este evento el %s"
                             .formatted(eventoInventario.getFechaConsumo()));
         }
-        confirmarUnaLinea(eventoInventario, idEvento, "Consumo del evento #%d".formatted(idEvento));
+        lineaConfirmador.confirmar(eventoInventario, idEvento, "Consumo del evento #%d".formatted(idEvento));
         return EventoInventarioResponse.desde(eventoInventario);
     }
 
@@ -106,7 +104,7 @@ public class EventoInventarioServiceImpl implements EventoInventarioService {
         String motivo = "Consumo automatico al iniciar el evento #%d".formatted(idEvento);
         for (EventoInventario item : eventoInventarioRepository.findByEventoIdEventoAndFechaConsumoIsNull(idEvento)) {
             try {
-                confirmarUnaLinea(item, idEvento, motivo);
+                lineaConfirmador.confirmar(item, idEvento, motivo);
             } catch (BusinessException e) {
                 // Sin un usuario presente para decidir que hacer (esto corre desde el scheduler),
                 // se omite ese producto y se sigue con los demas en vez de bloquear al evento.
@@ -124,7 +122,7 @@ public class EventoInventarioServiceImpl implements EventoInventarioService {
         List<EventoInventarioFalloResponse> fallidos = new ArrayList<>();
         for (EventoInventario item : eventoInventarioRepository.findByEventoIdEventoAndFechaConsumoIsNull(idEvento)) {
             try {
-                confirmarUnaLinea(item, idEvento, motivo);
+                lineaConfirmador.confirmar(item, idEvento, motivo);
                 confirmados.add(EventoInventarioResponse.desde(item));
             } catch (BusinessException e) {
                 fallidos.add(new EventoInventarioFalloResponse(item.getProducto().getNombreProducto(), e.getMessage()));
@@ -158,24 +156,7 @@ public class EventoInventarioServiceImpl implements EventoInventarioService {
         }
         item.setCantidad(cantidadCorrecta);
         eventoInventarioRepository.save(item);
-        bitacoraMovimientoService.registrar(TABLA, idEvento + "-" + idProducto, Operacion.UPDATE);
         return EventoInventarioResponse.desde(item);
-    }
-
-    // Genera la salida de stock real recien ahora; mientras solo estaba "planificado"
-    // (fecha_consumo en blanco) no tocaba el inventario.
-    private void confirmarUnaLinea(EventoInventario eventoInventario, Integer idEvento, String motivo) {
-        movimientoInventarioService.registrar(new MovimientoInventarioRequest(
-                eventoInventario.getProducto().getIdProducto(),
-                TIPO_SALIDA,
-                eventoInventario.getCantidad(),
-                motivo,
-                idEvento));
-
-        eventoInventario.setFechaConsumo(LocalDateTime.now());
-        eventoInventarioRepository.save(eventoInventario);
-        bitacoraMovimientoService.registrar(
-                TABLA, idEvento + "-" + eventoInventario.getProducto().getIdProducto(), Operacion.UPDATE);
     }
 
     private EventoInventario buscar(Integer idEvento, Integer idProducto) {
