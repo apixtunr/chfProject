@@ -27,6 +27,7 @@ import java.util.List;
 public class DetalleEventoServiceImpl implements DetalleEventoService {
 
     private static final String TABLA = "detalle_evento";
+    private static final String ESTADO_EVENTO_CREADO = "CREADO";
     private static final String ESTADO_EVENTO_PLANIFICADO = "PLANIFICADO";
     private static final String ESTADO_ACTIVO = "ACTIVO";
 
@@ -72,7 +73,6 @@ public class DetalleEventoServiceImpl implements DetalleEventoService {
 
         Evento evento = detalle.getEvento();
         entityManager.refresh(evento);
-        bitacoraMovimientoService.registrar(TABLA, detalle.getIdDetalleEvento(), Operacion.UPDATE);
         return DetalleEventoResponse.desde(detalle, evento.getMontoMenu());
     }
 
@@ -97,10 +97,11 @@ public class DetalleEventoServiceImpl implements DetalleEventoService {
             throw new BusinessException(
                     "Este evento nacio de una cotizacion; su menu se define en el detalle de esa cotizacion, no aqui");
         }
-        if (!ESTADO_EVENTO_PLANIFICADO.equalsIgnoreCase(evento.getEstado().getNombre())) {
+        String estadoActual = evento.getEstado().getNombre();
+        if (!ESTADO_EVENTO_CREADO.equalsIgnoreCase(estadoActual) && !ESTADO_EVENTO_PLANIFICADO.equalsIgnoreCase(estadoActual)) {
             throw new BusinessException(
-                    "Solo se puede modificar el menu de un evento en estado PLANIFICADO (actual: %s)"
-                            .formatted(evento.getEstado().getNombre()));
+                    "Solo se puede modificar el menu de un evento en estado CREADO o PLANIFICADO (actual: %s)"
+                            .formatted(estadoActual));
         }
     }
 

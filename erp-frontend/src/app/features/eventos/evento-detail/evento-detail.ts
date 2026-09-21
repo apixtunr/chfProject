@@ -177,19 +177,30 @@ export class EventoDetail implements OnInit {
     return this.authService.puedeVer('/api/rentabilidad');
   }
 
-  /** El menu solo se puede armar aqui cuando el evento es directo (sin cotizacion) y sigue PLANIFICADO. */
+  /** El menu solo se puede armar aqui cuando el evento es directo (sin cotizacion) y todavia
+   * se esta armando (CREADO o PLANIFICADO). */
   get puedeEditarMenu(): boolean {
     const e = this.evento();
-    return this.puedeModificar && !!e && e.idCotizacionVersion === null && e.estadoNombre === 'PLANIFICADO';
+    return this.puedeModificar && !!e && e.idCotizacionVersion === null && this.esCreadoOPlanificado(e.estadoNombre);
   }
 
   /**
-   * Personal, vehiculos e inventario se definen antes del evento: una vez que ya inicio (EN
-   * CURSO) o termino (FINALIZADO), ya no tiene sentido seguir agregando o quitando. Lo unico
-   * que se puede seguir ingresando en cualquier estado no cancelado es un costo extra.
+   * Personal, vehiculos e inventario se definen mientras el evento se sigue armando (CREADO
+   * o ya PLANIFICADO); una vez que inicio (EN CURSO) o termino (FINALIZADO), ya no tiene
+   * sentido seguir agregando o quitando. Lo unico que se puede seguir ingresando en cualquier
+   * estado no cancelado es un costo extra.
    */
   get puedeAsignarRecursos(): boolean {
-    return this.puedeModificar && this.evento()?.estadoNombre === 'PLANIFICADO';
+    return this.puedeModificar && this.esCreadoOPlanificado(this.evento()?.estadoNombre);
+  }
+
+  private esCreadoOPlanificado(estadoNombre: string | undefined): boolean {
+    return estadoNombre === 'CREADO' || estadoNombre === 'PLANIFICADO';
+  }
+
+  /** El boton "Planificar" solo aplica mientras el evento sigue en CREADO. */
+  get puedePlanificar(): boolean {
+    return this.puedeModificar && this.evento()?.estadoNombre === 'CREADO';
   }
 
   get transicionesDisponibles(): EstadoResponse[] {
@@ -295,6 +306,50 @@ export class EventoDetail implements OnInit {
       }
       this.eventoService.cambiarEstado(this.idEvento, estado.idEstado).subscribe(() => {
         this.snackBar.open('Estado actualizado', 'Cerrar', { duration: 3000 });
+        this.cargar();
+      });
+    });
+  }
+
+  /** Chequeo rapido en el cliente (el backend igual lo valida de verdad): evita el viaje
+   * al servidor para el caso comun de que a todos se les olvida algo antes de planificar. */
+  private seccionesFaltantesParaPlanificar(): string[] {
+    const faltantes: string[] = [];
+    if (this.lineasMenuDetalle.length === 0) {
+      faltantes.push('Menú');
+    }
+    if (this.personal().length === 0) {
+      faltantes.push('Personal');
+    }
+    if (this.vehiculos().length === 0) {
+      faltantes.push('Vehículos');
+    }
+    if (this.inventario().length === 0) {
+      faltantes.push('Inventario');
+    }
+    return faltantes;
+  }
+
+  planificarEvento(): void {
+    const faltantes = this.seccionesFaltantesParaPlanificar();
+    if (faltantes.length > 0) {
+      this.snackBar.open(`Para planificar primero hay que completar: ${faltantes.join(', ')}`, 'Cerrar', {
+        duration: 5000,
+      });
+      return;
+    }
+    const ref = this.dialog.open(ConfirmDialog, {
+      data: {
+        titulo: 'Planificar evento',
+        mensaje: '¿Confirmar que el evento ya está listo (menú, personal, vehículos e inventario)?',
+      },
+    });
+    ref.afterClosed().subscribe((confirmado) => {
+      if (!confirmado) {
+        return;
+      }
+      this.eventoService.planificar(this.idEvento).subscribe(() => {
+        this.snackBar.open('Evento planificado', 'Cerrar', { duration: 3000 });
         this.cargar();
       });
     });

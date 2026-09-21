@@ -9,4 +9,6 @@ import java.util.List;
 public interface EventoEmpleadoRepository extends JpaRepository<EventoEmpleado, EventoEmpleadoId> {
 
     List<EventoEmpleado> findByEventoIdEvento(Integer idEvento);
+
+    boolean existsByEventoIdEvento(Integer idEvento);
 }

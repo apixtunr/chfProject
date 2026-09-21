@@ -13,6 +13,12 @@
 
       @if (puedeModificar) {
         <div class="acciones-encabezado">
+          @if (puedePlanificar) {
+            <button mat-flat-button color="primary" (click)="planificarEvento()">
+              <mat-icon>event_available</mat-icon>
+              PLANIFICAR EVENTO
+            </button>
+          }
           @for (estado of transicionesDisponibles; track estado.idEstado) {
             <button mat-flat-button class="btn-danger-soft" (click)="cambiarEstado(estado)">
               <mat-icon>close</mat-icon>
@@ -108,9 +114,9 @@
             </div>
           }
         } @else {
-          @if (e.estadoNombre !== 'PLANIFICADO') {
+          @if (e.estadoNombre !== 'CREADO' && e.estadoNombre !== 'PLANIFICADO') {
             <p class="aviso-menu" style="font-style: italic;">
-              El menú solo se puede modificar si el evento se encuentra en estado Planificado
+              El menú solo se puede modificar mientras el evento se sigue armando (Creado o Planificado)
             </p>
           }
 

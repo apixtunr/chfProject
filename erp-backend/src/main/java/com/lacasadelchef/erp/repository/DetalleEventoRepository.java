@@ -8,4 +8,6 @@ import java.util.List;
 public interface DetalleEventoRepository extends JpaRepository<DetalleEvento, Integer> {
 
     List<DetalleEvento> findByEventoIdEvento(Integer idEvento);
+
+    boolean existsByEventoIdEvento(Integer idEvento);
 }

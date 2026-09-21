@@ -30,4 +30,11 @@ public interface EventoService {
     void eliminar(Integer id);
 
     EventoResponse cambiarEstado(Integer id, Integer idEstado);
+
+    /**
+     * Confirma que un evento CREADO ya esta listo para ejecutarse y lo pasa a PLANIFICADO
+     * (recien ahi entra a la automatizacion de EN CURSO/FINALIZADO). Valida que ya tenga
+     * Menu, Personal, Vehiculos e Inventario asignados; si falta alguno, rechaza el cambio.
+     */
+    EventoResponse planificar(Integer id);
 }

@@ -79,6 +79,12 @@ export class EventoService {
     return this.http.put<EventoResponse>(`${BASE_URL}/${id}/estado`, { idEstado });
   }
 
+  /** Pasa un evento CREADO a PLANIFICADO; el backend valida que ya tenga Menu, Personal,
+   * Vehiculos e Inventario, y rechaza el cambio (con el detalle de que falta) si no. */
+  planificar(id: number): Observable<EventoResponse> {
+    return this.http.put<EventoResponse>(`${BASE_URL}/${id}/planificar`, null);
+  }
+
   listarTiposEvento(): Observable<TipoEventoResponse[]> {
     return this.http.get<TipoEventoResponse[]>(`${API_URL}/tipos-evento`);
   }

@@ -11,4 +11,6 @@ public interface EventoInventarioRepository extends JpaRepository<EventoInventar
     List<EventoInventario> findByEventoIdEvento(Integer idEvento);
 
     List<EventoInventario> findByEventoIdEventoAndFechaConsumoIsNull(Integer idEvento);
+
+    boolean existsByEventoIdEvento(Integer idEvento);
 }

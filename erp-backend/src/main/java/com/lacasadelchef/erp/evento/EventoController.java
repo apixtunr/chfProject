@@ -78,4 +78,10 @@ public class EventoController {
     public EventoResponse cambiarEstado(@PathVariable Integer id, @Valid @RequestBody CambiarEstadoRequest request) {
         return eventoService.cambiarEstado(id, request.idEstado());
     }
+
+    @PutMapping("/{id}/planificar")
+    @PreAuthorize("@permisoService.tienePermiso('/api/eventos', T(com.lacasadelchef.erp.security.TipoPermiso).MODIFICACION)")
+    public EventoResponse planificar(@PathVariable Integer id) {
+        return eventoService.planificar(id);
+    }
 }

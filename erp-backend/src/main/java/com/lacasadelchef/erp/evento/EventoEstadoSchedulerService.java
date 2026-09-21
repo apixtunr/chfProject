@@ -20,15 +20,15 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledFuture;
 
 /**
- * Dispara PLANIFICADO -> EN CURSO -> FINALIZADO en el instante exacto de hora_inicio/
- * hora_fin de cada evento, en vez de esperar a la siguiente pasada de un job periodico.
- * Cada vez que un evento se crea, se edita o se cancela, hay que reprogramar su
- * temporizador (por eso EventoServiceImpl llama a programar()/cancelarTareas() en cada
- * uno de esos casos).
+ * Dispara CREADO -> CANCELADO (si nunca se planifico), PLANIFICADO -> EN CURSO -> FINALIZADO
+ * en el instante exacto de hora_inicio/hora_fin de cada evento, en vez de esperar a la
+ * siguiente pasada de un job periodico. Cada vez que un evento se crea, se planifica, se
+ * edita o se cancela, hay que reprogramar su temporizador (por eso EventoServiceImpl llama
+ * a programar()/cancelarTareas() en cada uno de esos casos).
  *
  * Los temporizadores viven en memoria: si el backend se reinicia se pierden, por eso
- * al arrancar se reconstruyen todos a partir de lo que siga PLANIFICADO o EN CURSO en
- * la base de datos (reprogramarPendientes()). EventoEstadoAutomaticoJob se deja aparte
+ * al arrancar se reconstruyen todos a partir de lo que siga CREADO, PLANIFICADO o EN CURSO
+ * en la base de datos (reprogramarPendientes()). EventoEstadoAutomaticoJob se deja aparte
  * como red de seguridad de baja frecuencia, por si algun evento entra a la tabla sin
  * pasar por este servicio (por ejemplo, una carga directa por SQL).
  */
@@ -37,6 +37,7 @@ import java.util.concurrent.ScheduledFuture;
 @RequiredArgsConstructor
 public class EventoEstadoSchedulerService {
 
+    private static final String ESTADO_CREADO = "CREADO";
     private static final String ESTADO_PLANIFICADO = "PLANIFICADO";
     private static final String ESTADO_EN_CURSO = "EN CURSO";
 
@@ -50,7 +51,8 @@ public class EventoEstadoSchedulerService {
     @EventListener(ApplicationReadyEvent.class)
     @Transactional(readOnly = true)
     public void reprogramarPendientes() {
-        List<Evento> pendientes = eventoRepository.findByEstadoNombreIn(List.of(ESTADO_PLANIFICADO, ESTADO_EN_CURSO));
+        List<Evento> pendientes = eventoRepository.findByEstadoNombreIn(
+                List.of(ESTADO_CREADO, ESTADO_PLANIFICADO, ESTADO_EN_CURSO));
         pendientes.forEach(this::programar);
         if (!pendientes.isEmpty()) {
             log.info("Reprogramados {} temporizadores de estado de evento al arrancar", pendientes.size());
@@ -68,7 +70,11 @@ public class EventoEstadoSchedulerService {
         cancelar(temporizadoresInicio, id);
         cancelar(temporizadoresFin, id);
 
-        if (ESTADO_PLANIFICADO.equals(estado)) {
+        if (ESTADO_CREADO.equals(estado)) {
+            // Si nadie lo planifica antes de que llegue su hora de inicio, se cancela solo:
+            // no puede arrancar un evento que nunca se termino de armar.
+            programarTarea(temporizadoresInicio, id, fecha, horaInicio, () -> executor.cancelarPorFaltaDePlanificacion(id));
+        } else if (ESTADO_PLANIFICADO.equals(estado)) {
             programarTarea(temporizadoresInicio, id, fecha, horaInicio, () -> {
                 executor.pasarAEnCurso(id);
                 programarTarea(temporizadoresFin, id, fecha, horaFin, () -> executor.pasarAFinalizado(id));

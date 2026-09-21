@@ -1,7 +1,5 @@
 package com.lacasadelchef.erp.evento;
 
-import com.lacasadelchef.erp.common.audit.BitacoraMovimientoService;
-import com.lacasadelchef.erp.common.audit.Operacion;
 import com.lacasadelchef.erp.entity.Estado;
 import com.lacasadelchef.erp.repository.EstadoRepository;
 import com.lacasadelchef.erp.repository.EventoRepository;
@@ -23,14 +21,14 @@ import org.springframework.transaction.annotation.Transactional;
 class EventoEstadoTransicionExecutor {
 
     private static final String TIPO_ESTADO_EVENTO = "EVENTO";
+    private static final String ESTADO_CREADO = "CREADO";
     private static final String ESTADO_PLANIFICADO = "PLANIFICADO";
     private static final String ESTADO_EN_CURSO = "EN CURSO";
     private static final String ESTADO_FINALIZADO = "FINALIZADO";
-    private static final String TABLA = "evento";
+    private static final String ESTADO_CANCELADO = "CANCELADO";
 
     private final EventoRepository eventoRepository;
     private final EstadoRepository estadoRepository;
-    private final BitacoraMovimientoService bitacoraMovimientoService;
     private final EventoInventarioService eventoInventarioService;
 
     @Transactional
@@ -42,7 +40,6 @@ class EventoEstadoTransicionExecutor {
             }
             evento.setEstado(buscarEstado(ESTADO_EN_CURSO));
             eventoRepository.save(evento);
-            bitacoraMovimientoService.registrar(TABLA, idEvento, Operacion.UPDATE);
             // Al iniciar el evento se da por hecho que ya no se cancelara antes de usarse: se
             // descuenta del inventario real todo lo planificado que aun seguia pendiente.
             eventoInventarioService.confirmarConsumoAutomatico(idEvento);
@@ -58,8 +55,21 @@ class EventoEstadoTransicionExecutor {
             }
             evento.setEstado(buscarEstado(ESTADO_FINALIZADO));
             eventoRepository.save(evento);
-            bitacoraMovimientoService.registrar(TABLA, idEvento, Operacion.UPDATE);
             log.info("Evento {} paso a FINALIZADO en el instante exacto de hora_fin", idEvento);
+        });
+    }
+
+    @Transactional
+    public void cancelarPorFaltaDePlanificacion(Integer idEvento) {
+        eventoRepository.findById(idEvento).ifPresent(evento -> {
+            // Si ya lo planificaron (o ya lo cancelaron) antes de que sonara esta alarma, no se toca.
+            if (!ESTADO_CREADO.equalsIgnoreCase(evento.getEstado().getNombre())) {
+                return;
+            }
+            evento.setEstado(buscarEstado(ESTADO_CANCELADO));
+            eventoRepository.save(evento);
+            log.info("Evento {} paso a CANCELADO automaticamente: nunca se planifico antes de su hora de inicio",
+                    idEvento);
         });
     }
 

@@ -18,8 +18,12 @@ import com.lacasadelchef.erp.evento.dto.EventoResponse;
 import com.lacasadelchef.erp.evento.dto.EventoResumenResponse;
 import com.lacasadelchef.erp.repository.ClienteRepository;
 import com.lacasadelchef.erp.repository.CotizacionVersionRepository;
+import com.lacasadelchef.erp.repository.DetalleEventoRepository;
 import com.lacasadelchef.erp.repository.EstadoRepository;
+import com.lacasadelchef.erp.repository.EventoEmpleadoRepository;
+import com.lacasadelchef.erp.repository.EventoInventarioRepository;
 import com.lacasadelchef.erp.repository.EventoRepository;
+import com.lacasadelchef.erp.repository.EventoVehiculoRepository;
 import com.lacasadelchef.erp.repository.TipoEventoRepository;
 import com.lacasadelchef.erp.repository.UbicacionRepository;
 import com.lacasadelchef.erp.security.UsuarioPrincipal;
@@ -32,6 +36,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -42,15 +47,20 @@ public class EventoServiceImpl implements EventoService {
 
     private static final String TABLA = "evento";
     private static final String TIPO_ESTADO_EVENTO = "EVENTO";
+    private static final String ESTADO_CREADO = "CREADO";
     private static final String ESTADO_PLANIFICADO = "PLANIFICADO";
     private static final String ESTADO_EN_CURSO = "EN CURSO";
     private static final String ESTADO_CANCELADO = "CANCELADO";
     private static final String ESTADO_COTIZACION_ACEPTADA = "ACEPTADA";
     private static final String ROL_ADMINISTRADOR = "ADMINISTRADOR";
 
-    // EN CURSO y FINALIZADO los pone solo EventoEstadoAutomaticoJob, en base a la fecha/hora
-    // cargada; CANCELADO es la unica transicion que un usuario puede disparar a mano.
+    // EN CURSO y FINALIZADO los pone solo EventoEstadoAutomaticoJob/EventoEstadoSchedulerService,
+    // en base a la fecha/hora cargada; CANCELADO es la unica transicion que un usuario puede
+    // disparar a mano via cambiarEstado(). CREADO -> PLANIFICADO tiene su propio metodo
+    // (planificar()) porque necesita validar que el evento ya este completo, algo que
+    // cambiarEstado() no hace para ningun otro caso.
     private static final Map<String, Set<String>> TRANSICIONES_VALIDAS = Map.of(
+            ESTADO_CREADO, Set.of(ESTADO_CANCELADO),
             ESTADO_PLANIFICADO, Set.of(ESTADO_CANCELADO),
             ESTADO_EN_CURSO, Set.of(ESTADO_CANCELADO));
 
@@ -60,6 +70,10 @@ public class EventoServiceImpl implements EventoService {
     private final TipoEventoRepository tipoEventoRepository;
     private final UbicacionRepository ubicacionRepository;
     private final EstadoRepository estadoRepository;
+    private final DetalleEventoRepository detalleEventoRepository;
+    private final EventoEmpleadoRepository eventoEmpleadoRepository;
+    private final EventoVehiculoRepository eventoVehiculoRepository;
+    private final EventoInventarioRepository eventoInventarioRepository;
     private final BitacoraMovimientoService bitacoraMovimientoService;
     private final EventoEstadoSchedulerService estadoSchedulerService;
 
@@ -111,7 +125,7 @@ public class EventoServiceImpl implements EventoService {
         Evento evento = new Evento();
         aplicar(request, evento);
         validarNoEnElPasado(evento);
-        evento.setEstado(buscarEstado(TIPO_ESTADO_EVENTO, ESTADO_PLANIFICADO));
+        evento.setEstado(buscarEstado(TIPO_ESTADO_EVENTO, ESTADO_CREADO));
         evento = eventoRepository.save(evento);
         bitacoraMovimientoService.registrar(TABLA, evento.getIdEvento(), Operacion.INSERT);
         estadoSchedulerService.programar(evento);
@@ -124,7 +138,6 @@ public class EventoServiceImpl implements EventoService {
         Evento evento = buscarEvento(id);
         aplicar(request, evento);
         evento = eventoRepository.save(evento);
-        bitacoraMovimientoService.registrar(TABLA, evento.getIdEvento(), Operacion.UPDATE);
         estadoSchedulerService.programar(evento);
         return EventoResponse.desde(evento);
     }
@@ -164,10 +177,46 @@ public class EventoServiceImpl implements EventoService {
 
         evento.setEstado(estado);
         evento = eventoRepository.save(evento);
-        bitacoraMovimientoService.registrar(TABLA, evento.getIdEvento(), Operacion.UPDATE);
         // Unica transicion manual (ver TRANSICIONES_VALIDAS): siempre termina en CANCELADO,
         // que no tiene ningun temporizador pendiente que programar, solo cancelar el que haya.
         estadoSchedulerService.cancelarTareas(evento.getIdEvento());
+        return EventoResponse.desde(evento);
+    }
+
+    @Override
+    @Transactional
+    public EventoResponse planificar(Integer id) {
+        Evento evento = buscarEvento(id);
+        if (!ESTADO_CREADO.equalsIgnoreCase(evento.getEstado().getNombre())) {
+            throw new BusinessException(
+                    "Solo un evento en estado CREADO se puede planificar (actual: %s)"
+                            .formatted(evento.getEstado().getNombre()));
+        }
+
+        List<String> faltantes = new ArrayList<>();
+        // El menu de un evento con cotizacion ya viene garantizado desde que se acepto esa
+        // version (no se vuelve a pedir aqui); solo un evento directo puede tener el menu vacio.
+        if (evento.getCotizacionVersion() == null && !detalleEventoRepository.existsByEventoIdEvento(id)) {
+            faltantes.add("Menú");
+        }
+        if (!eventoEmpleadoRepository.existsByEventoIdEvento(id)) {
+            faltantes.add("Personal");
+        }
+        if (!eventoVehiculoRepository.existsByEventoIdEvento(id)) {
+            faltantes.add("Vehículos");
+        }
+        if (!eventoInventarioRepository.existsByEventoIdEvento(id)) {
+            faltantes.add("Inventario");
+        }
+        if (!faltantes.isEmpty()) {
+            throw new BusinessException(
+                    "Para planificar el evento primero hay que completar: %s".formatted(String.join(", ", faltantes)));
+        }
+
+        evento.setEstado(buscarEstado(TIPO_ESTADO_EVENTO, ESTADO_PLANIFICADO));
+        evento = eventoRepository.save(evento);
+        // Recien aqui entra a la automatizacion: se programa el temporizador exacto de inicio.
+        estadoSchedulerService.programar(evento);
         return EventoResponse.desde(evento);
     }
 

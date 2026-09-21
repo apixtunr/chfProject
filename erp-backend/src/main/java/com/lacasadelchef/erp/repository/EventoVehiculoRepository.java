@@ -9,4 +9,6 @@ import java.util.List;
 public interface EventoVehiculoRepository extends JpaRepository<EventoVehiculo, EventoVehiculoId> {
 
     List<EventoVehiculo> findByEventoIdEvento(Integer idEvento);
+
+    boolean existsByEventoIdEvento(Integer idEvento);
 }

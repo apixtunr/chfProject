@@ -167,6 +167,7 @@ export interface TipoEventoResponse {
 // fecha/hora cargada; CANCELADO es la unica transicion que un usuario dispara a mano
 // (espeja EventoServiceImpl.TRANSICIONES_VALIDAS).
 export const TRANSICIONES_VALIDAS_EVENTO: Record<string, string[]> = {
+  CREADO: ['CANCELADO'],
   PLANIFICADO: ['CANCELADO'],
   'EN CURSO': ['CANCELADO'],
 };
@@ -178,6 +179,7 @@ export interface ColorEstado {
 
 /** Colores fijos por estado de evento (fondo suave + texto), compartidos entre los chips y la grafica de Reporte de eventos. */
 export const COLOR_POR_ESTADO_EVENTO: Record<string, ColorEstado> = {
+  CREADO: { bg: '#F3F4F6', text: '#374151' },
   FINALIZADO: { bg: '#ECFDF5', text: '#047857' },
   CANCELADO: { bg: '#FFF1F2', text: '#BE123C' },
   PLANIFICADO: { bg: '#EFF6FF', text: '#1D4ED8' },
