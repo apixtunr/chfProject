@@ -73,8 +73,13 @@ export class StockList implements OnInit {
     this.cargar();
   }
 
+  /**
+   * Se avisa al llegar al minimo, no despues: si el minimo es 10 y quedan 10, ya toca
+   * reabastecer. Un producto sin minimo configurado (0) nunca alerta, porque si nadie
+   * definio cuanto es "poco" no hay nada que avisar.
+   */
   bajoMinimo(inv: InventarioResponse): boolean {
-    return inv.cantidadTotal < inv.cantidadMinima;
+    return inv.cantidadMinima > 0 && inv.cantidadTotal <= inv.cantidadMinima;
   }
 
   editarMinimo(inv: InventarioResponse): void {
