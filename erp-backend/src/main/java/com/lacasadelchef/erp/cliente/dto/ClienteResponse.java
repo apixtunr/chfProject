@@ -13,6 +13,11 @@ public record ClienteResponse(
         String correo,
         String telefono,
         String nit,
+        String direccion,
+        Integer idMunicipio,
+        String nombreMunicipio,
+        Integer idDepartamento,
+        String nombreDepartamento,
         LocalDateTime fechaCreacion,
         LocalDateTime fechaModificacion
 ) {
@@ -24,6 +29,11 @@ public record ClienteResponse(
                 .correo(cliente.getCorreo())
                 .telefono(cliente.getTelefono())
                 .nit(cliente.getNit())
+                .direccion(cliente.getDireccion())
+                .idMunicipio(cliente.getMunicipio().getIdMunicipio())
+                .nombreMunicipio(cliente.getMunicipio().getNombreMunicipio())
+                .idDepartamento(cliente.getMunicipio().getDepartamento().getIdDepartamento())
+                .nombreDepartamento(cliente.getMunicipio().getDepartamento().getNombreDepartamento())
                 .fechaCreacion(cliente.getFechaCreacion())
                 .fechaModificacion(cliente.getFechaModificacion())
                 .build();

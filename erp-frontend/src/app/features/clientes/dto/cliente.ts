@@ -4,6 +4,8 @@ export interface ClienteRequest {
   correo: string | null;
   telefono: string | null;
   nit: string | null;
+  direccion: string;
+  idMunicipio: number;
 }
 
 export interface ClienteResponse {
@@ -12,6 +14,12 @@ export interface ClienteResponse {
   correo: string | null;
   telefono: string | null;
   nit: string | null;
+  direccion: string;
+  idMunicipio: number;
+  nombreMunicipio: string;
+  /** Se deduce del municipio; el cliente no lo guarda aparte. */
+  idDepartamento: number;
+  nombreDepartamento: string;
   fechaCreacion: string | null;
   fechaModificacion: string | null;
 }

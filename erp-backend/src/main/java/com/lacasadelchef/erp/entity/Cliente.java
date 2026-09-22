@@ -29,4 +29,12 @@ public class Cliente extends Auditable {
 
     @Column(name = "nit", length = 20)
     private String nit;
+
+    @Column(name = "direccion", nullable = false, length = 255)
+    private String direccion;
+
+    /** Municipio del cliente; el departamento se obtiene de el, no se guarda aparte. */
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "id_municipio", nullable = false)
+    private Municipio municipio;
 }

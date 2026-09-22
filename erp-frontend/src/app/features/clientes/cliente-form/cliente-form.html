@@ -34,6 +34,42 @@
         <input matInput formControlName="nit" />
       </mat-form-field>
 
+      <mat-form-field appearance="outline" class="campo">
+        <mat-label>Departamento</mat-label>
+        <mat-select formControlName="idDepartamento">
+          @for (d of departamentos(); track d.idDepartamento) {
+            <mat-option [value]="d.idDepartamento">{{ d.nombreDepartamento }}</mat-option>
+          }
+        </mat-select>
+        @if (formulario.controls.idDepartamento.hasError('required') && formulario.controls.idDepartamento.touched) {
+          <mat-error>El departamento es obligatorio</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="campo">
+        <mat-label>Municipio</mat-label>
+        <mat-select formControlName="idMunicipio">
+          @for (m of municipios(); track m.idMunicipio) {
+            <mat-option [value]="m.idMunicipio">{{ m.nombreMunicipio }}</mat-option>
+          }
+        </mat-select>
+        @if (!formulario.controls.idDepartamento.value) {
+          <mat-hint>Elija primero el departamento</mat-hint>
+        }
+        @if (formulario.controls.idMunicipio.hasError('required') && formulario.controls.idMunicipio.touched) {
+          <mat-error>El municipio es obligatorio</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="campo">
+        <mat-label>Dirección</mat-label>
+        <textarea matInput formControlName="direccion" rows="2"
+                  placeholder="Calle o avenida, número y zona"></textarea>
+        @if (formulario.controls.direccion.hasError('required') && formulario.controls.direccion.touched) {
+          <mat-error>La dirección es obligatoria</mat-error>
+        }
+      </mat-form-field>
+
       <div class="acciones">
         <button mat-button type="button" routerLink="/clientes">Cancelar</button>
         <button mat-flat-button color="primary" type="submit" [disabled]="guardando()">Guardar</button>

@@ -19,6 +19,7 @@ import java.sql.PreparedStatement;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -186,11 +187,17 @@ public class AuditoriaCambiosListener implements PostUpdateEventListener {
         }
     }
 
+    /**
+     * Busca el nombre de la entidad relacionada. Unas lo llaman getNombre() y otras
+     * repiten la entidad en el getter (getNombreMunicipio, getNombreProducto), por eso
+     * se acepta cualquiera que empiece asi; ninguna entidad tiene mas de uno, y se
+     * ordena por nombre para que la eleccion no dependa del orden de reflexion.
+     */
     private static String nombreLegible(Object entidad) {
         return Arrays.stream(entidad.getClass().getMethods())
-                .filter(m -> m.getName().equals("getNombre") && m.getParameterCount() == 0
+                .filter(m -> m.getName().startsWith("getNombre") && m.getParameterCount() == 0
                         && m.getReturnType() == String.class)
-                .findFirst()
+                .min(Comparator.comparing(Method::getName))
                 .map(m -> invocar(m, entidad))
                 .orElse(null);
     }

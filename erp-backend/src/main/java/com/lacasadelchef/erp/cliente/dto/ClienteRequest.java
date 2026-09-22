@@ -2,6 +2,7 @@ package com.lacasadelchef.erp.cliente.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
@@ -20,6 +21,13 @@ public record ClienteRequest(
         String telefono,
 
         @Size(max = 20)
-        String nit
+        String nit,
+
+        @NotBlank(message = "La direccion es obligatoria")
+        @Size(max = 255, message = "La direccion no puede exceder 255 caracteres")
+        String direccion,
+
+        @NotNull(message = "El municipio es obligatorio")
+        Integer idMunicipio
 ) {
 }

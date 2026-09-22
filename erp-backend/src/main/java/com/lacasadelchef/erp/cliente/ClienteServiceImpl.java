@@ -6,7 +6,9 @@ import com.lacasadelchef.erp.common.audit.BitacoraMovimientoService;
 import com.lacasadelchef.erp.common.audit.Operacion;
 import com.lacasadelchef.erp.common.exception.ResourceNotFoundException;
 import com.lacasadelchef.erp.entity.Cliente;
+import com.lacasadelchef.erp.entity.Municipio;
 import com.lacasadelchef.erp.repository.ClienteRepository;
+import com.lacasadelchef.erp.repository.MunicipioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,6 +22,7 @@ public class ClienteServiceImpl implements ClienteService {
     private static final String TABLA = "cliente";
 
     private final ClienteRepository clienteRepository;
+    private final MunicipioRepository municipioRepository;
     private final BitacoraMovimientoService bitacoraMovimientoService;
 
     @Override
@@ -72,9 +75,13 @@ public class ClienteServiceImpl implements ClienteService {
     }
 
     private void aplicar(ClienteRequest request, Cliente cliente) {
+        Municipio municipio = municipioRepository.findById(request.idMunicipio())
+                .orElseThrow(() -> new ResourceNotFoundException("Municipio", request.idMunicipio()));
         cliente.setNombre(request.nombre().trim());
         cliente.setCorreo(request.correo());
         cliente.setTelefono(request.telefono());
         cliente.setNit(request.nit());
+        cliente.setDireccion(request.direccion().trim());
+        cliente.setMunicipio(municipio);
     }
 }

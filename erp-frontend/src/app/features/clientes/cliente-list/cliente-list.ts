@@ -59,7 +59,7 @@ export class ClienteList implements OnInit {
   }
 
   get columnas(): string[] {
-    const base = ['id', 'nombre', 'correo', 'telefono', 'nit'];
+    const base = ['id', 'nombre', 'correo', 'telefono', 'nit', 'ubicacion'];
     return this.puedeEditar || this.puedeEliminar ? [...base, 'acciones'] : base;
   }
 
