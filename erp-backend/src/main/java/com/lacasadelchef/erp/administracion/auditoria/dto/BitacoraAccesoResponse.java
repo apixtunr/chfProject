@@ -14,6 +14,7 @@ public record BitacoraAccesoResponse(
         String resultado,
         String ipOrigen,
         String navegador,
+        String sesionId,
         LocalDateTime fechaAcceso
 ) {
 
@@ -26,6 +27,7 @@ public record BitacoraAccesoResponse(
                 .resultado(b.getResultado())
                 .ipOrigen(b.getIpOrigen())
                 .navegador(b.getNavegador())
+                .sesionId(b.getSesionId())
                 .fechaAcceso(b.getFechaAcceso())
                 .build();
     }

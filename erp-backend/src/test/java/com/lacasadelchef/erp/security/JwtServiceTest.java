@@ -24,7 +24,7 @@ class JwtServiceTest {
     @Test
     @DisplayName("El token generado es valido y conserva el username")
     void tokenValidoConservaUsername() {
-        String token = jwtService.generarToken("admin", "ADMINISTRADOR");
+        String token = jwtService.generarToken("admin", "ADMINISTRADOR", "sesion-de-prueba");
 
         assertThat(jwtService.esValido(token)).isTrue();
         assertThat(jwtService.extraerUsername(token)).isEqualTo("admin");
@@ -33,7 +33,7 @@ class JwtServiceTest {
     @Test
     @DisplayName("Un token adulterado o basura no es valido")
     void tokenAdulteradoNoEsValido() {
-        String token = jwtService.generarToken("admin", "ADMINISTRADOR");
+        String token = jwtService.generarToken("admin", "ADMINISTRADOR", "sesion-de-prueba");
 
         assertThat(jwtService.esValido(token + "x")).isFalse();
         assertThat(jwtService.esValido("no-es-un-jwt")).isFalse();
@@ -44,7 +44,7 @@ class JwtServiceTest {
     void tokenDeOtroSecretoNoEsValido() {
         JwtService otroServicio = new JwtService(
                 props("otro-secreto-diferente-tambien-largo-para-hmac-sha-256-lacasadelchef", 60));
-        String tokenAjeno = otroServicio.generarToken("admin", "ADMINISTRADOR");
+        String tokenAjeno = otroServicio.generarToken("admin", "ADMINISTRADOR", "sesion-de-prueba");
 
         assertThat(jwtService.esValido(tokenAjeno)).isFalse();
     }
@@ -53,7 +53,7 @@ class JwtServiceTest {
     @DisplayName("Un token expirado no es valido")
     void tokenExpiradoNoEsValido() {
         JwtService servicioExpirado = new JwtService(props(SECRET, -1)); // expiro hace 1 minuto
-        String token = servicioExpirado.generarToken("admin", "ADMINISTRADOR");
+        String token = servicioExpirado.generarToken("admin", "ADMINISTRADOR", "sesion-de-prueba");
 
         assertThat(jwtService.esValido(token)).isFalse();
     }

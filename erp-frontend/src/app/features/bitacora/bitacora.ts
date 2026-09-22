@@ -62,7 +62,7 @@ export class Bitacora implements OnInit {
   readonly totalAccesos = signal(0);
   readonly pageIndexAccesos = signal(0);
   readonly pageSizeAccesos = signal(20);
-  readonly columnasAccesos = ['fechaAcceso', 'usuario', 'accion', 'resultado', 'ipOrigen', 'navegador'];
+  readonly columnasAccesos = ['fechaAcceso', 'usuario', 'accion', 'resultado', 'sesion', 'ipOrigen', 'navegador'];
 
   readonly filtroAccesos = this.fb.group({
     resultado: this.fb.control<string | null>(null),

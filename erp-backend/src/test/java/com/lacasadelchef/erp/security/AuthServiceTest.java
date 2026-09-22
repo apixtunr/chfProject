@@ -29,6 +29,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
@@ -80,7 +81,7 @@ class AuthServiceTest {
     void loginExitoso() {
         when(usuarioRepository.findByUsername("admin")).thenReturn(Optional.of(usuario));
         when(passwordEncoder.matches("password", "$hash$")).thenReturn(true);
-        when(jwtService.generarToken("admin", "ADMINISTRADOR")).thenReturn("token-jwt");
+        when(jwtService.generarToken(eq("admin"), eq("ADMINISTRADOR"), anyString())).thenReturn("token-jwt");
         usuario.setIntentosAcceso(3);
 
         LoginResponse response = authService.login(new LoginRequest("admin", "password"), http);

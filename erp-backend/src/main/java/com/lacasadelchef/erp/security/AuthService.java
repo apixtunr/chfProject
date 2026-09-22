@@ -24,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -65,9 +66,14 @@ public class AuthService {
 
         usuario.setIntentosAcceso(0);
         usuario.setFechaUltimoAcceso(LocalDateTime.now());
-        registrarBitacora(usuario, ACCION_LOGIN, http, "EXITOSO");
 
-        String token = jwtService.generarToken(usuario.getUsername(), usuario.getRol().getNombreRol());
+        // Identifica esta sesion concreta: se guarda en la bitacora y viaja en el token,
+        // para poder emparejar despues este LOGIN con su LOGOUT.
+        String idSesion = UUID.randomUUID().toString();
+        registrarBitacora(usuario, ACCION_LOGIN, http, "EXITOSO", idSesion);
+
+        String token = jwtService.generarToken(
+                usuario.getUsername(), usuario.getRol().getNombreRol(), idSesion);
 
         return LoginResponse.builder()
                 .token(token)
@@ -89,7 +95,20 @@ public class AuthService {
         Usuario usuario = usuarioRepository.findById(principal.getUsuario().getIdUsuario())
                 .orElseThrow(() -> new IllegalStateException("Usuario de la sesion no existe"));
         usuario.setTokensValidosDesde(LocalDateTime.now());
-        registrarBitacora(usuario, ACCION_LOGOUT, http, "EXITOSO");
+        registrarBitacora(usuario, ACCION_LOGOUT, http, "EXITOSO", idSesionDe(http));
+    }
+
+    /** Recupera del token de la peticion la sesion que se esta cerrando. */
+    private String idSesionDe(HttpServletRequest http) {
+        String encabezado = http.getHeader("Authorization");
+        if (encabezado == null || !encabezado.startsWith("Bearer ")) {
+            return null;
+        }
+        try {
+            return jwtService.extraerIdSesion(encabezado.substring(7));
+        } catch (RuntimeException e) {
+            return null;
+        }
     }
 
     private List<PermisoResponse> cargarPermisos(Integer idRol) {
@@ -109,6 +128,12 @@ public class AuthService {
     }
 
     private void registrarBitacora(Usuario usuario, String accion, HttpServletRequest http, String resultado) {
+        registrarBitacora(usuario, accion, http, resultado, null);
+    }
+
+    /** idSesion solo aplica al par LOGIN/LOGOUT; un intento fallido no abre sesion. */
+    private void registrarBitacora(Usuario usuario, String accion, HttpServletRequest http,
+                                    String resultado, String idSesion) {
         Accion acc = accionRepository.findByNombre(accion)
                 .orElseThrow(() -> new IllegalStateException("Accion no configurada: " + accion));
         BitacoraAcceso registro = new BitacoraAcceso();
@@ -117,6 +142,7 @@ public class AuthService {
         registro.setIpOrigen(ContextoAuditoria.ipDe(http));
         registro.setNavegador(http.getHeader("User-Agent"));
         registro.setResultado(resultado);
+        registro.setSesionId(idSesion);
         bitacoraAccesoRepository.save(registro);
     }
 }

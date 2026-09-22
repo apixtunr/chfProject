@@ -25,11 +25,18 @@ public class JwtService {
         this.expirationMinutes = jwt.expirationMinutes();
     }
 
-    public String generarToken(String username, String rol) {
+    /**
+     * idSesion identifica este inicio de sesion concreto y viaja dentro del token, para
+     * poder emparejar despues en la bitacora el LOGIN con su LOGOUT (y ver cuales
+     * quedaron abiertas). No se guarda en el servidor: la autenticacion sigue siendo
+     * sin estado, el identificador solo acompana al token.
+     */
+    public String generarToken(String username, String rol, String idSesion) {
         Instant ahora = Instant.now();
         return Jwts.builder()
                 .subject(username)
                 .claim("rol", rol)
+                .claim("sid", idSesion)
                 .issuedAt(Date.from(ahora))
                 .expiration(Date.from(ahora.plus(expirationMinutes, ChronoUnit.MINUTES)))
                 .signWith(key)
@@ -38,6 +45,11 @@ public class JwtService {
 
     public String extraerUsername(String token) {
         return extraerClaims(token).getSubject();
+    }
+
+    /** Identificador de la sesion que abrio este token (claim sid). */
+    public String extraerIdSesion(String token) {
+        return extraerClaims(token).get("sid", String.class);
     }
 
     /** Fecha de emision del token (claim iat), usada para la revocacion por logout. */

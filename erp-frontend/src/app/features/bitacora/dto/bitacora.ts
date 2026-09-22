@@ -20,6 +20,7 @@ export interface BitacoraAccesoResponse {
   resultado: string | null;
   ipOrigen: string | null;
   navegador: string | null;
+  sesionId: string | null;
   fechaAcceso: string;
 }
 
