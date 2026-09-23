@@ -43,9 +43,11 @@
     <td mat-cell *matCellDef="let cliente">{{ cliente.nit }}</td>
   </ng-container>
 
-  <ng-container matColumnDef="ubicacion">
-    <th mat-header-cell *matHeaderCellDef>Ubicacion</th>
-    <td mat-cell *matCellDef="let cliente">{{ cliente.nombreMunicipio }}, {{ cliente.nombreDepartamento }}</td>
+  <ng-container matColumnDef="direccion">
+    <th mat-header-cell *matHeaderCellDef>Dirección</th>
+    <td mat-cell *matCellDef="let cliente">
+      {{ cliente.direccion }}, {{ cliente.nombreMunicipio }}, {{ cliente.nombreDepartamento }}
+    </td>
   </ng-container>
 
   <ng-container matColumnDef="acciones">
