@@ -36,5 +36,5 @@
 }
 
 .fila-activa {
-  background: #f1f8f4;
+  background: color-mix(in srgb, var(--chf-estado-exito) 8%, white);
 }

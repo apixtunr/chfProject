@@ -1,30 +1,17 @@
-.encabezado {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  margin-bottom: 16px;
-  flex-wrap: wrap;
-  gap: 16px;
-}
+// La cabecera de pagina, las secciones y los botones usan las clases pf-* de
+// src/styles.scss, compartidas con los formularios de Cliente y Cotizacion. Aqui solo
+// quedan los estilos propios de esta pantalla: el formulario horizontal de carga de
+// lineas y el aviso de presupuesto.
 
-h1 {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.monto {
-  font-size: 1.1rem;
-  font-weight: 500;
-}
-
+// Aviso de que la version supera el presupuesto que dio el cliente. Usa el token de
+// aviso del sistema, no un naranja escrito a mano.
 .alerta-presupuesto {
   display: flex;
   align-items: center;
   gap: 6px;
-  margin: 4px 0 0;
+  margin: 8px 0 0;
   font-size: 0.9rem;
-  color: #b26a00;
+  color: var(--chf-estado-aviso);
 
   mat-icon {
     font-size: 18px;
@@ -33,21 +20,14 @@ h1 {
   }
 }
 
-.acciones-encabezado {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.tarjeta-formulario {
-  margin-bottom: 16px;
-}
-
+// Formulario de carga en una sola linea. A diferencia de los formularios de alta, aqui
+// se agregan renglones de a uno, asi que conviene tenerlo todo a la vista horizontal.
 .formulario-linea {
   display: flex;
   align-items: flex-start;
   gap: 12px;
   flex-wrap: wrap;
+  padding: 16px 20px;
 }
 
 .campo-menu {
@@ -65,13 +45,10 @@ h1 {
 .botones-formulario {
   display: flex;
   gap: 8px;
-  margin-top: 8px;
+  // Alinea los botones con los campos, que tienen el espacio del texto de ayuda debajo.
+  margin-top: 6px;
 }
 
 .tabla {
   width: 100%;
-}
-
-.titulo-seccion {
-  margin: 24px 0 12px;
 }

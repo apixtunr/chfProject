@@ -8,7 +8,7 @@
   padding: 24px;
   position: relative;
   overflow: hidden;
-  background: linear-gradient(160deg, #f2f5f8 0%, #e9edf2 55%, #e4e9ef 100%);
+  background: linear-gradient(160deg, var(--chf-login-fondo-a) 0%, var(--chf-login-fondo-b) 55%, var(--chf-login-fondo-c) 100%);
 
   // Mancha decorativa suave arriba a la izquierda
   &::before {
@@ -40,13 +40,13 @@
   height: 76px;
   margin: 0 auto 20px;
   border-radius: 50%;
-  background: #1f2430;
+  background: var(--chf-marca);
   display: flex;
   align-items: center;
   justify-content: center;
 
   mat-icon {
-    color: #4db8c2;
+    color: var(--chf-acento-claro);
     font-size: 34px;
     width: 34px;
     height: 34px;
@@ -57,12 +57,12 @@ h1 {
   margin: 0 0 4px;
   font-size: 1.5rem;
   font-weight: 700;
-  color: #1a1d23;
+  color: var(--chf-texto-fuerte);
 }
 
 .subtitulo {
   margin: 0 0 32px;
-  color: #7a8087;
+  color: var(--chf-texto-ejemplo);
   font-size: 0.92rem;
 }
 
@@ -76,7 +76,7 @@ form {
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: #6b7178;
+  color: var(--chf-texto-ejemplo);
   margin: 0 0 8px;
 }
 
@@ -84,14 +84,14 @@ form {
   display: flex;
   align-items: center;
   gap: 10px;
-  border: 1px solid #dfe3e8;
+  border: 1px solid var(--chf-borde-suave);
   border-radius: 10px;
   padding: 10px 14px;
   margin-bottom: 20px;
   transition: border-color 0.15s ease;
 
   mat-icon {
-    color: #9aa0a7;
+    color: var(--chf-texto-suave);
     font-size: 20px;
     width: 20px;
     height: 20px;
@@ -105,22 +105,22 @@ form {
     background: transparent;
     font-size: 0.95rem;
     font-family: inherit;
-    color: #1a1d23;
+    color: var(--chf-texto-fuerte);
     min-width: 0;
 
     &::placeholder {
-      color: #aeb3b9;
+      color: var(--chf-texto-suave);
     }
   }
 
   &:focus-within {
-    border-color: #4db8c2;
+    border-color: var(--chf-acento-claro);
   }
 }
 
 .error {
   margin: -6px 0 16px;
-  color: #c0392b;
+  color: var(--chf-peligro);
   font-size: 0.85rem;
 }
 
@@ -133,7 +133,7 @@ form {
   border: none;
   border-radius: 10px;
   padding: 14px;
-  background: #1f2430;
+  background: var(--chf-marca);
   color: white;
   font-size: 0.98rem;
   font-weight: 600;
@@ -148,7 +148,7 @@ form {
   }
 
   &:hover:not(:disabled) {
-    background: #2a3140;
+    background: color-mix(in srgb, var(--chf-marca) 88%, white);
   }
 
   &:disabled {
@@ -163,5 +163,5 @@ form {
   font-size: 0.72rem;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  color: #9198a0;
+  color: var(--chf-texto-ejemplo);
 }

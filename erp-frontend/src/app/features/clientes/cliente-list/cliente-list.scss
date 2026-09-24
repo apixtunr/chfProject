@@ -2,34 +2,178 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 16px;
+  gap: 16px;
+  margin-bottom: 12px;
+
+  h1 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--chf-texto-fuerte);
+  }
 }
 
-.buscador {
-  width: 320px;
-  display: block;
-}
-
-// Borde delgado + esquinas redondeadas alrededor de la tabla, en vez de meterla
-// en un mat-card (mas liviano, sin sombra ni relleno extra).
-.tabla-contenedor {
-  border: 1px solid var(--mat-sys-outline-variant);
+// Botón "Nuevo cliente" — mismo estilo que pf-btn-save del formulario
+.list-btn-nuevo.mat-mdc-unelevated-button {
+  // Azul de la marca, igual que el resto de los botones primarios del sistema.
+  background: var(--chf-marca);
+  color: var(--chf-marca-contraste);
+  font-weight: 500;
   border-radius: 8px;
-  overflow: hidden;
+  height: 40px;
+  gap: 6px;
 
-  // Sin esto, el paginador queda pegado a la ultima fila y parece parte de ella.
-  mat-paginator {
-    border-top: 1px solid var(--mat-sys-outline-variant);
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+
+  // Sin regla de hover propia: se deja la capa de estado de Material, que es la que usan
+  // el resto de los botones primarios de la app. Mezclar el azul de marca con blanco
+  // para aclararlo lo dejaba grisaceo, porque es un azul casi negro y poco saturado.
+}
+
+// Buscador y boton, juntos, al final de la fila del titulo.
+.encabezado-acciones {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+// Replica el aspecto de .pf-input-wrap del formulario de cliente: fondo blanco sobre el
+// gris de la pagina, borde visible y relieve minimo.
+.buscador {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 340px;
+  background: var(--chf-fondo-seccion);
+  border: 1.5px solid var(--chf-borde-control);
+  border-radius: 8px;
+  padding: 10px 14px;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+  &:focus-within {
+    border-color: var(--chf-campo-acento);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--chf-campo-acento) 14%, transparent);
+  }
+}
+
+.buscador-icono {
+  flex: 0 0 auto;
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: var(--chf-texto-ejemplo);
+}
+
+.buscador-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  font: inherit;
+  font-size: 0.9rem;
+  color: var(--chf-texto-fuerte);
+
+  &::placeholder {
+    color: var(--chf-texto-ejemplo);
   }
 }
 
 .tabla {
   width: 100%;
+  min-width: 820px;
+
+  // Sin columna ID — los anchos se redistribuyen en 5 columnas de datos + acciones.
+  .mat-column-nombre    { width: 22%; }
+  .mat-column-nit       { width: 13%; }
+  .mat-column-telefono  { width: 16%; }
+  .mat-column-correo    { width: 22%; }
+  .mat-column-direccion { width: 23%; }
+  .mat-column-acciones  { width: 4%; white-space: nowrap; text-align: right; }
 }
 
-// Con la columna de direccion la tabla se aprieta y los dos iconos de accion se
-// acomodaban uno debajo del otro; esto los mantiene en la misma linea.
-.tabla .mat-column-acciones {
-  white-space: nowrap;
-  width: 1%;
+// 1. Contenedor de la tabla (Controla el desborde si la pantalla es pequeña)
+.tabla-contenedor {
+  width: 100%;
+  overflow-x: auto;
+  background: var(--chf-fondo-seccion);
+  border-radius: 8px;
+  border: 1.5px solid var(--chf-borde-control);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
+
+// 2. Estilos principales de la tabla Angular Material
+.tabla {
+  width: 100%;
+  min-width: 820px;
+  background: transparent;
+
+  // Distribución de anchos por columnas nativas de Angular Material
+  .mat-column-nombre    { width: 22%; }
+  .mat-column-nit       { width: 13%; }
+  .mat-column-telefono  { width: 16%; }
+  .mat-column-correo    { width: 22%; }
+  .mat-column-direccion { width: 23%; }
+  .mat-column-acciones  { width: 4%; white-space: nowrap; text-align: right; }
+
+  // 3. Estilos internos para los componentes de las celdas (Anidados)
+  
+  // Contenedor para alinear iconos y texto de forma horizontal
+  .tbl-icon-cell {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--chf-texto-fuerte);
+
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+      color: var(--chf-texto-ejemplo); // Color sutil para los iconos internos
+    }
+  }
+
+  // Badge tipo código para el NIT
+  .tbl-badge-codigo {
+    display: inline-block;
+    padding: 2px 6px;
+    background-color: var(--chf-borde-control);
+    color: var(--chf-texto-fuerte);
+    font-family: monospace;
+    font-size: 0.85rem;
+    border-radius: 4px;
+  }
+
+  // Botones de acción (Editar y Eliminar)
+  .tbl-btn-editar, .tbl-btn-eliminar {
+    mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  .tbl-btn-editar {
+    color: var(--chf-campo-acento); // Color de acento/azul para editar
+  }
+
+  .tbl-btn-eliminar {
+    color: #ef4444; // Rojo para advertencia de eliminación
+    
+    &:hover {
+      background-color: rgba(239, 68, 68, 0.08); // Efecto sutil al pasar el mouse
+    }
+  }
+}
+
+// 4. Estilos para el paginador de Angular Material (Fuera de la tabla)
+mat-paginator {
+  background: transparent;
+  border-top: 1.5px solid var(--chf-borde-control);
+}
+

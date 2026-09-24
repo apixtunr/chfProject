@@ -1,0 +1,206 @@
+// ===========================================================================
+// Tokens de color del sistema
+//
+// Este es el UNICO lugar donde un color de la identidad visual esta escrito.
+// Cambiar una linea de aqui cambia la aplicacion entera.
+//
+// Como usarlos:
+//
+//   - Desde el SCSS de un componente, sin importar nada: var(--chf-marca).
+//     styles.scss publica cada token de abajo como variable CSS sobre <html>,
+//     asi que estan disponibles en cualquier hoja sin @use ni rutas relativas.
+//
+//   - Desde SCSS que necesite calcular (rgba(), color.adjust(), mezclas):
+//     @use '../../styles/tokens' as chf;  ->  rgba(chf.$campo-acento, 0.5)
+//     Las funciones de Sass no pueden operar sobre una variable CSS, por eso
+//     los tokens existen en las dos formas y no solo como var().
+//
+// IMPORTANTE - si cambia $marca o $marca-acento:
+//   La paleta del tema de Material se genera a partir de esos dos colores y NO
+//   se recalcula sola. Hay que volver a generarla con:
+//
+//     ng generate @angular/material:theme-color \
+//       --primary-color="<$marca>" --tertiary-color="<$marca-acento>" \
+//       --directory="src/styles/" --include-high-contrast=false --interactive=false
+//
+//   Ojo: el "primario" que Material deriva de $marca NO es $marca. Material 3
+//   construye una escala de tonos y su primario cae en un tono mucho mas claro
+//   (hoy #565e74). Por eso la barra, los botones y los encabezados de tabla usan
+//   var(--chf-marca) y no var(--mat-sys-primary): con el token del tema se verian
+//   lavados.
+// ===========================================================================
+
+@use 'sass:color';
+
+// --- Identidad visual ------------------------------------------------------
+/// Azul de la marca: barra superior, encabezados de tabla, botones, checkboxes.
+$marca: #0f172a;
+/// Texto y iconos que van encima de $marca.
+$marca-contraste: #ffffff;
+/// Texto secundario sobre $marca: lo que acompana, no lo que se destaca. Sobre un
+/// fondo oscuro la jerarquia se hace bajando opacidad, no cambiando de color.
+$marca-contraste-suave: rgba(255, 255, 255, 0.72);
+/// Naranja de la marca; alimenta la paleta terciaria del tema.
+$marca-acento: #c2410c;
+/// Barra superior. Es el azul de marca un poco mas claro, no un color aparte: la barra
+/// y el menu lateral usaban exactamente el mismo tono y se leian como una sola pieza.
+/// Con la barra un paso mas clara quedan separadas, y ademas queda clara la jerarquia:
+/// la barra por encima, el menu por detras. Se deriva para que siga a $marca.
+$marca-barra: color.scale($marca, $lightness: 8%);
+
+// --- Colores de estado -----------------------------------------------------
+// Deliberadamente fuera de la paleta del tema: comunican un estado y deben
+// leerse igual aunque la identidad visual cambie.
+/// Campo activo: borde y resplandor de foco, y borde de hover.
+$campo-acento: #4a7fb5;
+/// Campo completado y valido.
+$campo-exito: #15803d;
+/// Campo con error. Es el mismo rojo que el tema usa en --mat-sys-error.
+$campo-error: #ba1a1a;
+/// Algo requiere atencion, pero no es un error (ej. stock bajo el minimo).
+$alerta: #f39c12;
+
+/// Acento del sistema en version clara, para usar sobre fondos oscuros donde el
+/// acento normal no contrasta. Se deriva y no se escribe aparte, para que cambiar
+/// $campo-acento lo arrastre. Solo aclara, sin tocar la saturacion: restarle
+/// saturacion funcionaba con un acento vivo, pero con uno ya apagado el resultado
+/// salia grisaceo.
+$acento-claro: color.scale($campo-acento, $lightness: 45%);
+
+// --- Superficies ------------------------------------------------------------
+// Tres capas, y el orden importa:
+//   pagina (gris claro) -> tarjeta (blanca) -> campo (gris muy suave, hundido)
+//
+// Se intento al reves —tarjeta gris con campos blancos— y obligaba a oscurecer la
+// pagina para que la tarjeta se despegara, lo que dejaba toda la interfaz grisacea.
+// Con la tarjeta en blanco, la pagina se queda clara: la tarjeta resalta por ser mas
+// clara que el fondo, y los campos se distinguen por ser mas oscuros que la tarjeta.
+/// Fondo de toda el area de contenido. Es la superficie sobre la que se apoya todo.
+$fondo-pagina: #eef1f5;
+
+// --- Superficies de formulario ---------------------------------------------
+// Un formulario apilaba cuatro capas casi del mismo brillo (pagina 0.877, tarjeta
+// 0.949, cabecera 1.0, campo 1.0) y los campos no se distinguian de su contenedor.
+// La relacion correcta es la inversa: el contenedor gris y los campos blancos encima,
+// asi el campo se lee solo y no depende de que se vea su borde.
+/// Fondo del cuerpo de una tarjeta o seccion de formulario.
+$fondo-seccion: #ffffff;
+/// Fondo de un campo dentro de una tarjeta blanca. Va un paso MAS oscuro que la
+/// tarjeta: el campo se ve hundido, que es justo lo que un campo editable comunica.
+$fondo-campo: #f1f5f9;
+/// Borde de campos y controles. El anterior (#e2e8f0) era practicamente invisible.
+$borde-control: #cbd5e1;
+/// Borde entre la cabecera de una seccion y su cuerpo.
+$borde-seccion: #dde3ec;
+/// Texto de ejemplo dentro de un campo vacio (los "Ej. Pedro Ortiz"). El valor anterior
+/// (#c0cad8) daba 1.7:1 contra el campo blanco, practicamente ilegible; este da 4.7:1.
+/// Sigue bien por debajo del texto real del campo, asi que no se confunde con contenido.
+$texto-ejemplo: #64748b;
+
+// --- Texto ------------------------------------------------------------------
+// Tres niveles. Antes habia ocho grises distintos repartidos entre la hoja global y los
+// componentes, varios a un par de puntos de diferencia entre si.
+/// Titulos y datos principales.
+$texto-fuerte: #1e293b;
+/// Etiquetas de campo y encabezados secundarios.
+$texto-medio: #475569;
+/// Texto terciario e iconos decorativos.
+$texto-suave: #94a3b8;
+
+// --- Bordes y superficies auxiliares ---------------------------------------
+/// Borde de baja jerarquia: separadores, contornos de tarjetas secundarias.
+$borde-suave: #e2e8f0;
+/// Fondo apenas tenido, para zonas que solo necesitan insinuarse.
+$fondo-sutil: #f8fafc;
+
+// --- Accion destructiva -----------------------------------------------------
+// Distinto de $estado-peligro, que rotula un registro. Este es el color de un boton o
+// un mensaje que borra algo.
+$peligro: #dc2626;
+$peligro-fondo: #fff1f2;
+$peligro-texto: #be123c;
+
+// --- Puntos de estado de evento ---------------------------------------------
+// Seis colores que deben distinguirse entre si de un vistazo en el detalle de evento.
+// Las clases que los usan se llaman por el color (.punto-verde), asi que los tokens
+// tambien; renombrarlos a algo semantico exigiria tocar la plantilla.
+$punto-verde: #16a34a;
+$punto-teal: #0d9488;
+$punto-naranja: #f59e0b;
+$punto-morado: #8b5cf6;
+$punto-azul: #3b82f6;
+$punto-rojo: #ef4444;
+
+// --- Pantalla de ingreso ----------------------------------------------------
+// El login no comparte el marco de la aplicacion, asi que tiene su propio degradado.
+// Los textos y bordes si usan los tokens de arriba.
+$login-fondo-a: #f2f5f8;
+$login-fondo-b: #e9edf2;
+$login-fondo-c: #e4e9ef;
+
+// --- Etiquetas de estado (los "chips" de las tablas) -----------------------
+// Cada estado es una pareja: un fondo suave y un texto del mismo tono pero oscuro.
+// Estaban escritos a mano, identicos, en 7 componentes distintos.
+/// Sin connotacion: un estado que solo informa.
+$estado-neutro: #455a64;
+$estado-neutro-fondo: #eceff1;
+/// Algo salio bien o quedo completo.
+$estado-exito: #2e7d32;
+$estado-exito-fondo: #e8f5e9;
+/// Informativo: en curso, planificado, en proceso.
+$estado-info: #1565c0;
+$estado-info-fondo: #e3f2fd;
+/// Algo fallo, se anulo o se elimino. Tambien es el color de los montos negativos.
+$estado-peligro: #c62828;
+$estado-peligro-fondo: #ffebee;
+/// Requiere atencion pero no es un fallo.
+$estado-aviso: #e65100;
+$estado-aviso-fondo: #fff3e0;
+
+// Mapa que styles.scss recorre para publicar todo como variables CSS. Un token
+// nuevo agregado aqui queda disponible como var(--chf-<nombre>) sin tocar nada mas.
+$tokens: (
+  'marca': $marca,
+  'marca-contraste': $marca-contraste,
+  'marca-contraste-suave': $marca-contraste-suave,
+  'marca-acento': $marca-acento,
+  'marca-barra': $marca-barra,
+  'acento-claro': $acento-claro,
+  'campo-acento': $campo-acento,
+  'campo-exito': $campo-exito,
+  'campo-error': $campo-error,
+  'alerta': $alerta,
+  'fondo-pagina': $fondo-pagina,
+  'fondo-seccion': $fondo-seccion,
+  'fondo-campo': $fondo-campo,
+  'borde-control': $borde-control,
+  'borde-seccion': $borde-seccion,
+  'texto-ejemplo': $texto-ejemplo,
+  'texto-fuerte': $texto-fuerte,
+  'texto-medio': $texto-medio,
+  'texto-suave': $texto-suave,
+  'borde-suave': $borde-suave,
+  'fondo-sutil': $fondo-sutil,
+  'peligro': $peligro,
+  'peligro-fondo': $peligro-fondo,
+  'peligro-texto': $peligro-texto,
+  'punto-verde': $punto-verde,
+  'punto-teal': $punto-teal,
+  'punto-naranja': $punto-naranja,
+  'punto-morado': $punto-morado,
+  'punto-azul': $punto-azul,
+  'punto-rojo': $punto-rojo,
+  'login-fondo-a': $login-fondo-a,
+  'login-fondo-b': $login-fondo-b,
+  'login-fondo-c': $login-fondo-c,
+  'estado-neutro': $estado-neutro,
+  'estado-neutro-fondo': $estado-neutro-fondo,
+  'estado-exito': $estado-exito,
+  'estado-exito-fondo': $estado-exito-fondo,
+  'estado-info': $estado-info,
+  'estado-info-fondo': $estado-info-fondo,
+  'estado-peligro': $estado-peligro,
+  'estado-peligro-fondo': $estado-peligro-fondo,
+  'estado-aviso': $estado-aviso,
+  'estado-aviso-fondo': $estado-aviso-fondo,
+);

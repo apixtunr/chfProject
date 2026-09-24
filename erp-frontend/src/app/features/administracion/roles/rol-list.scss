@@ -24,3 +24,12 @@
 .tabla {
   width: 100%;
 }
+
+// Ocupa el lugar del boton de eliminar cuando ese boton no se dibuja, para que los
+// controles de esa fila queden a la misma altura horizontal que los del resto.
+// El ancho es el de un mat-icon-button, medido en el navegador.
+.hueco-accion {
+  display: inline-block;
+  width: 36px;
+  vertical-align: middle;
+}

@@ -2,9 +2,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
@@ -25,8 +23,6 @@ const PAGINA_URL = '/api/clientes';
     RouterLink,
     MatTableModule,
     MatPaginatorModule,
-    MatFormFieldModule,
-    MatInputModule,
     MatButtonModule,
     MatIconModule,
     MatDialogModule,
@@ -59,7 +55,7 @@ export class ClienteList implements OnInit {
   }
 
   get columnas(): string[] {
-    const base = ['id', 'nombre', 'correo', 'telefono', 'nit', 'direccion'];
+    const base = ['nombre', 'nit', 'telefono', 'correo', 'direccion'];
     return this.puedeEditar || this.puedeEliminar ? [...base, 'acciones'] : base;
   }
 

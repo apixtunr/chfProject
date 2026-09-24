@@ -1,12 +1,25 @@
 @if (version(); as v) {
-  <div class="encabezado">
-    <div>
-      <a [routerLink]="['/cotizaciones', idCotizacion]">&larr; Volver a la cotizacion</a>
-      <h1>
-        Version {{ v.numeroVersion }}
-        <mat-chip highlighted>{{ v.estadoNombre }}</mat-chip>
-      </h1>
-      <p class="monto">Total: Q{{ v.montoTotal | number: '1.2-2' }}</p>
+  <!-- Mismo encabezado de pagina que los formularios de Cliente y Cotizacion: miga de
+       pan, titulo con etiqueta de estado, subtitulo y acciones a la derecha. -->
+  <div class="pf-page-header">
+    <div class="pf-header-left">
+      <nav class="pf-breadcrumb">
+        <a class="pf-breadcrumb-link" routerLink="/cotizaciones">Cotizaciones</a>
+        <mat-icon class="pf-breadcrumb-sep">chevron_right</mat-icon>
+        <a class="pf-breadcrumb-link" [routerLink]="['/cotizaciones', idCotizacion]">Cotizacion</a>
+        <mat-icon class="pf-breadcrumb-sep">chevron_right</mat-icon>
+        <span class="pf-breadcrumb-current">Version {{ v.numeroVersion }}</span>
+      </nav>
+
+      <div class="pf-title-row">
+        <h1 class="pf-title">Version {{ v.numeroVersion }}</h1>
+        <span class="pf-badge">{{ v.estadoNombre }}</span>
+      </div>
+
+      <p class="pf-subtitle">
+        Total de la version: <strong>Q{{ v.montoTotal | number: '1.2-2' }}</strong>
+      </p>
+
       @if (presupuestoSuperado()) {
         <p class="alerta-presupuesto">
           <mat-icon>warning</mat-icon>
@@ -16,9 +29,9 @@
       }
     </div>
 
-    <div class="acciones-encabezado">
+    <div class="pf-header-actions">
       @if (puedeImprimir) {
-        <button mat-stroked-button (click)="descargarPdf()" [disabled]="descargandoPdf()">
+        <button mat-stroked-button class="pf-btn-cancel" (click)="descargarPdf()" [disabled]="descargandoPdf()">
           @if (descargandoPdf()) {
             <mat-spinner diameter="18"></mat-spinner>
           } @else {
@@ -29,7 +42,7 @@
       }
       @if (puedeModificar) {
         @for (estado of transicionesDisponibles; track estado.idEstado) {
-          <button mat-flat-button color="primary" (click)="cambiarEstado(estado)">
+          <button mat-flat-button class="pf-btn-save" (click)="cambiarEstado(estado)">
             Marcar como {{ estado.nombre }}
           </button>
         }
@@ -37,169 +50,183 @@
     </div>
   </div>
 
-  @if (esEditable) {
-    <mat-card class="tarjeta-formulario">
-      <mat-card-content>
-        <form [formGroup]="formulario" (ngSubmit)="guardarLinea()" class="formulario-linea">
-          <mat-form-field appearance="outline" class="campo-menu">
-            <mat-label>Menu</mat-label>
-            <mat-select formControlName="idMenu">
-              @for (menu of menus(); track menu.idMenu) {
-                <mat-option [value]="menu.idMenu">{{ menu.nombreMenu }}</mat-option>
-              }
-            </mat-select>
-          </mat-form-field>
+  <!-- ── Menu de la cotizacion ────────────────────────────────────────────── -->
+  <section class="pf-section">
+    <header class="pf-section-header">
+      <span class="pf-section-title">
+        <mat-icon>restaurant_menu</mat-icon>
+        Menu de la cotizacion
+      </span>
+    </header>
 
-          <mat-form-field appearance="outline" class="campo-menu">
-            <mat-label>Plato</mat-label>
-            <mat-select formControlName="idPlato">
-              @for (plato of platosDelMenu(); track plato.idPlato) {
-                <mat-option [value]="plato.idPlato">
-                  {{ plato.nombrePlato }} (Q{{ plato.precioUnitario | number: '1.2-2' }})
-                </mat-option>
-              }
-            </mat-select>
-            @if (formulario.controls.idMenu.value && !platosDelMenu().length) {
-              <mat-hint>Ese menu no tiene platos configurados</mat-hint>
+    @if (esEditable) {
+      <form [formGroup]="formulario" (ngSubmit)="guardarLinea()" class="formulario-linea">
+        <mat-form-field appearance="outline" class="campo-menu">
+          <mat-label>Menu</mat-label>
+          <mat-select formControlName="idMenu">
+            @for (menu of menus(); track menu.idMenu) {
+              <mat-option [value]="menu.idMenu">{{ menu.nombreMenu }}</mat-option>
             }
-          </mat-form-field>
+          </mat-select>
+        </mat-form-field>
 
-          <mat-form-field appearance="outline" class="campo-chico">
-            <mat-label>Cantidad</mat-label>
-            <input matInput type="number" formControlName="cantidadPlatos" min="1" />
-          </mat-form-field>
+        <mat-form-field appearance="outline" class="campo-menu">
+          <mat-label>Plato</mat-label>
+          <mat-select formControlName="idPlato">
+            @for (plato of platosDelMenu(); track plato.idPlato) {
+              <mat-option [value]="plato.idPlato">
+                {{ plato.nombrePlato }} (Q{{ plato.precioUnitario | number: '1.2-2' }})
+              </mat-option>
+            }
+          </mat-select>
+          @if (formulario.controls.idMenu.value && !platosDelMenu().length) {
+            <mat-hint>Ese menu no tiene platos configurados</mat-hint>
+          }
+        </mat-form-field>
 
-          <mat-form-field appearance="outline" class="campo-chico">
-            <mat-label>Precio unit. (Q)</mat-label>
-            <input matInput type="text" [value]="precioSeleccionado() ?? ''" readonly />
-          </mat-form-field>
+        <mat-form-field appearance="outline" class="campo-chico">
+          <mat-label>Cantidad</mat-label>
+          <input matInput type="number" formControlName="cantidadPlatos" min="1" />
+        </mat-form-field>
 
-          <mat-form-field appearance="outline" class="campo-observaciones">
-            <mat-label>Observaciones</mat-label>
-            <input matInput formControlName="observaciones" />
-          </mat-form-field>
+        <mat-form-field appearance="outline" class="campo-chico">
+          <mat-label>Precio unit. (Q)</mat-label>
+          <input matInput type="text" [value]="precioSeleccionado() ?? ''" readonly />
+        </mat-form-field>
 
-          <div class="botones-formulario">
-            <button mat-flat-button color="primary" type="submit">
-              {{ idDetalleEditando() ? 'Guardar cambios' : 'Agregar' }}
+        <mat-form-field appearance="outline" class="campo-observaciones">
+          <mat-label>Observaciones</mat-label>
+          <input matInput formControlName="observaciones" />
+        </mat-form-field>
+
+        <div class="botones-formulario">
+          <button mat-flat-button class="pf-btn-save" type="submit">
+            {{ idDetalleEditando() ? 'Guardar cambios' : 'Agregar' }}
+          </button>
+          @if (idDetalleEditando()) {
+            <button mat-stroked-button class="pf-btn-cancel" type="button" (click)="cancelarEdicion()">
+              Cancelar
             </button>
-            @if (idDetalleEditando()) {
-              <button mat-button type="button" (click)="cancelarEdicion()">Cancelar</button>
-            }
-          </div>
-        </form>
-      </mat-card-content>
-    </mat-card>
-  }
+          }
+        </div>
+      </form>
+    }
 
-  <table mat-table [dataSource]="detalles()" class="tabla">
-    <ng-container matColumnDef="menu">
-      <th mat-header-cell *matHeaderCellDef>Menu / Plato</th>
-      <td mat-cell *matCellDef="let d">{{ d.nombreMenu }} - {{ d.nombrePlato }}</td>
-    </ng-container>
+    <table mat-table [dataSource]="detalles()" class="tabla">
+      <ng-container matColumnDef="menu">
+        <th mat-header-cell *matHeaderCellDef>Menu / Plato</th>
+        <td mat-cell *matCellDef="let d">{{ d.nombreMenu }} - {{ d.nombrePlato }}</td>
+      </ng-container>
 
-    <ng-container matColumnDef="cantidad">
-      <th mat-header-cell *matHeaderCellDef>Cantidad</th>
-      <td mat-cell *matCellDef="let d">{{ d.cantidadPlatos }}</td>
-    </ng-container>
+      <ng-container matColumnDef="cantidad">
+        <th mat-header-cell *matHeaderCellDef>Cantidad</th>
+        <td mat-cell *matCellDef="let d">{{ d.cantidadPlatos }}</td>
+      </ng-container>
 
-    <ng-container matColumnDef="precio">
-      <th mat-header-cell *matHeaderCellDef>Precio unit.</th>
-      <td mat-cell *matCellDef="let d">Q{{ d.precioUnitario | number: '1.2-2' }}</td>
-    </ng-container>
+      <ng-container matColumnDef="precio">
+        <th mat-header-cell *matHeaderCellDef>Precio unit.</th>
+        <td mat-cell *matCellDef="let d">Q{{ d.precioUnitario | number: '1.2-2' }}</td>
+      </ng-container>
 
-    <ng-container matColumnDef="subtotal">
-      <th mat-header-cell *matHeaderCellDef>Subtotal</th>
-      <td mat-cell *matCellDef="let d">Q{{ d.subtotal | number: '1.2-2' }}</td>
-    </ng-container>
+      <ng-container matColumnDef="subtotal">
+        <th mat-header-cell *matHeaderCellDef>Subtotal</th>
+        <td mat-cell *matCellDef="let d">Q{{ d.subtotal | number: '1.2-2' }}</td>
+      </ng-container>
 
-    <ng-container matColumnDef="acciones">
-      <th mat-header-cell *matHeaderCellDef></th>
-      <td mat-cell *matCellDef="let d">
-        @if (esEditable) {
-          <button mat-icon-button (click)="editarLinea(d)" aria-label="Editar">
-            <mat-icon>edit</mat-icon>
-          </button>
-          <button mat-icon-button (click)="eliminarLinea(d)" aria-label="Quitar">
-            <mat-icon>delete</mat-icon>
-          </button>
-        }
-      </td>
-    </ng-container>
-
-    <tr mat-header-row *matHeaderRowDef="columnas"></tr>
-    <tr mat-row *matRowDef="let row; columns: columnas"></tr>
-  </table>
-
-  <h2 class="titulo-seccion">Servicios extra</h2>
-
-  @if (esEditable) {
-    <mat-card class="tarjeta-formulario">
-      <mat-card-content>
-        <form [formGroup]="formularioServicio" (ngSubmit)="guardarServicio()" class="formulario-linea">
-          <mat-form-field appearance="outline" class="campo-menu">
-            <mat-label>Tipo de servicio</mat-label>
-            <mat-select formControlName="idTipoServicio">
-              @for (tipo of tiposServicio(); track tipo.idTipoServicio) {
-                <mat-option [value]="tipo.idTipoServicio">{{ tipo.nombreTipo }}</mat-option>
-              }
-            </mat-select>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline" class="campo-observaciones">
-            <mat-label>Descripción</mat-label>
-            <input matInput formControlName="descripcion" />
-          </mat-form-field>
-
-          <mat-form-field appearance="outline" class="campo-chico">
-            <mat-label>Monto (Q)</mat-label>
-            <input matInput type="number" formControlName="monto" min="0" />
-          </mat-form-field>
-
-          <div class="botones-formulario">
-            <button mat-flat-button color="primary" type="submit">
-              {{ idServicioEditando() ? 'Guardar cambios' : 'Agregar' }}
+      <ng-container matColumnDef="acciones">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let d">
+          @if (esEditable) {
+            <button mat-icon-button (click)="editarLinea(d)" matTooltip="Editar" aria-label="Editar">
+              <mat-icon>edit</mat-icon>
             </button>
-            @if (idServicioEditando()) {
-              <button mat-button type="button" (click)="cancelarEdicionServicio()">Cancelar</button>
+            <button mat-icon-button (click)="eliminarLinea(d)" matTooltip="Quitar" aria-label="Quitar">
+              <mat-icon>delete</mat-icon>
+            </button>
+          }
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="columnas"></tr>
+      <tr mat-row *matRowDef="let row; columns: columnas"></tr>
+    </table>
+  </section>
+
+  <!-- ── Servicios extra ──────────────────────────────────────────────────── -->
+  <section class="pf-section">
+    <header class="pf-section-header">
+      <span class="pf-section-title">
+        <mat-icon>room_service</mat-icon>
+        Servicios extra
+      </span>
+    </header>
+
+    @if (esEditable) {
+      <form [formGroup]="formularioServicio" (ngSubmit)="guardarServicio()" class="formulario-linea">
+        <mat-form-field appearance="outline" class="campo-menu">
+          <mat-label>Tipo de servicio</mat-label>
+          <mat-select formControlName="idTipoServicio">
+            @for (tipo of tiposServicio(); track tipo.idTipoServicio) {
+              <mat-option [value]="tipo.idTipoServicio">{{ tipo.nombreTipo }}</mat-option>
             }
-          </div>
-        </form>
-      </mat-card-content>
-    </mat-card>
-  }
+          </mat-select>
+        </mat-form-field>
 
-  <table mat-table [dataSource]="servicios()" class="tabla">
-    <ng-container matColumnDef="tipo">
-      <th mat-header-cell *matHeaderCellDef>Tipo</th>
-      <td mat-cell *matCellDef="let s">{{ s.tipoServicioNombre }}</td>
-    </ng-container>
+        <mat-form-field appearance="outline" class="campo-observaciones">
+          <mat-label>Descripción</mat-label>
+          <input matInput formControlName="descripcion" />
+        </mat-form-field>
 
-    <ng-container matColumnDef="descripcion">
-      <th mat-header-cell *matHeaderCellDef>Descripción</th>
-      <td mat-cell *matCellDef="let s">{{ s.descripcion || '-' }}</td>
-    </ng-container>
+        <mat-form-field appearance="outline" class="campo-chico">
+          <mat-label>Monto (Q)</mat-label>
+          <input matInput type="number" formControlName="monto" min="0" />
+        </mat-form-field>
 
-    <ng-container matColumnDef="monto">
-      <th mat-header-cell *matHeaderCellDef>Monto</th>
-      <td mat-cell *matCellDef="let s">Q{{ s.monto | number: '1.2-2' }}</td>
-    </ng-container>
-
-    <ng-container matColumnDef="acciones">
-      <th mat-header-cell *matHeaderCellDef></th>
-      <td mat-cell *matCellDef="let s">
-        @if (esEditable) {
-          <button mat-icon-button (click)="editarServicio(s)" aria-label="Editar">
-            <mat-icon>edit</mat-icon>
+        <div class="botones-formulario">
+          <button mat-flat-button class="pf-btn-save" type="submit">
+            {{ idServicioEditando() ? 'Guardar cambios' : 'Agregar' }}
           </button>
-          <button mat-icon-button (click)="eliminarServicio(s)" aria-label="Quitar">
-            <mat-icon>delete</mat-icon>
-          </button>
-        }
-      </td>
-    </ng-container>
+          @if (idServicioEditando()) {
+            <button mat-stroked-button class="pf-btn-cancel" type="button" (click)="cancelarEdicionServicio()">
+              Cancelar
+            </button>
+          }
+        </div>
+      </form>
+    }
 
-    <tr mat-header-row *matHeaderRowDef="columnasServicios"></tr>
-    <tr mat-row *matRowDef="let row; columns: columnasServicios"></tr>
-  </table>
+    <table mat-table [dataSource]="servicios()" class="tabla">
+      <ng-container matColumnDef="tipo">
+        <th mat-header-cell *matHeaderCellDef>Tipo</th>
+        <td mat-cell *matCellDef="let s">{{ s.tipoServicioNombre }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="descripcion">
+        <th mat-header-cell *matHeaderCellDef>Descripción</th>
+        <td mat-cell *matCellDef="let s">{{ s.descripcion || '-' }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="monto">
+        <th mat-header-cell *matHeaderCellDef>Monto</th>
+        <td mat-cell *matCellDef="let s">Q{{ s.monto | number: '1.2-2' }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="acciones">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let s">
+          @if (esEditable) {
+            <button mat-icon-button (click)="editarServicio(s)" matTooltip="Editar" aria-label="Editar">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button (click)="eliminarServicio(s)" matTooltip="Quitar" aria-label="Quitar">
+              <mat-icon>delete</mat-icon>
+            </button>
+          }
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="columnasServicios"></tr>
+      <tr mat-row *matRowDef="let row; columns: columnasServicios"></tr>
+    </table>
+  </section>
 }

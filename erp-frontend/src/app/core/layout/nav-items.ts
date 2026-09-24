@@ -10,7 +10,7 @@ export interface NavGroup {
   /** Debe matchear el nombre del modulo en la tabla `modulo` (seeds V3). */
   modulo: string;
   icon: string;
-  /** Color de fondo del icono del modulo en el sidebar (identidad visual por modulo). */
+  /** Color de la pastilla del icono en el menu (identidad visual por modulo). */
   color: string;
   items: NavItem[];
 }
@@ -24,20 +24,20 @@ export interface NavGroup {
 export const NAV_GROUPS: NavGroup[] = [
   {
     modulo: 'Clientes',
-    icon: 'people',
     color: '#3F51B5',
+    icon: 'people',
     items: [{ label: 'Clientes', route: '/clientes', paginaUrl: '/api/clientes', icon: 'people' }],
   },
   {
     modulo: 'Cotizaciones',
-    icon: 'request_quote',
     color: '#8E44AD',
+    icon: 'request_quote',
     items: [{ label: 'Cotizaciones', route: '/cotizaciones', paginaUrl: '/api/cotizaciones', icon: 'request_quote' }],
   },
   {
     modulo: 'Eventos',
-    icon: 'event',
     color: '#00ACC1',
+    icon: 'event',
     items: [
       { label: 'Gestión Eventos', route: '/eventos', paginaUrl: '/api/eventos', icon: 'event' },
       { label: 'Reporte Eventos', route: '/eventos/reporte', paginaUrl: '/api/eventos', icon: 'insights' },
@@ -45,8 +45,8 @@ export const NAV_GROUPS: NavGroup[] = [
   },
   {
     modulo: 'Inventarios',
-    icon: 'inventory_2',
     color: '#F39C12',
+    icon: 'inventory_2',
     items: [
       { label: 'Stock', route: '/inventario', paginaUrl: '/api/inventarios', icon: 'inventory_2' },
       { label: 'Productos', route: '/inventario/productos', paginaUrl: '/api/productos', icon: 'category' },
@@ -55,8 +55,8 @@ export const NAV_GROUPS: NavGroup[] = [
   },
   {
     modulo: 'Menús y platos',
-    icon: 'restaurant_menu',
     color: '#27AE60',
+    icon: 'restaurant_menu',
     items: [
       { label: 'Menús', route: '/menus', paginaUrl: '/api/menus', icon: 'restaurant_menu' },
       { label: 'Platos', route: '/menus/platos', paginaUrl: '/api/platos', icon: 'restaurant' },
@@ -64,20 +64,20 @@ export const NAV_GROUPS: NavGroup[] = [
   },
   {
     modulo: 'Pagos',
-    icon: 'payments',
     color: '#16A085',
+    icon: 'payments',
     items: [{ label: 'Pagos', route: '/pagos', paginaUrl: '/api/pagos', icon: 'payments' }],
   },
   {
     modulo: 'Rentabilidad',
-    icon: 'trending_up',
     color: '#D35400',
+    icon: 'trending_up',
     items: [{ label: 'Reporte', route: '/rentabilidad', paginaUrl: '/api/rentabilidad', icon: 'trending_up' }],
   },
   {
     modulo: 'Administracion',
-    icon: 'settings',
     color: '#E74C3C',
+    icon: 'settings',
     items: [
       { label: 'Usuarios', route: '/admin/usuarios', paginaUrl: '/api/usuarios', icon: 'manage_accounts' },
       { label: 'Roles y permisos', route: '/admin/roles', paginaUrl: '/api/roles', icon: 'admin_panel_settings' },

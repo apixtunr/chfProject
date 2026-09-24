@@ -1,23 +1,182 @@
+// === ENCABEZADO Y ACCIONES ===
 .encabezado {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 16px;
+  gap: 16px;
+  margin-bottom: 12px;
+
+  h1 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--chf-texto-fuerte);
+  }
 }
 
-// Borde delgado + esquinas redondeadas alrededor de la tabla, en vez de meterla
-// en un mat-card (mas liviano, sin sombra ni relleno extra).
-.tabla-contenedor {
-  border: 1px solid var(--mat-sys-outline-variant);
-  border-radius: 8px;
-  overflow: hidden;
+.encabezado-acciones {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
 
-  // Sin esto, el paginador queda pegado a la ultima fila y parece parte de ella.
-  mat-paginator {
-    border-top: 1px solid var(--mat-sys-outline-variant);
+// Botón "Nuevo cliente / Nueva cotización"
+.list-btn-nuevo.mat-mdc-unelevated-button {
+  background: var(--chf-marca);
+  color: var(--chf-marca-contraste);
+  font-weight: 500;
+  border-radius: 8px;
+  height: 40px;
+  gap: 6px;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
   }
+}
+
+// === BUSCADOR ===
+.buscador {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 340px;
+  background: var(--chf-fondo-seccion);
+  border: 1.5px solid var(--chf-borde-control);
+  border-radius: 8px;
+  padding: 10px 14px;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+  &:focus-within {
+    border-color: var(--chf-campo-acento);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--chf-campo-acento) 14%, transparent);
+  }
+}
+
+.buscador-icono {
+  flex: 0 0 auto;
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: var(--chf-texto-ejemplo);
+}
+
+.buscador-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  font: inherit;
+  font-size: 0.9rem;
+  color: var(--chf-texto-fuerte);
+
+  &::placeholder {
+    color: var(--chf-texto-ejemplo);
+  }
+}
+
+// === CONTENEDOR Y TABLA ===
+.tabla-contenedor {
+  width: 100%;
+  overflow-x: auto;
+  background: var(--chf-fondo-seccion);
+  border-radius: 8px;
+  border: 1.5px solid var(--chf-borde-control);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .tabla {
   width: 100%;
+  min-width: 820px;
+  background: transparent;
+
+  // Distribución de anchos por columnas nativas
+  .mat-column-nombre    { width: 22%; }
+  .mat-column-nit       { width: 13%; }
+  .mat-column-telefono  { width: 16%; }
+  .mat-column-correo    { width: 22%; }
+  .mat-column-direccion { width: 23%; }
+  .mat-column-acciones  { width: 4%; white-space: nowrap; text-align: right; }
+
+  // Componentes anidados en las celdas
+  .tbl-icon-cell {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--chf-texto-fuerte);
+
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+      color: var(--chf-texto-ejemplo);
+    }
+  }
+
+  .tbl-badge-codigo {
+    display: inline-block;
+    padding: 2px 6px;
+    background-color: var(--chf-borde-control);
+    color: var(--chf-texto-fuerte);
+    font-family: monospace;
+    font-size: 0.85rem;
+    border-radius: 4px;
+  }
+
+  .tbl-btn-editar, .tbl-btn-eliminar {
+    mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  .tbl-btn-editar {
+    color: var(--chf-campo-acento);
+  }
+
+  .tbl-btn-eliminar {
+    color: #ef4444;
+    
+    &:hover {
+      background-color: rgba(239, 68, 68, 0.08);
+    }
+  }
+}
+
+// === COMPONENTES ADICIONALES (PAGINADOR Y CHIPS) ===
+mat-paginator {
+  background: transparent;
+  border-top: 1.5px solid var(--chf-borde-control);
+}
+
+// Estilos globales de los chips semánticos para los estados
+.estado-chip {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  text-transform: capitalize;
+
+  // Variantes de estado comunes (puedes ajustar colores según tu paleta)
+  &--borrador {
+    background-color: #f3f4f6;
+    color: #4b5563;
+  }
+  &--pendiente {
+    background-color: #fef3c7;
+    color: #d97706;
+  }
+  &--aprobada {
+    background-color: #dcfce7;
+    color: #16a34a;
+  }
+  &--rechazada {
+    background-color: #fee2e2;
+    color: #dc2626;
+  }
 }

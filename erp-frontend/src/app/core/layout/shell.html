@@ -19,6 +19,23 @@
 
       <mat-accordion multi displayMode="flat">
         @for (grupo of gruposMenu(); track grupo.modulo) {
+          <!-- Un modulo de una sola pantalla no necesita desplegarse: el panel mostraba
+               "Clientes" y adentro otra vez "Clientes". Se dibuja como enlace directo. -->
+          @if (esModuloDeUnaPantalla(grupo)) {
+            <mat-nav-list dense class="lista-modulo-simple">
+              <a
+                mat-list-item
+                [routerLink]="grupo.items[0].route"
+                routerLinkActive="activo"
+                [routerLinkActiveOptions]="{ exact: true }"
+              >
+                <span class="icono-modulo" matListItemIcon [style.background-color]="grupo.color">
+                  <mat-icon>{{ grupo.icon }}</mat-icon>
+                </span>
+                <span matListItemTitle>{{ grupo.modulo }}</span>
+              </a>
+            </mat-nav-list>
+          } @else {
           <mat-expansion-panel
             class="panel-modulo"
             [expanded]="estaExpandido(grupo.modulo)"
@@ -47,6 +64,7 @@
               }
             </mat-nav-list>
           </mat-expansion-panel>
+          }
         }
       </mat-accordion>
 
@@ -55,7 +73,12 @@
 
     <mat-sidenav-content>
       <main class="contenido">
-        <router-outlet></router-outlet>
+        <!-- El limitador de ancho tiene que ser un elemento real: el componente que el
+             router inserta es hermano de router-outlet y no recibe el atributo de
+             encapsulacion de este shell, asi que no se le puede dar estilo desde aca. -->
+        <div class="contenido-centrado">
+          <router-outlet></router-outlet>
+        </div>
       </main>
     </mat-sidenav-content>
   </mat-sidenav-container>

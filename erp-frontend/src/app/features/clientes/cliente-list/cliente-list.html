@@ -1,81 +1,129 @@
+<!-- Titulo, buscador y accion en una sola fila: el titulo a la izquierda y los dos
+     controles juntos a la derecha. Antes el boton estaba en la fila del titulo y el
+     buscador en otra, lo que dejaba 92px muertos antes de la tabla. -->
 <div class="encabezado">
   <h1>Clientes</h1>
-  @if (puedeCrear) {
-    <button mat-flat-button color="primary" routerLink="/clientes/nuevo">
-      <mat-icon>add</mat-icon>
-      Nuevo cliente
-    </button>
-  }
+
+  <div class="encabezado-acciones">
+    <!-- Mismo aspecto que los campos del formulario de cliente: icono a la izquierda,
+         borde visible y texto de ejemplo, en vez del mat-form-field con etiqueta
+         flotante. La lupa es decorativa: la busqueda se dispara sola al escribir. -->
+    <div class="buscador">
+      <mat-icon class="buscador-icono">search</mat-icon>
+      <input
+        class="buscador-input"
+        type="text"
+        [formControl]="busqueda"
+        (keyup.enter)="buscar()"
+        placeholder="Buscar por nombre..."
+        aria-label="Buscar por nombre"
+      />
+    </div>
+
+    @if (puedeCrear) {
+      <button mat-flat-button routerLink="/clientes/nuevo" class="list-btn-nuevo">
+        <mat-icon>person_add</mat-icon>
+        Nuevo cliente
+      </button>
+    }
+  </div>
 </div>
 
-<mat-form-field appearance="outline" class="buscador">
-  <mat-label>Buscar por nombre</mat-label>
-  <input matInput [formControl]="busqueda" (keyup.enter)="buscar()" />
-  <button matSuffix mat-icon-button (click)="buscar()">
-    <mat-icon>search</mat-icon>
-  </button>
-</mat-form-field>
-
 <div class="tabla-contenedor">
-<table mat-table [dataSource]="clientes()" class="tabla">
-  <ng-container matColumnDef="id">
-    <th mat-header-cell *matHeaderCellDef>ID</th>
-    <td mat-cell *matCellDef="let cliente">{{ cliente.idCliente }}</td>
-  </ng-container>
+  <table mat-table [dataSource]="clientes()" class="tabla">
 
-  <ng-container matColumnDef="nombre">
-    <th mat-header-cell *matHeaderCellDef>Nombre</th>
-    <td mat-cell *matCellDef="let cliente">{{ cliente.nombre }}</td>
-  </ng-container>
+    <!-- Nombre -->
+    <ng-container matColumnDef="nombre">
+      <th mat-header-cell *matHeaderCellDef>Nombre</th>
+      <td mat-cell *matCellDef="let c">{{ c.nombre }}</td>
+    </ng-container>
 
-  <ng-container matColumnDef="correo">
-    <th mat-header-cell *matHeaderCellDef>Correo</th>
-    <td mat-cell *matCellDef="let cliente">{{ cliente.correo }}</td>
-  </ng-container>
+    <!-- NIT — badge de código -->
+    <ng-container matColumnDef="nit">
+      <th mat-header-cell *matHeaderCellDef>NIT</th>
+      <td mat-cell *matCellDef="let c">
+        @if (c.nit) {
+          <span class="tbl-badge-codigo">{{ c.nit }}</span>
+        }
+      </td>
+    </ng-container>
 
-  <ng-container matColumnDef="telefono">
-    <th mat-header-cell *matHeaderCellDef>Telefono</th>
-    <td mat-cell *matCellDef="let cliente">{{ cliente.telefono }}</td>
-  </ng-container>
+    <!-- Teléfono — icono inline -->
+    <ng-container matColumnDef="telefono">
+      <th mat-header-cell *matHeaderCellDef>Teléfono</th>
+      <td mat-cell *matCellDef="let c">
+        @if (c.telefono) {
+          <span class="tbl-icon-cell">
+            <mat-icon>call</mat-icon>
+            {{ c.telefono }}
+          </span>
+        }
+      </td>
+    </ng-container>
 
-  <ng-container matColumnDef="nit">
-    <th mat-header-cell *matHeaderCellDef>NIT</th>
-    <td mat-cell *matCellDef="let cliente">{{ cliente.nit }}</td>
-  </ng-container>
+    <!-- Correo — icono inline -->
+    <ng-container matColumnDef="correo">
+      <th mat-header-cell *matHeaderCellDef>Correo electrónico</th>
+      <td mat-cell *matCellDef="let c">
+        @if (c.correo) {
+          <span class="tbl-icon-cell">
+            <mat-icon>mail</mat-icon>
+            {{ c.correo }}
+          </span>
+        }
+      </td>
+    </ng-container>
 
-  <ng-container matColumnDef="direccion">
-    <th mat-header-cell *matHeaderCellDef>Dirección</th>
-    <td mat-cell *matCellDef="let cliente">
-      {{ cliente.direccion }}, {{ cliente.nombreMunicipio }}, {{ cliente.nombreDepartamento }}
-    </td>
-  </ng-container>
+    <!-- Dirección — icono inline -->
+    <ng-container matColumnDef="direccion">
+      <th mat-header-cell *matHeaderCellDef>Dirección</th>
+      <td mat-cell *matCellDef="let c">
+        <span class="tbl-icon-cell">
+          <mat-icon>location_on</mat-icon>
+          {{ c.direccion }}@if (c.nombreMunicipio){, {{ c.nombreMunicipio }}}@if (c.nombreDepartamento){, {{ c.nombreDepartamento }}}
+        </span>
+      </td>
+    </ng-container>
 
-  <ng-container matColumnDef="acciones">
-    <th mat-header-cell *matHeaderCellDef></th>
-    <td mat-cell *matCellDef="let cliente">
-      @if (puedeEditar) {
-        <button mat-icon-button [routerLink]="['/clientes', cliente.idCliente, 'editar']" matTooltip="Editar" aria-label="Editar">
-          <mat-icon>edit</mat-icon>
-        </button>
-      }
-      @if (puedeEliminar) {
-        <button mat-icon-button (click)="eliminar(cliente)" matTooltip="Eliminar" aria-label="Eliminar">
-          <mat-icon>delete</mat-icon>
-        </button>
-      }
-    </td>
-  </ng-container>
+    <!-- Acciones -->
+    <ng-container matColumnDef="acciones">
+      <th mat-header-cell *matHeaderCellDef>Acciones</th>
+      <td mat-cell *matCellDef="let c">
+        @if (puedeEditar) {
+          <button
+            mat-icon-button
+            class="tbl-btn-editar"
+            [routerLink]="['/clientes', c.idCliente, 'editar']"
+            matTooltip="Editar"
+            aria-label="Editar"
+          >
+            <mat-icon>edit</mat-icon>
+          </button>
+        }
+        @if (puedeEliminar) {
+          <button
+            mat-icon-button
+            class="tbl-btn-eliminar"
+            (click)="eliminar(c)"
+            matTooltip="Eliminar"
+            aria-label="Eliminar"
+          >
+            <mat-icon>delete</mat-icon>
+          </button>
+        }
+      </td>
+    </ng-container>
 
-  <tr mat-header-row *matHeaderRowDef="columnas"></tr>
-  <tr mat-row *matRowDef="let row; columns: columnas"></tr>
-</table>
+    <tr mat-header-row *matHeaderRowDef="columnas"></tr>
+    <tr mat-row *matRowDef="let row; columns: columnas"></tr>
+  </table>
 
-<mat-paginator
-  [length]="totalElements()"
-  [pageIndex]="pageIndex()"
-  [pageSize]="pageSize()"
-  [pageSizeOptions]="[10, 20, 50]"
-  (page)="onPageChange($event)"
->
-</mat-paginator>
+  <mat-paginator
+    [length]="totalElements()"
+    [pageIndex]="pageIndex()"
+    [pageSize]="pageSize()"
+    [pageSizeOptions]="[10, 20, 50]"
+    [showFirstLastButtons]="true"
+    (page)="onPageChange($event)"
+  ></mat-paginator>
 </div>

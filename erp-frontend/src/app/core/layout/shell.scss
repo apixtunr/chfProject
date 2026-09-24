@@ -21,6 +21,29 @@ mat-sidenav-content {
 .sidenav {
   width: 288px;
 
+  // Mismo color que la barra superior: el menu deja de ser una franja blanca mas y la
+  // interfaz gana un ancla oscura a la izquierda. Los colores de texto e iconos de aqui
+  // adentro se pasan por los tokens de Material en vez de a mano componente por
+  // componente, para que listas y paneles queden parejos sin pelearse por especificidad.
+  background-color: var(--chf-marca);
+  color: var(--chf-marca-contraste);
+
+  // Material le pone al sidenav esquinas redondeadas de 16px a la derecha. Con el panel
+  // casi blanco no se notaban; con el oscuro dibujan una curva que lo separa de la barra
+  // superior, y lo que se busca es justo lo contrario: que se lean como un solo bloque.
+  border-radius: 0;
+
+  --mat-list-list-item-label-text-color: var(--chf-marca-contraste-suave);
+  --mat-list-list-item-leading-icon-color: var(--chf-marca-contraste-suave);
+  --mat-list-list-item-hover-label-text-color: var(--chf-marca-contraste);
+  --mat-list-list-item-hover-state-layer-color: var(--chf-marca-contraste);
+  --mat-list-list-item-focus-state-layer-color: var(--chf-marca-contraste);
+
+  --mat-expansion-container-background-color: transparent;
+  --mat-expansion-header-text-color: var(--chf-marca-contraste);
+  --mat-expansion-header-indicator-color: var(--chf-marca-contraste-suave);
+  --mat-expansion-header-hover-state-layer-color: rgba(255, 255, 255, 0.06);
+
   // Angular Material inserta el contenido del sidenav dentro de un
   // .mat-drawer-inner-container propio (no es hijo directo estilable sin
   // ::ng-deep); hay que volverlo flex-column ahi para que el margin-top:
@@ -33,6 +56,11 @@ mat-sidenav-content {
 }
 
 .logo-sidebar {
+  // El archivo es arte lineal 100% negra sobre transparencia, asi que sobre el fondo
+  // oscuro desaparece. El filtro lo pasa a blanco puro respetando la transparencia, sin
+  // necesidad de mantener una segunda version del logo.
+  filter: brightness(0) invert(1);
+  opacity: 0.85;
   display: block;
   width: 150px;
   height: 150px;
@@ -40,8 +68,26 @@ mat-sidenav-content {
   margin: auto auto 16px;
 }
 
+// Sobre el fondo oscuro, el item activo se marca con un velo claro traslucido y texto
+// en blanco pleno. Una pastilla de color solida competiria con el azul de la marca.
 .activo {
-  background-color: var(--mat-sys-secondary-container);
+  background-color: rgba(255, 255, 255, 0.14);
+
+  .mdc-list-item__primary-text {
+    color: var(--chf-marca-contraste);
+  }
+}
+
+// Color por defecto de los iconos del menu. Ojo con la especificidad: cualquier regla
+// mas abajo que apunte a "<clase> mat-icon" empata con esta y gana por orden de
+// aparicion; por eso .icono-modulo no vuelve a fijar un color propio.
+.sidenav mat-icon {
+  color: var(--chf-marca-contraste-suave);
+}
+
+// Iconos del item activo: a blanco pleno, igual que su texto.
+.sidenav .activo mat-icon {
+  color: var(--chf-marca-contraste);
 }
 
 .panel-modulo {
@@ -61,17 +107,28 @@ mat-sidenav-content {
   font-weight: 500;
 }
 
+// Los iconos de modulo eran pastillas de 8 colores distintos, uno por modulo, con el
+// icono en blanco encima. Al quitar los colores de nav-items.ts la pastilla desaparecio
+// pero el icono se quedo en blanco: blanco sobre fondo claro, invisible. Ahora es
+// monocromatico y del mismo tamano (24px) que los iconos de las pantallas de adentro,
+// que es lo que hacia que unos se vieran y otros no.
 .icono-modulo {
   display: flex;
   align-items: center;
   justify-content: center;
   width: 28px;
   height: 28px;
-  border-radius: 6px;
+  border-radius: 8px;
   flex: 0 0 auto;
 
+  // Solo el tamano: el color lo resuelve la regla .sidenav mat-icon de mas arriba, y
+  // volver a fijarlo aqui la pisaria por orden de aparicion. Sin este font-size el
+  // icono hereda el del encabezado del panel (16px) y se dibuja mas chico que los de
+  // las pantallas de adentro, que es de donde venia la diferencia visible.
+  // Dentro de la pastilla el icono va en blanco y algo mas chico, para que el color de
+  // fondo se lea. El color se fija aqui a proposito, pisando el gris claro del menu.
   mat-icon {
-    color: white;
+    color: var(--chf-marca-contraste);
     font-size: 18px;
     width: 18px;
     height: 18px;
@@ -79,7 +136,7 @@ mat-sidenav-content {
 }
 
 .toolbar-oscura {
-  background-color: #0f172a;
+  background-color: var(--chf-marca-barra);
   color: white;
   // Sin esto, Flexbox puede encoger el navbar por debajo de su alto fijo (64px) si el
   // contenido de abajo pide mas espacio del que hay en los 100vh del .shell -eso paso,
@@ -98,16 +155,39 @@ mat-sidenav-content {
 
 .contenido {
   padding: 24px;
-  background-color: #eef1f5;
+  background-color: var(--chf-fondo-pagina);
   min-height: 100%;
 
-  // Tarjeta contenedora para el contenido de cada pantalla ruteada (el elemento
-  // que Angular inserta justo despues de router-outlet, nunca router-outlet en si).
-  router-outlet + * {
-    display: block;
-    background-color: white;
-    border-radius: 8px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
-    padding: 20px;
+  // Nota: aqui habia una regla "router-outlet + *" que pintaba una tarjeta blanca con
+  // sombra alrededor de cada pantalla. Nunca llego a aplicarse: con encapsulacion
+  // emulada, el componente que el router inserta lleva su propio _nghost pero no el
+  // _ngcontent de este shell, asi que el selector no lo alcanzaba. Se elimino en vez
+  // de repararla, porque hoy cada pantalla resuelve su propio fondo y revivirla
+  // cambiaria el aspecto de las 46.
+}
+
+// Tope de ancho para el contenido. Sin esto, en un monitor ancho las columnas de una
+// misma fila quedaban separadas por huecos enormes y costaba seguir la linea con la
+// vista. El tope va en este envoltorio y no en .contenido para que el fondo gris siga
+// cubriendo todo el ancho de la ventana.
+.contenido-centrado {
+  max-width: 1500px;
+  margin-inline: auto;
+}
+
+// Jerarquia del menu. El icono de un modulo desplegable arranca en 24px (lo fija el
+// padding del mat-expansion-panel-header), pero los mat-list-item arrancan en 12px: eso
+// dejaba las pantallas de un modulo MENOS indentadas que el modulo que las contiene, y
+// los enlaces sueltos (Inicio, Clientes, Pagos) sin alinear con el resto. Los valores de
+// abajo son el desplazamiento que se suma a esos 12px propios del list-item: el primer
+// nivel queda en 24px, igual que los modulos, y las pantallas de adentro 16px mas.
+.lista-inicio,
+.lista-modulo-simple {
+  ::ng-deep .mat-mdc-list-item {
+    padding-left: 12px;
   }
+}
+
+.panel-modulo ::ng-deep .mat-mdc-list-item {
+  padding-left: 28px;
 }

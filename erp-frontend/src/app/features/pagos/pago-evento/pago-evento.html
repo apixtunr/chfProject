@@ -30,68 +30,70 @@
     }
   </div>
 
+    <div class="tabla-contenedor">
   <table mat-table [dataSource]="pagos()" class="tabla">
-    <ng-container matColumnDef="fechaPago">
-      <th mat-header-cell *matHeaderCellDef>Fecha</th>
-      <td mat-cell *matCellDef="let p">{{ p.fechaPago | date: 'dd/MM/yyyy HH:mm' }}</td>
-    </ng-container>
+      <ng-container matColumnDef="fechaPago">
+        <th mat-header-cell *matHeaderCellDef>Fecha</th>
+        <td mat-cell *matCellDef="let p">{{ p.fechaPago | date: 'dd/MM/yyyy HH:mm' }}</td>
+      </ng-container>
 
-    <ng-container matColumnDef="tipo">
-      <th mat-header-cell *matHeaderCellDef>Tipo</th>
-      <td mat-cell *matCellDef="let p">{{ etiquetaTipo(p) }}</td>
-    </ng-container>
+      <ng-container matColumnDef="tipo">
+        <th mat-header-cell *matHeaderCellDef>Tipo</th>
+        <td mat-cell *matCellDef="let p">{{ etiquetaTipo(p) }}</td>
+      </ng-container>
 
-    <ng-container matColumnDef="metodo">
-      <th mat-header-cell *matHeaderCellDef>Metodo</th>
-      <td mat-cell *matCellDef="let p">{{ p.nombreMetodoPago }}</td>
-    </ng-container>
+      <ng-container matColumnDef="metodo">
+        <th mat-header-cell *matHeaderCellDef>Metodo</th>
+        <td mat-cell *matCellDef="let p">{{ p.nombreMetodoPago }}</td>
+      </ng-container>
 
-    <ng-container matColumnDef="monto">
-      <th mat-header-cell *matHeaderCellDef>Monto</th>
-      <td mat-cell *matCellDef="let p">Q {{ p.monto | number: '1.2-2' }}</td>
-    </ng-container>
+      <ng-container matColumnDef="monto">
+        <th mat-header-cell *matHeaderCellDef>Monto</th>
+        <td mat-cell *matCellDef="let p">Q {{ p.monto | number: '1.2-2' }}</td>
+      </ng-container>
 
-    <ng-container matColumnDef="estado">
-      <th mat-header-cell *matHeaderCellDef>Estado</th>
-      <td mat-cell *matCellDef="let p">
-        <span class="chip" [class]="'chip-' + p.estadoNombre.toLowerCase()">{{ p.estadoNombre }}</span>
-      </td>
-    </ng-container>
+      <ng-container matColumnDef="estado">
+        <th mat-header-cell *matHeaderCellDef>Estado</th>
+        <td mat-cell *matCellDef="let p">
+          <span class="chip" [class]="'chip-' + p.estadoNombre.toLowerCase()">{{ p.estadoNombre }}</span>
+        </td>
+      </ng-container>
 
-    <ng-container matColumnDef="usuario">
-      <th mat-header-cell *matHeaderCellDef>Registrado por</th>
-      <td mat-cell *matCellDef="let p">{{ p.usernameUsuario }}</td>
-    </ng-container>
+      <ng-container matColumnDef="usuario">
+        <th mat-header-cell *matHeaderCellDef>Registrado por</th>
+        <td mat-cell *matCellDef="let p">{{ p.usernameUsuario }}</td>
+      </ng-container>
 
-    <ng-container matColumnDef="acciones">
-      <th mat-header-cell *matHeaderCellDef></th>
-      <td mat-cell *matCellDef="let p">
-        <button mat-icon-button [routerLink]="['/pagos', p.idPago]" matTooltip="Ver detalle" aria-label="Ver detalle">
-          <mat-icon>visibility</mat-icon>
-        </button>
-        @if (puedeEditar) {
-          <button mat-icon-button [routerLink]="['/pagos', p.idPago, 'editar']" matTooltip="Editar" aria-label="Editar">
-            <mat-icon>edit</mat-icon>
+      <ng-container matColumnDef="acciones">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let p">
+          <button mat-icon-button [routerLink]="['/pagos', p.idPago]" matTooltip="Ver detalle" aria-label="Ver detalle">
+            <mat-icon>visibility</mat-icon>
           </button>
-        }
-        @if (puedeEliminar) {
-          <button mat-icon-button (click)="eliminar(p)" matTooltip="Eliminar" aria-label="Eliminar">
-            <mat-icon>delete</mat-icon>
-          </button>
-        }
-      </td>
-    </ng-container>
+          @if (puedeEditar) {
+            <button mat-icon-button [routerLink]="['/pagos', p.idPago, 'editar']" matTooltip="Editar" aria-label="Editar">
+              <mat-icon>edit</mat-icon>
+            </button>
+          }
+          @if (puedeEliminar) {
+            <button mat-icon-button (click)="eliminar(p)" matTooltip="Eliminar" aria-label="Eliminar">
+              <mat-icon>delete</mat-icon>
+            </button>
+          }
+        </td>
+      </ng-container>
 
-    <tr mat-header-row *matHeaderRowDef="columnas"></tr>
-    <tr mat-row *matRowDef="let row; columns: columnas"></tr>
-  </table>
+      <tr mat-header-row *matHeaderRowDef="columnas"></tr>
+      <tr mat-row *matRowDef="let row; columns: columnas"></tr>
+    </table>
 
-  <mat-paginator
-    [length]="totalElements()"
-    [pageIndex]="pageIndex()"
-    [pageSize]="pageSize()"
-    [pageSizeOptions]="[10, 20, 50]"
-    (page)="onPageChange($event)"
-  >
-  </mat-paginator>
+    <mat-paginator
+      [length]="totalElements()"
+      [pageIndex]="pageIndex()"
+      [pageSize]="pageSize()"
+      [pageSizeOptions]="[10, 20, 50]"
+      (page)="onPageChange($event)"
+    >
+    </mat-paginator>
+  </div>
 }

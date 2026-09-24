@@ -9,7 +9,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { filter, map, startWith } from 'rxjs';
 import { AuthService } from '../auth/auth.service';
-import { NAV_GROUPS } from './nav-items';
+import { NAV_GROUPS, NavItem } from './nav-items';
 
 @Component({
   selector: 'app-shell',
@@ -38,6 +38,14 @@ export class Shell {
       items: grupo.items.filter((item) => this.authService.puedeVer(item.paginaUrl)),
     })).filter((grupo) => grupo.items.length > 0),
   );
+
+  /**
+   * Un modulo cuya unica pantalla se llama igual que el modulo no aporta nada al
+   * desplegarse: repite el mismo texto un nivel mas abajo. Se muestra como enlace.
+   */
+  esModuloDeUnaPantalla(grupo: { modulo: string; items: NavItem[] }): boolean {
+    return grupo.items.length === 1 && grupo.items[0].label === grupo.modulo;
+  }
 
   readonly usuario = computed(() => this.authService.usuarioActual());
 

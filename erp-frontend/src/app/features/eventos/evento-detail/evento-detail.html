@@ -59,7 +59,7 @@
         @if (e.idCotizacionVersion !== null) {
           <h3 class="subtitulo-tab">Menú de la cotización</h3>
 
-          <div class="tabla-scroll">
+          <div class="tabla-scroll tabla-contenedor">
             <table mat-table [dataSource]="detalleCotizacionOrigen()" class="tabla">
               <ng-container matColumnDef="menu">
                 <th mat-header-cell *matHeaderCellDef>Menú / Plato</th>
@@ -89,7 +89,7 @@
 
           @if (serviciosCotizacionOrigen().length) {
             <h3 class="subtitulo-tab">Servicios extra</h3>
-            <div class="tabla-scroll">
+            <div class="tabla-scroll tabla-contenedor">
               <table mat-table [dataSource]="serviciosCotizacionOrigen()" class="tabla">
                 <ng-container matColumnDef="tipo">
                   <th mat-header-cell *matHeaderCellDef>Tipo</th>
@@ -159,7 +159,7 @@
           </form>
         }
 
-        <div class="tabla-scroll">
+        <div class="tabla-scroll tabla-contenedor">
           <table mat-table [dataSource]="detalleMenu()" class="tabla">
             <ng-container matColumnDef="menu">
               <th mat-header-cell *matHeaderCellDef>Menú / Plato</th>
@@ -264,7 +264,7 @@
           </form>
         }
 
-        <div class="tabla-scroll">
+        <div class="tabla-scroll tabla-contenedor">
           <table mat-table [dataSource]="costos()" class="tabla">
             <ng-container matColumnDef="tipo">
               <th mat-header-cell *matHeaderCellDef>Tipo</th>
@@ -330,7 +330,7 @@
           </form>
         }
 
-        <div class="tabla-scroll">
+        <div class="tabla-scroll tabla-contenedor">
           <table mat-table [dataSource]="personal()" class="tabla">
             <ng-container matColumnDef="empleado">
               <th mat-header-cell *matHeaderCellDef>Empleado</th>
@@ -389,7 +389,7 @@
           </form>
         }
 
-        <div class="tabla-scroll">
+        <div class="tabla-scroll tabla-contenedor">
           <table mat-table [dataSource]="vehiculos()" class="tabla">
             <ng-container matColumnDef="placa">
               <th mat-header-cell *matHeaderCellDef>Placa</th>
@@ -445,7 +445,7 @@
           </button>
         }
 
-        <div class="tabla-scroll">
+        <div class="tabla-scroll tabla-contenedor">
           <table mat-table [dataSource]="inventario()" class="tabla">
             <ng-container matColumnDef="producto">
               <th mat-header-cell *matHeaderCellDef>Producto</th>

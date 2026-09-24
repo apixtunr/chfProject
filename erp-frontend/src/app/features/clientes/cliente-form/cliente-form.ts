@@ -1,9 +1,7 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
+import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -18,9 +16,7 @@ import { ClienteService } from '../cliente.service';
   imports: [
     ReactiveFormsModule,
     RouterLink,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
+    MatIconModule,
     MatSelectModule,
     MatButtonModule,
   ],
@@ -52,14 +48,29 @@ export class ClienteForm implements OnInit {
     idMunicipio: this.fb.control<number | null>(null, Validators.required),
   });
 
+  /** Cuenta cuántos campos del formulario tienen Validators.required. */
+  readonly camposRequeridos = computed(() => {
+    const controles = this.formulario.controls;
+    return Object.values(controles).filter((c) => c.hasValidator(Validators.required)).length;
+  });
+
   ngOnInit(): void {
     this.departamentoService.listar().subscribe((d) => this.departamentos.set(d));
 
+    // Municipio bloqueado hasta que se elija departamento
+    this.formulario.controls.idMunicipio.disable();
+
+    // Al elegir departamento, limpia el municipio y carga solo los de ese departamento.
     this.formulario.controls.idDepartamento.valueChanges.subscribe((idDepartamento) => {
       this.formulario.controls.idMunicipio.setValue(null);
       this.municipios.set([]);
       if (idDepartamento) {
-        this.municipioService.listar(idDepartamento).subscribe((m) => this.municipios.set(m));
+        this.municipioService.listar(idDepartamento).subscribe((m) => {
+          this.municipios.set(m);
+          this.formulario.controls.idMunicipio.enable();
+        });
+      } else {
+        this.formulario.controls.idMunicipio.disable();
       }
     });
 
@@ -81,6 +92,7 @@ export class ClienteForm implements OnInit {
       // El municipio se asigna hasta tener cargada su lista, que depende del departamento.
       this.municipioService.listar(cliente.idDepartamento).subscribe((m) => {
         this.municipios.set(m);
+        this.formulario.controls.idMunicipio.enable();
         this.formulario.controls.idMunicipio.setValue(cliente.idMunicipio);
       });
     });

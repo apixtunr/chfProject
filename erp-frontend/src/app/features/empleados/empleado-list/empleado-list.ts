@@ -8,6 +8,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/auth/auth.service';
 import { ConfirmDialog } from '../../../shared/confirm-dialog/confirm-dialog';
@@ -28,7 +29,8 @@ const PAGINA_URL = '/api/empleados';
     MatButtonModule,
     MatIconModule,
     MatDialogModule,
-  ],
+
+  MatTooltipModule,  ],
   templateUrl: './empleado-list.html',
   styleUrl: './empleado-list.scss',
 })

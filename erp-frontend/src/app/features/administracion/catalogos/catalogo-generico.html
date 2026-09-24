@@ -52,32 +52,34 @@
   </mat-card>
 }
 
-<table mat-table [dataSource]="filas()" class="tabla">
-  @for (columna of columnas; track columna) {
-    @if (columna !== 'acciones') {
-      <ng-container [matColumnDef]="columna">
-        <th mat-header-cell *matHeaderCellDef>{{ campoDeColumna(columna).label }}</th>
-        <td mat-cell *matCellDef="let fila">{{ valorCelda(fila, campoDeColumna(columna)) }}</td>
-      </ng-container>
-    } @else {
-      <ng-container matColumnDef="acciones">
-        <th mat-header-cell *matHeaderCellDef></th>
-        <td mat-cell *matCellDef="let fila">
-          @if (puedeEditar) {
-            <button mat-icon-button (click)="iniciarEdicion(fila)" aria-label="Editar">
-              <mat-icon>edit</mat-icon>
-            </button>
-          }
-          @if (puedeEliminar) {
-            <button mat-icon-button (click)="eliminar(fila)" aria-label="Eliminar">
-              <mat-icon>delete</mat-icon>
-            </button>
-          }
-        </td>
-      </ng-container>
+<div class="tabla-contenedor">
+  <table mat-table [dataSource]="filas()" class="tabla">
+    @for (columna of columnas; track columna) {
+      @if (columna !== 'acciones') {
+        <ng-container [matColumnDef]="columna">
+          <th mat-header-cell *matHeaderCellDef>{{ campoDeColumna(columna).label }}</th>
+          <td mat-cell *matCellDef="let fila">{{ valorCelda(fila, campoDeColumna(columna)) }}</td>
+        </ng-container>
+      } @else {
+        <ng-container matColumnDef="acciones">
+          <th mat-header-cell *matHeaderCellDef></th>
+          <td mat-cell *matCellDef="let fila">
+            @if (puedeEditar) {
+              <button mat-icon-button (click)="iniciarEdicion(fila)" matTooltip="Editar" aria-label="Editar">
+                <mat-icon>edit</mat-icon>
+              </button>
+            }
+            @if (puedeEliminar) {
+              <button mat-icon-button (click)="eliminar(fila)" matTooltip="Eliminar" aria-label="Eliminar">
+                <mat-icon>delete</mat-icon>
+              </button>
+            }
+          </td>
+        </ng-container>
+      }
     }
-  }
 
-  <tr mat-header-row *matHeaderRowDef="columnas"></tr>
-  <tr mat-row *matRowDef="let row; columns: columnas"></tr>
-</table>
+    <tr mat-header-row *matHeaderRowDef="columnas"></tr>
+    <tr mat-row *matRowDef="let row; columns: columnas"></tr>
+  </table>
+</div>

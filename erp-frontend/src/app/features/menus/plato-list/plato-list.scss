@@ -9,19 +9,6 @@
   width: 320px;
 }
 
-// Borde delgado + esquinas redondeadas alrededor de la tabla y el paginador
-// (mismo criterio que Clientes y Cotizaciones), en vez de un mat-card.
-.tabla-contenedor {
-  border: 1px solid var(--mat-sys-outline-variant);
-  border-radius: 8px;
-  overflow: hidden;
-
-  // Sin esto, el paginador queda pegado a la ultima fila y parece parte de ella.
-  mat-paginator {
-    border-top: 1px solid var(--mat-sys-outline-variant);
-  }
-}
-
 .tabla {
   width: 100%;
 }

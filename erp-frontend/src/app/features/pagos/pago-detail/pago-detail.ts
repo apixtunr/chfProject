@@ -10,6 +10,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/auth/auth.service';
 import { EstadoResponse } from '../../../core/catalogos/estado';
@@ -35,7 +36,8 @@ const TIPO_ESTADO_PAGO = 'PAGO';
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
-  ],
+
+  MatTooltipModule,  ],
   templateUrl: './pago-detail.html',
   styleUrl: './pago-detail.scss',
 })

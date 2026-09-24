@@ -16,52 +16,54 @@
   </button>
 </mat-form-field>
 
-<table mat-table [dataSource]="empleados()" class="tabla">
-  <ng-container matColumnDef="nombre">
-    <th mat-header-cell *matHeaderCellDef>Nombre</th>
-    <td mat-cell *matCellDef="let e">{{ e.nombre }} {{ e.apellido }}</td>
-  </ng-container>
+<div class="tabla-contenedor">
+  <table mat-table [dataSource]="empleados()" class="tabla">
+    <ng-container matColumnDef="nombre">
+      <th mat-header-cell *matHeaderCellDef>Nombre</th>
+      <td mat-cell *matCellDef="let e">{{ e.nombre }} {{ e.apellido }}</td>
+    </ng-container>
 
-  <ng-container matColumnDef="puesto">
-    <th mat-header-cell *matHeaderCellDef>Puesto</th>
-    <td mat-cell *matCellDef="let e">{{ e.puestoNombre }}</td>
-  </ng-container>
+    <ng-container matColumnDef="puesto">
+      <th mat-header-cell *matHeaderCellDef>Puesto</th>
+      <td mat-cell *matCellDef="let e">{{ e.puestoNombre }}</td>
+    </ng-container>
 
-  <ng-container matColumnDef="estado">
-    <th mat-header-cell *matHeaderCellDef>Estado</th>
-    <td mat-cell *matCellDef="let e">{{ e.estadoNombre }}</td>
-  </ng-container>
+    <ng-container matColumnDef="estado">
+      <th mat-header-cell *matHeaderCellDef>Estado</th>
+      <td mat-cell *matCellDef="let e">{{ e.estadoNombre }}</td>
+    </ng-container>
 
-  <ng-container matColumnDef="telefono">
-    <th mat-header-cell *matHeaderCellDef>Telefono</th>
-    <td mat-cell *matCellDef="let e">{{ e.telefono }}</td>
-  </ng-container>
+    <ng-container matColumnDef="telefono">
+      <th mat-header-cell *matHeaderCellDef>Telefono</th>
+      <td mat-cell *matCellDef="let e">{{ e.telefono }}</td>
+    </ng-container>
 
-  <ng-container matColumnDef="acciones">
-    <th mat-header-cell *matHeaderCellDef></th>
-    <td mat-cell *matCellDef="let e">
-      @if (puedeEditar) {
-        <button mat-icon-button [routerLink]="['/empleados', e.idEmpleado, 'editar']" aria-label="Editar">
-          <mat-icon>edit</mat-icon>
-        </button>
-      }
-      @if (puedeEliminar) {
-        <button mat-icon-button (click)="eliminar(e)" aria-label="Eliminar">
-          <mat-icon>delete</mat-icon>
-        </button>
-      }
-    </td>
-  </ng-container>
+    <ng-container matColumnDef="acciones">
+      <th mat-header-cell *matHeaderCellDef>Acciones</th>
+      <td mat-cell *matCellDef="let e">
+        @if (puedeEditar) {
+          <button mat-icon-button [routerLink]="['/empleados', e.idEmpleado, 'editar']" matTooltip="Editar" aria-label="Editar">
+            <mat-icon>edit</mat-icon>
+          </button>
+        }
+        @if (puedeEliminar) {
+          <button mat-icon-button (click)="eliminar(e)" matTooltip="Eliminar" aria-label="Eliminar">
+            <mat-icon>delete</mat-icon>
+          </button>
+        }
+      </td>
+    </ng-container>
 
-  <tr mat-header-row *matHeaderRowDef="columnas"></tr>
-  <tr mat-row *matRowDef="let row; columns: columnas"></tr>
-</table>
+    <tr mat-header-row *matHeaderRowDef="columnas"></tr>
+    <tr mat-row *matRowDef="let row; columns: columnas"></tr>
+  </table>
 
-<mat-paginator
-  [length]="totalElements()"
-  [pageIndex]="pageIndex()"
-  [pageSize]="pageSize()"
-  [pageSizeOptions]="[10, 20, 50]"
-  (page)="onPageChange($event)"
->
-</mat-paginator>
+  <mat-paginator
+    [length]="totalElements()"
+    [pageIndex]="pageIndex()"
+    [pageSize]="pageSize()"
+    [pageSizeOptions]="[10, 20, 50]"
+    (page)="onPageChange($event)"
+  >
+  </mat-paginator>
+</div>

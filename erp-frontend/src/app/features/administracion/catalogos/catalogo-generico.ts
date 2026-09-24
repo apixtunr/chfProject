@@ -11,6 +11,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { API_URL } from '../../../core/api-config';
 import { AuthService } from '../../../core/auth/auth.service';
@@ -39,7 +40,8 @@ type Fila = Record<string, unknown>;
     MatInputModule,
     MatSelectModule,
     MatCheckboxModule,
-  ],
+
+  MatTooltipModule,  ],
   templateUrl: './catalogo-generico.html',
   styleUrl: './catalogo-generico.scss',
 })

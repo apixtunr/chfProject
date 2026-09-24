@@ -5,6 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/auth/auth.service';
 import { ConfirmDialog } from '../../../shared/confirm-dialog/confirm-dialog';
@@ -15,7 +16,15 @@ const PAGINA_URL = '/api/vehiculos';
 
 @Component({
   selector: 'app-vehiculo-list',
-  imports: [RouterLink, MatTableModule, MatPaginatorModule, MatButtonModule, MatIconModule, MatDialogModule],
+  imports: [
+    RouterLink,
+    MatTableModule,
+    MatPaginatorModule,
+    MatButtonModule,
+    MatIconModule,
+    MatDialogModule,
+    MatTooltipModule,
+  ],
   templateUrl: './vehiculo-list.html',
   styleUrl: './vehiculo-list.scss',
 })

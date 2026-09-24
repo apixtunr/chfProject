@@ -50,7 +50,7 @@
 }
 
 .kpi-negativo .kpi-valor {
-  color: #c62828;
+  color: var(--chf-estado-peligro);
 }
 
 .tabla {
@@ -62,5 +62,5 @@
 }
 
 .negativo {
-  color: #c62828;
+  color: var(--chf-estado-peligro);
 }

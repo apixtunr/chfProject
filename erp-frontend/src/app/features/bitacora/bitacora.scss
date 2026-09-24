@@ -46,33 +46,33 @@
   border-radius: 12px;
   font-size: 12px;
   font-weight: 500;
-  background: #eceff1;
-  color: #455a64;
+  background: var(--chf-estado-neutro-fondo);
+  color: var(--chf-estado-neutro);
 }
 
 .chip-insert {
-  background: #e8f5e9;
-  color: #2e7d32;
+  background: var(--chf-estado-exito-fondo);
+  color: var(--chf-estado-exito);
 }
 
 .chip-update {
-  background: #e3f2fd;
-  color: #1565c0;
+  background: var(--chf-estado-info-fondo);
+  color: var(--chf-estado-info);
 }
 
 .chip-delete {
-  background: #ffebee;
-  color: #c62828;
+  background: var(--chf-estado-peligro-fondo);
+  color: var(--chf-estado-peligro);
 }
 
 .chip-exitoso {
-  background: #e8f5e9;
-  color: #2e7d32;
+  background: var(--chf-estado-exito-fondo);
+  color: var(--chf-estado-exito);
 }
 
 .chip-password_incorrecta,
 .chip-usuario_inactivo,
 .chip-usuario_bloqueado {
-  background: #ffebee;
-  color: #c62828;
+  background: var(--chf-estado-peligro-fondo);
+  color: var(--chf-estado-peligro);
 }

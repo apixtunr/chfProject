@@ -181,27 +181,27 @@ h1 {
 }
 
 .punto-verde {
-  background-color: #16a34a;
+  background-color: var(--chf-punto-verde);
 }
 
 .punto-teal {
-  background-color: #0d9488;
+  background-color: var(--chf-punto-teal);
 }
 
 .punto-naranja {
-  background-color: #f59e0b;
+  background-color: var(--chf-punto-naranja);
 }
 
 .punto-morado {
-  background-color: #8b5cf6;
+  background-color: var(--chf-punto-morado);
 }
 
 .punto-azul {
-  background-color: #3b82f6;
+  background-color: var(--chf-punto-azul);
 }
 
 .punto-rojo {
-  background-color: #ef4444;
+  background-color: var(--chf-punto-rojo);
 }
 
 .lista-detalle {
@@ -258,7 +258,7 @@ h1 {
 }
 
 .icono-pagado {
-  color: #16a34a;
+  color: var(--chf-punto-verde);
   vertical-align: middle;
 }
 

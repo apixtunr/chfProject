@@ -2,8 +2,6 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatChipsModule } from '@angular/material/chips';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -12,6 +10,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { finalize, timer, zip } from 'rxjs';
 import { AuthService } from '../../../core/auth/auth.service';
@@ -40,16 +39,15 @@ const TIPO_ESTADO_COTIZACION = 'COTIZACION';
     CommonModule,
     ReactiveFormsModule,
     RouterLink,
-    MatCardModule,
     MatTableModule,
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
     MatButtonModule,
     MatIconModule,
-    MatChipsModule,
     MatDialogModule,
     MatProgressSpinnerModule,
+    MatTooltipModule,
   ],
   templateUrl: './version-detalle.html',
   styleUrl: './version-detalle.scss',

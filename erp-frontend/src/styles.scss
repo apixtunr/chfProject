@@ -4,6 +4,14 @@
 // Learn more about theming and how to use it for your application's
 // custom components at https://material.angular.dev/guide/theming
 @use '@angular/material' as mat;
+// Paleta generada con `ng generate @angular/material:theme-color` a partir de
+// chf.$marca y chf.$marca-acento. No se recalcula sola: si esos tokens cambian hay
+// que volver a correr el comando que esta documentado en _tokens.scss.
+@use './styles/theme-colors' as paleta;
+// Tokens de color del sistema. Ver src/styles/_tokens.scss: ahi vive el unico
+// lugar donde cada color de la identidad visual esta escrito.
+@use './styles/tokens' as chf;
+@use 'sass:map';
 
 // Todos los formularios de la app usan esta misma clase (mat-card con max-width);
 // sin margin:auto un bloque con ancho menor al de su contenedor queda pegado a la
@@ -23,13 +31,25 @@ html {
   @include mat.theme(
     (
       color: (
-        primary: mat.$cyan-palette,
-        tertiary: mat.$orange-palette,
+        primary: paleta.$primary-palette,
+        tertiary: paleta.$tertiary-palette,
       ),
       typography: Roboto,
-      density: 0,
+      // -1 compacta controles y filas; con density 0 (el valor mas suelto) los
+      // formularios y las tablas quedaban con mucho aire y se veian inflados.
+      density: -1,
     )
   );
+}
+
+// Los tokens de color se publican como variables CSS sobre <html>. Asi el SCSS de
+// cualquier componente puede escribir var(--chf-marca) sin @use ni rutas relativas,
+// y agregar un token nuevo en _tokens.scss lo deja disponible en toda la aplicacion
+// sin tocar este archivo.
+html {
+  @each $nombre, $valor in chf.$tokens {
+    --chf-#{$nombre}: #{$valor};
+  }
 }
 
 body {
@@ -48,22 +68,11 @@ body {
   // El fondo del encabezado de tabla se pinta con una clase propia mas abajo (Material
   // no tiene token de fondo para el header); el color de texto se pisa aca para que el
   // override de fondo no deje el texto oscuro por defecto sobre un fondo oscuro.
-  --mat-table-header-headline-color: #ffffff;
+  --mat-table-header-headline-color: var(--chf-marca-contraste);
 
   // Reset the user agent margin.
   margin: 0;
   height: 100%;
-}
-
-// Encabezados de tabla con el mismo azul oscuro de la barra superior (.toolbar-oscura
-// en shell.scss), para que toda la app use un solo tono de "marca" consistente en vez
-// del cyan generico de Material. El color de texto lo resuelve el token de arriba.
-// Selector de dos clases a proposito: Material define ".mat-mdc-header-row { background:
-// inherit }" con la misma especificidad que una sola clase, y su estilo se inyecta en
-// tiempo de ejecucion (despues de esta hoja global), asi que gana por orden si no le
-// subimos la especificidad.
-.mat-mdc-table .mat-mdc-header-row {
-  background-color: #0f172a;
 }
 
 // Filas alternadas para tablas largas (mas facil de seguir visualmente)
@@ -79,13 +88,43 @@ body {
 // (--mat-button-*, no --mdc-*), a nivel global: hoy todos los botones ya se
 // ven iguales entre si sin importar el color="" que tengan puesto.
 html {
-  --mat-button-filled-container-color: #0f172a;
-  --mat-button-filled-label-text-color: #ffffff;
-  --mat-button-protected-container-color: #0f172a;
-  --mat-button-protected-label-text-color: #ffffff;
-  --mat-button-outlined-label-text-color: #0f172a;
-  --mat-button-outlined-outline-color: #0f172a;
-  --mat-button-text-label-text-color: #0f172a;
+  --mat-button-filled-container-color: var(--chf-marca);
+  --mat-button-filled-label-text-color: var(--chf-marca-contraste);
+  --mat-button-protected-container-color: var(--chf-marca);
+  --mat-button-protected-label-text-color: var(--chf-marca-contraste);
+  --mat-button-outlined-label-text-color: var(--chf-marca);
+  --mat-button-outlined-outline-color: var(--chf-marca);
+  --mat-button-text-label-text-color: var(--chf-marca);
+
+  // Forma y alto de los botones. Material los dibuja como pildora (radio infinito) y
+  // de 36px; el rediseno de Clientes y Cotizaciones los hacia de 40px con esquinas de
+  // 8px, y quedaban dos formas de boton conviviendo en la misma app. Se adopta la
+  // segunda, que es la elegida a proposito, y se fija aqui para que valga en todas.
+  --mat-button-filled-container-shape: 8px;
+  --mat-button-filled-container-height: 40px;
+  --mat-button-protected-container-shape: 8px;
+  --mat-button-protected-container-height: 40px;
+  --mat-button-outlined-container-shape: 8px;
+  --mat-button-outlined-container-height: 40px;
+
+  // Peso del texto de los botones. Es 500 y no 600 a proposito: en blanco sobre el azul
+  // de marca el contraste ya es de 17.9:1 (el maximo posible es 21), y a 600 el trazo
+  // deposita mas blanco todavia y el boton "golpea". Con 500 se lee igual de bien sin
+  // esa dureza. Varios botones lo tenian en 600 y se notaban distintos del resto.
+  --mat-button-filled-label-text-weight: 500;
+  --mat-button-protected-label-text-weight: 500;
+  --mat-button-outlined-label-text-weight: 500;
+  --mat-button-text-label-text-weight: 500;
+}
+
+// Titulo de pantalla. Las 15 pantallas que no se habian rediseñado usaban el tamano
+// que el navegador le da a un h1 por defecto (2em sobre un cuerpo de 14px = 28px), o
+// sea que ese tamano no era una decision sino una omision. Clientes y Cotizaciones si
+// definian uno a proposito: 24px, semibold, gris muy oscuro. Se adopta ese para todas.
+h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--chf-texto-fuerte);
 }
 
 // Los botones de icono y los checkboxes tienen un "area tactil" invisible mas grande
@@ -104,23 +143,896 @@ html {
 // Checkbox con el mismo azul oscuro del resto de la app, en vez del cyan generico
 // de Material (mismo motivo que los botones: color="..." no tiene efecto en M3).
 html {
-  --mat-checkbox-selected-icon-color: #0f172a;
-  --mat-checkbox-selected-focus-icon-color: #0f172a;
-  --mat-checkbox-selected-hover-icon-color: #0f172a;
-  --mat-checkbox-selected-checkmark-color: #ffffff;
-  --mat-checkbox-selected-focus-state-layer-color: #0f172a;
-  --mat-checkbox-selected-hover-state-layer-color: #0f172a;
-  --mat-checkbox-selected-pressed-state-layer-color: #0f172a;
+  --mat-checkbox-selected-icon-color: var(--chf-marca);
+  --mat-checkbox-selected-focus-icon-color: var(--chf-marca);
+  --mat-checkbox-selected-hover-icon-color: var(--chf-marca);
+  --mat-checkbox-selected-checkmark-color: var(--chf-marca-contraste);
+  --mat-checkbox-selected-focus-state-layer-color: var(--chf-marca);
+  --mat-checkbox-selected-hover-state-layer-color: var(--chf-marca);
+  --mat-checkbox-selected-pressed-state-layer-color: var(--chf-marca);
 }
 
 // Boton de peligro suave, para acciones destructivas (ej. "Confirmar" en el dialogo
 // de confirmacion). Se pisan las mismas custom properties de arriba, pero solo dentro
 // de esta clase, para no afectar al resto de los botones "filled" de la app.
 .btn-danger-soft {
-  --mat-button-filled-container-color: #fff1f2;
-  --mat-button-filled-label-text-color: #be123c;
+  --mat-button-filled-container-color: var(--chf-peligro-fondo);
+  --mat-button-filled-label-text-color: var(--chf-peligro-texto);
   --mat-button-filled-container-shape: 8px;
   height: 40px !important;
-  font-weight: 600;
+  font-weight: 500;
 }
 /* You can add global styles to this file, and also import other style files */
+
+// Los iconos vienen de Material Symbols (el set actual de fonts.google.com/icons),
+// no de Material Icons (el set de 2014, solo relleno). mat-icon apunta por defecto a
+// la familia vieja, asi que hay que redirigirlo; los ejes de la fuente variable
+// controlan relleno (FILL), grosor (wght) y tamano optico (opsz).
+.mat-icon,
+mat-icon {
+  font-family: 'Material Symbols Rounded';
+  font-variation-settings: 'FILL' 0, 'wght' 350, 'GRAD' 0, 'opsz' 24;
+}
+
+// Ninguna tabla debe recortarse. A 1024px la columna Direccion de Clientes quedaba
+// cortada y sin barra de scroll: el dato era literalmente inalcanzable. El overflow
+// va en el contenedor y no en la tabla, porque display:block sobre un <table> rompe
+// su algoritmo de layout y la encoge al ancho del contenido (mismo motivo que
+// .tabla-scroll en evento-detail.scss). Casi ninguna pantalla envuelve su tabla en
+// un div propio, asi que se apunta al padre directo, sea cual sea.
+*:has(> .mat-mdc-table) {
+  overflow-x: auto;
+  // Si un eje queda en "visible" y el otro no, el navegador pone el primero en "auto"
+  // por su cuenta; sin esto aparece tambien un scroll vertical que no hace falta.
+  overflow-y: hidden;
+}
+
+// Marco unico para todas las tablas del sistema: borde fino, esquinas redondeadas y
+// el paginador separado por una linea para que no parezca una fila mas. Antes solo 3
+// de las 24 pantallas con tabla lo tenian (Clientes, Cotizaciones y Platos) y las
+// otras 21 dejaban la tabla flotando sobre el fondo, sin marco ni separacion.
+.tabla-contenedor {
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 8px;
+  // En horizontal se desplaza si el contenido no cabe; en vertical se recorta para que
+  // el borde redondeado no se pierda detras de las esquinas de la tabla.
+  overflow-x: auto;
+  overflow-y: hidden;
+
+  mat-paginator {
+    border-top: 1px solid var(--mat-sys-outline-variant);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Estados de los campos de formulario
+//
+// Material ya traia reposo, hover, foco y error, pero el foco quedaba en un gris
+// azulado apagado (#565e74): la paleta se genero a partir del azul casi negro de la
+// marca y el algoritmo devolvio un primario desaturado, que en un borde de 2px no se
+// nota. Aqui se le da al foco un acento propio, se marca el hover y se agrega el
+// estado de campo valido, que Material no tiene.
+//
+// Todo se resuelve con las clases que Angular ya pone en el mat-form-field
+// (ng-valid / ng-dirty / ng-touched / mat-form-field-invalid), asi que aplica a los
+// 121 campos del sistema sin tocar ningun componente.
+//
+// Los colores no salen de la paleta del tema a proposito: son colores de estado, y
+// deben leerse igual aunque el tema cambie.
+// ---------------------------------------------------------------------------
+// Los colores viven en src/styles/_tokens.scss. Aqui se toman como variables Sass
+// (y no como var(--chf-...)) porque rgba() necesita operar sobre el color real.
+$campo-acento: chf.$campo-acento;
+$campo-exito: chf.$campo-exito;
+$campo-error: chf.$campo-error;
+
+mat-form-field.mat-form-field-appearance-outline {
+  $outline: '.mdc-notched-outline__leading, .mdc-notched-outline__notch, .mdc-notched-outline__trailing';
+
+  // Hover: el borde se tine del acento en vez de solo oscurecerse, para que el campo
+  // se sienta "vivo" antes de hacer clic.
+  &:hover:not(.mat-form-field-disabled):not(.mat-focused) {
+    #{$outline} {
+      border-color: rgba($campo-acento, 0.55);
+    }
+  }
+
+  // Foco. Material pinta este borde desde su propia hoja, que se inyecta despues de
+  // esta; de ahi el !important, que es la unica forma de ganarle sin duplicar toda su
+  // cadena de selectores. Se excluye el campo invalido a proposito: si no, al volver a
+  // enfocar un campo con error el borde se ponia turquesa y el error desaparecia de la
+  // vista justo cuando el usuario esta intentando corregirlo.
+  &.mat-focused:not(.mat-form-field-invalid) {
+    #{$outline} {
+      border-color: $campo-acento !important;
+    }
+
+    .mdc-floating-label,
+    .mat-mdc-form-field-required-marker {
+      color: $campo-acento;
+    }
+  }
+
+  // Resplandor difuminado alrededor del campo activo: es lo que hace que se "despegue"
+  // del formulario en vez de solo cambiar de color de borde.
+  //
+  // Va como filter: drop-shadow sobre las piezas del borde, y no como box-shadow sobre
+  // el contenedor, por una razon concreta: el borde de Material tiene una muesca (un
+  // hueco) donde se apoya la etiqueta flotante, y un box-shadow dibuja siempre un
+  // rectangulo completo, asi que el resplandor cruzaba por detras del texto de la
+  // etiqueta y se veia como una linea tachandola. drop-shadow sigue la silueta real de
+  // lo que se pinta, muesca incluida, y se corta donde se corta el borde.
+  //
+  // El filtro va en .mdc-notched-outline (el contenedor) y NO en sus tres piezas por
+  // separado. No es lo mismo: el borde esta partido en tres trozos contiguos, y al
+  // filtrar cada uno, cada trozo proyecta resplandor tambien en el canto donde termina,
+  // que es interior al campo. Eso dibujaba una raya vertical tenue dentro del campo, a
+  // la altura donde se juntan la pieza izquierda y la de la muesca. Filtrando el
+  // contenedor, los tres trozos se componen primero en una sola capa y el resplandor
+  // sigue la silueta completa, sin costuras.
+  //
+  // La etiqueta vive dentro de la pieza de la muesca, asi que recibe algo de
+  // resplandor; a tamano real no se percibe.
+  &.mat-focused .mdc-notched-outline {
+    filter: drop-shadow(0 0 3px rgba($campo-acento, 0.8));
+  }
+
+  // El resplandor toma el color del estado: si el campo esta en error, sigue siendo rojo.
+  &.mat-focused.mat-form-field-invalid .mdc-notched-outline {
+    filter: drop-shadow(0 0 3px rgba($campo-error, 0.8));
+  }
+
+  // Campo valido: solo despues de que el usuario lo toco y lo modifico. Sin esas dos
+  // condiciones, un formulario recien abierto se pintaria entero de verde.
+  &.ng-valid.ng-dirty.ng-touched:not(.mat-focused) {
+    #{$outline} {
+      border-color: $campo-exito;
+    }
+  }
+}
+
+// Icono de estado dentro del campo. Se omite en los campos que ya tienen un sufijo
+// propio (buscadores, boton del datepicker) para no encimarse con el.
+mat-form-field.mat-form-field-appearance-outline:not(:has(.mat-mdc-form-field-icon-suffix)):not(:has(.mat-mdc-form-field-text-suffix)) {
+  .mat-mdc-text-field-wrapper {
+    position: relative;
+  }
+
+  &.mat-form-field-invalid .mat-mdc-text-field-wrapper::after,
+  &.ng-valid.ng-dirty.ng-touched:not(.mat-focused) .mat-mdc-text-field-wrapper::after {
+    position: absolute;
+    right: 14px;
+    // Anclado arriba y no centrado, porque en un textarea de varias lineas el centro
+    // vertical queda lejos de donde esta mirando el usuario.
+    top: 15px;
+    font-family: 'Material Symbols Rounded';
+    font-size: 20px;
+    line-height: 1;
+    font-variation-settings: 'FILL' 0, 'wght' 400;
+    pointer-events: none;
+  }
+
+  &.mat-form-field-invalid .mat-mdc-text-field-wrapper::after {
+    content: 'error';
+    color: var(--mat-sys-error);
+  }
+
+  &.ng-valid.ng-dirty.ng-touched:not(.mat-focused) .mat-mdc-text-field-wrapper::after {
+    content: 'check';
+    color: $campo-exito;
+  }
+
+  // El texto no debe pasar por debajo del icono.
+  &.mat-form-field-invalid .mat-mdc-form-field-infix,
+  &.ng-valid.ng-dirty.ng-touched:not(.mat-focused) .mat-mdc-form-field-infix {
+    padding-right: 26px;
+  }
+}
+
+// ===========================================================================
+// TABLA — estilos globales para todas las mat-table del sistema
+//
+// El objetivo es reproducir el look de la imagen de referencia:
+//   - Header: fondo blanco, texto uppercase pequeño en slate-500, sin color oscuro
+//   - Filas:  más altura, separador sutil entre ellas, sin fondo alterno
+//   - Celdas de dato especial: badge para valores tipo código, iconos inline
+//   - Acciones: botones de icono pequeños, uno editar y uno eliminar
+//   - Paginador: números de página visibles, pill activo en indigo
+// ===========================================================================
+
+// ── Header ───────────────────────────────────────────────────────────────────
+// Usa el azul de la barra superior, no el de la marca: la barra es un paso mas clara
+// que el menu lateral, asi que el encabezado queda en el nivel intermedio de una
+// escala de tres (menu, barra/encabezado, contenido) en vez de competir con el panel
+// oscuro de la izquierda. Antes era blanco y se perdia contra el cuerpo de la tabla.
+.mat-mdc-table .mat-mdc-header-row {
+  background-color: var(--chf-marca-barra) !important;
+  height: 44px !important;
+}
+
+.mat-mdc-table .mat-mdc-header-cell {
+  font-size: 0.68rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+  color: var(--chf-borde-suave) !important;
+  border-bottom: none !important;
+  padding: 0 16px !important;
+  white-space: nowrap;
+}
+
+// ── Filas de datos ────────────────────────────────────────────────────────────
+// Sin fondo alterno (el separador es suficiente). Altura generosa para que
+// los datos respiren.
+.mat-mdc-row:nth-child(even) {
+  background-color: transparent !important;  // cancela el fondo alterno anterior
+}
+
+.mat-mdc-table .mat-mdc-row {
+  height: 60px !important;
+  transition: background-color 0.12s ease;
+
+  &:hover {
+    background-color: var(--chf-fondo-sutil) !important;
+  }
+}
+
+// El separador va en la celda, no en la fila — Material pinta borders en <td>,
+// no en <tr>, así que ponerlo en la fila no tiene efecto visible.
+.mat-mdc-table .mat-mdc-cell {
+  font-size: 0.875rem !important;
+  color: var(--chf-texto-fuerte) !important;
+  border-bottom: 1px solid var(--chf-borde-suave) !important;
+  padding: 0 16px !important;
+  vertical-align: middle;
+}
+
+// Última fila sin borde inferior para no duplicar el del contenedor
+.mat-mdc-table .mat-mdc-row:last-child .mat-mdc-cell {
+  border-bottom: none !important;
+}
+
+// Divisiones también en el header, alineadas con las de las filas
+.mat-mdc-table .mat-mdc-header-cell {
+  border-right: none !important;
+
+  &:last-child {
+    border-right: none !important;
+  }
+}
+
+// ── Celda de nombre (primera columna) ────────────────────────────────────────
+// Sin negrita: pesa igual que las demas celdas y solo conserva el tono mas oscuro.
+// La regla alcanza a Clientes y a Empleados, que son las dos tablas con esta columna.
+.mat-mdc-table .mat-column-nombre.mat-mdc-cell,
+.mat-mdc-table td.mat-column-nombre {
+  font-weight: 400 !important;
+  color: var(--chf-marca) !important;
+}
+
+// ── Badge de código (NIT, placa, referencia, etc.) ────────────────────────────
+// Negro solido, sin negrita. La fuente monoespaciada y el fondo ya lo distinguen del
+// texto normal; el peso 700 lo hacia competir con el nombre del cliente. Queda en 500:
+// a 400 la monoespaciada se veia delgada dentro del fondo gris.
+.tbl-badge-codigo {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 9px;
+  border-radius: 6px;
+  background: var(--chf-fondo-campo);
+  color: var(--chf-marca);
+  font-size: 0.78rem;
+  font-weight: 500;
+  font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+// ── Columna de correo ────────────────────────────────────────────────────────
+// Se muestra con el color de acento, como un enlace. Apunta a la columna por su nombre
+// para no tener que marcar cada celda en el HTML.
+.mat-mdc-table .mat-column-correo .tbl-icon-cell {
+  color: var(--chf-campo-acento);
+  font-weight: 500;
+
+  mat-icon {
+    color: var(--chf-campo-acento) !important;
+  }
+}
+
+// ── Celda con icono + texto (teléfono, dirección) ────────────────────────────
+// Clase utilitaria: <span class="tbl-icon-cell"><mat-icon>…</mat-icon>texto</span>
+.tbl-icon-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--chf-texto-medio);
+
+  mat-icon,
+  .material-symbols-rounded {
+    font-size: 15px;
+    width: 15px;
+    height: 15px;
+    color: var(--chf-texto-suave);
+    flex-shrink: 0;
+    font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 20;
+  }
+}
+
+// ── Columna de acciones ───────────────────────────────────────────────────────
+.mat-mdc-table .mat-column-acciones {
+  white-space: nowrap;
+  text-align: right;
+
+  // Los controles de la celda quedaban pegados entre si, sin un solo pixel de por
+  // medio. El margen va entre hermanos y no como padding, para que el primero siga
+  // alineado con el borde derecho de la celda.
+  > * + * {
+    margin-left: 8px;
+  }
+
+  // Botón editar — gris neutro
+  .tbl-btn-editar {
+    color: var(--chf-texto-ejemplo);
+    &:hover { color: var(--chf-texto-medio); background: var(--chf-fondo-campo) !important; }
+  }
+
+  // Botón eliminar — rojo suave
+  .tbl-btn-eliminar {
+    color: var(--chf-texto-suave);
+    &:hover { color: var(--chf-peligro); background: var(--chf-peligro-fondo) !important; }
+  }
+}
+
+// ── Paginador ────────────────────────────────────────────────────────────────
+.tabla-contenedor mat-paginator,
+mat-paginator {
+  background: var(--chf-fondo-seccion) !important;
+  border-top: 1px solid var(--chf-borde-suave);
+
+  .mat-mdc-paginator-container {
+    padding: 10px 16px;
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 4px;
+    font-size: 0.8rem;
+    color: var(--chf-texto-ejemplo);
+  }
+
+  // Label "Elementos por página" — mismo peso y color que el resto
+  .mat-mdc-paginator-page-size-label {
+    font-size: 0.8rem;
+    color: var(--chf-texto-ejemplo);
+    white-space: nowrap;
+  }
+
+  // Selector de cantidad — quitar la línea y fondo de Material,
+  // darle el mismo look que los selects del sistema
+  .mat-mdc-paginator-page-size-select {
+    // Ancho justo para el número
+    width: 72px !important;
+    margin: 0 4px;
+
+    // Quitar línea inferior MDC
+    .mdc-line-ripple { display: none !important; }
+
+    // Borde redondeado como los inputs del formulario
+    .mat-mdc-text-field-wrapper {
+      background: var(--chf-fondo-sutil) !important;
+      border: 1.5px solid var(--chf-borde-suave) !important;
+      border-radius: 7px !important;
+      padding: 0 8px !important;
+      height: 32px !important;
+      display: flex;
+      align-items: center;
+    }
+
+    .mat-mdc-form-field-flex { height: 32px; align-items: center; }
+    .mat-mdc-form-field-infix { padding: 0 !important; min-height: 32px; border: none; }
+    .mat-mdc-form-field-subscript-wrapper { display: none !important; }
+
+    .mat-mdc-select-trigger { font-size: 0.8rem; color: var(--chf-texto-fuerte); }
+    .mat-mdc-select-arrow   { color: var(--chf-texto-ejemplo); }
+
+    // Focus
+    &.mat-focused .mat-mdc-text-field-wrapper {
+      border-color: var(--chf-campo-acento) !important;
+      box-shadow: 0 0 0 3px rgba(chf.$campo-acento, 0.14) !important;
+    }
+  }
+
+  // Label de rango "X – Y de Z"
+  .mat-mdc-paginator-range-label {
+    font-size: 0.8rem;
+    color: var(--chf-texto-ejemplo);
+    margin: 0 8px;
+    white-space: nowrap;
+  }
+
+  // Botones anterior/siguiente
+  .mat-mdc-icon-button {
+    color: var(--chf-texto-medio) !important;
+    width: 32px !important;
+    height: 32px !important;
+
+    &[disabled] { color: var(--chf-borde-control) !important; }
+  }
+}
+
+// ===========================================================================
+// MAT-SELECT DENTRO DE WRAPPERS CUSTOM (.pf-input-wrap)
+//
+// Material pinta el select con fondo gris y línea inferior. Acá lo
+// reseteamos para que herede el look del input custom del formulario:
+// fondo transparente, sin borde propio, sin línea MDC.
+// El panel del dropdown vive en un overlay fuera del componente, así que
+// estos estilos DEBEN estar en el global (no en el SCSS del componente).
+// ===========================================================================
+
+// ── Trigger del select (la parte visible dentro del wrapper) ─────────────────
+.pf-input-wrap .mat-mdc-select {
+  // Quitar el fondo y padding que Material pone por defecto
+  background: transparent !important;
+
+  .mat-mdc-select-trigger {
+    font-size: 0.9rem;
+    font-family: inherit;
+    color: var(--chf-texto-fuerte);
+    height: auto;
+    padding: 0;
+  }
+
+  .mat-mdc-select-value {
+    color: var(--chf-texto-fuerte);
+  }
+
+  // Material no dibuja esto como ::placeholder sino como un elemento propio, asi que la
+  // regla del placeholder de los inputs no lo alcanzaba y se quedo en 1.7:1.
+  .mat-mdc-select-placeholder {
+    color: var(--chf-texto-ejemplo);
+    font-size: 0.9rem;
+  }
+
+  .mat-mdc-select-arrow {
+    color: var(--chf-texto-ejemplo);
+  }
+
+  // Quitar la línea inferior de MDC (usamos el borde del wrapper)
+  .mdc-line-ripple {
+    display: none !important;
+  }
+
+  // Quitar padding interno del text-field de MDC
+  .mat-mdc-text-field-wrapper,
+  .mat-mdc-form-field-flex,
+  .mdc-text-field {
+    background: transparent !important;
+    padding: 0 !important;
+  }
+
+  // Quitar el hueco reservado para mensajes de error/hint debajo del campo
+  .mat-mdc-form-field-subscript-wrapper {
+    display: none !important;
+  }
+}
+
+// ── Panel del dropdown (overlay fuera del componente) ────────────────────────
+// Se apunta con una clase que ponemos en panelClass del mat-select,
+// pero también cubrimos el panel genérico de Material por si no se especifica.
+.mat-mdc-select-panel,
+.mdc-menu-surface {
+  border-radius: 10px !important;
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.12), 0 1px 4px rgba(15, 23, 42, 0.06) !important;
+  border: 1.5px solid var(--chf-borde-suave) !important;
+  background: var(--chf-fondo-seccion) !important;
+  padding: 4px !important;
+  margin-top: 4px;
+}
+
+// Opciones dentro del panel
+.mat-mdc-option {
+  font-size: 0.875rem !important;
+  font-family: inherit !important;
+  color: var(--chf-texto-fuerte) !important;
+  border-radius: 7px !important;
+  min-height: 38px !important;
+  padding: 0 12px !important;
+  margin: 1px 0 !important;
+
+  &:hover,
+  &.mat-mdc-option-active {
+    background: rgba(chf.$campo-acento, 0.10) !important;
+    color: var(--chf-campo-acento) !important;
+  }
+
+  &.mdc-list-item--selected:not(.mat-mdc-option-multiple) {
+    background: rgba(chf.$campo-acento, 0.10) !important;
+    color: var(--chf-campo-acento) !important;
+    font-weight: 600 !important;
+  }
+}
+
+// ===========================================================================
+// FORMULARIOS pf-* — cabecera de pagina, secciones y campos
+//
+// Estas clases estaban duplicadas, completas, en cliente-form.scss y en
+// cotizacion-form.scss: 28 clases repetidas en dos archivos, con diferencias
+// triviales entre ambas copias (un margin de 24 contra 20, variables locales que
+// terminaron valiendo lo mismo). Cualquier ajuste habia que hacerlo dos veces y era
+// facil que quedaran desincronizadas, cosa que ya habia pasado.
+//
+// Viven aqui para que cualquier pantalla pueda usar el mismo formulario sin copiar
+// nada. Los valores salen de los tokens, no de variables locales.
+// ===========================================================================
+// ─── CABECERA DE PÁGINA ───────────────────────────────────────
+.pf-page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  padding-bottom: 24px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--chf-borde-suave);
+}
+
+.pf-header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+// Breadcrumb
+.pf-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 0.8rem;
+  color: var(--chf-texto-suave);
+}
+
+.pf-breadcrumb-link {
+  color: var(--chf-texto-suave);
+  text-decoration: none;
+  transition: color 0.12s;
+
+  &:hover { color: var(--chf-campo-acento); }
+}
+
+// Mismo caso que .pf-input-icon: se aplica sobre un <mat-icon>, y como regla global
+// empata con .mat-icon de Material y perdia por orden. Sin esto el separador crecia a
+// 24px y estiraba toda la miga de pan, corriendo el titulo hacia abajo.
+.pf-breadcrumb-sep.pf-breadcrumb-sep {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  color: var(--chf-texto-suave);
+}
+
+.pf-breadcrumb-current {
+  color: var(--chf-texto-medio);
+  font-weight: 500;
+}
+
+// Fila título + badge
+.pf-title-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.pf-title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--chf-texto-fuerte);
+  line-height: 1.2;
+}
+
+.pf-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  // Velo y borde derivados del acento, para que la etiqueta siga al token en vez de
+  // arrastrar el violeta de la paleta indigo anterior.
+  background: color-mix(in srgb, var(--chf-campo-acento) 12%, white);
+  color: var(--chf-campo-acento);
+  border: 1px solid color-mix(in srgb, var(--chf-campo-acento) 35%, white);
+  white-space: nowrap;
+}
+
+.pf-subtitle {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--chf-texto-ejemplo);
+  line-height: 1.5;
+}
+
+// Botones de acción en cabecera
+.pf-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  padding-top: 28px; // alinea visualmente con el título
+}
+
+// ─── BOTONES ──────────────────────────────────────────────────
+// Clase repetida: la regla de Material para los botones outlined empata en
+// especificidad y se inyecta despues, asi que le imponia al boton Cancelar el azul de
+// marca del token global. Como estilo de componente esto no pasaba.
+.pf-btn-cancel.pf-btn-cancel.mat-mdc-outlined-button {
+  border-color: var(--chf-borde-suave);
+  color: var(--chf-texto-medio);
+  font-weight: 500;
+  border-radius: 8px;
+  height: 40px;
+
+  &:hover {
+    background: var(--chf-fondo-campo);
+  }
+}
+
+.pf-btn-save.mat-mdc-unelevated-button {
+  background: var(--chf-marca);
+  color: #fff;
+  font-weight: 500;
+  border-radius: 8px;
+  height: 40px;
+  gap: 6px;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+
+  &:hover:not([disabled]) {
+    background: var(--chf-campo-acento);
+  }
+
+  &[disabled] {
+    opacity: 0.6;
+  }
+}
+
+// ─── SECCIÓN ──────────────────────────────────────────────────
+.pf-section {
+  // Gris, no casi-blanco: los campos van en blanco encima y asi se distinguen sin
+  // depender de que se vea su borde. Antes la seccion era MAS clara que sus campos.
+  background: var(--chf-fondo-seccion);
+  border: 1px solid var(--chf-borde-seccion);
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 24px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.10), 0 1px 2px rgba(15, 23, 42, 0.06);
+}
+
+.pf-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  // Mismo azul que la barra superior y que los encabezados de tabla: la cabecera de una
+  // seccion cumple el mismo papel que el encabezado de una tabla, asi que comparte tono.
+  background: var(--chf-marca-barra);
+}
+
+.pf-section-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--chf-marca-contraste);
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    color: var(--chf-marca-contraste-suave);
+  }
+}
+
+.pf-required-count {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  color: var(--chf-texto-suave);
+}
+
+// ─── CAMPOS ───────────────────────────────────────────────────
+.pf-field {
+  padding: 16px 20px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  &:last-child {
+    padding-bottom: 20px;
+  }
+}
+
+// Fila de 2 columnas
+.pf-row-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 24px;
+  padding: 0;
+
+  .pf-field {
+    padding: 16px 20px 0;
+
+    &:last-child {
+      padding-bottom: 20px;
+    }
+  }
+
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// Label con número, nombre y hint
+.pf-label {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  cursor: pointer;
+  line-height: 1.3;
+}
+
+.pf-label-num {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--chf-texto-medio);
+}
+
+.pf-label-name {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--chf-texto-fuerte);
+}
+
+// Acompaña a la etiqueta, por ejemplo "(Telefono / Celular)". Estaba en 2.6:1 contra
+// el fondo y se leia apagado; va al mismo tono que los ejemplos de los campos.
+.pf-label-hint {
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: var(--chf-texto-ejemplo);
+}
+
+.pf-required-mark {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--chf-peligro);
+  margin-left: 1px;
+}
+
+// Input wrapper con icono
+.pf-input-wrap.pf-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  // Un paso mas oscuro que la tarjeta blanca que lo contiene: el campo se lee hundido.
+  background: var(--chf-fondo-campo);
+  border: 1.5px solid var(--chf-borde-control);
+  border-radius: 8px;
+  padding: 10px 14px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+  &:focus-within {
+    border-color: var(--chf-campo-acento);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--chf-campo-acento) 14%, transparent);
+  }
+
+  &--error {
+    border-color: var(--chf-peligro);
+
+    &:focus-within {
+      border-color: var(--chf-peligro);
+      box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+    }
+  }
+
+  &--disabled {
+    background: var(--chf-fondo-sutil);
+    opacity: 0.6;
+    pointer-events: none;
+  }
+
+  // Para mat-select, ajustar altura
+  &--select {
+    padding: 6px 14px;
+  }
+}
+
+// Clase repetida a proposito: al dejar de ser un estilo de componente, esta regla
+// quedo empatada en especificidad con la propia de Material (.mat-icon { height: 24px })
+// y perdia por orden de inyeccion, con lo que el icono crecia a 24px y engordaba el
+// campo. Repetir la clase sube la especificidad sin tocar el HTML.
+.pf-input-icon.pf-input-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  // Al mismo tono que el texto de ejemplo: si el icono queda mas claro que el texto que
+  // acompaña, la linea del campo se ve despareja.
+  color: var(--chf-texto-ejemplo);
+  flex-shrink: 0;
+}
+
+.pf-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 0.9rem;
+  font-family: inherit;
+  color: var(--chf-texto-fuerte);
+  line-height: 1.4;
+
+  &::placeholder {
+    color: var(--chf-texto-ejemplo);
+  }
+}
+
+// mat-select dentro del wrapper custom — estilos globales en styles.scss
+.pf-select {
+  flex: 1 1 auto;
+}
+
+// Error inline
+.pf-error {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--chf-peligro);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+// ─── ACCIONES INFERIORES ──────────────────────────────────────
+.pf-footer-actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  padding-top: 8px;
+}
+
+.pf-date-toggle {
+  .mat-mdc-icon-button {
+    width: 32px !important;
+    height: 32px !important;
+    padding: 0 !important;
+    color: var(--chf-texto-suave);
+  }
+}
+
+// ── Tablas dentro de una seccion pf-* ────────────────────────────────────────
+// Una tabla suelta lleva su encabezado en el azul de la barra. Pero dentro de una
+// pf-section ya hay una cabecera azul justo encima, y las dos juntas se leen como un
+// solo bloque oscuro de dos renglones. Aqui el encabezado de la tabla baja de jerarquia:
+// el titulo de la seccion es el que manda, y la tabla solo rotula sus columnas.
+.pf-section .mat-mdc-table .mat-mdc-header-row {
+  background-color: var(--chf-fondo-seccion) !important;
+  border-bottom: 1px solid var(--chf-borde-seccion);
+}
+
+.pf-section .mat-mdc-table .mat-mdc-header-cell {
+  color: var(--chf-texto-ejemplo) !important;
+}
+
+// Aire alrededor de la tabla, para que no quede pegada a los bordes de la tarjeta como
+// si fuera parte del marco.
+.pf-section .mat-mdc-table {
+  margin: 4px 0 8px;
+}

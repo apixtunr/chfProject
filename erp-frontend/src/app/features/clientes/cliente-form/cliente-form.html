@@ -1,79 +1,222 @@
-<mat-card class="tarjeta">
-  <mat-card-header>
-    <mat-card-title>{{ idCliente() ? 'Editar cliente' : 'Nuevo cliente' }}</mat-card-title>
-  </mat-card-header>
+<!-- ══ CABECERA DE PÁGINA ══════════════════════════════════════ -->
+<div class="pf-page-header">
+  <div class="pf-header-left">
+    <!-- Breadcrumb -->
+    <nav class="pf-breadcrumb" aria-label="Ruta de navegación">
+      <a routerLink="/clientes" class="pf-breadcrumb-link">Clientes</a>
+      <mat-icon class="pf-breadcrumb-sep">chevron_right</mat-icon>
+      <span class="pf-breadcrumb-current">{{ idCliente() ? 'Editar cliente' : 'Nuevo cliente' }}</span>
+    </nav>
 
-  <mat-card-content>
-    <form [formGroup]="formulario" (ngSubmit)="guardar()">
-      <mat-form-field appearance="outline" class="campo">
-        <mat-label>Nombre</mat-label>
-        <input matInput formControlName="nombre" />
-        @if (formulario.controls.nombre.hasError('required')) {
-          <mat-error>El nombre es obligatorio</mat-error>
-        }
-      </mat-form-field>
+    <!-- Título + badge -->
+    <div class="pf-title-row">
+      <h1 class="pf-title">
+        {{ idCliente() ? 'Editar Cliente' : 'Registro de Clientes' }}
+      </h1>
+      <span class="pf-badge">
+        {{ idCliente() ? 'EDITANDO' : 'ALTA EN SISTEMA' }}
+      </span>
+    </div>
+    <p class="pf-subtitle">
+      {{ idCliente()
+        ? 'Modificá los datos del cliente y guardá los cambios.'
+        : 'Ingrese los datos del cliente para registrarlo en el sistema' }}
+    </p>
+  </div>
 
-      <mat-form-field appearance="outline" class="campo">
-        <mat-label>Correo</mat-label>
-        <input matInput formControlName="correo" />
-        @if (formulario.controls.correo.hasError('email')) {
-          <mat-error>El correo no tiene un formato valido</mat-error>
-        }
-      </mat-form-field>
+  <!-- Acciones arriba (vacío — botones solo abajo) -->
+  <div class="pf-header-actions"></div>
+</div>
 
-      <mat-form-field appearance="outline" class="campo">
-        <mat-label>Telefono</mat-label>
-        <input matInput formControlName="telefono" />
-        @if (formulario.controls.telefono.hasError('pattern')) {
-          <mat-error>El telefono no tiene un formato valido</mat-error>
-        }
-      </mat-form-field>
+<!-- ══ SECCIÓN: INFORMACIÓN GENERAL ══════════════════════════ -->
+<form [formGroup]="formulario" (ngSubmit)="guardar()" novalidate>
+  <div class="pf-section">
 
-      <mat-form-field appearance="outline" class="campo">
-        <mat-label>NIT</mat-label>
-        <input matInput formControlName="nit" />
-      </mat-form-field>
-
-      <mat-form-field appearance="outline" class="campo">
-        <mat-label>Departamento</mat-label>
-        <mat-select formControlName="idDepartamento">
-          @for (d of departamentos(); track d.idDepartamento) {
-            <mat-option [value]="d.idDepartamento">{{ d.nombreDepartamento }}</mat-option>
-          }
-        </mat-select>
-        @if (formulario.controls.idDepartamento.hasError('required') && formulario.controls.idDepartamento.touched) {
-          <mat-error>El departamento es obligatorio</mat-error>
-        }
-      </mat-form-field>
-
-      <mat-form-field appearance="outline" class="campo">
-        <mat-label>Municipio</mat-label>
-        <mat-select formControlName="idMunicipio">
-          @for (m of municipios(); track m.idMunicipio) {
-            <mat-option [value]="m.idMunicipio">{{ m.nombreMunicipio }}</mat-option>
-          }
-        </mat-select>
-        @if (!formulario.controls.idDepartamento.value) {
-          <mat-hint>Elija primero el departamento</mat-hint>
-        }
-        @if (formulario.controls.idMunicipio.hasError('required') && formulario.controls.idMunicipio.touched) {
-          <mat-error>El municipio es obligatorio</mat-error>
-        }
-      </mat-form-field>
-
-      <mat-form-field appearance="outline" class="campo">
-        <mat-label>Dirección</mat-label>
-        <textarea matInput formControlName="direccion" rows="2"
-                  placeholder="Calle o avenida, número y zona"></textarea>
-        @if (formulario.controls.direccion.hasError('required') && formulario.controls.direccion.touched) {
-          <mat-error>La dirección es obligatoria</mat-error>
-        }
-      </mat-form-field>
-
-      <div class="acciones">
-        <button mat-button type="button" routerLink="/clientes">Cancelar</button>
-        <button mat-flat-button color="primary" type="submit" [disabled]="guardando()">Guardar</button>
+    <!-- Cabecera de sección -->
+    <div class="pf-section-header">
+      <div class="pf-section-title">
+        <mat-icon>contact_page</mat-icon>
+        <span>Información General del Cliente</span>
       </div>
-    </form>
-  </mat-card-content>
-</mat-card>
+    </div>
+
+    <!-- ── Campo 1: Nombre ── -->
+    <div class="pf-field">
+      <label class="pf-label" for="nombre">
+        <span class="pf-label-num">1.</span>
+        <span class="pf-label-name">Nombre completo</span>
+        <span class="pf-required-mark">*</span>
+      </label>
+      <div class="pf-input-wrap" [class.pf-input-wrap--error]="formulario.controls.nombre.invalid && formulario.controls.nombre.touched">
+        <mat-icon class="pf-input-icon">person_outline</mat-icon>
+        <input
+          id="nombre"
+          class="pf-input"
+          formControlName="nombre"
+          placeholder="Ej. Pedro Ortiz"
+          autocomplete="name"
+        />
+      </div>
+      @if (formulario.controls.nombre.invalid && formulario.controls.nombre.touched) {
+        <p class="pf-error">El nombre es obligatorio.</p>
+      }
+    </div>
+
+    <!-- ── Fila 2 columnas: NIT + Teléfono ── -->
+    <div class="pf-row-2col">
+      <!-- Campo 2: NIT -->
+      <div class="pf-field">
+        <label class="pf-label" for="nit">
+          <span class="pf-label-num">2.</span>
+          <span class="pf-label-name">NIT</span>
+        </label>
+        <div class="pf-input-wrap">
+          <mat-icon class="pf-input-icon">badge</mat-icon>
+          <input
+            id="nit"
+            class="pf-input"
+            formControlName="nit"
+            placeholder="Ej. 6769359-8"
+          />
+        </div>
+      </div>
+
+      <!-- Campo 5: Teléfono (columna derecha, numeración de imagen) -->
+      <div class="pf-field">
+        <label class="pf-label" for="telefono">
+          <span class="pf-label-num">3.</span>
+          <span class="pf-label-name">Teléfono</span>
+          <span class="pf-label-hint">(Teléfono / Celular)</span>
+          <span class="pf-required-mark">*</span>
+        </label>
+        <div class="pf-input-wrap" [class.pf-input-wrap--error]="formulario.controls.telefono.invalid && formulario.controls.telefono.touched">
+          <mat-icon class="pf-input-icon">phone</mat-icon>
+          <input
+            id="telefono"
+            class="pf-input"
+            formControlName="telefono"
+            placeholder="Ej. 43894563"
+            autocomplete="tel"
+          />
+        </div>
+        @if (formulario.controls.telefono.invalid && formulario.controls.telefono.touched) {
+          <p class="pf-error">Formato inválido. Ej: +502 1234 5678</p>
+        }
+      </div>
+    </div>
+
+    <!-- ── Campo 3: Correo ── -->
+    <div class="pf-field">
+      <label class="pf-label" for="correo">
+        <span class="pf-label-num">4.</span>
+        <span class="pf-label-name">Correo electrónico</span>
+      </label>
+      <div class="pf-input-wrap" [class.pf-input-wrap--error]="formulario.controls.correo.invalid && formulario.controls.correo.touched">
+        <mat-icon class="pf-input-icon">alternate_email</mat-icon>
+        <input
+          id="correo"
+          class="pf-input"
+          formControlName="correo"
+          placeholder="Ej. pedro.ortiz@example.com"
+          autocomplete="email"
+          type="email"
+        />
+      </div>
+      @if (formulario.controls.correo.invalid && formulario.controls.correo.touched) {
+        <p class="pf-error">El correo no tiene un formato válido.</p>
+      }
+    </div>
+
+    <!-- ── Campo 4: Dirección ── -->
+    <div class="pf-field">
+      <label class="pf-label" for="direccion">
+        <span class="pf-label-num">5.</span>
+        <span class="pf-label-name">Dirección</span>
+        <span class="pf-required-mark">*</span>
+      </label>
+      <div class="pf-input-wrap" [class.pf-input-wrap--error]="formulario.controls.direccion.invalid && formulario.controls.direccion.touched">
+        <mat-icon class="pf-input-icon">location_on</mat-icon>
+        <input
+          id="direccion"
+          class="pf-input"
+          formControlName="direccion"
+          placeholder="Calle, Número, Zona o Colonia"
+        />
+      </div>
+      @if (formulario.controls.direccion.invalid && formulario.controls.direccion.touched) {
+        <p class="pf-error">La dirección es obligatoria.</p>
+      }
+    </div>
+
+    <!-- ── Fila 2 columnas: Departamento + Municipio ── -->
+    <div class="pf-row-2col">
+
+      <!-- Campo 6: Departamento -->
+      <div class="pf-field">
+        <label class="pf-label" for="departamento">
+          <span class="pf-label-num">6.</span>
+          <span class="pf-label-name">Departamento</span>
+          <span class="pf-required-mark">*</span>
+        </label>
+        <div class="pf-input-wrap pf-input-wrap--select" [class.pf-input-wrap--error]="formulario.controls.idDepartamento.invalid && formulario.controls.idDepartamento.touched">
+          <mat-icon class="pf-input-icon">map</mat-icon>
+          <mat-select
+            id="departamento"
+            class="pf-select"
+            formControlName="idDepartamento"
+            placeholder="Seleccionar departamento"
+          >
+            @for (d of departamentos(); track d.idDepartamento) {
+              <mat-option [value]="d.idDepartamento">{{ d.nombreDepartamento }}</mat-option>
+            }
+          </mat-select>
+        </div>
+        @if (formulario.controls.idDepartamento.invalid && formulario.controls.idDepartamento.touched) {
+          <p class="pf-error">El departamento es obligatorio.</p>
+        }
+      </div>
+
+      <!-- Campo 7: Municipio -->
+      <div class="pf-field">
+        <label class="pf-label" for="municipio">
+          <span class="pf-label-num">7.</span>
+          <span class="pf-label-name">Municipio</span>
+          <span class="pf-required-mark">*</span>
+        </label>
+        <div
+          class="pf-input-wrap pf-input-wrap--select"
+          [class.pf-input-wrap--error]="formulario.controls.idMunicipio.invalid && formulario.controls.idMunicipio.touched"
+        >
+          <mat-icon class="pf-input-icon">location_city</mat-icon>
+          <mat-select
+            id="municipio"
+            class="pf-select"
+            formControlName="idMunicipio"
+            placeholder="Seleccionar municipio"
+          >
+            @for (m of municipios(); track m.idMunicipio) {
+              <mat-option [value]="m.idMunicipio">{{ m.nombreMunicipio }}</mat-option>
+            }
+          </mat-select>
+        </div>
+        @if (formulario.controls.idMunicipio.invalid && formulario.controls.idMunicipio.touched) {
+          <p class="pf-error">El municipio es obligatorio.</p>
+        }
+      </div>
+
+    </div>
+
+  </div><!-- /pf-section -->
+
+  <!-- ══ ACCIONES ABAJO ══════════════════════════════════════ -->
+  <div class="pf-footer-actions">
+    <button mat-stroked-button type="button" routerLink="/clientes" class="pf-btn-cancel">
+      Cancelar
+    </button>
+    <button mat-flat-button type="submit" class="pf-btn-save" [disabled]="guardando()">
+      <mat-icon>save</mat-icon>
+      {{ idCliente() ? 'Guardar cambios' : 'Guardar cliente' }}
+    </button>
+  </div>
+
+</form>

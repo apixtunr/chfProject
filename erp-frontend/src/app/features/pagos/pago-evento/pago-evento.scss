@@ -48,16 +48,16 @@
   border-radius: 12px;
   font-size: 12px;
   font-weight: 500;
-  background: #eceff1;
-  color: #455a64;
+  background: var(--chf-estado-neutro-fondo);
+  color: var(--chf-estado-neutro);
 }
 
 .chip-confirmado {
-  background: #e8f5e9;
-  color: #2e7d32;
+  background: var(--chf-estado-exito-fondo);
+  color: var(--chf-estado-exito);
 }
 
 .chip-anulado {
-  background: #ffebee;
-  color: #c62828;
+  background: var(--chf-estado-peligro-fondo);
+  color: var(--chf-estado-peligro);
 }
