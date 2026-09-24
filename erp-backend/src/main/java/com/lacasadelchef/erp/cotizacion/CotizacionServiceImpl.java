@@ -2,6 +2,7 @@ package com.lacasadelchef.erp.cotizacion;
 
 import com.lacasadelchef.erp.common.audit.BitacoraMovimientoService;
 import com.lacasadelchef.erp.common.audit.Operacion;
+import com.lacasadelchef.erp.common.exception.BusinessException;
 import com.lacasadelchef.erp.common.exception.ResourceNotFoundException;
 import com.lacasadelchef.erp.cotizacion.dto.CotizacionRequest;
 import com.lacasadelchef.erp.cotizacion.dto.CotizacionResponse;
@@ -113,6 +114,13 @@ public class CotizacionServiceImpl implements CotizacionService {
     private void aplicar(CotizacionRequest request, Cotizacion cotizacion) {
         Cliente cliente = clienteRepository.findById(request.idCliente())
                 .orElseThrow(() -> new ResourceNotFoundException("Cliente", request.idCliente()));
+        // Un cliente inactivo no entra en cotizaciones nuevas; las que ya tenia no cambian
+        // de cliente, asi que solo se revisa al asignarlo (alta o cambio de cliente).
+        boolean clienteNuevo = cotizacion.getCliente() == null
+                || !cotizacion.getCliente().getIdCliente().equals(cliente.getIdCliente());
+        if (clienteNuevo && !cliente.estaActivo()) {
+            throw new BusinessException("El cliente %s está inactivo: reactívelo antes de %s".formatted(cliente.getNombre(), "cotizarle"));
+        }
         TipoEvento tipoEvento = tipoEventoRepository.findById(request.idTipoEvento())
                 .orElseThrow(() -> new ResourceNotFoundException("TipoEvento", request.idTipoEvento()));
         Ubicacion ubicacion = ubicacionRepository.findById(request.idUbicacion())

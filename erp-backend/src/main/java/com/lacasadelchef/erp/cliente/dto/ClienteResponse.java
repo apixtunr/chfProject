@@ -18,6 +18,9 @@ public record ClienteResponse(
         String nombreMunicipio,
         Integer idDepartamento,
         String nombreDepartamento,
+        Integer idEstado,
+        String estadoNombre,
+        boolean activo,
         LocalDateTime fechaCreacion,
         LocalDateTime fechaModificacion
 ) {
@@ -34,6 +37,9 @@ public record ClienteResponse(
                 .nombreMunicipio(cliente.getMunicipio().getNombreMunicipio())
                 .idDepartamento(cliente.getMunicipio().getDepartamento().getIdDepartamento())
                 .nombreDepartamento(cliente.getMunicipio().getDepartamento().getNombreDepartamento())
+                .idEstado(cliente.getEstado().getIdEstado())
+                .estadoNombre(cliente.getEstado().getNombre())
+                .activo(cliente.estaActivo())
                 .fechaCreacion(cliente.getFechaCreacion())
                 .fechaModificacion(cliente.getFechaModificacion())
                 .build();

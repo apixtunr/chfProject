@@ -15,9 +15,16 @@
         type="text"
         [formControl]="busqueda"
         (keyup.enter)="buscar()"
-        placeholder="Buscar por nombre..."
-        aria-label="Buscar por nombre"
+        placeholder="Buscar por nombre, NIT o teléfono..."
+        aria-label="Buscar por nombre, NIT o teléfono"
       />
+    </div>
+
+    <div class="filtro-estado" role="group" aria-label="Estado">
+      @for (f of filtrosEstado; track f.valor) {
+        <button type="button" class="filtro-opcion" [class.filtro-opcion--activa]="estado() === f.valor"
+                [attr.aria-pressed]="estado() === f.valor" (click)="filtrarEstado(f.valor)">{{ f.etiqueta }}</button>
+      }
     </div>
 
     @if (puedeCrear) {
@@ -35,14 +42,16 @@
     <!-- Nombre -->
     <ng-container matColumnDef="nombre">
       <th mat-header-cell *matHeaderCellDef>Nombre</th>
-      <td mat-cell *matCellDef="let c">{{ c.nombre }}</td>
+      <td mat-cell *matCellDef="let c" [class.celda-inactiva]="!c.activo">{{ c.nombre }}</td>
     </ng-container>
 
     <!-- NIT — badge de código -->
     <ng-container matColumnDef="nit">
       <th mat-header-cell *matHeaderCellDef>NIT</th>
       <td mat-cell *matCellDef="let c">
-        @if (c.nit) {
+        @if (c.nit === 'CF') {
+          <span class="nit-cf" matTooltip="Consumidor final">CF</span>
+        } @else if (c.nit) {
           <span class="tbl-badge-codigo">{{ c.nit }}</span>
         }
       </td>
@@ -85,6 +94,14 @@
       </td>
     </ng-container>
 
+    <!-- Estado (solo al ver inactivos o todos) -->
+    <ng-container matColumnDef="estado">
+      <th mat-header-cell *matHeaderCellDef>Estado</th>
+      <td mat-cell *matCellDef="let c">
+        <span class="estado-cliente" [class.estado-cliente--inactivo]="!c.activo">{{ c.activo ? 'Activo' : 'Inactivo' }}</span>
+      </td>
+    </ng-container>
+
     <!-- Acciones -->
     <ng-container matColumnDef="acciones">
       <th mat-header-cell *matHeaderCellDef>Acciones</th>
@@ -100,15 +117,16 @@
             <mat-icon>edit</mat-icon>
           </button>
         }
-        @if (puedeEliminar) {
+        @if (puedeCambiarEstado) {
           <button
             mat-icon-button
-            class="tbl-btn-eliminar"
-            (click)="eliminar(c)"
-            matTooltip="Eliminar"
-            aria-label="Eliminar"
+            [class.tbl-btn-eliminar]="c.activo"
+            [class.tbl-btn-editar]="!c.activo"
+            (click)="cambiarEstado(c)"
+            [matTooltip]="c.activo ? 'Inactivar' : 'Reactivar'"
+            [attr.aria-label]="c.activo ? 'Inactivar' : 'Reactivar'"
           >
-            <mat-icon>delete</mat-icon>
+            <mat-icon>{{ c.activo ? 'person_off' : 'person_check' }}</mat-icon>
           </button>
         }
       </td>

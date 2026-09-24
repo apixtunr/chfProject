@@ -70,15 +70,19 @@
           <span class="pf-label-num">2.</span>
           <span class="pf-label-name">NIT</span>
         </label>
-        <div class="pf-input-wrap">
+        <div class="pf-input-wrap" [class.pf-input-wrap--error]="formulario.controls.nit.invalid && formulario.controls.nit.touched">
           <mat-icon class="pf-input-icon">badge</mat-icon>
           <input
             id="nit"
             class="pf-input"
             formControlName="nit"
-            placeholder="Ej. 6769359-8"
+            placeholder="Ej. 6769359-8 · vacío = CF"
+            (blur)="formatearNit()"
           />
         </div>
+        @if (formulario.controls.nit.invalid && formulario.controls.nit.touched) {
+          <p class="pf-error">NIT inválido: revise el dígito verificador, o déjelo vacío / escriba CF para consumidor final.</p>
+        }
       </div>
 
       <!-- Campo 5: Teléfono (columna derecha, numeración de imagen) -->
@@ -86,10 +90,9 @@
         <label class="pf-label" for="telefono">
           <span class="pf-label-num">3.</span>
           <span class="pf-label-name">Teléfono</span>
-          <span class="pf-label-hint">(Teléfono / Celular)</span>
-          <span class="pf-required-mark">*</span>
+          <span class="pf-label-hint">(teléfono o correo, al menos uno)</span>
         </label>
-        <div class="pf-input-wrap" [class.pf-input-wrap--error]="formulario.controls.telefono.invalid && formulario.controls.telefono.touched">
+        <div class="pf-input-wrap" [class.pf-input-wrap--error]="(formulario.controls.telefono.invalid && formulario.controls.telefono.touched) || faltaContacto">
           <mat-icon class="pf-input-icon">phone</mat-icon>
           <input
             id="telefono"
@@ -111,7 +114,7 @@
         <span class="pf-label-num">4.</span>
         <span class="pf-label-name">Correo electrónico</span>
       </label>
-      <div class="pf-input-wrap" [class.pf-input-wrap--error]="formulario.controls.correo.invalid && formulario.controls.correo.touched">
+      <div class="pf-input-wrap" [class.pf-input-wrap--error]="(formulario.controls.correo.invalid && formulario.controls.correo.touched) || faltaContacto">
         <mat-icon class="pf-input-icon">alternate_email</mat-icon>
         <input
           id="correo"
@@ -124,6 +127,9 @@
       </div>
       @if (formulario.controls.correo.invalid && formulario.controls.correo.touched) {
         <p class="pf-error">El correo no tiene un formato válido.</p>
+      }
+      @if (faltaContacto) {
+        <p class="pf-error">Indique al menos un medio de contacto: teléfono o correo.</p>
       }
     </div>
 

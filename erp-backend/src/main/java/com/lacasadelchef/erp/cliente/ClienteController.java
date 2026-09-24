@@ -1,17 +1,32 @@
 package com.lacasadelchef.erp.cliente;
 
+import com.lacasadelchef.erp.cliente.dto.CambiarEstadoClienteRequest;
 import com.lacasadelchef.erp.cliente.dto.ClienteRequest;
 import com.lacasadelchef.erp.cliente.dto.ClienteResponse;
+import com.lacasadelchef.erp.cliente.dto.PosibleDuplicadoResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
+/**
+ * Clientes. No hay DELETE: un cliente se inactiva con PUT /{id}/estado, que usa el
+ * permiso de BAJA (quien podia eliminar ahora puede inactivar y reactivar).
+ */
 @RestController
 @RequestMapping("/api/clientes")
 @RequiredArgsConstructor
@@ -19,10 +34,25 @@ public class ClienteController {
 
     private final ClienteService clienteService;
 
+    /**
+     * buscar: texto libre sobre nombre, NIT, telefono y correo ("nombre" se acepta por
+     * compatibilidad). estado: ACTIVO, INACTIVO o TODOS (por defecto).
+     */
     @GetMapping
-    public Page<ClienteResponse> listar(@RequestParam(required = false) String nombre,
+    public Page<ClienteResponse> listar(@RequestParam(required = false) String buscar,
+                                        @RequestParam(required = false) String nombre,
+                                        @RequestParam(required = false) String estado,
                                         @PageableDefault(size = 20, sort = "idCliente") Pageable pageable) {
-        return clienteService.listar(nombre, pageable);
+        return clienteService.listar(buscar != null ? buscar : nombre, estado, pageable);
+    }
+
+    @GetMapping("/posibles-duplicados")
+    public List<PosibleDuplicadoResponse> posiblesDuplicados(@RequestParam(required = false) String nombre,
+                                                             @RequestParam(required = false) String nit,
+                                                             @RequestParam(required = false) String telefono,
+                                                             @RequestParam(required = false) String correo,
+                                                             @RequestParam(required = false) Integer excluir) {
+        return clienteService.posiblesDuplicados(nombre, nit, telefono, correo, excluir);
     }
 
     @GetMapping("/{id}")
@@ -44,10 +74,10 @@ public class ClienteController {
         return clienteService.actualizar(id, request);
     }
 
-    @DeleteMapping("/{id}")
+    @PutMapping("/{id}/estado")
     @PreAuthorize("@permisoService.tienePermiso('/api/clientes', T(com.lacasadelchef.erp.security.TipoPermiso).BAJA)")
-    public ResponseEntity<Void> eliminar(@PathVariable Integer id) {
-        clienteService.eliminar(id);
-        return ResponseEntity.noContent().build();
+    public ClienteResponse cambiarEstado(@PathVariable Integer id,
+                                         @Valid @RequestBody CambiarEstadoClienteRequest request) {
+        return clienteService.cambiarEstado(id, request.activo());
     }
 }

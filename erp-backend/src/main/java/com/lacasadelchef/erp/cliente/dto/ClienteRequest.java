@@ -20,6 +20,7 @@ public record ClienteRequest(
         @Pattern(regexp = "^[0-9+\\- ]{8,20}$", message = "El telefono no tiene un formato valido")
         String telefono,
 
+        /** Opcional: vacio se guarda como "CF". Se valida el digito verificador. */
         @Size(max = 20)
         String nit,
 

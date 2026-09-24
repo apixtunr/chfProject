@@ -3,13 +3,17 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
+import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { DepartamentoResponse } from '../../../core/catalogos/departamento';
 import { DepartamentoService } from '../../../core/catalogos/departamento.service';
 import { MunicipioResponse } from '../../../core/catalogos/municipio';
 import { MunicipioService } from '../../../core/catalogos/municipio.service';
+import { ConfirmDialog } from '../../../shared/confirm-dialog/confirm-dialog';
 import { ClienteService } from '../cliente.service';
+import { PosibleDuplicado } from '../dto/cliente';
+import { alMenosUnoValidator, nitValidator, normalizarNit } from '../nit-guatemala';
 
 @Component({
   selector: 'app-cliente-form',
@@ -31,22 +35,25 @@ export class ClienteForm implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly dialog = inject(MatDialog);
 
   readonly idCliente = signal<number | null>(null);
   readonly guardando = signal(false);
   readonly departamentos = signal<DepartamentoResponse[]>([]);
   readonly municipios = signal<MunicipioResponse[]>([]);
 
+  // Telefono y correo son opcionales por separado, pero el grupo exige al menos uno.
   readonly formulario = this.fb.nonNullable.group({
     nombre: ['', [Validators.required, Validators.maxLength(150)]],
     correo: ['', [Validators.email, Validators.maxLength(150)]],
     telefono: ['', [Validators.pattern(/^[0-9+\- ]{8,20}$/)]],
-    nit: ['', [Validators.maxLength(20)]],
+    // Vacio = CF (consumidor final). Se valida el digito verificador.
+    nit: ['', [Validators.maxLength(20), nitValidator]],
     direccion: ['', [Validators.required, Validators.maxLength(255)]],
     // El departamento solo filtra la lista de municipios; lo que se guarda es el municipio.
     idDepartamento: this.fb.control<number | null>(null, Validators.required),
     idMunicipio: this.fb.control<number | null>(null, Validators.required),
-  });
+  }, { validators: alMenosUnoValidator('telefono', 'correo') });
 
   /** Cuenta cuántos campos del formulario tienen Validators.required. */
   readonly camposRequeridos = computed(() => {
@@ -98,6 +105,20 @@ export class ClienteForm implements OnInit {
     });
   }
 
+  /** Al salir del campo, muestra el NIT como se va a guardar (ej. 67693598 -> 6769359-8). */
+  formatearNit(): void {
+    const control = this.formulario.controls.nit;
+    const normalizado = normalizarNit(control.value);
+    if (normalizado && control.value.trim()) {
+      control.setValue(normalizado);
+    }
+  }
+
+  get faltaContacto(): boolean {
+    const { telefono, correo } = this.formulario.controls;
+    return this.formulario.hasError('contacto') && (telefono.touched || correo.touched);
+  }
+
   guardar(): void {
     if (this.formulario.invalid) {
       this.formulario.markAllAsTouched();
@@ -106,11 +127,40 @@ export class ClienteForm implements OnInit {
 
     this.guardando.set(true);
     const v = this.formulario.getRawValue();
+    // Antes de guardar se buscan clientes parecidos. Es solo un aviso: si el usuario
+    // confirma que es otra persona, se guarda igual (el NIT repetido si lo bloquea el backend).
+    this.clienteService
+      .posiblesDuplicados({ nombre: v.nombre, nit: v.nit, telefono: v.telefono, correo: v.correo }, this.idCliente())
+      .subscribe({
+        next: (parecidos) => {
+          if (!parecidos.length) {
+            this.enviar();
+            return;
+          }
+          this.dialog
+            .open(ConfirmDialog, { data: { titulo: 'Posible cliente duplicado', mensaje: this.mensajeDuplicados(parecidos) } })
+            .afterClosed()
+            .subscribe((confirmado) => (confirmado ? this.enviar() : this.guardando.set(false)));
+        },
+        error: () => this.guardando.set(false),
+      });
+  }
+
+  private mensajeDuplicados(parecidos: PosibleDuplicado[]): string {
+    const lineas = parecidos
+      .slice(0, 3)
+      .map((p) => `• ${p.nombre}${p.activo ? '' : ' (inactivo)'} — mismo ${p.coincidencias.join(', ')}`);
+    const extra = parecidos.length > 3 ? `\n…y ${parecidos.length - 3} más.` : '';
+    return `Ya hay clientes parecidos:\n${lineas.join('\n')}${extra}\n\n¿Guardar de todos modos como un cliente distinto?`;
+  }
+
+  private enviar(): void {
+    const v = this.formulario.getRawValue();
     const request = {
       nombre: v.nombre,
-      correo: v.correo,
-      telefono: v.telefono,
-      nit: v.nit,
+      correo: v.correo || null,
+      telefono: v.telefono || null,
+      nit: v.nit || null,
       direccion: v.direccion,
       idMunicipio: v.idMunicipio!,
     };

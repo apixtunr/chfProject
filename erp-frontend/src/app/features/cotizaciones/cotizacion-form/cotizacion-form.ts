@@ -98,7 +98,7 @@ export class CotizacionForm implements OnInit {
         distinctUntilChanged(),
         switchMap((texto) => {
           const valor = typeof texto === 'string' ? texto.trim() : '';
-          return valor ? this.clienteService.listar(valor, 0, 10) : of(null);
+          return valor ? this.clienteService.listar(valor, 0, 10, 'ACTIVO') : of(null);
         }),
       )
       .subscribe((page) => this.clientesFiltrados.set(page?.content ?? []));

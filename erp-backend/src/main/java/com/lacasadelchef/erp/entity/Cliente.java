@@ -27,8 +27,9 @@ public class Cliente extends Auditable {
     @Column(name = "telefono", length = 20)
     private String telefono;
 
-    @Column(name = "nit", length = 20)
-    private String nit;
+    /** "cuerpo-verificador" (ej. 6769359-8) o "CF" (consumidor final). Unico salvo CF. */
+    @Column(name = "nit", nullable = false, length = 20)
+    private String nit = "CF";
 
     @Column(name = "direccion", nullable = false, length = 255)
     private String direccion;
@@ -37,4 +38,13 @@ public class Cliente extends Auditable {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "id_municipio", nullable = false)
     private Municipio municipio;
+
+    /** ACTIVO o INACTIVO (tipo GENERAL). Un cliente no se borra: se inactiva. */
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "id_estado", nullable = false)
+    private Estado estado;
+
+    public boolean estaActivo() {
+        return estado != null && "ACTIVO".equalsIgnoreCase(estado.getNombre());
+    }
 }

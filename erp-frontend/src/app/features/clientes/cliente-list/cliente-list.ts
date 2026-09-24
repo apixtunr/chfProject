@@ -12,7 +12,7 @@ import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { AuthService } from '../../../core/auth/auth.service';
 import { ConfirmDialog } from '../../../shared/confirm-dialog/confirm-dialog';
 import { ClienteService } from '../cliente.service';
-import { ClienteResponse } from '../dto/cliente';
+import { ClienteResponse, EstadoClienteFiltro } from '../dto/cliente';
 
 const PAGINA_URL = '/api/clientes';
 
@@ -43,20 +43,29 @@ export class ClienteList implements OnInit {
   readonly pageSize = signal(20);
 
   readonly busqueda = new FormControl('', { nonNullable: true });
+  /** Por defecto solo activos: los inactivos se consultan a proposito. */
+  readonly estado = signal<EstadoClienteFiltro>('ACTIVO');
+  readonly filtrosEstado: { valor: EstadoClienteFiltro; etiqueta: string }[] = [
+    { valor: 'ACTIVO', etiqueta: 'Activos' },
+    { valor: 'INACTIVO', etiqueta: 'Inactivos' },
+    { valor: 'TODOS', etiqueta: 'Todos' },
+  ];
 
   readonly puedeCrear: boolean;
   readonly puedeEditar: boolean;
-  readonly puedeEliminar: boolean;
+  /** Permiso de BAJA: antes eliminaba, ahora inactiva y reactiva. */
+  readonly puedeCambiarEstado: boolean;
 
   constructor() {
     this.puedeCrear = this.authService.tienePermiso(PAGINA_URL, 'alta');
     this.puedeEditar = this.authService.tienePermiso(PAGINA_URL, 'modificacion');
-    this.puedeEliminar = this.authService.tienePermiso(PAGINA_URL, 'baja');
+    this.puedeCambiarEstado = this.authService.tienePermiso(PAGINA_URL, 'baja');
   }
 
   get columnas(): string[] {
     const base = ['nombre', 'nit', 'telefono', 'correo', 'direccion'];
-    return this.puedeEditar || this.puedeEliminar ? [...base, 'acciones'] : base;
+    if (this.estado() !== 'ACTIVO') base.push('estado');
+    return this.puedeEditar || this.puedeCambiarEstado ? [...base, 'acciones'] : base;
   }
 
   ngOnInit(): void {
@@ -66,7 +75,7 @@ export class ClienteList implements OnInit {
   }
 
   cargar(): void {
-    this.clienteService.listar(this.busqueda.value.trim(), this.pageIndex(), this.pageSize()).subscribe((page) => {
+    this.clienteService.listar(this.busqueda.value.trim(), this.pageIndex(), this.pageSize(), this.estado()).subscribe((page) => {
       this.clientes.set(page.content);
       this.totalElements.set(page.totalElements);
     });
@@ -83,19 +92,36 @@ export class ClienteList implements OnInit {
     this.cargar();
   }
 
-  eliminar(cliente: ClienteResponse): void {
-    const ref = this.dialog.open(ConfirmDialog, {
-      data: { titulo: 'Eliminar cliente', mensaje: `¿Eliminar a "${cliente.nombre}"? Esta accion no se puede deshacer.` },
-    });
+  filtrarEstado(estado: EstadoClienteFiltro): void {
+    this.estado.set(estado);
+    this.buscar();
+  }
 
-    ref.afterClosed().subscribe((confirmado) => {
-      if (!confirmado) {
-        return;
-      }
-      this.clienteService.eliminar(cliente.idCliente).subscribe(() => {
-        this.snackBar.open('Cliente eliminado', 'Cerrar', { duration: 3000 });
-        this.cargar();
+  /**
+   * Inactivar pide confirmacion porque saca al cliente de cotizaciones y eventos nuevos;
+   * el backend lo rechaza si todavia tiene negocio abierto y el mensaje llega por el
+   * interceptor de errores. Reactivar no pide confirmacion: no quita nada.
+   */
+  cambiarEstado(cliente: ClienteResponse): void {
+    if (cliente.activo) {
+      const ref = this.dialog.open(ConfirmDialog, {
+        data: {
+          titulo: 'Inactivar cliente',
+          mensaje: `"${cliente.nombre}" dejará de aparecer al crear cotizaciones y eventos. Su historial se conserva y puede reactivarlo cuando quiera.`,
+        },
       });
+      ref.afterClosed().subscribe((confirmado) => {
+        if (confirmado) this.aplicarEstado(cliente, false);
+      });
+    } else {
+      this.aplicarEstado(cliente, true);
+    }
+  }
+
+  private aplicarEstado(cliente: ClienteResponse, activo: boolean): void {
+    this.clienteService.cambiarEstado(cliente.idCliente, activo).subscribe(() => {
+      this.snackBar.open(activo ? 'Cliente reactivado' : 'Cliente inactivado', 'Cerrar', { duration: 3000 });
+      this.cargar();
     });
   }
 }

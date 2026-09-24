@@ -267,6 +267,11 @@ public class EventoServiceImpl implements EventoService {
             }
             Cliente cliente = clienteRepository.findById(request.idCliente())
                     .orElseThrow(() -> new ResourceNotFoundException("Cliente", request.idCliente()));
+            boolean clienteNuevo = evento.getCliente() == null
+                    || !evento.getCliente().getIdCliente().equals(cliente.getIdCliente());
+            if (clienteNuevo && !cliente.estaActivo()) {
+                throw new BusinessException("El cliente %s está inactivo: reactívelo antes de %s".formatted(cliente.getNombre(), "crearle un evento"));
+            }
             TipoEvento tipoEvento = tipoEventoRepository.findById(request.idTipoEvento())
                     .orElseThrow(() -> new ResourceNotFoundException("TipoEvento", request.idTipoEvento()));
             Ubicacion ubicacion = ubicacionRepository.findById(request.idUbicacion())

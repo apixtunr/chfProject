@@ -177,3 +177,59 @@ mat-paginator {
   border-top: 1.5px solid var(--chf-borde-control);
 }
 
+
+// Filtro Activos / Inactivos / Todos. Por defecto se ven solo los activos: un cliente
+// inactivo no se borra, pero tampoco estorba en el dia a dia.
+.filtro-estado {
+  display: inline-flex;
+  padding: 3px;
+  border-radius: 10px;
+  background: var(--chf-fondo-campo);
+  border: 1px solid var(--chf-borde-control);
+}
+
+.filtro-opcion {
+  border: 0;
+  background: transparent;
+  padding: 6px 12px;
+  border-radius: 7px;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--chf-texto-medio);
+  cursor: pointer;
+
+  &:hover {
+    color: var(--chf-texto-fuerte);
+  }
+}
+
+.filtro-opcion--activa {
+  background: var(--chf-fondo-seccion);
+  color: var(--chf-texto-fuerte);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+}
+
+.celda-inactiva {
+  color: var(--chf-texto-suave);
+}
+
+.nit-cf {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--chf-texto-suave);
+}
+
+.estado-cliente {
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: var(--chf-estado-exito-fondo);
+  color: var(--chf-estado-exito);
+}
+
+.estado-cliente--inactivo {
+  background: var(--chf-estado-neutro-fondo);
+  color: var(--chf-estado-neutro);
+}
