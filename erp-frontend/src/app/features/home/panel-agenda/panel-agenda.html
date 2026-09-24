@@ -1,0 +1,59 @@
+<section class="tarjeta-panel">
+  <header class="panel-encabezado">
+    <div>
+      <h2>Agenda</h2>
+      <p class="panel-sub">Próximos 7 días</p>
+    </div>
+    <a class="enlace" routerLink="/eventos">Ver todos</a>
+  </header>
+
+  @if (dias().length) {
+    <div class="dias">
+      @for (dia of dias(); track dia.fecha) {
+        <div>
+          <p class="dia-encabezado">
+            <span class="dia-nombre">{{ dia.titulo }}</span>
+            <span class="dia-fecha">{{ dia.subtitulo }}</span>
+          </p>
+          <ul class="eventos">
+            @for (e of dia.eventos; track e.idEvento) {
+              <li>
+                <a class="evento" [routerLink]="['/eventos', e.idEvento]">
+                  <span class="hora">
+                    {{ e.horaInicio ? hora(e.horaInicio) : '—' }}
+                    @if (e.horaFin) {
+                      <small>{{ hora(e.horaFin) }}</small>
+                    }
+                  </span>
+                  <span class="linea" [attr.data-tono]="tono(e.estadoNombre)"></span>
+                  <span class="detalle">
+                    <span class="titulo">{{ e.tipoEventoNombre }} · {{ e.clienteNombre }}</span>
+                    <span class="meta">
+                      @if (e.cantidadPersonas) {
+                        {{ e.cantidadPersonas }} invitados ·
+                      }
+                      {{ e.direccionUbicacion }}
+                    </span>
+                    @if (e.menus.length) {
+                      <span class="menus">
+                        @for (m of e.menus; track m) {
+                          <span class="menu"><mat-icon>restaurant_menu</mat-icon>{{ m }}</span>
+                        }
+                      </span>
+                    }
+                  </span>
+                  <span class="estado" [attr.data-tono]="tono(e.estadoNombre)">{{ estadoTexto(e.estadoNombre) }}</span>
+                </a>
+              </li>
+            }
+          </ul>
+        </div>
+      }
+    </div>
+  } @else {
+    <div class="vacio">
+      <span class="vacio-icono"><mat-icon>event_available</mat-icon></span>
+      <p>No hay eventos programados en los próximos 7 días.</p>
+    </div>
+  }
+</section>

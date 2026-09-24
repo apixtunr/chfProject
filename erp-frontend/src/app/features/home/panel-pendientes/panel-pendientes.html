@@ -1,0 +1,196 @@
+@let p = panel();
+
+@if (p.insumosFaltantes; as insumos) {
+@if (insumos.length) {
+  <section class="tarjeta-panel tarjeta-panel--alerta">
+    <header class="panel-encabezado">
+      <div>
+        <h2><mat-icon class="icono-alerta">report</mat-icon>Insumos insuficientes</h2>
+        <p class="panel-sub">Lo planificado para los próximos 14 días supera el stock. Se descuenta al iniciar cada evento.</p>
+      </div>
+    </header>
+    <ul class="lista">
+      @for (i of insumos; track i.idProducto) {
+        <li>
+          <span class="principal">
+            <span class="nombre">{{ i.nombreProducto }}</span>
+            <span class="valor valor--alerta">−{{ i.faltante | number: '1.0-2' }} {{ i.unidadMedida }}</span>
+          </span>
+          <span class="meta">
+            Hay {{ i.disponible | number: '1.0-2' }}, se necesitan {{ i.requerido | number: '1.0-2' }} ·
+            {{ i.cantidadEventos }} {{ i.cantidadEventos === 1 ? 'evento' : 'eventos' }} desde el {{ fechaCorta(i.primerEvento) }}
+          </span>
+        </li>
+      }
+    </ul>
+    <a class="enlace-pie" routerLink="/inventario/movimientos/nuevo">Registrar entrada<mat-icon>arrow_forward</mat-icon></a>
+  </section>
+}
+}
+
+@if (p.bajoStock; as bajoStock) {
+  <section class="tarjeta-panel">
+    <header class="panel-encabezado">
+      <h2>Stock en su mínimo</h2>
+      @if (p.resumen.productosBajoStock) {
+        <span class="contador contador--aviso">{{ p.resumen.productosBajoStock }}</span>
+      }
+    </header>
+    @if (bajoStock.length) {
+      <ul class="lista">
+        @for (s of bajoStock; track s.idProducto) {
+          <li>
+            <span class="principal">
+              <span class="nombre">{{ s.nombreProducto }}</span>
+              <span class="valor">{{ s.cantidadActual | number: '1.0-2' }} / {{ s.cantidadMinima | number: '1.0-2' }} {{ s.unidadMedida }}</span>
+            </span>
+            <span class="barra"><span class="barra-valor barra-valor--aviso" [style.width.%]="porcentaje(s.cantidadActual, s.cantidadMinima)"></span></span>
+          </li>
+        }
+      </ul>
+      <a class="enlace-pie" routerLink="/inventario">Gestionar stock<mat-icon>arrow_forward</mat-icon></a>
+    } @else {
+      <div class="vacio vacio--compacto">
+        <span class="vacio-icono vacio-icono--ok"><mat-icon>check</mat-icon></span>
+        <p>Todo el stock está por encima del mínimo.</p>
+      </div>
+    }
+  </section>
+}
+
+@if (p.cotizacionesEnviadas; as enviadas) {
+  <section class="tarjeta-panel">
+    <header class="panel-encabezado">
+      <div>
+        <h2>Cotizaciones por responder</h2>
+        <p class="panel-sub">Enviadas y sin respuesta del cliente.</p>
+      </div>
+      @if (p.resumen.cotizacionesEnviadas) {
+        <span class="contador">{{ p.resumen.cotizacionesEnviadas }}</span>
+      }
+    </header>
+    @if (enviadas.length) {
+      <ul class="lista">
+        @for (c of enviadas; track c.idCotizacionVersion) {
+          <li>
+            <a class="fila" [routerLink]="['/cotizaciones', c.idCotizacion]">
+              <span class="avatar">{{ iniciales(c.clienteNombre) }}</span>
+              <span class="cuerpo">
+                <span class="principal">
+                  <span class="nombre">{{ c.clienteNombre }}</span>
+                  @if (c.montoTotal !== null) {
+                    <span class="valor">Q {{ c.montoTotal | number: '1.2-2' }}</span>
+                  }
+                </span>
+                <span class="meta">{{ c.tipoEventoNombre }} · {{ fechaCorta(c.fechaEvento) }} · {{ esperando(c.fechaVersion) }}</span>
+              </span>
+            </a>
+          </li>
+        }
+      </ul>
+    } @else {
+      <div class="vacio vacio--compacto">
+        <span class="vacio-icono vacio-icono--ok"><mat-icon>check</mat-icon></span>
+        <p>No hay cotizaciones esperando respuesta.</p>
+      </div>
+    }
+  </section>
+}
+
+@if (p.cotizacionesAceptadasSinEvento; as aceptadas) {
+@if (aceptadas.length) {
+  <section class="tarjeta-panel">
+    <header class="panel-encabezado">
+      <div>
+        <h2>Aceptadas sin evento</h2>
+        <p class="panel-sub">El cliente aceptó; falta crear el evento.</p>
+      </div>
+      <span class="contador contador--aviso">{{ aceptadas.length }}</span>
+    </header>
+    <ul class="lista">
+      @for (c of aceptadas; track c.idCotizacionVersion) {
+        <li>
+          <a class="fila" [routerLink]="['/cotizaciones', c.idCotizacion]">
+            <span class="avatar avatar--exito">{{ iniciales(c.clienteNombre) }}</span>
+            <span class="cuerpo">
+              <span class="principal">
+                <span class="nombre">{{ c.clienteNombre }}</span>
+                <span class="valor">{{ fechaCorta(c.fechaEvento) }}</span>
+              </span>
+              <span class="meta">{{ c.tipoEventoNombre }} · versión {{ c.numeroVersion }}</span>
+            </span>
+          </a>
+        </li>
+      }
+    </ul>
+    <a class="enlace-pie" routerLink="/eventos/nuevo">Crear evento<mat-icon>arrow_forward</mat-icon></a>
+  </section>
+}
+}
+
+@if (p.cobrosPendientes; as cobros) {
+  <section class="tarjeta-panel">
+    <header class="panel-encabezado">
+      <div>
+        <h2>Cobros pendientes</h2>
+        <p class="panel-sub">Eventos realizados o de los próximos 30 días con saldo.</p>
+      </div>
+    </header>
+    @if (cobros.length) {
+      <ul class="lista">
+        @for (c of cobros; track c.idEvento) {
+          <li>
+            <a class="fila fila--columna" [routerLink]="['/pagos/evento', c.idEvento]">
+              <span class="principal">
+                <span class="nombre">{{ c.clienteNombre }}</span>
+                <span class="valor">Q {{ c.pendiente | number: '1.2-2' }}</span>
+              </span>
+              <span class="meta">
+                {{ c.tipoEventoNombre }} · {{ fechaCorta(c.fechaEvento) }}
+                @if (yaPaso(c.fechaEvento)) {
+                  · <strong class="texto-alerta">ya se realizó</strong>
+                }
+              </span>
+              <span class="barra" [matTooltip]="porcentaje(c.abonado, c.total) + '% cobrado'">
+                <span class="barra-valor" [style.width.%]="porcentaje(c.abonado, c.total)"></span>
+              </span>
+            </a>
+          </li>
+        }
+      </ul>
+      <a class="enlace-pie" routerLink="/pagos">Ir a pagos<mat-icon>arrow_forward</mat-icon></a>
+    } @else {
+      <div class="vacio vacio--compacto">
+        <span class="vacio-icono vacio-icono--ok"><mat-icon>check</mat-icon></span>
+        <p>No hay saldos pendientes.</p>
+      </div>
+    }
+  </section>
+}
+
+@if (p.actividad; as a) {
+  <section class="tarjeta-panel">
+    <header class="panel-encabezado">
+      <h2>Actividad de hoy</h2>
+      <a class="enlace" routerLink="/admin/bitacora">Bitácora</a>
+    </header>
+    <div class="mini-stats">
+      <div><span class="mini-valor">{{ a.ingresosHoy }}</span><span class="mini-etiqueta">Ingresos</span></div>
+      <div [class.mini--alerta]="a.ingresosFallidosHoy > 0">
+        <span class="mini-valor">{{ a.ingresosFallidosHoy }}</span><span class="mini-etiqueta">Fallidos</span>
+      </div>
+      <div><span class="mini-valor">{{ a.cambiosHoy }}</span><span class="mini-etiqueta">Cambios</span></div>
+    </div>
+    @if (a.recientes.length) {
+      <ul class="actividad">
+        @for (m of a.recientes; track $index) {
+          <li>
+            <span class="punto" [attr.data-operacion]="m.operacion"></span>
+            <span class="actividad-texto"><strong>{{ m.usuario }}</strong> {{ movimiento(m) }}</span>
+            <span class="actividad-tiempo">{{ haceCuanto(m.fecha) }}</span>
+          </li>
+        }
+      </ul>
+    }
+  </section>
+}

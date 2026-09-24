@@ -1,72 +1,69 @@
-@if (usuario(); as u) {
-  <div class="bienvenida">
-    <p class="eyebrow">{{ saludo() }}</p>
-    <h1>{{ u.nombreCompleto }}</h1>
-    <p class="tagline">
-      Bienvenido al sistema de gestion de banquetes y eventos de <strong>La Casa del Chef</strong>.
-      Utiliza el menu lateral para navegar por los modulos.
-    </p>
+<header class="encabezado">
+  <div>
+    <p class="fecha">{{ fecha() }}</p>
+    <h1>{{ saludo() }}</h1>
+    @if (cargando()) {
+      <span class="esqueleto esqueleto--linea"></span>
+    } @else if (panel()) {
+      <p class="resumen-dia">{{ resumenDelDia() }}</p>
+    }
+  </div>
+
+  @if (acciones().length) {
+    <nav class="acciones" aria-label="Acciones rápidas">
+      @for (accion of acciones(); track accion.ruta; let primera = $first) {
+        <a class="accion" [class.accion--principal]="primera" [routerLink]="accion.ruta">
+          <mat-icon>{{ accion.icono }}</mat-icon>{{ accion.etiqueta }}
+        </a>
+      }
+    </nav>
+  }
+</header>
+
+@if (error()) {
+  <div class="aviso-error" role="alert">
+    <mat-icon>cloud_off</mat-icon>
+    <p>No se pudo cargar el panel de inicio.</p>
+    <button type="button" (click)="cargar()">Reintentar</button>
   </div>
 }
 
-<div class="grilla-principal">
-  @if (proximoEvento(); as evento) {
-    <a class="tarjeta-hero" [routerLink]="['/eventos', evento.idEvento]">
-      <div class="hero-visual">
-        <mat-icon>event</mat-icon>
-        <span class="badge-estado">{{ evento.estadoNombre }}</span>
-      </div>
-      <div class="hero-info">
-        <div>
-          <p class="hero-titulo">{{ evento.tipoEventoNombre }} — {{ evento.clienteNombre }}</p>
-          <ul class="hero-lista">
-            <li><mat-icon>calendar_today</mat-icon>{{ evento.fechaEvento | date: 'dd/MM/yyyy' }}</li>
-            <li><mat-icon>place</mat-icon>{{ evento.direccionUbicacion }}</li>
-            @if (evento.cantidadPersonas) {
-              <li><mat-icon>groups</mat-icon>{{ evento.cantidadPersonas }} invitados</li>
-            }
-          </ul>
-        </div>
-        <span class="hero-boton">Ver detalles del evento<mat-icon>arrow_forward</mat-icon></span>
-      </div>
-    </a>
-  } @else if (proximoEvento() === null) {
-    <div class="tarjeta-hero tarjeta-hero--vacia">
-      <mat-icon>event_available</mat-icon>
-      <p>No tenes eventos proximos planificados.</p>
-    </div>
-  }
-
-  <div class="columna-stats">
-    @if (cotizacionesPendientes() !== null) {
-      <a class="tarjeta-stat" routerLink="/cotizaciones" style="--color-stat: #8e44ad">
-        <span class="stat-icono"><mat-icon>request_quote</mat-icon></span>
-        <p class="stat-etiqueta">Cotizaciones pendientes</p>
-        <p class="stat-valor">{{ cotizacionesPendientes() }}</p>
-      </a>
+@if (cargando()) {
+  <div class="indicadores" aria-busy="true">
+    @for (i of [1, 2, 3, 4]; track i) {
+      <span class="esqueleto esqueleto--indicador"></span>
     }
   </div>
-</div>
-
-<div class="grilla-secundaria">
-  @if (alertasInventario() !== null) {
-    <div class="tarjeta-inventario" style="--color-stat: #f39c12">
-      <p class="stat-etiqueta">Inventario</p>
-      @if (alertasInventario()! > 0) {
-        <p class="inventario-texto">
-          {{ alertasInventario() }} {{ alertasInventario() === 1 ? 'articulo requiere' : 'articulos requieren' }}
-          reposicion.
-        </p>
-      } @else {
-        <p class="inventario-texto">Todo el stock esta por encima del minimo.</p>
+  <div class="operacion">
+    <span class="esqueleto esqueleto--panel"></span>
+    <span class="esqueleto esqueleto--panel"></span>
+  </div>
+} @else if (panel(); as p) {
+  @if (indicadores().length) {
+    <section class="indicadores" aria-label="Resumen">
+      @for (ind of indicadores(); track ind.etiqueta) {
+        <a class="indicador" [class.indicador--atencion]="ind.atencion" [routerLink]="ind.ruta">
+          <span class="indicador-icono"><mat-icon>{{ ind.icono }}</mat-icon></span>
+          <span class="indicador-valor">{{ ind.valor }}</span>
+          <span class="indicador-etiqueta">{{ ind.etiqueta }}</span>
+          <span class="indicador-detalle">{{ ind.detalle }}</span>
+        </a>
       }
-      <a routerLink="/inventario" class="enlace-flecha">Gestionar stock<mat-icon>arrow_forward</mat-icon></a>
+    </section>
+  }
+
+  @if (p.porPreparar || p.agenda) {
+    <div class="operacion">
+      @if (p.porPreparar; as porPreparar) {
+        <app-panel-preparacion [eventos]="porPreparar" [total]="p.resumen.eventosPorPreparar" [hoy]="hoy()" />
+      }
+      @if (p.agenda; as agenda) {
+        <app-panel-agenda [eventos]="agenda" [hoy]="hoy()" />
+      }
     </div>
   }
 
-  <div class="tarjeta-promo" style="--color-stat: #d35400">
-    <p class="promo-titulo">Optimiza tu rentabilidad</p>
-    <p class="promo-texto">Revisa los margenes de ganancia por evento y por tipo de menu.</p>
-    <a routerLink="/rentabilidad" class="boton-promo">Ver reportes</a>
-  </div>
-</div>
+  @if (conPendientes()) {
+    <app-panel-pendientes [panel]="p" />
+  }
+}

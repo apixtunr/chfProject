@@ -1,0 +1,164 @@
+@use '../inicio-comun';
+
+:host {
+  display: block;
+}
+
+.dias {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.dia-encabezado {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin: 0 0 8px;
+}
+
+.dia-nombre {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--chf-texto-fuerte);
+}
+
+.dia-fecha {
+  font-size: 0.78rem;
+  color: var(--chf-texto-suave);
+}
+
+.eventos {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.evento {
+  display: grid;
+  grid-template-columns: 52px 4px minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--chf-fondo-sutil);
+  color: inherit;
+  text-decoration: none;
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background: var(--chf-fondo-campo);
+  }
+
+  @media (max-width: 640px) {
+    grid-template-columns: 44px 4px minmax(0, 1fr);
+
+    .estado {
+      grid-column: 3;
+      justify-self: start;
+    }
+  }
+}
+
+.hora {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--chf-texto-fuerte);
+  font-variant-numeric: tabular-nums;
+
+  small {
+    font-size: 0.72rem;
+    font-weight: 400;
+    color: var(--chf-texto-suave);
+  }
+}
+
+// La barra de color repite el estado para poder leer la agenda de un vistazo.
+.linea {
+  align-self: stretch;
+  width: 4px;
+  border-radius: 4px;
+  background: var(--chf-estado-info);
+
+  &[data-tono='aviso'] {
+    background: var(--chf-alerta);
+  }
+
+  &[data-tono='exito'] {
+    background: var(--chf-estado-exito);
+  }
+}
+
+.detalle {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.titulo,
+.meta {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.titulo {
+  font-weight: 500;
+  color: var(--chf-texto-fuerte);
+}
+
+.meta {
+  font-size: 0.8rem;
+  color: var(--chf-texto-medio);
+}
+
+.menus {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.menu {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px 2px 6px;
+  border-radius: 999px;
+  background: var(--chf-fondo-seccion);
+  border: 1px solid var(--chf-borde-suave);
+  font-size: 0.72rem;
+  color: var(--chf-texto-medio);
+
+  mat-icon {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+  }
+}
+
+.estado {
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  white-space: nowrap;
+  background: var(--chf-estado-info-fondo);
+  color: var(--chf-estado-info);
+
+  &[data-tono='aviso'] {
+    background: var(--chf-estado-aviso-fondo);
+    color: var(--chf-estado-aviso);
+  }
+
+  &[data-tono='exito'] {
+    background: var(--chf-estado-exito-fondo);
+    color: var(--chf-estado-exito);
+  }
+}

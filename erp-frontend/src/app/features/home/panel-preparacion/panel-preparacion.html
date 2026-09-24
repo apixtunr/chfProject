@@ -1,0 +1,69 @@
+<section class="tarjeta-panel">
+  <header class="panel-encabezado">
+    <div>
+      <h2>Eventos por preparar</h2>
+      <p class="panel-sub">Si no se planifican antes de su hora de inicio, se cancelan automáticamente.</p>
+    </div>
+    @if (total()) {
+      <span class="contador contador--aviso">{{ total() }}</span>
+    }
+  </header>
+
+  @if (eventos().length) {
+    <ul class="lista">
+      @for (e of eventos(); track e.idEvento) {
+        <li>
+          <a class="evento" [routerLink]="['/eventos', e.idEvento]">
+            <div class="fecha" [class.fecha--urgente]="dias(e) <= 2">
+              <span class="fecha-dia">{{ dia(e) }}</span>
+              <span class="fecha-mes">{{ mesCorto(e.fechaEvento) }}</span>
+            </div>
+
+            <div class="cuerpo">
+              <p class="titulo">{{ e.tipoEventoNombre }} · {{ e.clienteNombre }}</p>
+              <p class="meta">
+                @if (e.horaInicio) {
+                  <span><mat-icon>schedule</mat-icon>{{ hora(e.horaInicio) }}</span>
+                }
+                @if (e.cantidadPersonas) {
+                  <span><mat-icon>groups</mat-icon>{{ e.cantidadPersonas }} invitados</span>
+                }
+                <span class="lugar"><mat-icon>place</mat-icon>{{ e.direccionUbicacion }}</span>
+              </p>
+              <div class="pasos">
+                @for (paso of pasos(e); track paso.etiqueta) {
+                  <span
+                    class="paso"
+                    [class.paso--listo]="paso.listo"
+                    [matTooltip]="paso.listo ? paso.etiqueta + ': asignado' : 'Falta asignar ' + paso.etiqueta.toLowerCase()"
+                  >
+                    <mat-icon>{{ paso.listo ? 'check_circle' : paso.icono }}</mat-icon>{{ paso.etiqueta }}
+                  </span>
+                }
+              </div>
+            </div>
+
+            <div class="lateral">
+              <div class="progreso" role="img" [attr.aria-label]="avance(e) + '% preparado'">
+                <svg viewBox="0 0 36 36" aria-hidden="true">
+                  <circle class="progreso-fondo" cx="18" cy="18" r="15.9155" />
+                  <circle class="progreso-valor" cx="18" cy="18" r="15.9155" [attr.stroke-dasharray]="avance(e) + ' 100'" />
+                </svg>
+                <span>{{ avance(e) }}%</span>
+              </div>
+              <span class="plazo" [class.plazo--urgente]="dias(e) <= 2">{{ plazo(e) }}</span>
+            </div>
+          </a>
+        </li>
+      }
+    </ul>
+    @if ((total() ?? 0) > eventos().length) {
+      <a class="enlace-pie" routerLink="/eventos">Ver los {{ total() }} eventos<mat-icon>arrow_forward</mat-icon></a>
+    }
+  } @else {
+    <div class="vacio">
+      <span class="vacio-icono vacio-icono--ok"><mat-icon>task_alt</mat-icon></span>
+      <p>Todos los eventos próximos ya están planificados.</p>
+    </div>
+  }
+</section>

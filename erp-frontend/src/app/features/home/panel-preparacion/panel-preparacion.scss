@@ -1,0 +1,212 @@
+@use '../inicio-comun';
+
+:host {
+  display: block;
+}
+
+.lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.evento {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 16px;
+  align-items: center;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid var(--chf-borde-suave);
+  color: inherit;
+  text-decoration: none;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+
+  &:hover {
+    border-color: var(--chf-borde-control);
+    background: var(--chf-fondo-sutil);
+  }
+
+  @media (max-width: 640px) {
+    grid-template-columns: auto minmax(0, 1fr);
+
+    .lateral {
+      grid-column: 1 / -1;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+    }
+  }
+}
+
+.fecha {
+  width: 52px;
+  padding: 8px 0;
+  border-radius: 12px;
+  background: var(--chf-fondo-campo);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1;
+}
+
+.fecha-dia {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--chf-texto-fuerte);
+}
+
+.fecha-mes {
+  margin-top: 4px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--chf-texto-medio);
+}
+
+// Faltan dos dias o menos para que se cancele solo.
+.fecha--urgente {
+  background: var(--chf-estado-aviso-fondo);
+
+  .fecha-dia,
+  .fecha-mes {
+    color: var(--chf-estado-aviso);
+  }
+}
+
+.titulo {
+  margin: 0 0 4px;
+  font-weight: 600;
+  color: var(--chf-texto-fuerte);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.meta {
+  margin: 0 0 10px;
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 14px;
+  row-gap: 2px;
+  font-size: 0.8rem;
+  color: var(--chf-texto-medio);
+
+  span {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    min-width: 0;
+  }
+
+  mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    color: var(--chf-texto-suave);
+  }
+}
+
+.lugar {
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pasos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+// Punteado y gris si falta; verde con check si ya esta asignado.
+.paso {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 26px;
+  padding: 0 10px 0 7px;
+  border-radius: 999px;
+  border: 1px dashed var(--chf-borde-control);
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--chf-texto-medio);
+
+  mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    color: var(--chf-texto-suave);
+  }
+}
+
+.paso--listo {
+  border: 1px solid transparent;
+  background: var(--chf-estado-exito-fondo);
+  color: var(--chf-estado-exito);
+
+  mat-icon {
+    color: var(--chf-estado-exito);
+  }
+}
+
+.lateral {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+// Anillo de avance: r = 15.9155 da una circunferencia de 100, asi el porcentaje se usa
+// tal cual en stroke-dasharray.
+.progreso {
+  position: relative;
+  width: 48px;
+  height: 48px;
+
+  svg {
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+  }
+
+  circle {
+    fill: none;
+    stroke-width: 3.5;
+  }
+
+  span {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--chf-texto-fuerte);
+  }
+}
+
+.progreso-fondo {
+  stroke: var(--chf-borde-suave);
+}
+
+.progreso-valor {
+  stroke: var(--chf-estado-exito);
+  stroke-linecap: round;
+}
+
+.plazo {
+  font-size: 0.75rem;
+  color: var(--chf-texto-medio);
+  white-space: nowrap;
+}
+
+.plazo--urgente {
+  color: var(--chf-estado-aviso);
+  font-weight: 600;
+}
