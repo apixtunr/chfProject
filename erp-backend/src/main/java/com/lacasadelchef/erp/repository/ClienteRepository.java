@@ -54,6 +54,18 @@ public interface ClienteRepository extends JpaRepository<Cliente, Integer> {
                                   @Param("nombre") String nombre,
                                   @Param("excluir") Integer excluir);
 
+    /** Clientes con ese telefono (comparado sin guiones ni espacios), salvo el que se edita. */
+    @Query("""
+            SELECT c FROM Cliente c
+            WHERE c.idCliente <> :excluir
+              AND REPLACE(REPLACE(c.telefono, '-', ''), ' ', '') = :telefono
+            """)
+    List<Cliente> buscarPorTelefono(@Param("telefono") String telefono, @Param("excluir") Integer excluir);
+
+    /** Clientes con ese correo (sin distinguir mayusculas), salvo el que se edita. */
+    @Query("SELECT c FROM Cliente c WHERE c.idCliente <> :excluir AND LOWER(c.correo) = :correo")
+    List<Cliente> buscarPorCorreo(@Param("correo") String correo, @Param("excluir") Integer excluir);
+
     // --- Negocio abierto: impide inactivar al cliente ---------------------------
 
     /** Cotizaciones cuya ultima version sigue en CREADA o ENVIADA. */

@@ -69,6 +69,7 @@
         <label class="pf-label" for="nit">
           <span class="pf-label-num">2.</span>
           <span class="pf-label-name">NIT</span>
+          <span class="pf-label-hint">(si no tiene, déjelo vacío: se registra como CF)</span>
         </label>
         <div class="pf-input-wrap" [class.pf-input-wrap--error]="formulario.controls.nit.invalid && formulario.controls.nit.touched">
           <mat-icon class="pf-input-icon">badge</mat-icon>
@@ -76,12 +77,14 @@
             id="nit"
             class="pf-input"
             formControlName="nit"
-            placeholder="Ej. 6769359-8 · vacío = CF"
-            (blur)="formatearNit()"
+            placeholder="Ej. 6769359-8"
+            (blur)="formatearNit(); verificarDuplicado('nit')"
           />
         </div>
-        @if (formulario.controls.nit.invalid && formulario.controls.nit.touched) {
-          <p class="pf-error">NIT inválido: revise el dígito verificador, o déjelo vacío / escriba CF para consumidor final.</p>
+        @if (duplicadoDe('nit'); as dueno) {
+          <p class="pf-error">Este NIT ya está registrado para {{ dueno }}.</p>
+        } @else if (formulario.controls.nit.invalid && formulario.controls.nit.touched) {
+          <p class="pf-error">El NIT no es válido. Revise que esté bien escrito, por ejemplo 6769359-8.</p>
         }
       </div>
 
@@ -100,9 +103,12 @@
             formControlName="telefono"
             placeholder="Ej. 43894563"
             autocomplete="tel"
+            (blur)="verificarDuplicado('telefono')"
           />
         </div>
-        @if (formulario.controls.telefono.invalid && formulario.controls.telefono.touched) {
+        @if (duplicadoDe('telefono'); as dueno) {
+          <p class="pf-error">Este teléfono ya está registrado para {{ dueno }}.</p>
+        } @else if (formulario.controls.telefono.invalid && formulario.controls.telefono.touched) {
           <p class="pf-error">Formato inválido. Ej: +502 1234 5678</p>
         }
       </div>
@@ -123,9 +129,12 @@
           placeholder="Ej. pedro.ortiz@example.com"
           autocomplete="email"
           type="email"
+          (blur)="verificarDuplicado('correo')"
         />
       </div>
-      @if (formulario.controls.correo.invalid && formulario.controls.correo.touched) {
+      @if (duplicadoDe('correo'); as dueno) {
+        <p class="pf-error">Este correo ya está registrado para {{ dueno }}.</p>
+      } @else if (formulario.controls.correo.invalid && formulario.controls.correo.touched) {
         <p class="pf-error">El correo no tiene un formato válido.</p>
       }
       @if (faltaContacto) {

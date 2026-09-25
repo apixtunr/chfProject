@@ -15,6 +15,12 @@ import { ClienteService } from '../cliente.service';
 import { PosibleDuplicado } from '../dto/cliente';
 import { alMenosUnoValidator, nitValidator, normalizarNit } from '../nit-guatemala';
 
+/** Datos que no se pueden repetir entre clientes. */
+type CampoUnico = 'nit' | 'telefono' | 'correo';
+const CAMPOS_UNICOS: CampoUnico[] = ['nit', 'telefono', 'correo'];
+/** Como los nombra el backend en PosibleDuplicado.coincidencias. */
+const ETIQUETA_CAMPO: Record<CampoUnico, string> = { nit: 'NIT', telefono: 'teléfono', correo: 'correo' };
+
 @Component({
   selector: 'app-cliente-form',
   imports: [
@@ -114,6 +120,31 @@ export class ClienteForm implements OnInit {
     }
   }
 
+  /**
+   * Al salir de NIT, telefono o correo se revisa si ya pertenece a otro cliente. Si es
+   * asi, el campo queda en error con el nombre del dueño y no se puede guardar (el
+   * backend lo vuelve a validar). El error se limpia solo al volver a escribir, porque
+   * Angular recalcula los validadores del campo.
+   */
+  verificarDuplicado(campo: CampoUnico): void {
+    const control = this.formulario.controls[campo];
+    const valor = control.value?.trim();
+    if (!valor || control.invalid || (campo === 'nit' && normalizarNit(valor) === 'CF')) {
+      return;
+    }
+    this.clienteService.posiblesDuplicados({ [campo]: valor }, this.idCliente()).subscribe((parecidos) => {
+      const dueno = parecidos.find((p) => p.coincidencias.includes(ETIQUETA_CAMPO[campo]));
+      if (dueno && control.value?.trim() === valor) {
+        control.setErrors({ ...control.errors, duplicado: dueno.activo ? dueno.nombre : `${dueno.nombre} (inactivo)` });
+        control.markAsTouched();
+      }
+    });
+  }
+
+  duplicadoDe(campo: CampoUnico): string | null {
+    return this.formulario.controls[campo].getError('duplicado') ?? null;
+  }
+
   get faltaContacto(): boolean {
     const { telefono, correo } = this.formulario.controls;
     return this.formulario.hasError('contacto') && (telefono.touched || correo.touched);
@@ -127,12 +158,27 @@ export class ClienteForm implements OnInit {
 
     this.guardando.set(true);
     const v = this.formulario.getRawValue();
-    // Antes de guardar se buscan clientes parecidos. Es solo un aviso: si el usuario
-    // confirma que es otra persona, se guarda igual (el NIT repetido si lo bloquea el backend).
+    // NIT, telefono y correo repetidos bloquean el guardado y se marcan en su campo. El
+    // nombre repetido solo avisa: dos personas pueden llamarse igual.
     this.clienteService
       .posiblesDuplicados({ nombre: v.nombre, nit: v.nit, telefono: v.telefono, correo: v.correo }, this.idCliente())
       .subscribe({
-        next: (parecidos) => {
+        next: (todos) => {
+          let bloqueado = false;
+          for (const campo of CAMPOS_UNICOS) {
+            const dueno = todos.find((p) => p.coincidencias.includes(ETIQUETA_CAMPO[campo]));
+            if (dueno) {
+              const control = this.formulario.controls[campo];
+              control.setErrors({ ...control.errors, duplicado: dueno.activo ? dueno.nombre : `${dueno.nombre} (inactivo)` });
+              control.markAsTouched();
+              bloqueado = true;
+            }
+          }
+          if (bloqueado) {
+            this.guardando.set(false);
+            return;
+          }
+          const parecidos = todos.filter((p) => p.coincidencias.includes('nombre'));
           if (!parecidos.length) {
             this.enviar();
             return;
@@ -149,9 +195,9 @@ export class ClienteForm implements OnInit {
   private mensajeDuplicados(parecidos: PosibleDuplicado[]): string {
     const lineas = parecidos
       .slice(0, 3)
-      .map((p) => `• ${p.nombre}${p.activo ? '' : ' (inactivo)'} — mismo ${p.coincidencias.join(', ')}`);
+      .map((p) => `• ${p.nombre}${p.activo ? '' : ' (inactivo)'}${p.telefono ? ' · ' + p.telefono : ''}`);
     const extra = parecidos.length > 3 ? `\n…y ${parecidos.length - 3} más.` : '';
-    return `Ya hay clientes parecidos:\n${lineas.join('\n')}${extra}\n\n¿Guardar de todos modos como un cliente distinto?`;
+    return `Ya hay un cliente registrado con este nombre:\n${lineas.join('\n')}${extra}\n\n¿Es una persona distinta? Confirme para guardarlo.`;
   }
 
   private enviar(): void {

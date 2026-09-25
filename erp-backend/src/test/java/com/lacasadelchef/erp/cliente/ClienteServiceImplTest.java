@@ -169,6 +169,33 @@ class ClienteServiceImplTest {
     }
 
     @Test
+    @DisplayName("Crear cliente con un telefono ya registrado se rechaza, aunque este escrito distinto")
+    void crearConTelefonoRepetido() {
+        prepararAlta();
+        when(clienteRepository.buscarPorTelefono("55555555", 0))
+                .thenReturn(java.util.List.of(clienteGuardado(3, "Juan Domingo Salvador", true)));
+
+        assertThatThrownBy(() -> clienteService.crear(peticion("Otro", "CF", "5555 5555", null)))
+                .isInstanceOf(BusinessException.class)
+                .hasMessageContaining("teléfono")
+                .hasMessageContaining("Juan Domingo Salvador");
+        verify(clienteRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("Crear cliente con un correo ya registrado se rechaza, sin importar mayusculas")
+    void crearConCorreoRepetido() {
+        prepararAlta();
+        when(clienteRepository.buscarPorCorreo("ana@correo.com", 0))
+                .thenReturn(java.util.List.of(clienteGuardado(3, "Ana Lucia", true)));
+
+        assertThatThrownBy(() -> clienteService.crear(peticion("Otra", "CF", null, "ANA@correo.com")))
+                .isInstanceOf(BusinessException.class)
+                .hasMessageContaining("correo")
+                .hasMessageContaining("Ana Lucia");
+    }
+
+    @Test
     @DisplayName("Crear cliente sin telefono ni correo se rechaza")
     void crearSinContacto() {
         prepararAlta();

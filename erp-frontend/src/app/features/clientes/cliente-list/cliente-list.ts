@@ -107,7 +107,7 @@ export class ClienteList implements OnInit {
       const ref = this.dialog.open(ConfirmDialog, {
         data: {
           titulo: 'Inactivar cliente',
-          mensaje: `"${cliente.nombre}" dejará de aparecer al crear cotizaciones y eventos. Su historial se conserva y puede reactivarlo cuando quiera.`,
+          mensaje: `El cliente: "${cliente.nombre}" será inactivado, tome en cuenta que no podrá crear cotizaciones ni eventos mientras se encuentra inactivo.`,
         },
       });
       ref.afterClosed().subscribe((confirmado) => {
@@ -120,7 +120,7 @@ export class ClienteList implements OnInit {
 
   private aplicarEstado(cliente: ClienteResponse, activo: boolean): void {
     this.clienteService.cambiarEstado(cliente.idCliente, activo).subscribe(() => {
-      this.snackBar.open(activo ? 'Cliente reactivado' : 'Cliente inactivado', 'Cerrar', { duration: 3000 });
+      this.snackBar.open(activo ? 'Cliente Activado' : 'Cliente inactivado', 'Cerrar', { duration: 3000 });
       this.cargar();
     });
   }
