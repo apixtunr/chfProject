@@ -11,6 +11,7 @@ public record UsuarioActualizarRequest(
         @NotNull(message = "El estado es obligatorio")
         Integer idEstado,
 
+        @NotNull(message = "El empleado es obligatorio")
         Integer idEmpleado
 ) {
 }

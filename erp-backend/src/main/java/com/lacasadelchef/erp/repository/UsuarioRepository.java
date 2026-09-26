@@ -23,4 +23,17 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
     boolean existsByUsernameIgnoreCase(String username);
 
     Page<Usuario> findByUsernameContainingIgnoreCase(String username, Pageable pageable);
+
+    /**
+     * El usuario de un empleado, si lo tiene. Devuelve Optional y no una lista porque la
+     * relacion es uno-a-uno: id_empleado tiene indice unico.
+     *
+     * La llave vive del lado del usuario y la entidad Empleado no apunta de vuelta, asi
+     * que esta es la unica forma de preguntar "este empleado, ¿tiene acceso al sistema?".
+     */
+    Optional<Usuario> findByEmpleadoIdEmpleado(Integer idEmpleado);
+
+    /** Los empleados de esta pagina que tienen usuario, para marcarlos en la lista. */
+    @Query("SELECT u.empleado.idEmpleado FROM Usuario u WHERE u.empleado.idEmpleado IN :ids")
+    java.util.List<Integer> idsEmpleadoConUsuario(@Param("ids") java.util.Collection<Integer> ids);
 }

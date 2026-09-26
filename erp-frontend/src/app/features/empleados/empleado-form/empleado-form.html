@@ -59,6 +59,84 @@
         <mat-datepicker #picker></mat-datepicker>
       </mat-form-field>
 
+      <!-- ══ ACCESO AL SISTEMA ═══════════════════════════════════════════════
+           Al dar de alta se pregunta si la persona va a entrar al sistema. La
+           mayoria no: un mesero o un cocinero se asigna a eventos pero no usa la
+           aplicacion, y crearle credenciales que nadie usa seria un riesgo.
+
+           Al editar no se pregunta, porque quizas ya tiene usuario: ahi se muestra
+           cual es, o un boton para crearselo. -->
+      @if (puedeCrearUsuarios) {
+        <div class="acceso-sistema">
+          <h2 class="acceso-titulo">
+            <mat-icon>badge</mat-icon>
+            Acceso al sistema
+          </h2>
+
+          @if (!idEmpleado()) {
+            <p class="acceso-pregunta">¿Esta persona va a entrar al sistema?</p>
+            <mat-radio-group
+              class="acceso-opciones"
+              formControlName="daAcceso"
+              (change)="cambiarAcceso($event.value)"
+            >
+              <mat-radio-button [value]="false">
+                No, solo queda registrada como empleado
+              </mat-radio-button>
+              <mat-radio-button [value]="true">
+                Sí, crearle un usuario para entrar al sistema
+              </mat-radio-button>
+            </mat-radio-group>
+
+            @if (creaAcceso) {
+              <div class="acceso-campos">
+                <mat-form-field appearance="outline" class="campo">
+                  <mat-label>Nombre de usuario</mat-label>
+                  <input matInput formControlName="username" autocomplete="off" />
+                  @if (formulario.controls.username.hasError('required') && formulario.controls.username.touched) {
+                    <mat-error>El nombre de usuario es obligatorio.</mat-error>
+                  }
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="campo">
+                  <mat-label>Contraseña (mínimo 8 caracteres)</mat-label>
+                  <input matInput type="password" formControlName="password" autocomplete="new-password" />
+                  @if (formulario.controls.password.hasError('minlength') && formulario.controls.password.touched) {
+                    <mat-error>La contraseña debe tener al menos 8 caracteres.</mat-error>
+                  }
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="campo">
+                  <mat-label>Rol en el sistema</mat-label>
+                  <mat-select formControlName="idRolUsuario">
+                    @for (rol of roles(); track rol.idRol) {
+                      <mat-option [value]="rol.idRol">{{ rol.nombreRol }}</mat-option>
+                    }
+                  </mat-select>
+                  <mat-hint>El rol define qué puede hacer dentro del sistema. No tiene relación con el puesto.</mat-hint>
+                </mat-form-field>
+              </div>
+            }
+          } @else if (usuarioActual(); as u) {
+            <p class="acceso-actual">
+              <mat-icon>check_circle</mat-icon>
+              Entra al sistema como <strong>{{ u.username }}</strong>, con rol <strong>{{ u.rol }}</strong>.
+            </p>
+            <a mat-stroked-button [routerLink]="['/admin/usuarios', u.idUsuario, 'editar']">
+              Administrar su acceso
+            </a>
+          } @else {
+            <p class="acceso-actual acceso-actual--sin">
+              Esta persona no entra al sistema.
+            </p>
+            <a mat-stroked-button [routerLink]="['/admin/usuarios/nuevo']" [queryParams]="{ empleado: idEmpleado() }">
+              <mat-icon>person_add</mat-icon>
+              Crear acceso al sistema
+            </a>
+          }
+        </div>
+      }
+
       <div class="acciones">
         <button mat-button type="button" routerLink="/empleados">Cancelar</button>
         <button mat-flat-button color="primary" type="submit" [disabled]="guardando()">Guardar</button>

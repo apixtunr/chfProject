@@ -35,14 +35,19 @@
         </mat-select>
       </mat-form-field>
 
+      <!-- Sin opcion "Ninguno": un usuario sin persona detras es el que dejaba a la
+           bitacora diciendo "admin" en vez de nombrar a alguien. -->
       <mat-form-field appearance="outline" class="campo">
-        <mat-label>Empleado vinculado (opcional)</mat-label>
+        <mat-label>Empleado</mat-label>
         <mat-select formControlName="idEmpleado">
-          <mat-option [value]="null">Ninguno</mat-option>
           @for (empleado of empleados(); track empleado.idEmpleado) {
             <mat-option [value]="empleado.idEmpleado">{{ empleado.nombre }} {{ empleado.apellido }}</mat-option>
           }
         </mat-select>
+        <mat-hint>El usuario pertenece a esta persona; de aqui sale su nombre completo.</mat-hint>
+        @if (formulario.controls.idEmpleado.hasError('required') && formulario.controls.idEmpleado.touched) {
+          <mat-error>El empleado es obligatorio.</mat-error>
+        }
       </mat-form-field>
 
       <div class="acciones">

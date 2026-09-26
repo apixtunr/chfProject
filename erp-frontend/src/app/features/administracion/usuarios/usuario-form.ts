@@ -42,7 +42,9 @@ export class UsuarioForm implements OnInit {
     password: ['', [Validators.required, Validators.minLength(8)]],
     idRol: this.fb.control<number | null>(null, Validators.required),
     idEstado: this.fb.control<number | null>(null, Validators.required),
-    idEmpleado: this.fb.control<number | null>(null),
+    // Obligatorio: todo usuario es una persona del negocio. De ahi sale su nombre
+    // completo, que la tabla usuario no guarda aparte para no duplicarlo.
+    idEmpleado: this.fb.control<number | null>(null, Validators.required),
   });
 
   ngOnInit(): void {
@@ -52,6 +54,12 @@ export class UsuarioForm implements OnInit {
 
     const idParam = this.route.snapshot.paramMap.get('id');
     if (!idParam) {
+      // Al llegar desde la ficha de un empleado ("Crear acceso al sistema") viene ya
+      // elegido, para no obligar a buscarlo otra vez en la lista.
+      const empleadoParam = this.route.snapshot.queryParamMap.get('empleado');
+      if (empleadoParam) {
+        this.formulario.controls.idEmpleado.setValue(Number(empleadoParam));
+      }
       return;
     }
     const id = Number(idParam);

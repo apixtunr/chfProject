@@ -57,7 +57,7 @@ export class EmpleadoList implements OnInit {
   }
 
   get columnas(): string[] {
-    const base = ['nombre', 'puesto', 'estado', 'telefono'];
+    const base = ['nombre', 'puesto', 'estado', 'telefono', 'acceso'];
     return this.puedeEditar || this.puedeEliminar ? [...base, 'acciones'] : base;
   }
 

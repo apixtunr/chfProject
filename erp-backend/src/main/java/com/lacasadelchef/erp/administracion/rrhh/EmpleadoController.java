@@ -30,9 +30,20 @@ public class EmpleadoController {
         return empleadoService.obtenerPorId(id);
     }
 
+    /**
+     * Alta de empleado. Si el cuerpo trae el bloque "acceso", tambien se le crea el
+     * usuario, en la misma transaccion.
+     *
+     * Por eso se piden dos permisos: dar de alta empleados siempre, y dar de alta
+     * usuarios solo cuando se pidio el acceso. Hoy ningun rol fuera de ADMINISTRADOR
+     * tiene configurados esos modulos, pero si manana se le da Empleados a otro rol, no
+     * se lleva de regalo la capacidad de crear usuarios.
+     */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    @PreAuthorize("@permisoService.tienePermiso('/api/empleados', T(com.lacasadelchef.erp.security.TipoPermiso).ALTA)")
+    @PreAuthorize("@permisoService.tienePermiso('/api/empleados', T(com.lacasadelchef.erp.security.TipoPermiso).ALTA)"
+            + " and (#request.acceso() == null"
+            + " or @permisoService.tienePermiso('/api/usuarios', T(com.lacasadelchef.erp.security.TipoPermiso).ALTA))")
     public EmpleadoResponse crear(@Valid @RequestBody EmpleadoRequest request) {
         return empleadoService.crear(request);
     }

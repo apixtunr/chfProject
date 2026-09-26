@@ -6,6 +6,7 @@ import com.lacasadelchef.erp.administracion.usuario.dto.UsuarioRequest;
 import com.lacasadelchef.erp.administracion.usuario.dto.UsuarioResponse;
 import com.lacasadelchef.erp.common.audit.BitacoraMovimientoService;
 import com.lacasadelchef.erp.common.audit.Operacion;
+import com.lacasadelchef.erp.common.exception.BusinessException;
 import com.lacasadelchef.erp.common.exception.ResourceNotFoundException;
 import com.lacasadelchef.erp.entity.Empleado;
 import com.lacasadelchef.erp.entity.Estado;
@@ -53,6 +54,7 @@ public class UsuarioServiceImpl implements UsuarioService {
     @Override
     @Transactional
     public UsuarioResponse crear(UsuarioRequest request) {
+        validarDisponibilidad(request.username(), request.idEmpleado(), null);
         Usuario usuario = new Usuario();
         usuario.setUsername(request.username().trim());
         usuario.setPasswordHash(passwordEncoder.encode(request.password()));
@@ -67,6 +69,7 @@ public class UsuarioServiceImpl implements UsuarioService {
     @Transactional
     public UsuarioResponse actualizar(Integer id, UsuarioActualizarRequest request) {
         Usuario usuario = buscar(id);
+        validarDisponibilidad(null, request.idEmpleado(), id);
         aplicarRolEstadoEmpleado(request.idRol(), request.idEstado(), request.idEmpleado(), usuario);
         usuario = usuarioRepository.save(usuario);
         return UsuarioResponse.desde(usuario);
@@ -105,16 +108,38 @@ public class UsuarioServiceImpl implements UsuarioService {
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario", id));
     }
 
+    /**
+     * Comprueba que el username y el empleado esten libres antes de tocar la base.
+     *
+     * Los dos tienen indice unico, asi que la base igual lo impediria; el problema es
+     * que devuelve un 409 generico donde no se distingue cual de los dos choco. Esto
+     * importa sobre todo en el alta conjunta de empleado + usuario: si el username esta
+     * tomado hay que decirlo antes de grabar nada, para no dejar al empleado creado a
+     * medias y que el segundo intento lo duplique.
+     *
+     * @param username     null cuando no se esta cambiando (la edicion no lo toca)
+     * @param idUsuarioActual null en un alta; en una edicion, el id que se esta editando,
+     *                        para no chocar consigo mismo
+     */
+    private void validarDisponibilidad(String username, Integer idEmpleado, Integer idUsuarioActual) {
+        if (username != null && usuarioRepository.existsByUsernameIgnoreCase(username.trim())) {
+            throw new BusinessException("El usuario '" + username.trim() + "' ya existe.");
+        }
+        usuarioRepository.findByEmpleadoIdEmpleado(idEmpleado)
+                .filter(u -> !u.getIdUsuario().equals(idUsuarioActual))
+                .ifPresent(u -> {
+                    throw new BusinessException(
+                            "Ese empleado ya tiene el usuario '" + u.getUsername() + "'.");
+                });
+    }
+
     private void aplicarRolEstadoEmpleado(Integer idRol, Integer idEstado, Integer idEmpleado, Usuario usuario) {
         Rol rol = rolRepository.findById(idRol)
                 .orElseThrow(() -> new ResourceNotFoundException("Rol", idRol));
         Estado estado = estadoRepository.findById(idEstado)
                 .orElseThrow(() -> new ResourceNotFoundException("Estado", idEstado));
-        Empleado empleado = null;
-        if (idEmpleado != null) {
-            empleado = empleadoRepository.findById(idEmpleado)
-                    .orElseThrow(() -> new ResourceNotFoundException("Empleado", idEmpleado));
-        }
+        Empleado empleado = empleadoRepository.findById(idEmpleado)
+                .orElseThrow(() -> new ResourceNotFoundException("Empleado", idEmpleado));
         usuario.setRol(rol);
         usuario.setEstado(estado);
         usuario.setEmpleado(empleado);

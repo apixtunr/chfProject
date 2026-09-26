@@ -13,3 +13,28 @@
 .tabla {
   width: 100%;
 }
+
+// Marca de acceso al sistema. Usa los tokens de estado del sistema, no colores propios:
+// verde para quien tiene usuario, gris apagado para quien no, porque no tenerlo es lo
+// normal y no debe leerse como una falta.
+.acceso {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.85rem;
+
+  mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+  }
+
+  &--si {
+    color: var(--chf-estado-exito);
+    font-weight: 500;
+  }
+
+  &--no {
+    color: var(--chf-texto-suave);
+  }
+}

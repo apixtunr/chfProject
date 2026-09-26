@@ -13,3 +13,71 @@
   gap: 8px;
   margin-top: 16px;
 }
+
+// ── Acceso al sistema ────────────────────────────────────────────────────────
+// Va separado del resto del formulario con una linea y un titulo propio, porque no
+// son datos de la persona: son sus credenciales, que es otra cosa. Esa separacion
+// visual es la misma que hay en el modelo, donde empleado y usuario son dos tablas.
+.acceso-sistema {
+  margin-top: 8px;
+  padding-top: 20px;
+  border-top: 1px solid var(--chf-borde-suave);
+}
+
+.acceso-titulo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 4px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--chf-texto-fuerte);
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    color: var(--chf-campo-acento);
+  }
+}
+
+.acceso-pregunta {
+  margin: 0 0 10px;
+  font-size: 0.9rem;
+  color: var(--chf-texto-medio);
+}
+
+// Las dos opciones en columna y no en fila: la primera ("no entra al sistema") es la
+// habitual y conviene que se lea completa antes de pasar a la otra.
+.acceso-opciones {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+// Sangrados respecto de la pregunta, para que se lea que dependen de haber dicho que si.
+.acceso-campos {
+  padding-left: 32px;
+  border-left: 2px solid var(--chf-borde-suave);
+}
+
+.acceso-actual {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 12px;
+  font-size: 0.9rem;
+  color: var(--chf-estado-exito);
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+
+  // No tener acceso es lo normal, no una falta: va en gris y sin icono de alerta.
+  &--sin {
+    color: var(--chf-texto-medio);
+  }
+}

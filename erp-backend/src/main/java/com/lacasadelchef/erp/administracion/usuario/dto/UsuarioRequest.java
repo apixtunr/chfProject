@@ -20,7 +20,11 @@ public record UsuarioRequest(
         @NotNull(message = "El estado es obligatorio")
         Integer idEstado,
 
-        /** Vincula el usuario a un empleado existente; opcional (no todo usuario es empleado). */
+        /**
+         * Empleado al que pertenece el usuario. Obligatorio: todo usuario es una persona
+         * del negocio. Al reves no: la mayoria de los empleados no tiene usuario.
+         */
+        @NotNull(message = "El empleado es obligatorio")
         Integer idEmpleado
 ) {
 }

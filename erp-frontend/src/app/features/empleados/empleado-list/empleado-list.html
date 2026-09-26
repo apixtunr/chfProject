@@ -38,16 +38,32 @@
       <td mat-cell *matCellDef="let e">{{ e.telefono }}</td>
     </ng-container>
 
+    <!-- Quien entra al sistema y quien no. La mayoria de los empleados no tiene usuario
+         (meseros, cocineros): se los asigna a eventos pero no usan la aplicacion. -->
+    <ng-container matColumnDef="acceso">
+      <th mat-header-cell *matHeaderCellDef>Acceso al sistema</th>
+      <td mat-cell *matCellDef="let e">
+        @if (e.username) {
+          <span class="acceso acceso--si" [matTooltip]="'Rol: ' + e.rolUsuario">
+            <mat-icon>check_circle</mat-icon>
+            {{ e.username }}
+          </span>
+        } @else {
+          <span class="acceso acceso--no">Sin acceso</span>
+        }
+      </td>
+    </ng-container>
+
     <ng-container matColumnDef="acciones">
       <th mat-header-cell *matHeaderCellDef>Acciones</th>
       <td mat-cell *matCellDef="let e">
         @if (puedeEditar) {
-          <button mat-icon-button [routerLink]="['/empleados', e.idEmpleado, 'editar']" matTooltip="Editar" aria-label="Editar">
+          <button mat-icon-button class="tbl-btn-editar" [routerLink]="['/empleados', e.idEmpleado, 'editar']" matTooltip="Editar" aria-label="Editar">
             <mat-icon>edit</mat-icon>
           </button>
         }
         @if (puedeEliminar) {
-          <button mat-icon-button (click)="eliminar(e)" matTooltip="Eliminar" aria-label="Eliminar">
+          <button mat-icon-button class="tbl-btn-eliminar" (click)="eliminar(e)" matTooltip="Eliminar" aria-label="Eliminar">
             <mat-icon>delete</mat-icon>
           </button>
         }

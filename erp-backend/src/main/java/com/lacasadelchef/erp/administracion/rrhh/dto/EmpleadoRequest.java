@@ -1,5 +1,6 @@
 package com.lacasadelchef.erp.administracion.rrhh.dto;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -33,6 +34,16 @@ public record EmpleadoRequest(
         @Pattern(regexp = "^[0-9+\\- ]{8,20}$", message = "El telefono no tiene un formato valido")
         String telefono,
 
-        LocalDate fechaContratacion
+        LocalDate fechaContratacion,
+
+        /**
+         * Acceso al sistema para esta persona. Opcional y solo se toma en cuenta al dar
+         * de alta: de los empleados actuales, la mayoria no entra al sistema.
+         *
+         * Al editar un empleado este campo tiene que venir vacio; el acceso de alguien
+         * que ya existe se administra desde la pantalla de Usuarios.
+         */
+        @Valid
+        AccesoSistemaRequest acceso
 ) {
 }
