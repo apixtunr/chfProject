@@ -54,7 +54,7 @@ class AuditoriaCambiosListenerTest {
 
     @BeforeEach
     void preparar() throws Exception {
-        lenient().when(persister.getMappedClass()).thenReturn((Class) Usuario.class);
+        lenient().doReturn(Usuario.class).when(persister).getMappedClass();
         when(persister.getPropertyNames()).thenReturn(PROPIEDADES);
         when(persister.getPropertyTypes()).thenReturn(new Type[]{tipoSimple, tipoSimple, tipoSimple, tipoSimple});
         lenient().when(persister.getPropertyInsertability()).thenReturn(INSERTABLES);
