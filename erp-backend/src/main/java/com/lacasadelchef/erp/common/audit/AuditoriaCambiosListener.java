@@ -6,6 +6,10 @@ import jakarta.persistence.Embeddable;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.engine.spi.SharedSessionContractImplementor;
+import org.hibernate.event.spi.PostDeleteEvent;
+import org.hibernate.event.spi.PostDeleteEventListener;
+import org.hibernate.event.spi.PostInsertEvent;
+import org.hibernate.event.spi.PostInsertEventListener;
 import org.hibernate.event.spi.PostUpdateEvent;
 import org.hibernate.event.spi.PostUpdateEventListener;
 import org.hibernate.persister.entity.EntityPersister;
@@ -25,13 +29,17 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
- * Bitacora automatica a nivel de campo. Hibernate invoca onPostUpdate cada vez que
- * escribe un UPDATE de una entidad, entregando el estado anterior y el nuevo; de ahi se
- * saca, por cada columna que realmente cambio, una fila en bitacora_movimiento con
- * nombre_atributo / valor_anterior / valor_nuevo. Los INSERT y DELETE siguen
- * registrandose desde cada service con BitacoraMovimientoService (una fila por
- * operacion, sin detalle de campos), y los UPDATE ya no se registran a mano: los cubre
- * este listener para todas las tablas de una vez.
+ * Bitacora automatica de todas las tablas: Hibernate avisa cada vez que escribe un
+ * INSERT, UPDATE o DELETE de una entidad, y aqui se deja constancia en
+ * bitacora_movimiento sin que ningun service tenga que acordarse de hacerlo.
+ * <ul>
+ *   <li>UPDATE: una fila por cada columna que realmente cambio, con nombre_atributo,
+ *       valor_anterior y valor_nuevo, para poder buscar quien cambio un campo dado.</li>
+ *   <li>INSERT: una sola fila con todos los datos con los que nacio el registro en
+ *       valor_nuevo ("cantidad_platos: 150 · id_plato: 3 (Pastel)...").</li>
+ *   <li>DELETE: una sola fila con lo que tenia el registro en valor_anterior; es la
+ *       unica constancia que queda de el.</li>
+ * </ul>
  *
  * La fila se inserta con JDBC directo sobre la misma conexion/transaccion (doWork) y
  * no con el repositorio: durante el flush no se puede persistir una entidad nueva
@@ -39,7 +47,8 @@ import java.util.Set;
  */
 @Slf4j
 @Component
-public class AuditoriaCambiosListener implements PostUpdateEventListener {
+public class AuditoriaCambiosListener
+        implements PostInsertEventListener, PostUpdateEventListener, PostDeleteEventListener {
 
     private static final Set<Class<?>> ENTIDADES_EXCLUIDAS = Set.of(BitacoraMovimiento.class, BitacoraAcceso.class);
 
@@ -50,6 +59,10 @@ public class AuditoriaCambiosListener implements PostUpdateEventListener {
     /** Se registra que cambio, nunca el valor. */
     private static final Set<String> PROPIEDADES_ENMASCARADAS = Set.of("passwordHash");
     private static final String VALOR_ENMASCARADO = "********";
+
+    /** Separa los campos en el resumen de un INSERT o DELETE. */
+    private static final String SEPARADOR_RESUMEN = " · ";
+    private static final String SIN_VALOR = "-";
 
     private static final String SQL_INSERT = """
             INSERT INTO bitacora_movimiento
@@ -105,6 +118,68 @@ public class AuditoriaCambiosListener implements PostUpdateEventListener {
             return;
         }
 
+        insertar(session, filas);
+    }
+
+    @Override
+    public void onPostInsert(PostInsertEvent event) {
+        EntityPersister persister = event.getPersister();
+        if (ENTIDADES_EXCLUIDAS.contains(persister.getMappedClass())) {
+            return;
+        }
+        SharedSessionContractImplementor session = event.getSession();
+        String resumen = resumir(persister, event.getState(), session, true);
+        insertar(session, List.<Object[]>of(fila(persister, event.getId(), null, resumen, Operacion.INSERT)));
+    }
+
+    @Override
+    public void onPostDelete(PostDeleteEvent event) {
+        EntityPersister persister = event.getPersister();
+        if (ENTIDADES_EXCLUIDAS.contains(persister.getMappedClass())) {
+            return;
+        }
+        SharedSessionContractImplementor session = event.getSession();
+        String resumen = resumir(persister, event.getDeletedState(), session, false);
+        insertar(session, List.<Object[]>of(fila(persister, event.getId(), resumen, null, Operacion.DELETE)));
+    }
+
+    /** Fila de INSERT o DELETE: todo el registro resumido, sin nombre_atributo. */
+    private static Object[] fila(EntityPersister persister, Object id, String anterior, String nuevo, Operacion operacion) {
+        return new Object[]{
+                ContextoAuditoria.idUsuarioActual(), nombreTabla(persister.getMappedClass(), persister), renderId(id),
+                null, anterior, nuevo, operacion.name(), ContextoAuditoria.ipActual()};
+    }
+
+    /**
+     * Todos los campos del registro en una linea, "columna: valor", con los mismos
+     * criterios que un UPDATE: sin columnas de control ni colecciones, y la contrasena
+     * enmascarada. En un alta se omiten las columnas que llena la base de datos (total
+     * por trigger, subtotal calculado, fecha por defecto): en ese momento Hibernate aun
+     * no las conoce y saldrian vacias, como si no tuvieran valor.
+     */
+    private static String resumir(EntityPersister persister, Object[] estado, SharedSessionContractImplementor session,
+                                  boolean esAlta) {
+        if (estado == null) {
+            return null;
+        }
+        String[] nombres = persister.getPropertyNames();
+        Type[] tipos = persister.getPropertyTypes();
+        boolean[] insertables = persister.getPropertyInsertability();
+        List<String> partes = new ArrayList<>();
+        for (int i = 0; i < nombres.length; i++) {
+            String propiedad = nombres[i];
+            if (PROPIEDADES_IGNORADAS.contains(propiedad) || tipos[i].isCollectionType() || (esAlta && !insertables[i])) {
+                continue;
+            }
+            String valor = PROPIEDADES_ENMASCARADAS.contains(propiedad)
+                    ? VALOR_ENMASCARADO
+                    : render(estado[i], tipos[i], session);
+            partes.add(nombreColumna(persister, propiedad) + ": " + (valor == null ? SIN_VALOR : valor));
+        }
+        return String.join(SEPARADOR_RESUMEN, partes);
+    }
+
+    private static void insertar(SharedSessionContractImplementor session, List<Object[]> filas) {
         session.doWork(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(SQL_INSERT)) {
                 for (Object[] f : filas) {

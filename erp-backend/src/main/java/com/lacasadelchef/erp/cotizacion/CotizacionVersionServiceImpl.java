@@ -1,7 +1,5 @@
 package com.lacasadelchef.erp.cotizacion;
 
-import com.lacasadelchef.erp.common.audit.BitacoraMovimientoService;
-import com.lacasadelchef.erp.common.audit.Operacion;
 import com.lacasadelchef.erp.common.exception.BusinessException;
 import com.lacasadelchef.erp.common.exception.ResourceNotFoundException;
 import com.lacasadelchef.erp.cotizacion.dto.CotizacionVersionResponse;
@@ -29,7 +27,6 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class CotizacionVersionServiceImpl implements CotizacionVersionService {
 
-    private static final String TABLA = "cotizacion_version";
     private static final String TIPO_ESTADO_COTIZACION = "COTIZACION";
     private static final String ESTADO_CREADA = "CREADA";
     private static final String ESTADO_ENVIADA = "ENVIADA";
@@ -51,7 +48,6 @@ public class CotizacionVersionServiceImpl implements CotizacionVersionService {
     private final DetalleCotizacionRepository detalleCotizacionRepository;
     private final ServicioCotizacionRepository servicioCotizacionRepository;
     private final EstadoRepository estadoRepository;
-    private final BitacoraMovimientoService bitacoraMovimientoService;
     private final EntityManager entityManager;
 
     @Override
@@ -129,7 +125,6 @@ public class CotizacionVersionServiceImpl implements CotizacionVersionService {
             }
         }
 
-        bitacoraMovimientoService.registrar(TABLA, nueva.getIdCotizacionVersion(), Operacion.INSERT);
         return CotizacionVersionResponse.desde(nueva);
     }
 

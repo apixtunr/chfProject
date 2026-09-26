@@ -1093,3 +1093,10 @@ mat-paginator {
 .pf-section .mat-mdc-table {
   margin: 4px 0 8px;
 }
+
+// Tooltip de la bitacora: el resumen de un alta o baja trae un campo por renglon.
+.tooltip-resumen .mdc-tooltip__surface {
+  white-space: pre-line;
+  text-align: left;
+  max-width: 420px;
+}

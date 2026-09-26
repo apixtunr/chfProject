@@ -2,8 +2,6 @@ package com.lacasadelchef.erp.administracion.catalogo;
 
 import com.lacasadelchef.erp.administracion.catalogo.dto.EstadoRequest;
 import com.lacasadelchef.erp.administracion.catalogo.dto.EstadoResponse;
-import com.lacasadelchef.erp.common.audit.BitacoraMovimientoService;
-import com.lacasadelchef.erp.common.audit.Operacion;
 import com.lacasadelchef.erp.common.exception.ResourceNotFoundException;
 import com.lacasadelchef.erp.entity.Estado;
 import com.lacasadelchef.erp.entity.TipoEstado;
@@ -19,11 +17,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class EstadoServiceImpl implements EstadoService {
 
-    private static final String TABLA = "estado";
-
     private final EstadoRepository estadoRepository;
     private final TipoEstadoRepository tipoEstadoRepository;
-    private final BitacoraMovimientoService bitacoraMovimientoService;
 
     @Override
     @Transactional(readOnly = true)
@@ -47,7 +42,6 @@ public class EstadoServiceImpl implements EstadoService {
         Estado estado = new Estado();
         aplicar(request, estado);
         estado = estadoRepository.save(estado);
-        bitacoraMovimientoService.registrar(TABLA, estado.getIdEstado(), Operacion.INSERT);
         return EstadoResponse.desde(estado);
     }
 
@@ -65,7 +59,6 @@ public class EstadoServiceImpl implements EstadoService {
     public void eliminar(Integer id) {
         Estado estado = buscar(id);
         estadoRepository.delete(estado);
-        bitacoraMovimientoService.registrar(TABLA, estado.getIdEstado(), Operacion.DELETE);
     }
 
     private Estado buscar(Integer id) {

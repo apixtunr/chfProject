@@ -15,7 +15,7 @@ import java.util.List;
 
 /**
  * Solo lectura: bitacora_movimiento y bitacora_acceso se llenan desde
- * BitacoraMovimientoService y AuthService respectivamente; este servicio unicamente
+ * AuditoriaCambiosListener y AuthService respectivamente; este servicio unicamente
  * las consulta para la pantalla de Bitacora.
  */
 @Service

@@ -9,8 +9,8 @@ import org.hibernate.event.spi.EventType;
 import org.springframework.stereotype.Component;
 
 /**
- * Engancha {@link AuditoriaCambiosListener} al ciclo de eventos de Hibernate una vez
- * que Spring termino de construir el EntityManagerFactory. Es un bean aparte para que
+ * Engancha {@link AuditoriaCambiosListener} a los eventos de alta, cambio y baja de
+ * Hibernate una vez que Spring termino de construir el EntityManagerFactory. Es un bean aparte para que
  * el listener pueda ser un @Component normal (con logging e inyeccion) sin tener que
  * declararlo en hibernate.properties.
  */
@@ -24,8 +24,9 @@ class AuditoriaCambiosRegistrador {
     @PostConstruct
     void registrar() {
         SessionFactoryImplementor sessionFactory = entityManagerFactory.unwrap(SessionFactoryImplementor.class);
-        sessionFactory.getServiceRegistry()
-                .requireService(EventListenerRegistry.class)
-                .appendListeners(EventType.POST_UPDATE, listener);
+        EventListenerRegistry registro = sessionFactory.getServiceRegistry().requireService(EventListenerRegistry.class);
+        registro.appendListeners(EventType.POST_INSERT, listener);
+        registro.appendListeners(EventType.POST_UPDATE, listener);
+        registro.appendListeners(EventType.POST_DELETE, listener);
     }
 }

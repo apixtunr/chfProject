@@ -2,8 +2,6 @@ package com.lacasadelchef.erp.administracion.rbac;
 
 import com.lacasadelchef.erp.administracion.rbac.dto.RolRequest;
 import com.lacasadelchef.erp.administracion.rbac.dto.RolResponse;
-import com.lacasadelchef.erp.common.audit.BitacoraMovimientoService;
-import com.lacasadelchef.erp.common.audit.Operacion;
 import com.lacasadelchef.erp.common.exception.ResourceNotFoundException;
 import com.lacasadelchef.erp.entity.Rol;
 import com.lacasadelchef.erp.repository.RolRepository;
@@ -17,10 +15,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class RolServiceImpl implements RolService {
 
-    private static final String TABLA = "rol";
-
     private final RolRepository rolRepository;
-    private final BitacoraMovimientoService bitacoraMovimientoService;
 
     @Override
     @Transactional(readOnly = true)
@@ -40,7 +35,6 @@ public class RolServiceImpl implements RolService {
         Rol rol = new Rol();
         aplicar(request, rol);
         rol = rolRepository.save(rol);
-        bitacoraMovimientoService.registrar(TABLA, rol.getIdRol(), Operacion.INSERT);
         return RolResponse.desde(rol);
     }
 
@@ -60,7 +54,6 @@ public class RolServiceImpl implements RolService {
         // GlobalExceptionHandler lo traduce a HTTP 409.
         Rol rol = buscar(id);
         rolRepository.delete(rol);
-        bitacoraMovimientoService.registrar(TABLA, rol.getIdRol(), Operacion.DELETE);
     }
 
     private Rol buscar(Integer id) {

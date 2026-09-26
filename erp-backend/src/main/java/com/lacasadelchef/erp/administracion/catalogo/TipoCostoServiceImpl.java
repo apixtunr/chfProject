@@ -2,8 +2,6 @@ package com.lacasadelchef.erp.administracion.catalogo;
 
 import com.lacasadelchef.erp.administracion.catalogo.dto.TipoCostoRequest;
 import com.lacasadelchef.erp.administracion.catalogo.dto.TipoCostoResponse;
-import com.lacasadelchef.erp.common.audit.BitacoraMovimientoService;
-import com.lacasadelchef.erp.common.audit.Operacion;
 import com.lacasadelchef.erp.common.exception.ResourceNotFoundException;
 import com.lacasadelchef.erp.entity.TipoCosto;
 import com.lacasadelchef.erp.repository.TipoCostoRepository;
@@ -17,10 +15,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TipoCostoServiceImpl implements TipoCostoService {
 
-    private static final String TABLA = "tipo_costo";
-
     private final TipoCostoRepository tipoCostoRepository;
-    private final BitacoraMovimientoService bitacoraMovimientoService;
 
     @Override
     @Transactional(readOnly = true)
@@ -40,7 +35,6 @@ public class TipoCostoServiceImpl implements TipoCostoService {
         TipoCosto tipoCosto = new TipoCosto();
         aplicar(request, tipoCosto);
         tipoCosto = tipoCostoRepository.save(tipoCosto);
-        bitacoraMovimientoService.registrar(TABLA, tipoCosto.getIdTipoCosto(), Operacion.INSERT);
         return TipoCostoResponse.desde(tipoCosto);
     }
 
@@ -58,7 +52,6 @@ public class TipoCostoServiceImpl implements TipoCostoService {
     public void eliminar(Integer id) {
         TipoCosto tipoCosto = buscar(id);
         tipoCostoRepository.delete(tipoCosto);
-        bitacoraMovimientoService.registrar(TABLA, tipoCosto.getIdTipoCosto(), Operacion.DELETE);
     }
 
     private TipoCosto buscar(Integer id) {

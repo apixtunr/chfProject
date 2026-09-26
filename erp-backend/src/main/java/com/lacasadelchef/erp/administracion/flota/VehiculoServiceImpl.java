@@ -2,8 +2,6 @@ package com.lacasadelchef.erp.administracion.flota;
 
 import com.lacasadelchef.erp.administracion.flota.dto.VehiculoRequest;
 import com.lacasadelchef.erp.administracion.flota.dto.VehiculoResponse;
-import com.lacasadelchef.erp.common.audit.BitacoraMovimientoService;
-import com.lacasadelchef.erp.common.audit.Operacion;
 import com.lacasadelchef.erp.common.exception.ResourceNotFoundException;
 import com.lacasadelchef.erp.entity.Estado;
 import com.lacasadelchef.erp.entity.LineaVehiculo;
@@ -23,13 +21,10 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class VehiculoServiceImpl implements VehiculoService {
 
-    private static final String TABLA = "vehiculo";
-
     private final VehiculoRepository vehiculoRepository;
     private final LineaVehiculoRepository lineaVehiculoRepository;
     private final TipoPlacaRepository tipoPlacaRepository;
     private final EstadoRepository estadoRepository;
-    private final BitacoraMovimientoService bitacoraMovimientoService;
 
     @Override
     @Transactional(readOnly = true)
@@ -49,7 +44,6 @@ public class VehiculoServiceImpl implements VehiculoService {
         Vehiculo vehiculo = new Vehiculo();
         aplicar(request, vehiculo);
         vehiculo = vehiculoRepository.save(vehiculo);
-        bitacoraMovimientoService.registrar(TABLA, vehiculo.getIdVehiculo(), Operacion.INSERT);
         return VehiculoResponse.desde(vehiculo);
     }
 
@@ -69,7 +63,6 @@ public class VehiculoServiceImpl implements VehiculoService {
         // GlobalExceptionHandler lo traduce a HTTP 409.
         Vehiculo vehiculo = buscar(id);
         vehiculoRepository.delete(vehiculo);
-        bitacoraMovimientoService.registrar(TABLA, vehiculo.getIdVehiculo(), Operacion.DELETE);
     }
 
     private Vehiculo buscar(Integer id) {

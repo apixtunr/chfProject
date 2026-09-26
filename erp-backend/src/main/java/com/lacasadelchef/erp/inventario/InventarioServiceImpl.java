@@ -1,7 +1,5 @@
 package com.lacasadelchef.erp.inventario;
 
-import com.lacasadelchef.erp.common.audit.BitacoraMovimientoService;
-import com.lacasadelchef.erp.common.audit.Operacion;
 import com.lacasadelchef.erp.common.exception.ResourceNotFoundException;
 import com.lacasadelchef.erp.entity.Inventario;
 import com.lacasadelchef.erp.entity.Producto;
@@ -21,11 +19,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class InventarioServiceImpl implements InventarioService {
 
-    private static final String TABLA = "inventario";
-
     private final InventarioRepository inventarioRepository;
     private final ProductoRepository productoRepository;
-    private final BitacoraMovimientoService bitacoraMovimientoService;
 
     @Override
     @Transactional(readOnly = true)
@@ -57,7 +52,6 @@ public class InventarioServiceImpl implements InventarioService {
         inventario.setCantidadMinima(request.cantidadMinima());
         inventario = inventarioRepository.save(inventario);
         if (esNuevo) {
-            bitacoraMovimientoService.registrar(TABLA, inventario.getIdInventario(), Operacion.INSERT);
         }
         return InventarioResponse.desde(inventario);
     }

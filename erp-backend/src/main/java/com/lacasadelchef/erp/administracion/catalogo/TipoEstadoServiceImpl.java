@@ -2,8 +2,6 @@ package com.lacasadelchef.erp.administracion.catalogo;
 
 import com.lacasadelchef.erp.administracion.catalogo.dto.TipoEstadoRequest;
 import com.lacasadelchef.erp.administracion.catalogo.dto.TipoEstadoResponse;
-import com.lacasadelchef.erp.common.audit.BitacoraMovimientoService;
-import com.lacasadelchef.erp.common.audit.Operacion;
 import com.lacasadelchef.erp.common.exception.ResourceNotFoundException;
 import com.lacasadelchef.erp.entity.TipoEstado;
 import com.lacasadelchef.erp.repository.TipoEstadoRepository;
@@ -17,10 +15,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TipoEstadoServiceImpl implements TipoEstadoService {
 
-    private static final String TABLA = "tipo_estado";
-
     private final TipoEstadoRepository tipoEstadoRepository;
-    private final BitacoraMovimientoService bitacoraMovimientoService;
 
     @Override
     @Transactional(readOnly = true)
@@ -40,7 +35,6 @@ public class TipoEstadoServiceImpl implements TipoEstadoService {
         TipoEstado tipoEstado = new TipoEstado();
         aplicar(request, tipoEstado);
         tipoEstado = tipoEstadoRepository.save(tipoEstado);
-        bitacoraMovimientoService.registrar(TABLA, tipoEstado.getIdTipoEstado(), Operacion.INSERT);
         return TipoEstadoResponse.desde(tipoEstado);
     }
 
@@ -58,7 +52,6 @@ public class TipoEstadoServiceImpl implements TipoEstadoService {
     public void eliminar(Integer id) {
         TipoEstado tipoEstado = buscar(id);
         tipoEstadoRepository.delete(tipoEstado);
-        bitacoraMovimientoService.registrar(TABLA, tipoEstado.getIdTipoEstado(), Operacion.DELETE);
     }
 
     private TipoEstado buscar(Integer id) {

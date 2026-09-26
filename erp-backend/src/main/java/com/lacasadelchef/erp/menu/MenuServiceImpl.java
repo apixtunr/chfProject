@@ -1,7 +1,5 @@
 package com.lacasadelchef.erp.menu;
 
-import com.lacasadelchef.erp.common.audit.BitacoraMovimientoService;
-import com.lacasadelchef.erp.common.audit.Operacion;
 import com.lacasadelchef.erp.common.exception.ResourceNotFoundException;
 import com.lacasadelchef.erp.entity.Estado;
 import com.lacasadelchef.erp.entity.Menu;
@@ -28,14 +26,10 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MenuServiceImpl implements MenuService {
 
-    private static final String TABLA_MENU = "menu";
-    private static final String TABLA_MENU_PLATO = "menu_plato";
-
     private final MenuRepository menuRepository;
     private final PlatoRepository platoRepository;
     private final MenuPlatoRepository menuPlatoRepository;
     private final EstadoRepository estadoRepository;
-    private final BitacoraMovimientoService bitacoraMovimientoService;
 
     @Override
     @Transactional(readOnly = true)
@@ -59,7 +53,6 @@ public class MenuServiceImpl implements MenuService {
         Menu menu = new Menu();
         aplicar(request, menu);
         menu = menuRepository.save(menu);
-        bitacoraMovimientoService.registrar(TABLA_MENU, menu.getIdMenu(), Operacion.INSERT);
         return MenuResponse.desde(menu, menuPlatoRepository.sumarPrecioPorMenu(menu.getIdMenu()));
     }
 
@@ -79,7 +72,6 @@ public class MenuServiceImpl implements MenuService {
         // y el GlobalExceptionHandler lo traduce a HTTP 409.
         Menu menu = buscarMenu(id);
         menuRepository.delete(menu);
-        bitacoraMovimientoService.registrar(TABLA_MENU, menu.getIdMenu(), Operacion.DELETE);
     }
 
     @Override
@@ -102,7 +94,6 @@ public class MenuServiceImpl implements MenuService {
         menuPlato.setPlato(plato);
         aplicar(request, menuPlato);
         menuPlato = menuPlatoRepository.save(menuPlato);
-        bitacoraMovimientoService.registrar(TABLA_MENU_PLATO, idMenu + "-" + idPlato, Operacion.INSERT);
         return MenuPlatoResponse.desde(menuPlato);
     }
 
@@ -120,7 +111,6 @@ public class MenuServiceImpl implements MenuService {
     public void quitarPlato(Integer idMenu, Integer idPlato) {
         MenuPlato menuPlato = buscarMenuPlato(idMenu, idPlato);
         menuPlatoRepository.delete(menuPlato);
-        bitacoraMovimientoService.registrar(TABLA_MENU_PLATO, idMenu + "-" + idPlato, Operacion.DELETE);
     }
 
     private Menu buscarMenu(Integer id) {

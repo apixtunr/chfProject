@@ -1,7 +1,5 @@
 package com.lacasadelchef.erp.evento;
 
-import com.lacasadelchef.erp.common.audit.BitacoraMovimientoService;
-import com.lacasadelchef.erp.common.audit.Operacion;
 import com.lacasadelchef.erp.common.exception.BusinessException;
 import com.lacasadelchef.erp.common.exception.ResourceNotFoundException;
 import com.lacasadelchef.erp.cotizacion.dto.CotizacionResponse;
@@ -45,7 +43,6 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class EventoServiceImpl implements EventoService {
 
-    private static final String TABLA = "evento";
     private static final String TIPO_ESTADO_EVENTO = "EVENTO";
     private static final String ESTADO_CREADO = "CREADO";
     private static final String ESTADO_PLANIFICADO = "PLANIFICADO";
@@ -74,7 +71,6 @@ public class EventoServiceImpl implements EventoService {
     private final EventoEmpleadoRepository eventoEmpleadoRepository;
     private final EventoVehiculoRepository eventoVehiculoRepository;
     private final EventoInventarioRepository eventoInventarioRepository;
-    private final BitacoraMovimientoService bitacoraMovimientoService;
     private final EventoEstadoSchedulerService estadoSchedulerService;
 
     @Override
@@ -127,7 +123,6 @@ public class EventoServiceImpl implements EventoService {
         validarNoEnElPasado(evento);
         evento.setEstado(buscarEstado(TIPO_ESTADO_EVENTO, ESTADO_CREADO));
         evento = eventoRepository.save(evento);
-        bitacoraMovimientoService.registrar(TABLA, evento.getIdEvento(), Operacion.INSERT);
         estadoSchedulerService.programar(evento);
         return EventoResponse.desde(evento);
     }
@@ -149,7 +144,6 @@ public class EventoServiceImpl implements EventoService {
         // GlobalExceptionHandler lo traduce a HTTP 409.
         Evento evento = buscarEvento(id);
         eventoRepository.delete(evento);
-        bitacoraMovimientoService.registrar(TABLA, evento.getIdEvento(), Operacion.DELETE);
         estadoSchedulerService.cancelarTareas(id);
     }
 

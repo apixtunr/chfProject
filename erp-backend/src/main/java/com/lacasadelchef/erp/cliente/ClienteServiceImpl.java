@@ -3,8 +3,6 @@ package com.lacasadelchef.erp.cliente;
 import com.lacasadelchef.erp.cliente.dto.ClienteRequest;
 import com.lacasadelchef.erp.cliente.dto.ClienteResponse;
 import com.lacasadelchef.erp.cliente.dto.PosibleDuplicadoResponse;
-import com.lacasadelchef.erp.common.audit.BitacoraMovimientoService;
-import com.lacasadelchef.erp.common.audit.Operacion;
 import com.lacasadelchef.erp.common.exception.BusinessException;
 import com.lacasadelchef.erp.common.exception.ResourceNotFoundException;
 import com.lacasadelchef.erp.entity.Cliente;
@@ -41,7 +39,6 @@ import java.util.Locale;
 @RequiredArgsConstructor
 public class ClienteServiceImpl implements ClienteService {
 
-    private static final String TABLA = "cliente";
     private static final String TIPO_ESTADO_GENERAL = "GENERAL";
     private static final String ACTIVO = "ACTIVO";
     private static final String INACTIVO = "INACTIVO";
@@ -49,7 +46,6 @@ public class ClienteServiceImpl implements ClienteService {
     private final ClienteRepository clienteRepository;
     private final MunicipioRepository municipioRepository;
     private final EstadoRepository estadoRepository;
-    private final BitacoraMovimientoService bitacoraMovimientoService;
 
     @Override
     @Transactional(readOnly = true)
@@ -76,7 +72,6 @@ public class ClienteServiceImpl implements ClienteService {
         cliente.setEstado(buscarEstado(ACTIVO));
         aplicar(request, cliente);
         cliente = clienteRepository.save(cliente);
-        bitacoraMovimientoService.registrar(TABLA, cliente.getIdCliente(), Operacion.INSERT);
         return ClienteResponse.desde(cliente);
     }
 

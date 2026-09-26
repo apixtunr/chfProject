@@ -1,7 +1,5 @@
 package com.lacasadelchef.erp.evento;
 
-import com.lacasadelchef.erp.common.audit.BitacoraMovimientoService;
-import com.lacasadelchef.erp.common.audit.Operacion;
 import com.lacasadelchef.erp.common.exception.ResourceNotFoundException;
 import com.lacasadelchef.erp.entity.Empleado;
 import com.lacasadelchef.erp.entity.Evento;
@@ -24,13 +22,10 @@ import java.util.List;
 @RequiredArgsConstructor
 public class EventoVehiculoServiceImpl implements EventoVehiculoService {
 
-    private static final String TABLA = "evento_vehiculo";
-
     private final EventoVehiculoRepository eventoVehiculoRepository;
     private final EventoRepository eventoRepository;
     private final VehiculoRepository vehiculoRepository;
     private final EmpleadoRepository empleadoRepository;
-    private final BitacoraMovimientoService bitacoraMovimientoService;
 
     @Override
     @Transactional(readOnly = true)
@@ -54,7 +49,6 @@ public class EventoVehiculoServiceImpl implements EventoVehiculoService {
         eventoVehiculo.setVehiculo(vehiculo);
         aplicar(request, eventoVehiculo);
         eventoVehiculo = eventoVehiculoRepository.save(eventoVehiculo);
-        bitacoraMovimientoService.registrar(TABLA, idEvento + "-" + idVehiculo, Operacion.INSERT);
         return EventoVehiculoResponse.desde(eventoVehiculo);
     }
 
@@ -72,7 +66,6 @@ public class EventoVehiculoServiceImpl implements EventoVehiculoService {
     public void quitar(Integer idEvento, Integer idVehiculo) {
         EventoVehiculo eventoVehiculo = buscar(idEvento, idVehiculo);
         eventoVehiculoRepository.delete(eventoVehiculo);
-        bitacoraMovimientoService.registrar(TABLA, idEvento + "-" + idVehiculo, Operacion.DELETE);
     }
 
     private EventoVehiculo buscar(Integer idEvento, Integer idVehiculo) {

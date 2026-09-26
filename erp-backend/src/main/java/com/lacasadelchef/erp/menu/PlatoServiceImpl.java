@@ -1,7 +1,5 @@
 package com.lacasadelchef.erp.menu;
 
-import com.lacasadelchef.erp.common.audit.BitacoraMovimientoService;
-import com.lacasadelchef.erp.common.audit.Operacion;
 import com.lacasadelchef.erp.common.exception.ResourceNotFoundException;
 import com.lacasadelchef.erp.entity.Estado;
 import com.lacasadelchef.erp.entity.Plato;
@@ -19,11 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class PlatoServiceImpl implements PlatoService {
 
-    private static final String TABLA = "plato";
-
     private final PlatoRepository platoRepository;
     private final EstadoRepository estadoRepository;
-    private final BitacoraMovimientoService bitacoraMovimientoService;
 
     @Override
     @Transactional(readOnly = true)
@@ -46,7 +41,6 @@ public class PlatoServiceImpl implements PlatoService {
         Plato plato = new Plato();
         aplicar(request, plato);
         plato = platoRepository.save(plato);
-        bitacoraMovimientoService.registrar(TABLA, plato.getIdPlato(), Operacion.INSERT);
         return PlatoResponse.desde(plato);
     }
 
@@ -66,7 +60,6 @@ public class PlatoServiceImpl implements PlatoService {
         // GlobalExceptionHandler lo traduce a HTTP 409.
         Plato plato = buscarPlato(id);
         platoRepository.delete(plato);
-        bitacoraMovimientoService.registrar(TABLA, plato.getIdPlato(), Operacion.DELETE);
     }
 
     private Plato buscarPlato(Integer id) {

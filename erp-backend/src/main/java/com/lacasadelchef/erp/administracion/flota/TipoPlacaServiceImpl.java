@@ -2,8 +2,6 @@ package com.lacasadelchef.erp.administracion.flota;
 
 import com.lacasadelchef.erp.administracion.flota.dto.TipoPlacaRequest;
 import com.lacasadelchef.erp.administracion.flota.dto.TipoPlacaResponse;
-import com.lacasadelchef.erp.common.audit.BitacoraMovimientoService;
-import com.lacasadelchef.erp.common.audit.Operacion;
 import com.lacasadelchef.erp.common.exception.ResourceNotFoundException;
 import com.lacasadelchef.erp.entity.TipoPlaca;
 import com.lacasadelchef.erp.repository.TipoPlacaRepository;
@@ -17,10 +15,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TipoPlacaServiceImpl implements TipoPlacaService {
 
-    private static final String TABLA = "tipo_placa";
-
     private final TipoPlacaRepository tipoPlacaRepository;
-    private final BitacoraMovimientoService bitacoraMovimientoService;
 
     @Override
     @Transactional(readOnly = true)
@@ -40,7 +35,6 @@ public class TipoPlacaServiceImpl implements TipoPlacaService {
         TipoPlaca tipoPlaca = new TipoPlaca();
         aplicar(request, tipoPlaca);
         tipoPlaca = tipoPlacaRepository.save(tipoPlaca);
-        bitacoraMovimientoService.registrar(TABLA, tipoPlaca.getIdTipoPlaca(), Operacion.INSERT);
         return TipoPlacaResponse.desde(tipoPlaca);
     }
 
@@ -58,7 +52,6 @@ public class TipoPlacaServiceImpl implements TipoPlacaService {
     public void eliminar(Integer id) {
         TipoPlaca tipoPlaca = buscar(id);
         tipoPlacaRepository.delete(tipoPlaca);
-        bitacoraMovimientoService.registrar(TABLA, tipoPlaca.getIdTipoPlaca(), Operacion.DELETE);
     }
 
     private TipoPlaca buscar(Integer id) {

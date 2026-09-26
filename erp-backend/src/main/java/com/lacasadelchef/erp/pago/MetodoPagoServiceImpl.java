@@ -1,7 +1,5 @@
 package com.lacasadelchef.erp.pago;
 
-import com.lacasadelchef.erp.common.audit.BitacoraMovimientoService;
-import com.lacasadelchef.erp.common.audit.Operacion;
 import com.lacasadelchef.erp.common.exception.ResourceNotFoundException;
 import com.lacasadelchef.erp.entity.Estado;
 import com.lacasadelchef.erp.entity.MetodoPago;
@@ -19,11 +17,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MetodoPagoServiceImpl implements MetodoPagoService {
 
-    private static final String TABLA = "metodo_pago";
-
     private final MetodoPagoRepository metodoPagoRepository;
     private final EstadoRepository estadoRepository;
-    private final BitacoraMovimientoService bitacoraMovimientoService;
 
     @Override
     @Transactional(readOnly = true)
@@ -45,7 +40,6 @@ public class MetodoPagoServiceImpl implements MetodoPagoService {
         MetodoPago metodoPago = new MetodoPago();
         aplicar(request, metodoPago);
         metodoPago = metodoPagoRepository.save(metodoPago);
-        bitacoraMovimientoService.registrar(TABLA, metodoPago.getIdMetodoPago(), Operacion.INSERT);
         return MetodoPagoResponse.desde(metodoPago);
     }
 
@@ -63,7 +57,6 @@ public class MetodoPagoServiceImpl implements MetodoPagoService {
     public void eliminar(Integer id) {
         MetodoPago metodoPago = buscar(id);
         metodoPagoRepository.delete(metodoPago);
-        bitacoraMovimientoService.registrar(TABLA, metodoPago.getIdMetodoPago(), Operacion.DELETE);
     }
 
     private MetodoPago buscar(Integer id) {

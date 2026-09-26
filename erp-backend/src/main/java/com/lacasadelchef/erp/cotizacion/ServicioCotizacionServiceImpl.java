@@ -1,7 +1,5 @@
 package com.lacasadelchef.erp.cotizacion;
 
-import com.lacasadelchef.erp.common.audit.BitacoraMovimientoService;
-import com.lacasadelchef.erp.common.audit.Operacion;
 import com.lacasadelchef.erp.common.exception.BusinessException;
 import com.lacasadelchef.erp.common.exception.ResourceNotFoundException;
 import com.lacasadelchef.erp.cotizacion.dto.ServicioCotizacionRequest;
@@ -23,13 +21,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ServicioCotizacionServiceImpl implements ServicioCotizacionService {
 
-    private static final String TABLA = "servicio_cotizacion";
     private static final String ESTADO_CREADA = "CREADA";
 
     private final ServicioCotizacionRepository servicioCotizacionRepository;
     private final CotizacionVersionRepository cotizacionVersionRepository;
     private final TipoServicioRepository tipoServicioRepository;
-    private final BitacoraMovimientoService bitacoraMovimientoService;
     private final EntityManager entityManager;
 
     @Override
@@ -50,7 +46,6 @@ public class ServicioCotizacionServiceImpl implements ServicioCotizacionService 
         servicio = servicioCotizacionRepository.save(servicio);
 
         entityManager.refresh(version);
-        bitacoraMovimientoService.registrar(TABLA, servicio.getIdServicioCotizacion(), Operacion.INSERT);
         return ServicioCotizacionResponse.desde(servicio, version.getMontoTotal());
     }
 
@@ -73,7 +68,6 @@ public class ServicioCotizacionServiceImpl implements ServicioCotizacionService 
         ServicioCotizacion servicio = buscarServicio(idCotizacionVersion, idServicio);
         validarEditable(servicio.getCotizacionVersion());
         servicioCotizacionRepository.delete(servicio);
-        bitacoraMovimientoService.registrar(TABLA, idServicio, Operacion.DELETE);
     }
 
     private CotizacionVersion buscarVersionEditable(Integer idCotizacionVersion) {

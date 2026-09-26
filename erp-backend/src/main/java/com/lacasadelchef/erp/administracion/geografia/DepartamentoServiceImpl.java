@@ -2,8 +2,6 @@ package com.lacasadelchef.erp.administracion.geografia;
 
 import com.lacasadelchef.erp.administracion.geografia.dto.DepartamentoRequest;
 import com.lacasadelchef.erp.administracion.geografia.dto.DepartamentoResponse;
-import com.lacasadelchef.erp.common.audit.BitacoraMovimientoService;
-import com.lacasadelchef.erp.common.audit.Operacion;
 import com.lacasadelchef.erp.common.exception.ResourceNotFoundException;
 import com.lacasadelchef.erp.entity.Departamento;
 import com.lacasadelchef.erp.repository.DepartamentoRepository;
@@ -17,10 +15,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class DepartamentoServiceImpl implements DepartamentoService {
 
-    private static final String TABLA = "departamento";
-
     private final DepartamentoRepository departamentoRepository;
-    private final BitacoraMovimientoService bitacoraMovimientoService;
 
     @Override
     @Transactional(readOnly = true)
@@ -42,7 +37,6 @@ public class DepartamentoServiceImpl implements DepartamentoService {
         Departamento departamento = new Departamento();
         aplicar(request, departamento);
         departamento = departamentoRepository.save(departamento);
-        bitacoraMovimientoService.registrar(TABLA, departamento.getIdDepartamento(), Operacion.INSERT);
         return DepartamentoResponse.desde(departamento);
     }
 
@@ -60,7 +54,6 @@ public class DepartamentoServiceImpl implements DepartamentoService {
     public void eliminar(Integer id) {
         Departamento departamento = buscar(id);
         departamentoRepository.delete(departamento);
-        bitacoraMovimientoService.registrar(TABLA, departamento.getIdDepartamento(), Operacion.DELETE);
     }
 
     private Departamento buscar(Integer id) {

@@ -3,7 +3,6 @@ package com.lacasadelchef.erp.administracion.rrhh;
 import com.lacasadelchef.erp.administracion.rrhh.dto.AccesoSistemaRequest;
 import com.lacasadelchef.erp.administracion.rrhh.dto.EmpleadoRequest;
 import com.lacasadelchef.erp.administracion.rrhh.dto.EmpleadoResponse;
-import com.lacasadelchef.erp.common.audit.BitacoraMovimientoService;
 import com.lacasadelchef.erp.common.exception.BusinessException;
 import com.lacasadelchef.erp.entity.Empleado;
 import com.lacasadelchef.erp.entity.Estado;
@@ -57,7 +56,6 @@ class EmpleadoServiceImplTest {
     @Mock private UsuarioRepository usuarioRepository;
     @Mock private RolRepository rolRepository;
     @Mock private PasswordEncoder passwordEncoder;
-    @Mock private BitacoraMovimientoService bitacoraMovimientoService;
     @InjectMocks private EmpleadoServiceImpl empleadoService;
 
     private static EmpleadoRequest pedido(AccesoSistemaRequest acceso) {

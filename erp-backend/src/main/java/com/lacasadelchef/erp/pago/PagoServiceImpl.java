@@ -1,7 +1,5 @@
 package com.lacasadelchef.erp.pago;
 
-import com.lacasadelchef.erp.common.audit.BitacoraMovimientoService;
-import com.lacasadelchef.erp.common.audit.Operacion;
 import com.lacasadelchef.erp.common.exception.BusinessException;
 import com.lacasadelchef.erp.common.exception.ResourceNotFoundException;
 import com.lacasadelchef.erp.entity.CostoEvento;
@@ -36,7 +34,6 @@ import java.time.LocalDate;
 @RequiredArgsConstructor
 public class PagoServiceImpl implements PagoService {
 
-    private static final String TABLA = "pago";
     private static final String TIPO_ESTADO_PAGO = "PAGO";
     // Registrar un pago ya ES la confirmacion (no hay un paso de aprobacion aparte en este
     // negocio); nace CONFIRMADO. ANULADO sigue existiendo para cuando un pago valido se
@@ -49,7 +46,6 @@ public class PagoServiceImpl implements PagoService {
     private final EstadoRepository estadoRepository;
     private final CostoEventoRepository costoEventoRepository;
     private final VPagoEventoRepository vPagoEventoRepository;
-    private final BitacoraMovimientoService bitacoraMovimientoService;
 
     @Override
     @Transactional(readOnly = true)
@@ -87,7 +83,6 @@ public class PagoServiceImpl implements PagoService {
         pago.setUsuario(usuario);
         pago.setEstado(buscarEstado(TIPO_ESTADO_PAGO, ESTADO_CONFIRMADO));
         pago = pagoRepository.save(pago);
-        bitacoraMovimientoService.registrar(TABLA, pago.getIdPago(), Operacion.INSERT);
         return PagoResponse.desde(pago);
     }
 
@@ -107,7 +102,6 @@ public class PagoServiceImpl implements PagoService {
         // GlobalExceptionHandler lo traduce a HTTP 409.
         Pago pago = buscarPago(id);
         pagoRepository.delete(pago);
-        bitacoraMovimientoService.registrar(TABLA, pago.getIdPago(), Operacion.DELETE);
     }
 
     @Override

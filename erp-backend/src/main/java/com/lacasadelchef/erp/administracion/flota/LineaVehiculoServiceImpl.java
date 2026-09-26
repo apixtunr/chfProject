@@ -2,8 +2,6 @@ package com.lacasadelchef.erp.administracion.flota;
 
 import com.lacasadelchef.erp.administracion.flota.dto.LineaVehiculoRequest;
 import com.lacasadelchef.erp.administracion.flota.dto.LineaVehiculoResponse;
-import com.lacasadelchef.erp.common.audit.BitacoraMovimientoService;
-import com.lacasadelchef.erp.common.audit.Operacion;
 import com.lacasadelchef.erp.common.exception.ResourceNotFoundException;
 import com.lacasadelchef.erp.entity.LineaVehiculo;
 import com.lacasadelchef.erp.entity.MarcaVehiculo;
@@ -19,11 +17,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class LineaVehiculoServiceImpl implements LineaVehiculoService {
 
-    private static final String TABLA = "linea_vehiculo";
-
     private final LineaVehiculoRepository lineaVehiculoRepository;
     private final MarcaVehiculoRepository marcaVehiculoRepository;
-    private final BitacoraMovimientoService bitacoraMovimientoService;
 
     @Override
     @Transactional(readOnly = true)
@@ -46,7 +41,6 @@ public class LineaVehiculoServiceImpl implements LineaVehiculoService {
         LineaVehiculo linea = new LineaVehiculo();
         aplicar(request, linea);
         linea = lineaVehiculoRepository.save(linea);
-        bitacoraMovimientoService.registrar(TABLA, linea.getIdLineaVehiculo(), Operacion.INSERT);
         return LineaVehiculoResponse.desde(linea);
     }
 
@@ -64,7 +58,6 @@ public class LineaVehiculoServiceImpl implements LineaVehiculoService {
     public void eliminar(Integer id) {
         LineaVehiculo linea = buscar(id);
         lineaVehiculoRepository.delete(linea);
-        bitacoraMovimientoService.registrar(TABLA, linea.getIdLineaVehiculo(), Operacion.DELETE);
     }
 
     private LineaVehiculo buscar(Integer id) {

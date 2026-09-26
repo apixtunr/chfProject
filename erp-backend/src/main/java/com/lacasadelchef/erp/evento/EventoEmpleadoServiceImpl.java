@@ -1,7 +1,5 @@
 package com.lacasadelchef.erp.evento;
 
-import com.lacasadelchef.erp.common.audit.BitacoraMovimientoService;
-import com.lacasadelchef.erp.common.audit.Operacion;
 import com.lacasadelchef.erp.common.exception.ResourceNotFoundException;
 import com.lacasadelchef.erp.entity.Empleado;
 import com.lacasadelchef.erp.entity.Estado;
@@ -24,7 +22,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class EventoEmpleadoServiceImpl implements EventoEmpleadoService {
 
-    private static final String TABLA = "evento_empleado";
     private static final String TIPO_ESTADO_GENERAL = "GENERAL";
     private static final String ESTADO_ACTIVO = "ACTIVO";
 
@@ -32,7 +29,6 @@ public class EventoEmpleadoServiceImpl implements EventoEmpleadoService {
     private final EventoRepository eventoRepository;
     private final EmpleadoRepository empleadoRepository;
     private final EstadoRepository estadoRepository;
-    private final BitacoraMovimientoService bitacoraMovimientoService;
 
     @Override
     @Transactional(readOnly = true)
@@ -56,7 +52,6 @@ public class EventoEmpleadoServiceImpl implements EventoEmpleadoService {
         eventoEmpleado.setEmpleado(empleado);
         aplicar(request, eventoEmpleado);
         eventoEmpleado = eventoEmpleadoRepository.save(eventoEmpleado);
-        bitacoraMovimientoService.registrar(TABLA, idEvento + "-" + idEmpleado, Operacion.INSERT);
         return EventoEmpleadoResponse.desde(eventoEmpleado);
     }
 
@@ -74,7 +69,6 @@ public class EventoEmpleadoServiceImpl implements EventoEmpleadoService {
     public void quitar(Integer idEvento, Integer idEmpleado) {
         EventoEmpleado eventoEmpleado = buscar(idEvento, idEmpleado);
         eventoEmpleadoRepository.delete(eventoEmpleado);
-        bitacoraMovimientoService.registrar(TABLA, idEvento + "-" + idEmpleado, Operacion.DELETE);
     }
 
     private EventoEmpleado buscar(Integer idEvento, Integer idEmpleado) {

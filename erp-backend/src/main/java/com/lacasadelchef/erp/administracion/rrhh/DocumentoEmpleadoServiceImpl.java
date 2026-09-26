@@ -2,8 +2,6 @@ package com.lacasadelchef.erp.administracion.rrhh;
 
 import com.lacasadelchef.erp.administracion.rrhh.dto.DocumentoEmpleadoRequest;
 import com.lacasadelchef.erp.administracion.rrhh.dto.DocumentoEmpleadoResponse;
-import com.lacasadelchef.erp.common.audit.BitacoraMovimientoService;
-import com.lacasadelchef.erp.common.audit.Operacion;
 import com.lacasadelchef.erp.common.exception.ResourceNotFoundException;
 import com.lacasadelchef.erp.entity.DocumentoEmpleado;
 import com.lacasadelchef.erp.entity.Empleado;
@@ -22,12 +20,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class DocumentoEmpleadoServiceImpl implements DocumentoEmpleadoService {
 
-    private static final String TABLA = "documento_empleado";
-
     private final DocumentoEmpleadoRepository documentoEmpleadoRepository;
     private final EmpleadoRepository empleadoRepository;
     private final TipoDocumentoRepository tipoDocumentoRepository;
-    private final BitacoraMovimientoService bitacoraMovimientoService;
 
     @Override
     @Transactional(readOnly = true)
@@ -51,7 +46,6 @@ public class DocumentoEmpleadoServiceImpl implements DocumentoEmpleadoService {
         documento.setTipoDocumento(tipoDocumento);
         documento.setNumeroDocumento(request.numeroDocumento().trim());
         documento = documentoEmpleadoRepository.save(documento);
-        bitacoraMovimientoService.registrar(TABLA, idEmpleado + "-" + idTipoDocumento, Operacion.INSERT);
         return DocumentoEmpleadoResponse.desde(documento);
     }
 
@@ -69,7 +63,6 @@ public class DocumentoEmpleadoServiceImpl implements DocumentoEmpleadoService {
     public void eliminar(Integer idEmpleado, Integer idTipoDocumento) {
         DocumentoEmpleado documento = buscar(idEmpleado, idTipoDocumento);
         documentoEmpleadoRepository.delete(documento);
-        bitacoraMovimientoService.registrar(TABLA, idEmpleado + "-" + idTipoDocumento, Operacion.DELETE);
     }
 
     private DocumentoEmpleado buscar(Integer idEmpleado, Integer idTipoDocumento) {

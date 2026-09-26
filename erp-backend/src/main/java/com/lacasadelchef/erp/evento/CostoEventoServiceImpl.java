@@ -1,7 +1,5 @@
 package com.lacasadelchef.erp.evento;
 
-import com.lacasadelchef.erp.common.audit.BitacoraMovimientoService;
-import com.lacasadelchef.erp.common.audit.Operacion;
 import com.lacasadelchef.erp.common.exception.ResourceNotFoundException;
 import com.lacasadelchef.erp.entity.CostoEvento;
 import com.lacasadelchef.erp.entity.Evento;
@@ -24,13 +22,10 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CostoEventoServiceImpl implements CostoEventoService {
 
-    private static final String TABLA = "costo_evento";
-
     private final CostoEventoRepository costoEventoRepository;
     private final EventoRepository eventoRepository;
     private final TipoCostoRepository tipoCostoRepository;
     private final PagoRepository pagoRepository;
-    private final BitacoraMovimientoService bitacoraMovimientoService;
 
     @Override
     @Transactional(readOnly = true)
@@ -55,7 +50,6 @@ public class CostoEventoServiceImpl implements CostoEventoService {
         costoEvento.setEvento(evento);
         aplicar(request, costoEvento);
         costoEvento = costoEventoRepository.save(costoEvento);
-        bitacoraMovimientoService.registrar(TABLA, costoEvento.getIdCostoEvento(), Operacion.INSERT);
         return CostoEventoResponse.desde(costoEvento);
     }
 
@@ -73,7 +67,6 @@ public class CostoEventoServiceImpl implements CostoEventoService {
     public void eliminar(Integer idEvento, Integer idCostoEvento) {
         CostoEvento costoEvento = buscarCosto(idEvento, idCostoEvento);
         costoEventoRepository.delete(costoEvento);
-        bitacoraMovimientoService.registrar(TABLA, idCostoEvento, Operacion.DELETE);
     }
 
     private Evento buscarEvento(Integer id) {

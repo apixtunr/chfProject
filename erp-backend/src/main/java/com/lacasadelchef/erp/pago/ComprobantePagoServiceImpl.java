@@ -1,7 +1,5 @@
 package com.lacasadelchef.erp.pago;
 
-import com.lacasadelchef.erp.common.audit.BitacoraMovimientoService;
-import com.lacasadelchef.erp.common.audit.Operacion;
 import com.lacasadelchef.erp.common.exception.ResourceNotFoundException;
 import com.lacasadelchef.erp.entity.ComprobantePago;
 import com.lacasadelchef.erp.entity.Pago;
@@ -19,11 +17,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ComprobantePagoServiceImpl implements ComprobantePagoService {
 
-    private static final String TABLA = "comprobante_pago";
-
     private final ComprobantePagoRepository comprobantePagoRepository;
     private final PagoRepository pagoRepository;
-    private final BitacoraMovimientoService bitacoraMovimientoService;
 
     @Override
     @Transactional(readOnly = true)
@@ -42,7 +37,6 @@ public class ComprobantePagoServiceImpl implements ComprobantePagoService {
         comprobante.setPago(pago);
         aplicar(request, comprobante);
         comprobante = comprobantePagoRepository.save(comprobante);
-        bitacoraMovimientoService.registrar(TABLA, comprobante.getIdComprobante(), Operacion.INSERT);
         return ComprobantePagoResponse.desde(comprobante);
     }
 
@@ -60,7 +54,6 @@ public class ComprobantePagoServiceImpl implements ComprobantePagoService {
     public void eliminar(Integer idPago, Integer idComprobante) {
         ComprobantePago comprobante = buscar(idPago, idComprobante);
         comprobantePagoRepository.delete(comprobante);
-        bitacoraMovimientoService.registrar(TABLA, idComprobante, Operacion.DELETE);
     }
 
     private ComprobantePago buscar(Integer idPago, Integer idComprobante) {

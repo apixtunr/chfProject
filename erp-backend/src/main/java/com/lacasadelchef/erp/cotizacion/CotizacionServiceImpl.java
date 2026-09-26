@@ -1,7 +1,5 @@
 package com.lacasadelchef.erp.cotizacion;
 
-import com.lacasadelchef.erp.common.audit.BitacoraMovimientoService;
-import com.lacasadelchef.erp.common.audit.Operacion;
 import com.lacasadelchef.erp.common.exception.BusinessException;
 import com.lacasadelchef.erp.common.exception.ResourceNotFoundException;
 import com.lacasadelchef.erp.cotizacion.dto.CotizacionRequest;
@@ -33,7 +31,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CotizacionServiceImpl implements CotizacionService {
 
-    private static final String TABLA = "cotizacion";
     private static final String TIPO_ESTADO_COTIZACION = "COTIZACION";
     private static final String ESTADO_CREADA = "CREADA";
 
@@ -45,7 +42,6 @@ public class CotizacionServiceImpl implements CotizacionService {
     private final TipoEventoRepository tipoEventoRepository;
     private final UbicacionRepository ubicacionRepository;
     private final EstadoRepository estadoRepository;
-    private final BitacoraMovimientoService bitacoraMovimientoService;
 
     @Override
     @Transactional(readOnly = true)
@@ -70,7 +66,6 @@ public class CotizacionServiceImpl implements CotizacionService {
         aplicar(request, cotizacion);
         cotizacion = cotizacionRepository.save(cotizacion);
         CotizacionVersion version = crearVersionInicial(cotizacion);
-        bitacoraMovimientoService.registrar(TABLA, cotizacion.getIdCotizacion(), Operacion.INSERT);
         return CotizacionResponse.desde(cotizacion, version);
     }
 
@@ -111,7 +106,6 @@ public class CotizacionServiceImpl implements CotizacionService {
             cotizacionVersionRepository.delete(version);
         }
         cotizacionRepository.delete(cotizacion);
-        bitacoraMovimientoService.registrar(TABLA, cotizacion.getIdCotizacion(), Operacion.DELETE);
     }
 
     /** Toda cotizacion nace con una version 1 en CREADA, lista para cargarle el detalle. */

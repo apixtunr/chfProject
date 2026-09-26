@@ -1,6 +1,5 @@
 package com.lacasadelchef.erp.cotizacion;
 
-import com.lacasadelchef.erp.common.audit.BitacoraMovimientoService;
 import com.lacasadelchef.erp.common.exception.BusinessException;
 import com.lacasadelchef.erp.cotizacion.dto.CotizacionVersionResponse;
 import com.lacasadelchef.erp.entity.Cotizacion;
@@ -43,7 +42,6 @@ class CotizacionVersionServiceImplTest {
     @Mock private DetalleCotizacionRepository detalleCotizacionRepository;
     @Mock private ServicioCotizacionRepository servicioCotizacionRepository;
     @Mock private EstadoRepository estadoRepository;
-    @Mock private BitacoraMovimientoService bitacoraMovimientoService;
     @Mock private EntityManager entityManager;
     @InjectMocks private CotizacionVersionServiceImpl versionService;
 

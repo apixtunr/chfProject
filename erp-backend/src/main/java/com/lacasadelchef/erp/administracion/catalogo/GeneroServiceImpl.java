@@ -2,8 +2,6 @@ package com.lacasadelchef.erp.administracion.catalogo;
 
 import com.lacasadelchef.erp.administracion.catalogo.dto.GeneroRequest;
 import com.lacasadelchef.erp.administracion.catalogo.dto.GeneroResponse;
-import com.lacasadelchef.erp.common.audit.BitacoraMovimientoService;
-import com.lacasadelchef.erp.common.audit.Operacion;
 import com.lacasadelchef.erp.common.exception.ResourceNotFoundException;
 import com.lacasadelchef.erp.entity.Genero;
 import com.lacasadelchef.erp.repository.GeneroRepository;
@@ -17,10 +15,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class GeneroServiceImpl implements GeneroService {
 
-    private static final String TABLA = "genero";
-
     private final GeneroRepository generoRepository;
-    private final BitacoraMovimientoService bitacoraMovimientoService;
 
     @Override
     @Transactional(readOnly = true)
@@ -40,7 +35,6 @@ public class GeneroServiceImpl implements GeneroService {
         Genero genero = new Genero();
         aplicar(request, genero);
         genero = generoRepository.save(genero);
-        bitacoraMovimientoService.registrar(TABLA, genero.getIdGenero(), Operacion.INSERT);
         return GeneroResponse.desde(genero);
     }
 
@@ -58,7 +52,6 @@ public class GeneroServiceImpl implements GeneroService {
     public void eliminar(Integer id) {
         Genero genero = buscar(id);
         generoRepository.delete(genero);
-        bitacoraMovimientoService.registrar(TABLA, genero.getIdGenero(), Operacion.DELETE);
     }
 
     private Genero buscar(Integer id) {

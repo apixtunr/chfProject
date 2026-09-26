@@ -1,7 +1,5 @@
 package com.lacasadelchef.erp.evento;
 
-import com.lacasadelchef.erp.common.audit.BitacoraMovimientoService;
-import com.lacasadelchef.erp.common.audit.Operacion;
 import com.lacasadelchef.erp.common.exception.BusinessException;
 import com.lacasadelchef.erp.common.exception.ResourceNotFoundException;
 import com.lacasadelchef.erp.entity.Evento;
@@ -32,14 +30,12 @@ import java.util.List;
 @RequiredArgsConstructor
 public class EventoInventarioServiceImpl implements EventoInventarioService {
 
-    private static final String TABLA = "evento_inventario";
     private static final String TIPO_AJUSTE = "AJUSTE";
 
     private final EventoInventarioRepository eventoInventarioRepository;
     private final EventoRepository eventoRepository;
     private final ProductoRepository productoRepository;
     private final MovimientoInventarioService movimientoInventarioService;
-    private final BitacoraMovimientoService bitacoraMovimientoService;
     private final EventoInventarioLineaConfirmador lineaConfirmador;
 
     @Override
@@ -64,7 +60,6 @@ public class EventoInventarioServiceImpl implements EventoInventarioService {
         eventoInventario.setProducto(producto);
         aplicar(request, eventoInventario);
         eventoInventario = eventoInventarioRepository.save(eventoInventario);
-        bitacoraMovimientoService.registrar(TABLA, idEvento + "-" + idProducto, Operacion.INSERT);
         return EventoInventarioResponse.desde(eventoInventario);
     }
 
@@ -82,7 +77,6 @@ public class EventoInventarioServiceImpl implements EventoInventarioService {
     public void quitar(Integer idEvento, Integer idProducto) {
         EventoInventario eventoInventario = buscar(idEvento, idProducto);
         eventoInventarioRepository.delete(eventoInventario);
-        bitacoraMovimientoService.registrar(TABLA, idEvento + "-" + idProducto, Operacion.DELETE);
     }
 
     @Override

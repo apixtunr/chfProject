@@ -2,8 +2,6 @@ package com.lacasadelchef.erp.administracion.rbac;
 
 import com.lacasadelchef.erp.administracion.rbac.dto.RolOpcionRequest;
 import com.lacasadelchef.erp.administracion.rbac.dto.RolOpcionResponse;
-import com.lacasadelchef.erp.common.audit.BitacoraMovimientoService;
-import com.lacasadelchef.erp.common.audit.Operacion;
 import com.lacasadelchef.erp.common.exception.ResourceNotFoundException;
 import com.lacasadelchef.erp.entity.Opcion;
 import com.lacasadelchef.erp.entity.Rol;
@@ -28,12 +26,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class RolOpcionServiceImpl implements RolOpcionService {
 
-    private static final String TABLA = "rol_opcion";
-
     private final RolOpcionRepository rolOpcionRepository;
     private final RolRepository rolRepository;
     private final OpcionRepository opcionRepository;
-    private final BitacoraMovimientoService bitacoraMovimientoService;
 
     @Override
     @Transactional(readOnly = true)
@@ -57,7 +52,6 @@ public class RolOpcionServiceImpl implements RolOpcionService {
         rolOpcion.setOpcion(opcion);
         aplicar(request, rolOpcion);
         rolOpcion = rolOpcionRepository.save(rolOpcion);
-        bitacoraMovimientoService.registrar(TABLA, idRol + "-" + idOpcion, Operacion.INSERT);
         return RolOpcionResponse.desde(rolOpcion);
     }
 
@@ -75,7 +69,6 @@ public class RolOpcionServiceImpl implements RolOpcionService {
     public void quitar(Integer idRol, Integer idOpcion) {
         RolOpcion rolOpcion = buscar(idRol, idOpcion);
         rolOpcionRepository.delete(rolOpcion);
-        bitacoraMovimientoService.registrar(TABLA, idRol + "-" + idOpcion, Operacion.DELETE);
     }
 
     private RolOpcion buscar(Integer idRol, Integer idOpcion) {

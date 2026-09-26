@@ -145,4 +145,12 @@ export class Bitacora implements OnInit {
     const dia = String(fecha.getDate()).padStart(2, '0');
     return `${anio}-${mes}-${dia}`;
   }
+
+  /**
+   * El alta y la baja guardan el registro entero en una linea ("campo: valor · campo:
+   * valor..."); en el tooltip se muestra un campo por renglon para poder leerlo.
+   */
+  enLineas(valor: string | null): string {
+    return (valor ?? '').split(' · ').join('\n');
+  }
 }

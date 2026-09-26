@@ -1,7 +1,5 @@
 package com.lacasadelchef.erp.inventario;
 
-import com.lacasadelchef.erp.common.audit.BitacoraMovimientoService;
-import com.lacasadelchef.erp.common.audit.Operacion;
 import com.lacasadelchef.erp.common.exception.ResourceNotFoundException;
 import com.lacasadelchef.erp.entity.TipoInventario;
 import com.lacasadelchef.erp.inventario.dto.TipoInventarioRequest;
@@ -17,10 +15,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TipoInventarioServiceImpl implements TipoInventarioService {
 
-    private static final String TABLA = "tipo_inventario";
-
     private final TipoInventarioRepository tipoInventarioRepository;
-    private final BitacoraMovimientoService bitacoraMovimientoService;
 
     @Override
     @Transactional(readOnly = true)
@@ -42,7 +37,6 @@ public class TipoInventarioServiceImpl implements TipoInventarioService {
         TipoInventario tipoInventario = new TipoInventario();
         aplicar(request, tipoInventario);
         tipoInventario = tipoInventarioRepository.save(tipoInventario);
-        bitacoraMovimientoService.registrar(TABLA, tipoInventario.getIdTipoInventario(), Operacion.INSERT);
         return TipoInventarioResponse.desde(tipoInventario);
     }
 
@@ -60,7 +54,6 @@ public class TipoInventarioServiceImpl implements TipoInventarioService {
     public void eliminar(Integer id) {
         TipoInventario tipoInventario = buscar(id);
         tipoInventarioRepository.delete(tipoInventario);
-        bitacoraMovimientoService.registrar(TABLA, tipoInventario.getIdTipoInventario(), Operacion.DELETE);
     }
 
     private TipoInventario buscar(Integer id) {

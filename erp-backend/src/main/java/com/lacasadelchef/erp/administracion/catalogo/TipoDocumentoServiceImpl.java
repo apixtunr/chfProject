@@ -2,8 +2,6 @@ package com.lacasadelchef.erp.administracion.catalogo;
 
 import com.lacasadelchef.erp.administracion.catalogo.dto.TipoDocumentoRequest;
 import com.lacasadelchef.erp.administracion.catalogo.dto.TipoDocumentoResponse;
-import com.lacasadelchef.erp.common.audit.BitacoraMovimientoService;
-import com.lacasadelchef.erp.common.audit.Operacion;
 import com.lacasadelchef.erp.common.exception.ResourceNotFoundException;
 import com.lacasadelchef.erp.entity.TipoDocumento;
 import com.lacasadelchef.erp.repository.TipoDocumentoRepository;
@@ -17,10 +15,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TipoDocumentoServiceImpl implements TipoDocumentoService {
 
-    private static final String TABLA = "tipo_documento";
-
     private final TipoDocumentoRepository tipoDocumentoRepository;
-    private final BitacoraMovimientoService bitacoraMovimientoService;
 
     @Override
     @Transactional(readOnly = true)
@@ -40,7 +35,6 @@ public class TipoDocumentoServiceImpl implements TipoDocumentoService {
         TipoDocumento tipoDocumento = new TipoDocumento();
         aplicar(request, tipoDocumento);
         tipoDocumento = tipoDocumentoRepository.save(tipoDocumento);
-        bitacoraMovimientoService.registrar(TABLA, tipoDocumento.getIdTipoDocumento(), Operacion.INSERT);
         return TipoDocumentoResponse.desde(tipoDocumento);
     }
 
@@ -58,7 +52,6 @@ public class TipoDocumentoServiceImpl implements TipoDocumentoService {
     public void eliminar(Integer id) {
         TipoDocumento tipoDocumento = buscar(id);
         tipoDocumentoRepository.delete(tipoDocumento);
-        bitacoraMovimientoService.registrar(TABLA, tipoDocumento.getIdTipoDocumento(), Operacion.DELETE);
     }
 
     private TipoDocumento buscar(Integer id) {

@@ -2,8 +2,6 @@ package com.lacasadelchef.erp.administracion.rbac;
 
 import com.lacasadelchef.erp.administracion.rbac.dto.MenuVistaRequest;
 import com.lacasadelchef.erp.administracion.rbac.dto.MenuVistaResponse;
-import com.lacasadelchef.erp.common.audit.BitacoraMovimientoService;
-import com.lacasadelchef.erp.common.audit.Operacion;
 import com.lacasadelchef.erp.common.exception.ResourceNotFoundException;
 import com.lacasadelchef.erp.entity.MenuVista;
 import com.lacasadelchef.erp.entity.Modulo;
@@ -19,11 +17,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MenuVistaServiceImpl implements MenuVistaService {
 
-    private static final String TABLA = "menu_vista";
-
     private final MenuVistaRepository menuVistaRepository;
     private final ModuloRepository moduloRepository;
-    private final BitacoraMovimientoService bitacoraMovimientoService;
 
     @Override
     @Transactional(readOnly = true)
@@ -47,7 +42,6 @@ public class MenuVistaServiceImpl implements MenuVistaService {
         MenuVista menuVista = new MenuVista();
         aplicar(request, menuVista);
         menuVista = menuVistaRepository.save(menuVista);
-        bitacoraMovimientoService.registrar(TABLA, menuVista.getIdMenuVista(), Operacion.INSERT);
         return MenuVistaResponse.desde(menuVista);
     }
 
@@ -65,7 +59,6 @@ public class MenuVistaServiceImpl implements MenuVistaService {
     public void eliminar(Integer id) {
         MenuVista menuVista = buscar(id);
         menuVistaRepository.delete(menuVista);
-        bitacoraMovimientoService.registrar(TABLA, menuVista.getIdMenuVista(), Operacion.DELETE);
     }
 
     private MenuVista buscar(Integer id) {

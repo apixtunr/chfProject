@@ -2,8 +2,6 @@ package com.lacasadelchef.erp.administracion.rrhh;
 
 import com.lacasadelchef.erp.administracion.rrhh.dto.PuestoEmpleadoRequest;
 import com.lacasadelchef.erp.administracion.rrhh.dto.PuestoEmpleadoResponse;
-import com.lacasadelchef.erp.common.audit.BitacoraMovimientoService;
-import com.lacasadelchef.erp.common.audit.Operacion;
 import com.lacasadelchef.erp.common.exception.ResourceNotFoundException;
 import com.lacasadelchef.erp.entity.PuestoEmpleado;
 import com.lacasadelchef.erp.repository.PuestoEmpleadoRepository;
@@ -17,10 +15,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PuestoEmpleadoServiceImpl implements PuestoEmpleadoService {
 
-    private static final String TABLA = "puesto_empleado";
-
     private final PuestoEmpleadoRepository puestoEmpleadoRepository;
-    private final BitacoraMovimientoService bitacoraMovimientoService;
 
     @Override
     @Transactional(readOnly = true)
@@ -40,7 +35,6 @@ public class PuestoEmpleadoServiceImpl implements PuestoEmpleadoService {
         PuestoEmpleado puestoEmpleado = new PuestoEmpleado();
         aplicar(request, puestoEmpleado);
         puestoEmpleado = puestoEmpleadoRepository.save(puestoEmpleado);
-        bitacoraMovimientoService.registrar(TABLA, puestoEmpleado.getIdPuestoEmpleado(), Operacion.INSERT);
         return PuestoEmpleadoResponse.desde(puestoEmpleado);
     }
 
@@ -58,7 +52,6 @@ public class PuestoEmpleadoServiceImpl implements PuestoEmpleadoService {
     public void eliminar(Integer id) {
         PuestoEmpleado puestoEmpleado = buscar(id);
         puestoEmpleadoRepository.delete(puestoEmpleado);
-        bitacoraMovimientoService.registrar(TABLA, puestoEmpleado.getIdPuestoEmpleado(), Operacion.DELETE);
     }
 
     private PuestoEmpleado buscar(Integer id) {

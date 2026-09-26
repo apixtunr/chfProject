@@ -2,8 +2,6 @@ package com.lacasadelchef.erp.administracion.flota;
 
 import com.lacasadelchef.erp.administracion.flota.dto.MarcaVehiculoRequest;
 import com.lacasadelchef.erp.administracion.flota.dto.MarcaVehiculoResponse;
-import com.lacasadelchef.erp.common.audit.BitacoraMovimientoService;
-import com.lacasadelchef.erp.common.audit.Operacion;
 import com.lacasadelchef.erp.common.exception.ResourceNotFoundException;
 import com.lacasadelchef.erp.entity.MarcaVehiculo;
 import com.lacasadelchef.erp.repository.MarcaVehiculoRepository;
@@ -17,10 +15,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MarcaVehiculoServiceImpl implements MarcaVehiculoService {
 
-    private static final String TABLA = "marca_vehiculo";
-
     private final MarcaVehiculoRepository marcaVehiculoRepository;
-    private final BitacoraMovimientoService bitacoraMovimientoService;
 
     @Override
     @Transactional(readOnly = true)
@@ -40,7 +35,6 @@ public class MarcaVehiculoServiceImpl implements MarcaVehiculoService {
         MarcaVehiculo marca = new MarcaVehiculo();
         aplicar(request, marca);
         marca = marcaVehiculoRepository.save(marca);
-        bitacoraMovimientoService.registrar(TABLA, marca.getIdMarcaVehiculo(), Operacion.INSERT);
         return MarcaVehiculoResponse.desde(marca);
     }
 
@@ -58,7 +52,6 @@ public class MarcaVehiculoServiceImpl implements MarcaVehiculoService {
     public void eliminar(Integer id) {
         MarcaVehiculo marca = buscar(id);
         marcaVehiculoRepository.delete(marca);
-        bitacoraMovimientoService.registrar(TABLA, marca.getIdMarcaVehiculo(), Operacion.DELETE);
     }
 
     private MarcaVehiculo buscar(Integer id) {

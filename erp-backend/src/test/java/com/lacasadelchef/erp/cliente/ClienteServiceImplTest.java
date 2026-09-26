@@ -2,8 +2,6 @@ package com.lacasadelchef.erp.cliente;
 
 import com.lacasadelchef.erp.cliente.dto.ClienteRequest;
 import com.lacasadelchef.erp.cliente.dto.ClienteResponse;
-import com.lacasadelchef.erp.common.audit.BitacoraMovimientoService;
-import com.lacasadelchef.erp.common.audit.Operacion;
 import com.lacasadelchef.erp.common.exception.BusinessException;
 import com.lacasadelchef.erp.common.exception.ResourceNotFoundException;
 import com.lacasadelchef.erp.entity.Cliente;
@@ -27,7 +25,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -42,7 +39,6 @@ class ClienteServiceImplTest {
     @Mock private ClienteRepository clienteRepository;
     @Mock private MunicipioRepository municipioRepository;
     @Mock private EstadoRepository estadoRepository;
-    @Mock private BitacoraMovimientoService bitacoraMovimientoService;
     @InjectMocks private ClienteServiceImpl clienteService;
 
     private static Municipio municipioDePrueba() {
@@ -92,7 +88,7 @@ class ClienteServiceImplTest {
     // ------------------------------------------------------------------- alta
 
     @Test
-    @DisplayName("Crear cliente: guarda activo, recorta espacios y registra bitacora INSERT")
+    @DisplayName("Crear cliente: guarda activo y recorta espacios")
     void crearCliente() {
         prepararAlta();
         when(clienteRepository.save(any(Cliente.class))).thenAnswer(inv -> {
@@ -107,7 +103,6 @@ class ClienteServiceImplTest {
         assertThat(response.nombre()).isEqualTo("Boda Perez");
         assertThat(response.activo()).isTrue();
         assertThat(response.nombreMunicipio()).isEqualTo("Guatemala");
-        verify(bitacoraMovimientoService).registrar(eq("cliente"), eq(7), eq(Operacion.INSERT));
     }
 
     @Test

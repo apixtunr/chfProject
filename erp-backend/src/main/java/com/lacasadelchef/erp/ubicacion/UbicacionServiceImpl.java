@@ -1,7 +1,5 @@
 package com.lacasadelchef.erp.ubicacion;
 
-import com.lacasadelchef.erp.common.audit.BitacoraMovimientoService;
-import com.lacasadelchef.erp.common.audit.Operacion;
 import com.lacasadelchef.erp.common.exception.ResourceNotFoundException;
 import com.lacasadelchef.erp.entity.Municipio;
 import com.lacasadelchef.erp.entity.Ubicacion;
@@ -19,11 +17,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UbicacionServiceImpl implements UbicacionService {
 
-    private static final String TABLA = "ubicacion";
-
     private final UbicacionRepository ubicacionRepository;
     private final MunicipioRepository municipioRepository;
-    private final BitacoraMovimientoService bitacoraMovimientoService;
 
     @Override
     @Transactional(readOnly = true)
@@ -43,7 +38,6 @@ public class UbicacionServiceImpl implements UbicacionService {
         Ubicacion ubicacion = new Ubicacion();
         aplicar(request, ubicacion);
         ubicacion = ubicacionRepository.save(ubicacion);
-        bitacoraMovimientoService.registrar(TABLA, ubicacion.getIdUbicacion(), Operacion.INSERT);
         return UbicacionResponse.desde(ubicacion);
     }
 
@@ -63,7 +57,6 @@ public class UbicacionServiceImpl implements UbicacionService {
         // GlobalExceptionHandler lo traduce a HTTP 409.
         Ubicacion ubicacion = buscar(id);
         ubicacionRepository.delete(ubicacion);
-        bitacoraMovimientoService.registrar(TABLA, ubicacion.getIdUbicacion(), Operacion.DELETE);
     }
 
     private Ubicacion buscar(Integer id) {

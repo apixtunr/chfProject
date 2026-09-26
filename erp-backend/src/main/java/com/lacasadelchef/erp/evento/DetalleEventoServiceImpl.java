@@ -1,7 +1,5 @@
 package com.lacasadelchef.erp.evento;
 
-import com.lacasadelchef.erp.common.audit.BitacoraMovimientoService;
-import com.lacasadelchef.erp.common.audit.Operacion;
 import com.lacasadelchef.erp.common.exception.BusinessException;
 import com.lacasadelchef.erp.common.exception.ResourceNotFoundException;
 import com.lacasadelchef.erp.evento.dto.DetalleEventoRequest;
@@ -26,7 +24,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class DetalleEventoServiceImpl implements DetalleEventoService {
 
-    private static final String TABLA = "detalle_evento";
     private static final String ESTADO_EVENTO_CREADO = "CREADO";
     private static final String ESTADO_EVENTO_PLANIFICADO = "PLANIFICADO";
     private static final String ESTADO_ACTIVO = "ACTIVO";
@@ -35,7 +32,6 @@ public class DetalleEventoServiceImpl implements DetalleEventoService {
     private final EventoRepository eventoRepository;
     private final MenuRepository menuRepository;
     private final MenuPlatoRepository menuPlatoRepository;
-    private final BitacoraMovimientoService bitacoraMovimientoService;
     private final EntityManager entityManager;
 
     @Override
@@ -58,7 +54,6 @@ public class DetalleEventoServiceImpl implements DetalleEventoService {
         detalle = detalleEventoRepository.save(detalle);
 
         entityManager.refresh(evento);
-        bitacoraMovimientoService.registrar(TABLA, detalle.getIdDetalleEvento(), Operacion.INSERT);
         return DetalleEventoResponse.desde(detalle, evento.getMontoMenu());
     }
 
@@ -82,7 +77,6 @@ public class DetalleEventoServiceImpl implements DetalleEventoService {
         DetalleEvento detalle = buscarDetalle(idEvento, idDetalle);
         validarEditable(detalle.getEvento());
         detalleEventoRepository.delete(detalle);
-        bitacoraMovimientoService.registrar(TABLA, idDetalle, Operacion.DELETE);
     }
 
     private Evento buscarEventoEditable(Integer idEvento) {

@@ -2,8 +2,6 @@ package com.lacasadelchef.erp.administracion.rrhh;
 
 import com.lacasadelchef.erp.administracion.rrhh.dto.EmpleadoRequest;
 import com.lacasadelchef.erp.administracion.rrhh.dto.EmpleadoResponse;
-import com.lacasadelchef.erp.common.audit.BitacoraMovimientoService;
-import com.lacasadelchef.erp.common.audit.Operacion;
 import com.lacasadelchef.erp.administracion.rrhh.dto.AccesoSistemaRequest;
 import com.lacasadelchef.erp.common.exception.BusinessException;
 import com.lacasadelchef.erp.common.exception.ResourceNotFoundException;
@@ -33,8 +31,6 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class EmpleadoServiceImpl implements EmpleadoService {
 
-    private static final String TABLA = "empleado";
-    private static final String TABLA_USUARIO = "usuario";
     private static final String TIPO_ESTADO_GENERAL = "GENERAL";
     private static final String ESTADO_ACTIVO = "ACTIVO";
 
@@ -45,7 +41,6 @@ public class EmpleadoServiceImpl implements EmpleadoService {
     private final UsuarioRepository usuarioRepository;
     private final RolRepository rolRepository;
     private final PasswordEncoder passwordEncoder;
-    private final BitacoraMovimientoService bitacoraMovimientoService;
 
     @Override
     @Transactional(readOnly = true)
@@ -88,7 +83,6 @@ public class EmpleadoServiceImpl implements EmpleadoService {
         Empleado empleado = new Empleado();
         aplicar(request, empleado);
         empleado = empleadoRepository.save(empleado);
-        bitacoraMovimientoService.registrar(TABLA, empleado.getIdEmpleado(), Operacion.INSERT);
 
         if (acceso == null) {
             return EmpleadoResponse.desde(empleado);
@@ -109,7 +103,6 @@ public class EmpleadoServiceImpl implements EmpleadoService {
                 .findByTipoEstadoNombreTipoAndNombre(TIPO_ESTADO_GENERAL, ESTADO_ACTIVO)
                 .orElseThrow(() -> new IllegalStateException("Falta el estado ACTIVO del tipo GENERAL")));
         usuario = usuarioRepository.save(usuario);
-        bitacoraMovimientoService.registrar(TABLA_USUARIO, usuario.getIdUsuario(), Operacion.INSERT);
         return usuario;
     }
 
@@ -142,7 +135,6 @@ public class EmpleadoServiceImpl implements EmpleadoService {
         // impide y el GlobalExceptionHandler lo traduce a HTTP 409.
         Empleado empleado = buscar(id);
         empleadoRepository.delete(empleado);
-        bitacoraMovimientoService.registrar(TABLA, empleado.getIdEmpleado(), Operacion.DELETE);
     }
 
     private Empleado buscar(Integer id) {

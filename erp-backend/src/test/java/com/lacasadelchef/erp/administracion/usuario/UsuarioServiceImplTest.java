@@ -3,7 +3,6 @@ package com.lacasadelchef.erp.administracion.usuario;
 import com.lacasadelchef.erp.administracion.usuario.dto.UsuarioActualizarRequest;
 import com.lacasadelchef.erp.administracion.usuario.dto.UsuarioRequest;
 import com.lacasadelchef.erp.administracion.usuario.dto.UsuarioResponse;
-import com.lacasadelchef.erp.common.audit.BitacoraMovimientoService;
 import com.lacasadelchef.erp.common.exception.BusinessException;
 import com.lacasadelchef.erp.entity.Empleado;
 import com.lacasadelchef.erp.entity.Estado;
@@ -49,7 +48,6 @@ class UsuarioServiceImplTest {
     @Mock private EstadoRepository estadoRepository;
     @Mock private EmpleadoRepository empleadoRepository;
     @Mock private PasswordEncoder passwordEncoder;
-    @Mock private BitacoraMovimientoService bitacoraMovimientoService;
     @InjectMocks private UsuarioServiceImpl usuarioService;
 
     private static UsuarioRequest alta(String username) {

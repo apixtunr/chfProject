@@ -2,8 +2,6 @@ package com.lacasadelchef.erp.administracion.catalogo;
 
 import com.lacasadelchef.erp.administracion.catalogo.dto.TipoEventoRequest;
 import com.lacasadelchef.erp.administracion.catalogo.dto.TipoEventoResponse;
-import com.lacasadelchef.erp.common.audit.BitacoraMovimientoService;
-import com.lacasadelchef.erp.common.audit.Operacion;
 import com.lacasadelchef.erp.common.exception.ResourceNotFoundException;
 import com.lacasadelchef.erp.entity.TipoEvento;
 import com.lacasadelchef.erp.repository.TipoEventoRepository;
@@ -17,10 +15,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TipoEventoServiceImpl implements TipoEventoService {
 
-    private static final String TABLA = "tipo_evento";
-
     private final TipoEventoRepository tipoEventoRepository;
-    private final BitacoraMovimientoService bitacoraMovimientoService;
 
     @Override
     @Transactional(readOnly = true)
@@ -40,7 +35,6 @@ public class TipoEventoServiceImpl implements TipoEventoService {
         TipoEvento tipoEvento = new TipoEvento();
         aplicar(request, tipoEvento);
         tipoEvento = tipoEventoRepository.save(tipoEvento);
-        bitacoraMovimientoService.registrar(TABLA, tipoEvento.getIdTipoEvento(), Operacion.INSERT);
         return TipoEventoResponse.desde(tipoEvento);
     }
 
@@ -58,7 +52,6 @@ public class TipoEventoServiceImpl implements TipoEventoService {
     public void eliminar(Integer id) {
         TipoEvento tipoEvento = buscar(id);
         tipoEventoRepository.delete(tipoEvento);
-        bitacoraMovimientoService.registrar(TABLA, tipoEvento.getIdTipoEvento(), Operacion.DELETE);
     }
 
     private TipoEvento buscar(Integer id) {

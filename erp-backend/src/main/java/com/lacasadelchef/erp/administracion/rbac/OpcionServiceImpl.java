@@ -2,8 +2,6 @@ package com.lacasadelchef.erp.administracion.rbac;
 
 import com.lacasadelchef.erp.administracion.rbac.dto.OpcionRequest;
 import com.lacasadelchef.erp.administracion.rbac.dto.OpcionResponse;
-import com.lacasadelchef.erp.common.audit.BitacoraMovimientoService;
-import com.lacasadelchef.erp.common.audit.Operacion;
 import com.lacasadelchef.erp.common.exception.ResourceNotFoundException;
 import com.lacasadelchef.erp.entity.MenuVista;
 import com.lacasadelchef.erp.entity.Opcion;
@@ -19,11 +17,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class OpcionServiceImpl implements OpcionService {
 
-    private static final String TABLA = "opcion";
-
     private final OpcionRepository opcionRepository;
     private final MenuVistaRepository menuVistaRepository;
-    private final BitacoraMovimientoService bitacoraMovimientoService;
 
     @Override
     @Transactional(readOnly = true)
@@ -47,7 +42,6 @@ public class OpcionServiceImpl implements OpcionService {
         Opcion opcion = new Opcion();
         aplicar(request, opcion);
         opcion = opcionRepository.save(opcion);
-        bitacoraMovimientoService.registrar(TABLA, opcion.getIdOpcion(), Operacion.INSERT);
         return OpcionResponse.desde(opcion);
     }
 
@@ -65,7 +59,6 @@ public class OpcionServiceImpl implements OpcionService {
     public void eliminar(Integer id) {
         Opcion opcion = buscar(id);
         opcionRepository.delete(opcion);
-        bitacoraMovimientoService.registrar(TABLA, opcion.getIdOpcion(), Operacion.DELETE);
     }
 
     private Opcion buscar(Integer id) {

@@ -4,8 +4,6 @@ import com.lacasadelchef.erp.administracion.usuario.dto.CambiarPasswordRequest;
 import com.lacasadelchef.erp.administracion.usuario.dto.UsuarioActualizarRequest;
 import com.lacasadelchef.erp.administracion.usuario.dto.UsuarioRequest;
 import com.lacasadelchef.erp.administracion.usuario.dto.UsuarioResponse;
-import com.lacasadelchef.erp.common.audit.BitacoraMovimientoService;
-import com.lacasadelchef.erp.common.audit.Operacion;
 import com.lacasadelchef.erp.common.exception.BusinessException;
 import com.lacasadelchef.erp.common.exception.ResourceNotFoundException;
 import com.lacasadelchef.erp.entity.Empleado;
@@ -27,14 +25,11 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class UsuarioServiceImpl implements UsuarioService {
 
-    private static final String TABLA = "usuario";
-
     private final UsuarioRepository usuarioRepository;
     private final RolRepository rolRepository;
     private final EstadoRepository estadoRepository;
     private final EmpleadoRepository empleadoRepository;
     private final PasswordEncoder passwordEncoder;
-    private final BitacoraMovimientoService bitacoraMovimientoService;
 
     @Override
     @Transactional(readOnly = true)
@@ -61,7 +56,6 @@ public class UsuarioServiceImpl implements UsuarioService {
         usuario.setIntentosAcceso(0);
         aplicarRolEstadoEmpleado(request.idRol(), request.idEstado(), request.idEmpleado(), usuario);
         usuario = usuarioRepository.save(usuario);
-        bitacoraMovimientoService.registrar(TABLA, usuario.getIdUsuario(), Operacion.INSERT);
         return UsuarioResponse.desde(usuario);
     }
 
@@ -82,7 +76,6 @@ public class UsuarioServiceImpl implements UsuarioService {
         // impide y el GlobalExceptionHandler lo traduce a HTTP 409.
         Usuario usuario = buscar(id);
         usuarioRepository.delete(usuario);
-        bitacoraMovimientoService.registrar(TABLA, usuario.getIdUsuario(), Operacion.DELETE);
     }
 
     @Override

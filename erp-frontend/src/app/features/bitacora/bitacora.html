@@ -71,14 +71,14 @@
 
         <ng-container matColumnDef="valorAnterior">
           <th mat-header-cell *matHeaderCellDef>Valor anterior</th>
-          <td mat-cell *matCellDef="let m" [matTooltip]="m.valorAnterior ?? ''" class="col-valor">
+          <td mat-cell *matCellDef="let m" [matTooltip]="enLineas(m.valorAnterior)" matTooltipClass="tooltip-resumen" class="col-valor">
             {{ m.valorAnterior ?? '-' }}
           </td>
         </ng-container>
 
         <ng-container matColumnDef="valorNuevo">
           <th mat-header-cell *matHeaderCellDef>Valor nuevo</th>
-          <td mat-cell *matCellDef="let m" [matTooltip]="m.valorNuevo ?? ''" class="col-valor">
+          <td mat-cell *matCellDef="let m" [matTooltip]="enLineas(m.valorNuevo)" matTooltipClass="tooltip-resumen" class="col-valor">
             {{ m.valorNuevo ?? '-' }}
           </td>
         </ng-container>

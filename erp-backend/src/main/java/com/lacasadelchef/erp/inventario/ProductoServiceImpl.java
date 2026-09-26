@@ -1,7 +1,5 @@
 package com.lacasadelchef.erp.inventario;
 
-import com.lacasadelchef.erp.common.audit.BitacoraMovimientoService;
-import com.lacasadelchef.erp.common.audit.Operacion;
 import com.lacasadelchef.erp.common.exception.ResourceNotFoundException;
 import com.lacasadelchef.erp.entity.CategoriaProducto;
 import com.lacasadelchef.erp.entity.Producto;
@@ -19,11 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class ProductoServiceImpl implements ProductoService {
 
-    private static final String TABLA = "producto";
-
     private final ProductoRepository productoRepository;
     private final CategoriaProductoRepository categoriaProductoRepository;
-    private final BitacoraMovimientoService bitacoraMovimientoService;
 
     @Override
     @Transactional(readOnly = true)
@@ -46,7 +41,6 @@ public class ProductoServiceImpl implements ProductoService {
         Producto producto = new Producto();
         aplicar(request, producto);
         producto = productoRepository.save(producto);
-        bitacoraMovimientoService.registrar(TABLA, producto.getIdProducto(), Operacion.INSERT);
         return ProductoResponse.desde(producto);
     }
 
@@ -66,7 +60,6 @@ public class ProductoServiceImpl implements ProductoService {
         // y el GlobalExceptionHandler lo traduce a HTTP 409.
         Producto producto = buscarProducto(id);
         productoRepository.delete(producto);
-        bitacoraMovimientoService.registrar(TABLA, producto.getIdProducto(), Operacion.DELETE);
     }
 
     private Producto buscarProducto(Integer id) {

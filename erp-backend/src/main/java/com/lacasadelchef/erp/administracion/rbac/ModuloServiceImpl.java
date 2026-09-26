@@ -2,8 +2,6 @@ package com.lacasadelchef.erp.administracion.rbac;
 
 import com.lacasadelchef.erp.administracion.rbac.dto.ModuloRequest;
 import com.lacasadelchef.erp.administracion.rbac.dto.ModuloResponse;
-import com.lacasadelchef.erp.common.audit.BitacoraMovimientoService;
-import com.lacasadelchef.erp.common.audit.Operacion;
 import com.lacasadelchef.erp.common.exception.ResourceNotFoundException;
 import com.lacasadelchef.erp.entity.Modulo;
 import com.lacasadelchef.erp.repository.ModuloRepository;
@@ -17,10 +15,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ModuloServiceImpl implements ModuloService {
 
-    private static final String TABLA = "modulo";
-
     private final ModuloRepository moduloRepository;
-    private final BitacoraMovimientoService bitacoraMovimientoService;
 
     @Override
     @Transactional(readOnly = true)
@@ -40,7 +35,6 @@ public class ModuloServiceImpl implements ModuloService {
         Modulo modulo = new Modulo();
         aplicar(request, modulo);
         modulo = moduloRepository.save(modulo);
-        bitacoraMovimientoService.registrar(TABLA, modulo.getIdModulo(), Operacion.INSERT);
         return ModuloResponse.desde(modulo);
     }
 
@@ -58,7 +52,6 @@ public class ModuloServiceImpl implements ModuloService {
     public void eliminar(Integer id) {
         Modulo modulo = buscar(id);
         moduloRepository.delete(modulo);
-        bitacoraMovimientoService.registrar(TABLA, modulo.getIdModulo(), Operacion.DELETE);
     }
 
     private Modulo buscar(Integer id) {

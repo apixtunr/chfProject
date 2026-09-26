@@ -1,7 +1,5 @@
 package com.lacasadelchef.erp.inventario;
 
-import com.lacasadelchef.erp.common.audit.BitacoraMovimientoService;
-import com.lacasadelchef.erp.common.audit.Operacion;
 import com.lacasadelchef.erp.common.exception.ResourceNotFoundException;
 import com.lacasadelchef.erp.entity.CategoriaProducto;
 import com.lacasadelchef.erp.entity.TipoInventario;
@@ -19,11 +17,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CategoriaProductoServiceImpl implements CategoriaProductoService {
 
-    private static final String TABLA = "categoria_producto";
-
     private final CategoriaProductoRepository categoriaProductoRepository;
     private final TipoInventarioRepository tipoInventarioRepository;
-    private final BitacoraMovimientoService bitacoraMovimientoService;
 
     @Override
     @Transactional(readOnly = true)
@@ -45,7 +40,6 @@ public class CategoriaProductoServiceImpl implements CategoriaProductoService {
         CategoriaProducto categoria = new CategoriaProducto();
         aplicar(request, categoria);
         categoria = categoriaProductoRepository.save(categoria);
-        bitacoraMovimientoService.registrar(TABLA, categoria.getIdCategoria(), Operacion.INSERT);
         return CategoriaProductoResponse.desde(categoria);
     }
 
@@ -63,7 +57,6 @@ public class CategoriaProductoServiceImpl implements CategoriaProductoService {
     public void eliminar(Integer id) {
         CategoriaProducto categoria = buscar(id);
         categoriaProductoRepository.delete(categoria);
-        bitacoraMovimientoService.registrar(TABLA, categoria.getIdCategoria(), Operacion.DELETE);
     }
 
     private CategoriaProducto buscar(Integer id) {
