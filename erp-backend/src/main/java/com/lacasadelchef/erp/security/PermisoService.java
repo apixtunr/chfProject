@@ -38,6 +38,32 @@ public class PermisoService {
                 .orElse(false);
     }
 
+    /**
+     * Si el rol puede CONSULTAR esa pagina.
+     *
+     * No mira ninguna bandera: le alcanza con que exista la fila en rol_opcion. Esa es la
+     * semantica que el modelo ya tenia y que nadie verificaba: una fila con alta, baja y
+     * modificacion en falso significa "puede mirar, no puede tocar". Asi estan hoy COCINA
+     * sobre /api/eventos y BODEGA sobre /api/tipos-inventario, y asi lo interpreta el
+     * frontend desde siempre en su metodo puedeVer(). Por eso no hizo falta agregar un
+     * permiso CONSULTA ni una columna a la tabla.
+     *
+     * Falla cerrado: sin fila, no se puede ver.
+     */
+    @Transactional(readOnly = true)
+    public boolean puedeConsultar(String paginaUrl) {
+        UsuarioPrincipal principal = usuarioActual();
+        if (principal == null) {
+            return false;
+        }
+        if (ROL_ADMINISTRADOR.equalsIgnoreCase(principal.getUsuario().getRol().getNombreRol())) {
+            return true;
+        }
+        return rolOpcionRepository
+                .findByRolIdRolAndOpcionPaginaUrl(principal.getUsuario().getRol().getIdRol(), paginaUrl)
+                .isPresent();
+    }
+
     private boolean evaluar(RolOpcion ro, TipoPermiso permiso) {
         return switch (permiso) {
             case ALTA -> ro.isAlta();

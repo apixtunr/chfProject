@@ -223,13 +223,26 @@ export class EventoDetail implements OnInit {
   }
 
   ngOnInit(): void {
-    this.empleadoService.listar('', 0, 200).subscribe((p) => this.empleadosDisponibles.set(p.content));
-    this.vehiculoService.listar(0, 200).subscribe((p) => this.vehiculosDisponibles.set(p.content));
-    this.productoService.listarTodos().subscribe((p) => this.productosDisponibles.set(p));
+    // Las listas para elegir (personal, vehiculos, productos, menus) solo se piden si el
+    // rol puede leer ese modulo. Antes se pedian siempre: con el control de acceso del
+    // backend en su lugar, un usuario de Cocina abria el detalle y disparaba siete
+    // rechazos, cada uno con su aviso de error en pantalla, sin haber hecho nada malo.
+    if (this.authService.puedeVer('/api/empleados')) {
+      this.empleadoService.listar('', 0, 200).subscribe((p) => this.empleadosDisponibles.set(p.content));
+    }
+    if (this.authService.puedeVer('/api/vehiculos')) {
+      this.vehiculoService.listar(0, 200).subscribe((p) => this.vehiculosDisponibles.set(p.content));
+    }
+    if (this.authService.puedeVer('/api/productos')) {
+      this.productoService.listarTodos().subscribe((p) => this.productosDisponibles.set(p));
+    }
+    if (this.authService.puedeVer('/api/menus')) {
+      this.menuService.listarActivos().subscribe((m) => this.menusDisponibles.set(m));
+    }
+    // Estos tres son catalogos: cualquiera con sesion los puede leer.
     this.tipoCostoService.listar().subscribe((t) => this.tiposCosto.set(t));
     this.estadoService.listarPorTipo(TIPO_ESTADO_EVENTO).subscribe((e) => this.estadosEvento.set(e));
     this.pagoService.listarMetodos().subscribe((m) => this.metodosPago.set(m));
-    this.menuService.listarActivos().subscribe((m) => this.menusDisponibles.set(m));
     this.cargar();
 
     // El backend cambia EN CURSO/FINALIZADO solo, en el instante exacto de la hora
@@ -281,16 +294,30 @@ export class EventoDetail implements OnInit {
     });
   }
 
+  /**
+   * Si este usuario puede ver los montos del evento: salarios del personal asignado y
+   * costos. Espeja la regla del backend (RecursosApi.MODULO_FINANCIERO): los ve quien
+   * carga los eventos, porque es quien fija esos montos, o quien lleva las finanzas.
+   *
+   * Ver la agenda no alcanza: Cocina y Bodega la necesitan para trabajar, pero no tienen
+   * por que saber cuanto gana cada companero.
+   */
+  get puedeVerMontosDelEvento(): boolean {
+    return this.authService.tienePermiso(PAGINA_URL, 'alta') || this.authService.puedeVer('/api/rentabilidad');
+  }
+
   cargar(): void {
     this.eventoService.obtener(this.idEvento).subscribe((e) => {
       this.evento.set(e);
-      if (e.idCotizacionVersion !== null) {
+      if (e.idCotizacionVersion !== null && this.authService.puedeVer('/api/cotizaciones')) {
         this.cotizacionService.listarDetalle(e.idCotizacionVersion).subscribe((d) => this.detalleCotizacionOrigen.set(d));
         this.cotizacionService.listarServicios(e.idCotizacionVersion).subscribe((s) => this.serviciosCotizacionOrigen.set(s));
       }
     });
-    this.eventoService.listarCostos(this.idEvento).subscribe((c) => this.costos.set(c));
-    this.eventoService.listarPersonal(this.idEvento).subscribe((p) => this.personal.set(p));
+    if (this.puedeVerMontosDelEvento) {
+      this.eventoService.listarCostos(this.idEvento).subscribe((c) => this.costos.set(c));
+      this.eventoService.listarPersonal(this.idEvento).subscribe((p) => this.personal.set(p));
+    }
     this.eventoService.listarVehiculos(this.idEvento).subscribe((v) => this.vehiculos.set(v));
     this.eventoService.listarInventario(this.idEvento).subscribe((i) => this.inventario.set(i));
     this.eventoService.listarDetalle(this.idEvento).subscribe((d) => this.detalleMenu.set(d));

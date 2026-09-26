@@ -7,6 +7,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -36,6 +38,28 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ApiError> accessDenied(AccessDeniedException ex, HttpServletRequest req) {
         return build(HttpStatus.FORBIDDEN, "No tiene permisos para esta operacion", req, null);
+    }
+
+    /**
+     * Verbo HTTP que la ruta no admite (por ejemplo un PATCH donde solo hay GET y POST).
+     * Sin este manejador caia en el generico y salia como 500, dando a entender que algo
+     * se rompio en el servidor cuando en realidad la peticion estaba mal formada.
+     */
+    /**
+     * Ruta inexistente. Sin este manejador caia en el generico y salia como 500, lo que
+     * aparenta una falla del servidor cuando en realidad la direccion no existe (por
+     * ejemplo por venir en mayusculas: el ruteo distingue may/min).
+     */
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<ApiError> rutaInexistente(NoResourceFoundException ex, HttpServletRequest req) {
+        return build(HttpStatus.NOT_FOUND, "La ruta solicitada no existe.", req, null);
+    }
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<ApiError> metodoNoSoportado(HttpRequestMethodNotSupportedException ex,
+                                                      HttpServletRequest req) {
+        return build(HttpStatus.METHOD_NOT_ALLOWED,
+                "El metodo " + ex.getMethod() + " no esta permitido en esta ruta.", req, null);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

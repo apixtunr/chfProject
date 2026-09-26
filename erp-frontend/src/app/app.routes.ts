@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/auth/auth.guard';
-import { permisoGuard } from './core/auth/permiso.guard';
+import { permisoAccionGuard, permisoGuard } from './core/auth/permiso.guard';
 import { catalogoPermisoGuard } from './features/administracion/catalogos/catalogo-permiso.guard';
 import { Shell } from './core/layout/shell';
 
@@ -30,12 +30,12 @@ export const routes: Routes = [
       },
       {
         path: 'clientes/nuevo',
-        canActivate: [permisoGuard('/api/clientes')],
+        canActivate: [permisoAccionGuard('/api/clientes', 'alta')],
         loadComponent: () => import('./features/clientes/cliente-form/cliente-form').then((m) => m.ClienteForm),
       },
       {
         path: 'clientes/:id/editar',
-        canActivate: [permisoGuard('/api/clientes')],
+        canActivate: [permisoAccionGuard('/api/clientes', 'modificacion')],
         loadComponent: () => import('./features/clientes/cliente-form/cliente-form').then((m) => m.ClienteForm),
       },
       {
@@ -46,7 +46,7 @@ export const routes: Routes = [
       },
       {
         path: 'cotizaciones/nueva',
-        canActivate: [permisoGuard('/api/cotizaciones')],
+        canActivate: [permisoAccionGuard('/api/cotizaciones', 'alta')],
         loadComponent: () =>
           import('./features/cotizaciones/cotizacion-form/cotizacion-form').then((m) => m.CotizacionForm),
       },
@@ -69,12 +69,12 @@ export const routes: Routes = [
       },
       {
         path: 'eventos/nuevo',
-        canActivate: [permisoGuard('/api/eventos')],
+        canActivate: [permisoAccionGuard('/api/eventos', 'alta')],
         loadComponent: () => import('./features/eventos/evento-form/evento-form').then((m) => m.EventoForm),
       },
       {
         path: 'eventos/reporte',
-        canActivate: [permisoGuard('/api/eventos')],
+        canActivate: [permisoGuard('/api/eventos', '/api/rentabilidad', '/api/clientes')],
         loadComponent: () => import('./features/eventos/evento-reporte/evento-reporte').then((m) => m.EventoReporte),
       },
       {
@@ -89,12 +89,12 @@ export const routes: Routes = [
       },
       {
         path: 'empleados/nuevo',
-        canActivate: [permisoGuard('/api/empleados')],
+        canActivate: [permisoAccionGuard('/api/empleados', 'alta')],
         loadComponent: () => import('./features/empleados/empleado-form/empleado-form').then((m) => m.EmpleadoForm),
       },
       {
         path: 'empleados/:id/editar',
-        canActivate: [permisoGuard('/api/empleados')],
+        canActivate: [permisoAccionGuard('/api/empleados', 'modificacion')],
         loadComponent: () => import('./features/empleados/empleado-form/empleado-form').then((m) => m.EmpleadoForm),
       },
       {
@@ -104,12 +104,12 @@ export const routes: Routes = [
       },
       {
         path: 'vehiculos/nuevo',
-        canActivate: [permisoGuard('/api/vehiculos')],
+        canActivate: [permisoAccionGuard('/api/vehiculos', 'alta')],
         loadComponent: () => import('./features/vehiculos/vehiculo-form/vehiculo-form').then((m) => m.VehiculoForm),
       },
       {
         path: 'vehiculos/:id/editar',
-        canActivate: [permisoGuard('/api/vehiculos')],
+        canActivate: [permisoAccionGuard('/api/vehiculos', 'modificacion')],
         loadComponent: () => import('./features/vehiculos/vehiculo-form/vehiculo-form').then((m) => m.VehiculoForm),
       },
       {
@@ -124,12 +124,12 @@ export const routes: Routes = [
       },
       {
         path: 'inventario/productos/nuevo',
-        canActivate: [permisoGuard('/api/productos')],
+        canActivate: [permisoAccionGuard('/api/productos', 'alta')],
         loadComponent: () => import('./features/inventario/producto-form/producto-form').then((m) => m.ProductoForm),
       },
       {
         path: 'inventario/productos/:id/editar',
-        canActivate: [permisoGuard('/api/productos')],
+        canActivate: [permisoAccionGuard('/api/productos', 'modificacion')],
         loadComponent: () => import('./features/inventario/producto-form/producto-form').then((m) => m.ProductoForm),
       },
       {
@@ -140,7 +140,7 @@ export const routes: Routes = [
       },
       {
         path: 'inventario/movimientos/nuevo',
-        canActivate: [permisoGuard('/api/movimientos-inventario')],
+        canActivate: [permisoAccionGuard('/api/movimientos-inventario', 'alta')],
         loadComponent: () =>
           import('./features/inventario/movimiento-form/movimiento-form').then((m) => m.MovimientoForm),
       },
@@ -156,7 +156,7 @@ export const routes: Routes = [
       },
       {
         path: 'pagos/evento/:idEvento/nuevo',
-        canActivate: [permisoGuard('/api/pagos')],
+        canActivate: [permisoAccionGuard('/api/pagos', 'alta')],
         loadComponent: () => import('./features/pagos/pago-form/pago-form').then((m) => m.PagoForm),
       },
       {
@@ -166,7 +166,7 @@ export const routes: Routes = [
       },
       {
         path: 'pagos/:id/editar',
-        canActivate: [permisoGuard('/api/pagos')],
+        canActivate: [permisoAccionGuard('/api/pagos', 'modificacion')],
         loadComponent: () => import('./features/pagos/pago-form/pago-form').then((m) => m.PagoForm),
       },
       // Ojo con el orden: las rutas literales (menus/platos, menus/nuevo)
@@ -178,12 +178,12 @@ export const routes: Routes = [
       },
       {
         path: 'menus/platos/nuevo',
-        canActivate: [permisoGuard('/api/platos')],
+        canActivate: [permisoAccionGuard('/api/platos', 'alta')],
         loadComponent: () => import('./features/menus/plato-form/plato-form').then((m) => m.PlatoForm),
       },
       {
         path: 'menus/platos/:id/editar',
-        canActivate: [permisoGuard('/api/platos')],
+        canActivate: [permisoAccionGuard('/api/platos', 'modificacion')],
         loadComponent: () => import('./features/menus/plato-form/plato-form').then((m) => m.PlatoForm),
       },
       {
@@ -193,7 +193,7 @@ export const routes: Routes = [
       },
       {
         path: 'menus/nuevo',
-        canActivate: [permisoGuard('/api/menus')],
+        canActivate: [permisoAccionGuard('/api/menus', 'alta')],
         loadComponent: () => import('./features/menus/menu-form/menu-form').then((m) => m.MenuForm),
       },
       {
@@ -203,7 +203,7 @@ export const routes: Routes = [
       },
       {
         path: 'menus/:id/editar',
-        canActivate: [permisoGuard('/api/menus')],
+        canActivate: [permisoAccionGuard('/api/menus', 'modificacion')],
         loadComponent: () => import('./features/menus/menu-form/menu-form').then((m) => m.MenuForm),
       },
       {
@@ -234,12 +234,12 @@ export const routes: Routes = [
       },
       {
         path: 'admin/usuarios/nuevo',
-        canActivate: [permisoGuard('/api/usuarios')],
+        canActivate: [permisoAccionGuard('/api/usuarios', 'alta')],
         loadComponent: () => import('./features/administracion/usuarios/usuario-form').then((m) => m.UsuarioForm),
       },
       {
         path: 'admin/usuarios/:id/editar',
-        canActivate: [permisoGuard('/api/usuarios')],
+        canActivate: [permisoAccionGuard('/api/usuarios', 'modificacion')],
         loadComponent: () => import('./features/administracion/usuarios/usuario-form').then((m) => m.UsuarioForm),
       },
       {

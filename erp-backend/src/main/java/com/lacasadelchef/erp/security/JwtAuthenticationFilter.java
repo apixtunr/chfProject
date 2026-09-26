@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -51,7 +52,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
                     userDetails, null, userDetails.getAuthorities());
             auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-            SecurityContextHolder.getContext().setAuthentication(auth);
+
+            // Se crea un contexto nuevo en vez de modificar el que ya estaba. Es el patron
+            // que recomienda Spring Security desde que el contexto se resuelve de forma
+            // diferida: al mutar el compartido, algunos filtros posteriores pueden seguir
+            // viendo el contexto vacio y tratar la peticion como no autenticada.
+            SecurityContext contexto = SecurityContextHolder.createEmptyContext();
+            contexto.setAuthentication(auth);
+            SecurityContextHolder.setContext(contexto);
         }
 
         filterChain.doFilter(request, response);
