@@ -169,30 +169,16 @@ class ClienteServiceImplTest {
     }
 
     @Test
-    @DisplayName("Crear cliente con un telefono ya registrado se rechaza, aunque este escrito distinto")
-    void crearConTelefonoRepetido() {
+    @DisplayName("Crear cliente con telefono y correo de otro cliente se permite: solo el NIT no se repite")
+    void crearConTelefonoYCorreoCompartidos() {
         prepararAlta();
-        when(clienteRepository.buscarPorTelefono("55555555", 0))
-                .thenReturn(java.util.List.of(clienteGuardado(3, "Juan Domingo Salvador", true)));
+        when(clienteRepository.save(any(Cliente.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        assertThatThrownBy(() -> clienteService.crear(peticion("Otro", "CF", "5555 5555", null)))
-                .isInstanceOf(BusinessException.class)
-                .hasMessageContaining("teléfono")
-                .hasMessageContaining("Juan Domingo Salvador");
-        verify(clienteRepository, never()).save(any());
-    }
+        ClienteResponse response = clienteService.crear(peticion("Maria Lopez", "CF", "5555 5555", "eventos@familia.com"));
 
-    @Test
-    @DisplayName("Crear cliente con un correo ya registrado se rechaza, sin importar mayusculas")
-    void crearConCorreoRepetido() {
-        prepararAlta();
-        when(clienteRepository.buscarPorCorreo("ana@correo.com", 0))
-                .thenReturn(java.util.List.of(clienteGuardado(3, "Ana Lucia", true)));
-
-        assertThatThrownBy(() -> clienteService.crear(peticion("Otra", "CF", null, "ANA@correo.com")))
-                .isInstanceOf(BusinessException.class)
-                .hasMessageContaining("correo")
-                .hasMessageContaining("Ana Lucia");
+        assertThat(response.telefono()).isEqualTo("5555 5555");
+        assertThat(response.correo()).isEqualTo("eventos@familia.com");
+        verify(clienteRepository).save(any(Cliente.class));
     }
 
     @Test

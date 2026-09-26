@@ -15,11 +15,14 @@ import { ClienteService } from '../cliente.service';
 import { PosibleDuplicado } from '../dto/cliente';
 import { alMenosUnoValidator, nitValidator, normalizarNit } from '../nit-guatemala';
 
-/** Datos que no se pueden repetir entre clientes. */
-type CampoUnico = 'nit' | 'telefono' | 'correo';
-const CAMPOS_UNICOS: CampoUnico[] = ['nit', 'telefono', 'correo'];
+/**
+ * Datos que se revisan contra otros clientes. Solo el NIT bloquea: telefono y correo se
+ * pueden compartir (una familia, una organizadora, una empresa con sucursales), asi que
+ * solo avisan.
+ */
+type CampoRevisado = 'nit' | 'telefono' | 'correo';
 /** Como los nombra el backend en PosibleDuplicado.coincidencias. */
-const ETIQUETA_CAMPO: Record<CampoUnico, string> = { nit: 'NIT', telefono: 'teléfono', correo: 'correo' };
+const ETIQUETA_CAMPO: Record<CampoRevisado, string> = { nit: 'NIT', telefono: 'teléfono', correo: 'correo' };
 
 @Component({
   selector: 'app-cliente-form',
@@ -47,6 +50,8 @@ export class ClienteForm implements OnInit {
   readonly guardando = signal(false);
   readonly departamentos = signal<DepartamentoResponse[]>([]);
   readonly municipios = signal<MunicipioResponse[]>([]);
+  /** Otro cliente que ya usa este telefono o correo (solo aviso, no impide guardar). */
+  readonly compartidoCon = signal<Partial<Record<'telefono' | 'correo', string>>>({});
 
   // Telefono y correo son opcionales por separado, pero el grupo exige al menos uno.
   readonly formulario = this.fb.nonNullable.group({
@@ -69,6 +74,13 @@ export class ClienteForm implements OnInit {
 
   ngOnInit(): void {
     this.departamentoService.listar().subscribe((d) => this.departamentos.set(d));
+
+    // El aviso de telefono o correo compartido se borra en cuanto se cambia el dato.
+    for (const campo of ['telefono', 'correo'] as const) {
+      this.formulario.controls[campo].valueChanges.subscribe(() =>
+        this.compartidoCon.update(({ [campo]: _, ...resto }) => resto),
+      );
+    }
 
     // Municipio bloqueado hasta que se elija departamento
     this.formulario.controls.idMunicipio.disable();
@@ -121,12 +133,12 @@ export class ClienteForm implements OnInit {
   }
 
   /**
-   * Al salir de NIT, telefono o correo se revisa si ya pertenece a otro cliente. Si es
-   * asi, el campo queda en error con el nombre del dueño y no se puede guardar (el
-   * backend lo vuelve a validar). El error se limpia solo al volver a escribir, porque
-   * Angular recalcula los validadores del campo.
+   * Al salir de NIT, telefono o correo se revisa si ya pertenece a otro cliente. Un NIT
+   * repetido deja el campo en error con el nombre del dueño y no se puede guardar (el
+   * backend lo vuelve a validar); el error se limpia solo al volver a escribir, porque
+   * Angular recalcula los validadores del campo. Telefono y correo solo muestran un aviso.
    */
-  verificarDuplicado(campo: CampoUnico): void {
+  verificarDuplicado(campo: CampoRevisado): void {
     const control = this.formulario.controls[campo];
     const valor = control.value?.trim();
     if (!valor || control.invalid || (campo === 'nit' && normalizarNit(valor) === 'CF')) {
@@ -134,14 +146,20 @@ export class ClienteForm implements OnInit {
     }
     this.clienteService.posiblesDuplicados({ [campo]: valor }, this.idCliente()).subscribe((parecidos) => {
       const dueno = parecidos.find((p) => p.coincidencias.includes(ETIQUETA_CAMPO[campo]));
-      if (dueno && control.value?.trim() === valor) {
-        control.setErrors({ ...control.errors, duplicado: dueno.activo ? dueno.nombre : `${dueno.nombre} (inactivo)` });
+      if (!dueno || control.value?.trim() !== valor) {
+        return;
+      }
+      const nombre = dueno.activo ? dueno.nombre : `${dueno.nombre} (inactivo)`;
+      if (campo === 'nit') {
+        control.setErrors({ ...control.errors, duplicado: nombre });
         control.markAsTouched();
+      } else {
+        this.compartidoCon.update((actual) => ({ ...actual, [campo]: nombre }));
       }
     });
   }
 
-  duplicadoDe(campo: CampoUnico): string | null {
+  duplicadoDe(campo: 'nit'): string | null {
     return this.formulario.controls[campo].getError('duplicado') ?? null;
   }
 
@@ -158,33 +176,26 @@ export class ClienteForm implements OnInit {
 
     this.guardando.set(true);
     const v = this.formulario.getRawValue();
-    // NIT, telefono y correo repetidos bloquean el guardado y se marcan en su campo. El
-    // nombre repetido solo avisa: dos personas pueden llamarse igual.
+    // El NIT repetido bloquea el guardado y se marca en su campo. Telefono, correo o
+    // nombre repetidos solo piden confirmar que se trata de otro cliente.
     this.clienteService
       .posiblesDuplicados({ nombre: v.nombre, nit: v.nit, telefono: v.telefono, correo: v.correo }, this.idCliente())
       .subscribe({
         next: (todos) => {
-          let bloqueado = false;
-          for (const campo of CAMPOS_UNICOS) {
-            const dueno = todos.find((p) => p.coincidencias.includes(ETIQUETA_CAMPO[campo]));
-            if (dueno) {
-              const control = this.formulario.controls[campo];
-              control.setErrors({ ...control.errors, duplicado: dueno.activo ? dueno.nombre : `${dueno.nombre} (inactivo)` });
-              control.markAsTouched();
-              bloqueado = true;
-            }
-          }
-          if (bloqueado) {
+          const duenoNit = todos.find((p) => p.coincidencias.includes(ETIQUETA_CAMPO.nit));
+          if (duenoNit) {
+            const control = this.formulario.controls.nit;
+            control.setErrors({ ...control.errors, duplicado: duenoNit.activo ? duenoNit.nombre : `${duenoNit.nombre} (inactivo)` });
+            control.markAsTouched();
             this.guardando.set(false);
             return;
           }
-          const parecidos = todos.filter((p) => p.coincidencias.includes('nombre'));
-          if (!parecidos.length) {
+          if (!todos.length) {
             this.enviar();
             return;
           }
           this.dialog
-            .open(ConfirmDialog, { data: { titulo: 'Posible cliente duplicado', mensaje: this.mensajeDuplicados(parecidos) } })
+            .open(ConfirmDialog, { data: { titulo: 'Posible cliente duplicado', mensaje: this.mensajeDuplicados(todos) } })
             .afterClosed()
             .subscribe((confirmado) => (confirmado ? this.enviar() : this.guardando.set(false)));
         },
@@ -195,9 +206,9 @@ export class ClienteForm implements OnInit {
   private mensajeDuplicados(parecidos: PosibleDuplicado[]): string {
     const lineas = parecidos
       .slice(0, 3)
-      .map((p) => `• ${p.nombre}${p.activo ? '' : ' (inactivo)'}${p.telefono ? ' · ' + p.telefono : ''}`);
+      .map((p) => `• ${p.nombre}${p.activo ? '' : ' (inactivo)'} — mismo ${p.coincidencias.join(', ')}`);
     const extra = parecidos.length > 3 ? `\n…y ${parecidos.length - 3} más.` : '';
-    return `Ya hay un cliente registrado con este nombre:\n${lineas.join('\n')}${extra}\n\n¿Es una persona distinta? Confirme para guardarlo.`;
+    return `Ya hay clientes registrados con datos iguales:\n${lineas.join('\n')}${extra}\n\n¿Es un cliente distinto? Confirme para guardarlo.`;
   }
 
   private enviar(): void {

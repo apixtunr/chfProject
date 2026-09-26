@@ -106,12 +106,12 @@
             (blur)="verificarDuplicado('telefono')"
           />
         </div>
-        @if (duplicadoDe('telefono'); as dueno) {
-          <p class="pf-error">Este teléfono ya está registrado para {{ dueno }}.</p>
-        } @else if (formulario.controls.telefono.invalid && formulario.controls.telefono.touched) {
+        @if (formulario.controls.telefono.invalid && formulario.controls.telefono.touched) {
           <p class="pf-error">Formato inválido. Ej: +502 1234 5678</p>
         } @else if (faltaContacto) {
           <p class="pf-error">Indique al menos un medio de contacto: teléfono o correo.</p>
+        } @else if (compartidoCon().telefono; as otro) {
+          <p class="pf-aviso">También es el teléfono de {{ otro }}. Puede guardarlo si lo comparten.</p>
         }
       </div>
 
@@ -133,10 +133,10 @@
             (blur)="verificarDuplicado('correo')"
           />
         </div>
-        @if (duplicadoDe('correo'); as dueno) {
-          <p class="pf-error">Este correo ya está registrado para {{ dueno }}.</p>
-        } @else if (formulario.controls.correo.invalid && formulario.controls.correo.touched) {
+        @if (formulario.controls.correo.invalid && formulario.controls.correo.touched) {
           <p class="pf-error">El correo no tiene un formato válido.</p>
+        } @else if (compartidoCon().correo; as otro) {
+          <p class="pf-aviso">También es el correo de {{ otro }}. Puede guardarlo si lo comparten.</p>
         }
       </div>
     </div>

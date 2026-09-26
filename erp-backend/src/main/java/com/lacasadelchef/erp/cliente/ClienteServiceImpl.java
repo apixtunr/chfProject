@@ -29,8 +29,9 @@ import java.util.Locale;
  * Reglas de negocio de Clientes:
  * <ul>
  *   <li>NIT valido (digito verificador) y unico; vacio = "CF" (consumidor final).</li>
- *   <li>Al menos un medio de contacto: telefono o correo. Ninguno de los dos se
- *       puede repetir entre clientes.</li>
+ *   <li>Al menos un medio de contacto: telefono o correo. Se pueden repetir entre
+ *       clientes (una organizadora, una familia o una empresa con varias sucursales los
+ *       comparten); la pantalla solo avisa, igual que con el nombre.</li>
  *   <li>No se borra: se inactiva. Uno inactivo no entra en cotizaciones ni eventos
  *       nuevos, pero su historial sigue visible. No se puede inactivar mientras tenga
  *       negocio abierto (cotizacion en curso, evento sin terminar o saldo pendiente).</li>
@@ -146,22 +147,12 @@ public class ClienteServiceImpl implements ClienteService {
                         "El NIT %s no es válido. Revise que esté bien escrito, por ejemplo 6769359-8"
                                 .formatted(request.nit().trim())));
 
-        // NIT, telefono y correo identifican a un cliente: ninguno se puede repetir.
+        // El NIT identifica al cliente para facturar: es el unico dato que no se repite.
         Integer idActual = cliente.getIdCliente() == null ? 0 : cliente.getIdCliente();
         if (!NitGuatemala.CONSUMIDOR_FINAL.equals(nit)) {
             clienteRepository.findByNit(nit)
                     .filter(otro -> !otro.getIdCliente().equals(idActual))
                     .ifPresent(otro -> rechazarRepetido("El NIT " + nit, otro));
-        }
-        if (telefono != null) {
-            clienteRepository.buscarPorTelefono(telefono.replaceAll("[\\s\\-]", ""), idActual).stream()
-                    .findFirst()
-                    .ifPresent(otro -> rechazarRepetido("El teléfono " + telefono, otro));
-        }
-        if (correo != null) {
-            clienteRepository.buscarPorCorreo(correo.toLowerCase(Locale.ROOT), idActual).stream()
-                    .findFirst()
-                    .ifPresent(otro -> rechazarRepetido("El correo " + correo, otro));
         }
 
         cliente.setNombre(request.nombre().trim().replaceAll("\\s+", " "));

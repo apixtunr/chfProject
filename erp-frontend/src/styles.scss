@@ -1049,6 +1049,13 @@ mat-paginator {
   gap: 4px;
 }
 
+// Advertencia que no impide guardar (ej. un dato que ya usa otro registro).
+.pf-aviso {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--chf-estado-aviso);
+}
+
 // ─── ACCIONES INFERIORES ──────────────────────────────────────
 .pf-footer-actions {
   display: flex;
