@@ -42,12 +42,12 @@
           Permisos
         </button>
         @if (puedeEditar) {
-          <button mat-icon-button (click)="iniciarEdicion(r)" matTooltip="Editar" aria-label="Editar">
+          <button mat-icon-button class="tbl-btn-editar" (click)="iniciarEdicion(r)" matTooltip="Editar" aria-label="Editar">
             <mat-icon>edit</mat-icon>
           </button>
         }
         @if (puedeEliminar && r.nombreRol !== 'ADMINISTRADOR') {
-          <button mat-icon-button (click)="eliminar(r)" matTooltip="Eliminar" aria-label="Eliminar">
+          <button mat-icon-button class="tbl-btn-eliminar" (click)="eliminar(r)" matTooltip="Eliminar" aria-label="Eliminar">
             <mat-icon>delete</mat-icon>
           </button>
         } @else if (puedeEliminar) {

@@ -53,19 +53,19 @@
       <td mat-cell *matCellDef="let u">
         @if (puedeEditar) {
           @if (estaBloqueado(u)) {
-            <button mat-icon-button (click)="desbloquear(u)" matTooltip="Desbloquear" aria-label="Desbloquear">
+            <button mat-icon-button class="tbl-btn-accion" (click)="desbloquear(u)" matTooltip="Desbloquear" aria-label="Desbloquear">
               <mat-icon>lock_open</mat-icon>
             </button>
           }
-          <button mat-icon-button (click)="cambiarPassword(u)" matTooltip="Cambiar contrasena" aria-label="Cambiar contrasena">
+          <button mat-icon-button class="tbl-btn-accion" (click)="cambiarPassword(u)" matTooltip="Cambiar contrasena" aria-label="Cambiar contrasena">
             <mat-icon>key</mat-icon>
           </button>
-          <button mat-icon-button [routerLink]="['/admin/usuarios', u.idUsuario, 'editar']" matTooltip="Editar" aria-label="Editar">
+          <button mat-icon-button class="tbl-btn-editar" [routerLink]="['/admin/usuarios', u.idUsuario, 'editar']" matTooltip="Editar" aria-label="Editar">
             <mat-icon>edit</mat-icon>
           </button>
         }
         @if (puedeEliminar) {
-          <button mat-icon-button (click)="eliminar(u)" matTooltip="Eliminar" aria-label="Eliminar">
+          <button mat-icon-button class="tbl-btn-eliminar" (click)="eliminar(u)" matTooltip="Eliminar" aria-label="Eliminar">
             <mat-icon>delete</mat-icon>
           </button>
         }

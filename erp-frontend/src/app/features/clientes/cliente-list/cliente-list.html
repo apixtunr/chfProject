@@ -121,7 +121,7 @@
           <button
             mat-icon-button
             [class.tbl-btn-eliminar]="c.activo"
-            [class.tbl-btn-editar]="!c.activo"
+            [class.tbl-btn-activar]="!c.activo"
             (click)="cambiarEstado(c)"
             [matTooltip]="c.activo ? 'Inactivar' : 'Reactivar'"
             [attr.aria-label]="c.activo ? 'Inactivar' : 'Reactivar'"

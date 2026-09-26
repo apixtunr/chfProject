@@ -471,16 +471,66 @@ mat-form-field.mat-form-field-appearance-outline:not(:has(.mat-mdc-form-field-ic
     margin-left: 8px;
   }
 
-  // Botón editar — gris neutro
-  .tbl-btn-editar {
-    color: var(--chf-texto-ejemplo);
-    &:hover { color: var(--chf-texto-medio); background: var(--chf-fondo-campo) !important; }
+  // Iconos de accion: mismo tamano en todas las tablas. El valor por defecto de
+  // Material (24px) hace que el icono llene el boton; 20px lo deja respirar dentro
+  // de la fila. Estaba escrito igual en cliente-list y cotizacion-list; ahora vive
+  // aca una sola vez.
+  .tbl-btn-editar,
+  .tbl-btn-accion,
+  .tbl-btn-eliminar,
+  .tbl-btn-activar {
+    mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
   }
 
-  // Botón eliminar — rojo suave
-  .tbl-btn-eliminar {
-    color: var(--chf-texto-suave);
-    &:hover { color: var(--chf-peligro); background: var(--chf-peligro-fondo) !important; }
+  // Gris de reposo, comun a las acciones que no son la principal. Antes eliminar usaba
+  // el gris mas claro de la escala y daba 2.44:1 contra la fila: por debajo del 3:1 que
+  // necesita un icono para leerse, y se veia lavado. Con este gris sube a 4.52:1.
+  // Que borrar y las acciones auxiliares arranquen del mismo gris es deliberado: en
+  // reposo la columna se lee como un bloque tranquilo, y el significado aparece al
+  // acercar el mouse, que es cuando hay una intencion detras.
+  .tbl-btn-accion,
+  .tbl-btn-eliminar,
+  .tbl-btn-activar {
+    color: var(--chf-texto-ejemplo);
+  }
+
+  // Accion principal de la fila: abrir el registro o editarlo (lapiz y ojo). Va en el
+  // azul de acento porque es la accion que se busca primero al recorrer la tabla.
+  .tbl-btn-editar {
+    color: var(--chf-campo-acento);
+    &:hover { background: var(--chf-fondo-campo) !important; }
+  }
+
+  // Acciones auxiliares de la fila: cambiar contrasena, desbloquear, ver los platos de
+  // un menu, ajustar el minimo. No destruyen nada ni son la accion principal, asi que
+  // al pasar el mouse solo se oscurecen; no cambian de color.
+  .tbl-btn-accion:hover {
+    color: var(--chf-texto-medio);
+    background: var(--chf-fondo-campo) !important;
+  }
+
+  // Accion destructiva: borrar, inactivar. El rojo aparece solo con el mouse encima.
+  .tbl-btn-eliminar:hover {
+    color: var(--chf-peligro);
+    background: var(--chf-peligro-fondo) !important;
+  }
+
+  // Accion constructiva: reactivar, restaurar, dar de alta de nuevo. Es la contraparte
+  // de eliminar y se comporta igual, pero en verde.
+  //
+  // Reutiliza la pareja de verde que ya existe para los estados en vez de inventar una
+  // propia. El rojo si necesito dos versiones ($peligro para el boton que borra y
+  // $estado-peligro para el rotulo de un registro anulado) porque eran dos rojos
+  // distintos en uso; en verde no hay ese conflicto: en todo el sistema significa lo
+  // mismo, que algo quedo bien o quedo activo. Un cuarto verde solo seria un tono mas
+  // que mantener.
+  .tbl-btn-activar:hover {
+    color: var(--chf-estado-exito);
+    background: var(--chf-estado-exito-fondo) !important;
   }
 }
 

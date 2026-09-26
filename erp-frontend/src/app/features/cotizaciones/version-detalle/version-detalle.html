@@ -137,10 +137,10 @@
         <th mat-header-cell *matHeaderCellDef></th>
         <td mat-cell *matCellDef="let d">
           @if (esEditable) {
-            <button mat-icon-button (click)="editarLinea(d)" matTooltip="Editar" aria-label="Editar">
+            <button mat-icon-button class="tbl-btn-editar" (click)="editarLinea(d)" matTooltip="Editar" aria-label="Editar">
               <mat-icon>edit</mat-icon>
             </button>
-            <button mat-icon-button (click)="eliminarLinea(d)" matTooltip="Quitar" aria-label="Quitar">
+            <button mat-icon-button class="tbl-btn-eliminar" (click)="eliminarLinea(d)" matTooltip="Quitar" aria-label="Quitar">
               <mat-icon>delete</mat-icon>
             </button>
           }
@@ -215,10 +215,10 @@
         <th mat-header-cell *matHeaderCellDef></th>
         <td mat-cell *matCellDef="let s">
           @if (esEditable) {
-            <button mat-icon-button (click)="editarServicio(s)" matTooltip="Editar" aria-label="Editar">
+            <button mat-icon-button class="tbl-btn-editar" (click)="editarServicio(s)" matTooltip="Editar" aria-label="Editar">
               <mat-icon>edit</mat-icon>
             </button>
-            <button mat-icon-button (click)="eliminarServicio(s)" matTooltip="Quitar" aria-label="Quitar">
+            <button mat-icon-button class="tbl-btn-eliminar" (click)="eliminarServicio(s)" matTooltip="Quitar" aria-label="Quitar">
               <mat-icon>delete</mat-icon>
             </button>
           }

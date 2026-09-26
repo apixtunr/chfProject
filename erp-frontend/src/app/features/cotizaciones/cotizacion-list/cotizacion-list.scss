@@ -126,25 +126,6 @@
     border-radius: 4px;
   }
 
-  .tbl-btn-editar, .tbl-btn-eliminar {
-    mat-icon {
-      font-size: 20px;
-      width: 20px;
-      height: 20px;
-    }
-  }
-
-  .tbl-btn-editar {
-    color: var(--chf-campo-acento);
-  }
-
-  .tbl-btn-eliminar {
-    color: #ef4444;
-    
-    &:hover {
-      background-color: rgba(239, 68, 68, 0.08);
-    }
-  }
 }
 
 // === COMPONENTES ADICIONALES (PAGINADOR Y CHIPS) ===
@@ -153,7 +134,16 @@ mat-paginator {
   border-top: 1.5px solid var(--chf-borde-control);
 }
 
-// Estilos globales de los chips semánticos para los estados
+// Etiqueta de estado de la version de cotizacion.
+//
+// El nombre de la variante lo arma la plantilla con el estado en minusculas
+// (estado-chip--{{ estado | lowercase }}), asi que estos nombres tienen que ser
+// exactamente los cuatro estados de la tabla `estado`: CREADA, ENVIADA, ACEPTADA y
+// RECHAZADA. Antes decian borrador/pendiente/aprobada y solo coincidia una, por lo que
+// tres de los cuatro estados salian sin fondo, como texto suelto.
+//
+// Los colores son los mismos que usan las demas pantallas con estados (bitacora,
+// inventario, pagos), para que un ACEPTADA se vea igual en todo el sistema.
 .estado-chip {
   display: inline-block;
   padding: 4px 10px;
@@ -162,21 +152,20 @@ mat-paginator {
   font-weight: 500;
   text-transform: capitalize;
 
-  // Variantes de estado comunes (puedes ajustar colores según tu paleta)
-  &--borrador {
-    background-color: #f3f4f6;
-    color: #4b5563;
+  &--creada {
+    background-color: var(--chf-estado-neutro-fondo);
+    color: var(--chf-estado-neutro);
   }
-  &--pendiente {
-    background-color: #fef3c7;
-    color: #d97706;
+  &--enviada {
+    background-color: var(--chf-estado-info-fondo);
+    color: var(--chf-estado-info);
   }
-  &--aprobada {
-    background-color: #dcfce7;
-    color: #16a34a;
+  &--aceptada {
+    background-color: var(--chf-estado-exito-fondo);
+    color: var(--chf-estado-exito);
   }
   &--rechazada {
-    background-color: #fee2e2;
-    color: #dc2626;
+    background-color: var(--chf-estado-peligro-fondo);
+    color: var(--chf-estado-peligro);
   }
 }

@@ -85,7 +85,7 @@
         <th mat-header-cell *matHeaderCellDef></th>
         <td mat-cell *matCellDef="let mp">
           @if (puedeEliminar) {
-            <button mat-icon-button (click)="quitarPlato(mp)" matTooltip="Quitar del menu" aria-label="Quitar del menu">
+            <button mat-icon-button class="tbl-btn-eliminar" (click)="quitarPlato(mp)" matTooltip="Quitar del menu" aria-label="Quitar del menu">
               <mat-icon>delete</mat-icon>
             </button>
           }

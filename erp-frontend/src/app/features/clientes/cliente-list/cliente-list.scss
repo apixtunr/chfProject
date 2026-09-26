@@ -149,26 +149,6 @@
     border-radius: 4px;
   }
 
-  // Botones de acción (Editar y Eliminar)
-  .tbl-btn-editar, .tbl-btn-eliminar {
-    mat-icon {
-      font-size: 20px;
-      width: 20px;
-      height: 20px;
-    }
-  }
-
-  .tbl-btn-editar {
-    color: var(--chf-campo-acento); // Color de acento/azul para editar
-  }
-
-  .tbl-btn-eliminar {
-    color: #ef4444; // Rojo para advertencia de eliminación
-    
-    &:hover {
-      background-color: rgba(239, 68, 68, 0.08); // Efecto sutil al pasar el mouse
-    }
-  }
 }
 
 // 4. Estilos para el paginador de Angular Material (Fuera de la tabla)

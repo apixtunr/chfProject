@@ -50,12 +50,12 @@
       <th mat-header-cell *matHeaderCellDef>Acciones</th>
       <td mat-cell *matCellDef="let i">
         @if (puedeAgregarStock) {
-          <button mat-icon-button (click)="agregarStock(i)" matTooltip="Agregar stock" aria-label="Agregar stock">
+          <button mat-icon-button class="tbl-btn-accion" (click)="agregarStock(i)" matTooltip="Agregar stock" aria-label="Agregar stock">
             <mat-icon>add_box</mat-icon>
           </button>
         }
         @if (puedeEditarMinimo) {
-          <button mat-icon-button (click)="editarMinimo(i)" matTooltip="Editar stock mínimo" aria-label="Editar stock minimo">
+          <button mat-icon-button class="tbl-btn-accion" (click)="editarMinimo(i)" matTooltip="Editar stock mínimo" aria-label="Editar stock minimo">
             <mat-icon>tune</mat-icon>
           </button>
         }

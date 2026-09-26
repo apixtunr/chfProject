@@ -181,7 +181,7 @@
               <th mat-header-cell *matHeaderCellDef></th>
               <td mat-cell *matCellDef="let d">
                 @if (puedeEditarMenu) {
-                  <button mat-icon-button (click)="eliminarLineaMenu(d)" matTooltip="Quitar plato del menú" aria-label="Quitar plato del menú">
+                  <button mat-icon-button class="tbl-btn-eliminar" (click)="eliminarLineaMenu(d)" matTooltip="Quitar plato del menú" aria-label="Quitar plato del menú">
                     <mat-icon>delete</mat-icon>
                   </button>
                 }
@@ -294,7 +294,7 @@
               <th mat-header-cell *matHeaderCellDef></th>
               <td mat-cell *matCellDef="let c">
                 @if (puedeModificar) {
-                  <button mat-icon-button (click)="eliminarCosto(c)" matTooltip="Eliminar costo" aria-label="Eliminar costo">
+                  <button mat-icon-button class="tbl-btn-eliminar" (click)="eliminarCosto(c)" matTooltip="Eliminar costo" aria-label="Eliminar costo">
                     <mat-icon>delete</mat-icon>
                   </button>
                 }
@@ -348,7 +348,7 @@
               <th mat-header-cell *matHeaderCellDef></th>
               <td mat-cell *matCellDef="let p">
                 @if (puedeAsignarRecursos) {
-                  <button mat-icon-button (click)="quitarEmpleado(p)" matTooltip="Eliminar empleado" aria-label="Quitar empleado">
+                  <button mat-icon-button class="tbl-btn-eliminar" (click)="quitarEmpleado(p)" matTooltip="Eliminar empleado" aria-label="Quitar empleado">
                     <mat-icon>delete</mat-icon>
                   </button>
                 }
@@ -403,7 +403,7 @@
               <th mat-header-cell *matHeaderCellDef></th>
               <td mat-cell *matCellDef="let v">
                 @if (puedeAsignarRecursos) {
-                  <button mat-icon-button (click)="quitarVehiculo(v)" matTooltip="Eliminar vehículo" aria-label="Quitar vehículo">
+                  <button mat-icon-button class="tbl-btn-eliminar" (click)="quitarVehiculo(v)" matTooltip="Eliminar vehículo" aria-label="Quitar vehículo">
                     <mat-icon>delete</mat-icon>
                   </button>
                 }
@@ -485,7 +485,7 @@
                   <button mat-button (click)="cancelarCorreccionInventario()">Cancelar</button>
                 } @else {
                   @if (!i.fechaConsumo && puedeAsignarRecursos) {
-                    <button mat-icon-button (click)="quitarProducto(i)" matTooltip="Quitar producto" aria-label="Quitar producto">
+                    <button mat-icon-button class="tbl-btn-eliminar" (click)="quitarProducto(i)" matTooltip="Quitar producto" aria-label="Quitar producto">
                       <mat-icon>delete</mat-icon>
                     </button>
                   }
