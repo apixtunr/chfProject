@@ -70,11 +70,32 @@ export class VersionDetalle implements OnInit {
   readonly version = signal<CotizacionVersionResponse | null>(null);
   readonly detalles = signal<DetalleCotizacionResponse[]>([]);
 
-  /** Solo informativo: no bloquea nada, avisa si el total ya supera lo que el cliente dijo que queria gastar. */
-  readonly presupuestoSuperado = computed(() => {
+  /**
+   * Solo informativo: cuanto queda el total arriba (positivo) o abajo (negativo) de lo que
+   * el cliente dijo que queria gastar. null si no dio presupuesto.
+   */
+  readonly diferenciaPresupuesto = computed(() => {
     const presupuesto = this.cotizacion()?.presupuestoCliente;
     const total = this.version()?.montoTotal;
-    return presupuesto != null && total != null && total > presupuesto;
+    return presupuesto != null && total != null ? total - presupuesto : null;
+  });
+
+  /**
+   * Solo informativo: menus cuyas porciones no alcanzan o sobran para las personas de la
+   * cotizacion. No bloquea, porque hay casos validos (menu infantil, platos para compartir).
+   */
+  readonly porcionesDescuadradas = computed(() => {
+    const personas = this.cotizacion()?.cantidadPersonas;
+    if (!personas) {
+      return [];
+    }
+    const porMenu = new Map<string, number>();
+    for (const d of this.detalles()) {
+      porMenu.set(d.nombreMenu, (porMenu.get(d.nombreMenu) ?? 0) + d.cantidadPlatos);
+    }
+    return [...porMenu]
+      .filter(([, porciones]) => porciones !== personas)
+      .map(([menu, porciones]) => ({ menu, porciones, personas }));
   });
   readonly menus = signal<MenuResponse[]>([]);
   /** Platos disponibles dentro del menu (categoria) elegido en el formulario. */

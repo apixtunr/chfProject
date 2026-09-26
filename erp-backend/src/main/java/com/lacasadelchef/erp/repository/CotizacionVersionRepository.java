@@ -10,6 +10,9 @@ public interface CotizacionVersionRepository extends JpaRepository<CotizacionVer
 
     List<CotizacionVersion> findByCotizacionIdCotizacionOrderByNumeroVersionDesc(Integer idCotizacion);
 
+    /** true si alguna version de la cotizacion ya salio del estado indicado (ej. ya se envio). */
+    boolean existsByCotizacionIdCotizacionAndEstadoNombreNot(Integer idCotizacion, String estado);
+
     /** Candidatas para crear un evento: aceptadas y que ningun evento haya tomado todavia. */
     @Query("""
             SELECT cv FROM CotizacionVersion cv

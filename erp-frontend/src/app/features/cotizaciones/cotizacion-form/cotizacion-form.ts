@@ -53,6 +53,8 @@ export class CotizacionForm implements OnInit {
   readonly municipios = signal<MunicipioResponse[]>([]);
 
   readonly guardando = signal(false);
+  /** El evento no puede ser en el pasado (el backend lo vuelve a validar). */
+  readonly hoy = new Date(new Date().setHours(0, 0, 0, 0));
 
   readonly formulario = this.crearFormulario();
 

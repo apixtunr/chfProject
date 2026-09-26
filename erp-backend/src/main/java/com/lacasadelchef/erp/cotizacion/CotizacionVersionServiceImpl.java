@@ -20,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -152,9 +153,35 @@ public class CotizacionVersionServiceImpl implements CotizacionVersionService {
                             .formatted(estadoActual, estadoDestino));
         }
 
+        if (ESTADO_ENVIADA.equals(estadoDestino)) {
+            validarListaParaEnviar(version);
+        }
         version.setEstado(estado);
         version = cotizacionVersionRepository.save(version);
         return CotizacionVersionResponse.desde(version);
+    }
+
+    /**
+     * Lo que se le envia al cliente tiene que poder convertirse en un evento: al menos un
+     * plato o servicio con un total mayor a cero, y una fecha que todavia no paso.
+     */
+    private void validarListaParaEnviar(CotizacionVersion version) {
+        Integer id = version.getIdCotizacionVersion();
+        if (!detalleCotizacionRepository.existsByCotizacionVersionIdCotizacionVersion(id)
+                && !servicioCotizacionRepository.existsByCotizacionVersionIdCotizacionVersion(id)) {
+            throw new BusinessException("Agregue al menos un plato o servicio antes de enviar la cotizacion");
+        }
+        if (version.getMontoTotal() == null || version.getMontoTotal().signum() <= 0) {
+            throw new BusinessException("El total de la cotizacion debe ser mayor a Q 0.00 para enviarla");
+        }
+        LocalDate fechaEvento = version.getCotizacion().getFechaEvento();
+        if (fechaEvento == null) {
+            throw new BusinessException("Indique la fecha del evento antes de enviar la cotizacion");
+        }
+        if (fechaEvento.isBefore(LocalDate.now())) {
+            throw new BusinessException("La fecha del evento (%s) ya paso: actualicela antes de enviar la cotizacion"
+                    .formatted(fechaEvento));
+        }
     }
 
     private CotizacionVersion buscarVersion(Integer id) {

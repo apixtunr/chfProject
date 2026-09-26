@@ -20,11 +20,24 @@
         Total de la version: <strong>Q{{ v.montoTotal | number: '1.2-2' }}</strong>
       </p>
 
-      @if (presupuestoSuperado()) {
-        <p class="alerta-presupuesto">
-          <mat-icon>warning</mat-icon>
-          El presupuesto del cliente (Q{{ cotizacion()!.presupuestoCliente | number: '1.2-2' }}) fue superado por
-          Q{{ v.montoTotal - cotizacion()!.presupuestoCliente! | number: '1.2-2' }}
+      @if (diferenciaPresupuesto(); as diferencia) {
+        @if (diferencia > 0) {
+          <p class="alerta-presupuesto">
+            <mat-icon>warning</mat-icon>
+            Q{{ diferencia | number: '1.2-2' }} arriba del presupuesto del cliente
+            (Q{{ cotizacion()!.presupuestoCliente | number: '1.2-2' }})
+          </p>
+        } @else {
+          <p class="alerta-presupuesto alerta-presupuesto--dentro">
+            <mat-icon>check_circle</mat-icon>
+            Q{{ -diferencia | number: '1.2-2' }} debajo del presupuesto del cliente
+            (Q{{ cotizacion()!.presupuestoCliente | number: '1.2-2' }})
+          </p>
+        }
+      } @else if (diferenciaPresupuesto() === 0) {
+        <p class="alerta-presupuesto alerta-presupuesto--dentro">
+          <mat-icon>check_circle</mat-icon>
+          Justo en el presupuesto del cliente
         </p>
       }
     </div>
@@ -110,6 +123,14 @@
           }
         </div>
       </form>
+    }
+
+    @for (aviso of porcionesDescuadradas(); track aviso.menu) {
+      <p class="alerta-presupuesto aviso-porciones">
+        <mat-icon>info</mat-icon>
+        {{ aviso.menu }}: {{ aviso.porciones }} porciones para {{ aviso.personas }} personas
+        ({{ aviso.porciones < aviso.personas ? 'faltan ' + (aviso.personas - aviso.porciones) : 'sobran ' + (aviso.porciones - aviso.personas) }}).
+      </p>
     }
 
     <table mat-table [dataSource]="detalles()" class="tabla">

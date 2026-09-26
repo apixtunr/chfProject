@@ -104,6 +104,7 @@
         <label class="pf-label" for="fechaEvento">
           <span class="pf-label-num">4.</span>
           <span class="pf-label-name">Fecha estimada del evento</span>
+          <span class="pf-label-hint">(obligatoria para enviar la cotización)</span>
         </label>
         <div class="pf-input-wrap pf-input-wrap--date">
           <mat-icon class="pf-input-icon">calendar_today</mat-icon>
@@ -111,6 +112,7 @@
             id="fechaEvento"
             class="pf-input"
             [matDatepicker]="picker"
+            [min]="hoy"
             formControlName="fechaEvento"
             placeholder="dd/mm/aaaa"
             readonly

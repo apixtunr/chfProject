@@ -18,6 +18,15 @@
     width: 18px;
     height: 18px;
   }
+
+  &--dentro {
+    color: var(--chf-estado-exito);
+  }
+}
+
+// Dentro de la seccion del menu, alineado con el formulario y la tabla.
+.aviso-porciones {
+  margin: 0 20px 8px;
 }
 
 // Formulario de carga en una sola linea. A diferencia de los formularios de alta, aqui

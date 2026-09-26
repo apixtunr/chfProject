@@ -8,4 +8,6 @@ import java.util.List;
 public interface DetalleCotizacionRepository extends JpaRepository<DetalleCotizacion, Integer> {
 
     List<DetalleCotizacion> findByCotizacionVersionIdCotizacionVersion(Integer idCotizacionVersion);
+
+    boolean existsByCotizacionVersionIdCotizacionVersion(Integer idCotizacionVersion);
 }
