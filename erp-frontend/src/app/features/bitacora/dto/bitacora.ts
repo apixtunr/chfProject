@@ -2,6 +2,8 @@ export interface BitacoraMovimientoResponse {
   idBitacoraMovimiento: number;
   idUsuario: number | null;
   usernameUsuario: string | null;
+  /** Persona detras del usuario ("Nombre Apellido"). */
+  nombreEmpleado: string | null;
   tablaAfectada: string;
   registroId: string | null;
   operacion: string;
@@ -16,6 +18,8 @@ export interface BitacoraAccesoResponse {
   idBitacoraAcceso: number;
   idUsuario: number | null;
   usernameUsuario: string | null;
+  /** Persona detras del usuario ("Nombre Apellido"). */
+  nombreEmpleado: string | null;
   accion: string;
   resultado: string | null;
   ipOrigen: string | null;

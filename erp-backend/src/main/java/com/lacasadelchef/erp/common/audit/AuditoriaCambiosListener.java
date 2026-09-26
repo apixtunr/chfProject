@@ -2,6 +2,8 @@ package com.lacasadelchef.erp.common.audit;
 
 import com.lacasadelchef.erp.entity.BitacoraAcceso;
 import com.lacasadelchef.erp.entity.BitacoraMovimiento;
+import com.lacasadelchef.erp.entity.Empleado;
+import com.lacasadelchef.erp.entity.Usuario;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
@@ -265,10 +267,18 @@ public class AuditoriaCambiosListener
     /**
      * Busca el nombre de la entidad relacionada. Unas lo llaman getNombre() y otras
      * repiten la entidad en el getter (getNombreMunicipio, getNombreProducto), por eso
-     * se acepta cualquiera que empiece asi; ninguna entidad tiene mas de uno, y se
-     * ordena por nombre para que la eleccion no dependa del orden de reflexion.
+     * se acepta cualquiera que empiece asi, y se ordena por nombre para que la eleccion
+     * no dependa del orden de reflexion. Dos casos van primero: una persona se
+     * identifica por nombre y apellido (getNombreCompleto), y un usuario, que no tiene
+     * nombre propio, por la persona que hay detras y su nombre de usuario.
      */
     private static String nombreLegible(Object entidad) {
+        if (entidad instanceof Usuario usuario) {
+            return usuario.getEmpleado().getNombreCompleto() + " - " + usuario.getUsername();
+        }
+        if (entidad instanceof Empleado empleado) {
+            return empleado.getNombreCompleto();
+        }
         return Arrays.stream(entidad.getClass().getMethods())
                 .filter(m -> m.getName().startsWith("getNombre") && m.getParameterCount() == 0
                         && m.getReturnType() == String.class)

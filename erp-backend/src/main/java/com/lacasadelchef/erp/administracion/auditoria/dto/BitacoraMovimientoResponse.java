@@ -10,6 +10,8 @@ public record BitacoraMovimientoResponse(
         Long idBitacoraMovimiento,
         Integer idUsuario,
         String usernameUsuario,
+        /** Persona detras del usuario ("Nombre Apellido"); quien hizo la accion. */
+        String nombreEmpleado,
         String tablaAfectada,
         String registroId,
         String operacion,
@@ -25,6 +27,7 @@ public record BitacoraMovimientoResponse(
                 .idBitacoraMovimiento(b.getIdBitacoraMovimiento())
                 .idUsuario(b.getUsuario() != null ? b.getUsuario().getIdUsuario() : null)
                 .usernameUsuario(b.getUsuario() != null ? b.getUsuario().getUsername() : null)
+                .nombreEmpleado(b.getUsuario() != null ? b.getUsuario().getEmpleado().getNombreCompleto() : null)
                 .tablaAfectada(b.getTablaAfectada())
                 .registroId(b.getRegistroId())
                 .operacion(b.getOperacion())

@@ -12,8 +12,17 @@ import java.util.List;
 
 public interface BitacoraMovimientoRepository extends JpaRepository<BitacoraMovimiento, Long> {
 
-    @Query("""
+    @Query(value = """
             SELECT b FROM BitacoraMovimiento b
+            LEFT JOIN FETCH b.usuario u
+            LEFT JOIN FETCH u.empleado
+            WHERE (CAST(:idUsuario AS integer) IS NULL OR b.usuario.idUsuario = :idUsuario)
+              AND (:tabla IS NULL OR b.tablaAfectada = :tabla)
+              AND (CAST(:fechaDesde AS date) IS NULL OR CAST(b.fechaMovimiento AS date) >= :fechaDesde)
+              AND (CAST(:fechaHasta AS date) IS NULL OR CAST(b.fechaMovimiento AS date) <= :fechaHasta)
+            """,
+            countQuery = """
+            SELECT COUNT(b) FROM BitacoraMovimiento b
             WHERE (CAST(:idUsuario AS integer) IS NULL OR b.usuario.idUsuario = :idUsuario)
               AND (:tabla IS NULL OR b.tablaAfectada = :tabla)
               AND (CAST(:fechaDesde AS date) IS NULL OR CAST(b.fechaMovimiento AS date) >= :fechaDesde)

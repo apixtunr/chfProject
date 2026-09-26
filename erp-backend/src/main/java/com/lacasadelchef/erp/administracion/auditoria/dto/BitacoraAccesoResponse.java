@@ -10,6 +10,8 @@ public record BitacoraAccesoResponse(
         Long idBitacoraAcceso,
         Integer idUsuario,
         String usernameUsuario,
+        /** Persona detras del usuario ("Nombre Apellido"); quien hizo la accion. */
+        String nombreEmpleado,
         String accion,
         String resultado,
         String ipOrigen,
@@ -23,6 +25,7 @@ public record BitacoraAccesoResponse(
                 .idBitacoraAcceso(b.getIdBitacoraAcceso())
                 .idUsuario(b.getUsuario() != null ? b.getUsuario().getIdUsuario() : null)
                 .usernameUsuario(b.getUsuario() != null ? b.getUsuario().getUsername() : null)
+                .nombreEmpleado(b.getUsuario() != null ? b.getUsuario().getEmpleado().getNombreCompleto() : null)
                 .accion(b.getAccion().getNombre())
                 .resultado(b.getResultado())
                 .ipOrigen(b.getIpOrigen())

@@ -34,8 +34,23 @@
 }
 
 /* Un valor puede ser largo (observaciones, direcciones); se recorta y el resto se ve en el tooltip. */
+// Quien hizo la accion: la persona, y debajo el usuario con que entro.
+.col-usuario {
+  white-space: nowrap;
+
+  .usuario-nombre {
+    display: block;
+  }
+
+  .usuario-login {
+    display: block;
+    font-size: 0.78rem;
+    color: var(--chf-texto-suave);
+  }
+}
+
 .col-valor {
-  max-width: 180px;
+  max-width: 150px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

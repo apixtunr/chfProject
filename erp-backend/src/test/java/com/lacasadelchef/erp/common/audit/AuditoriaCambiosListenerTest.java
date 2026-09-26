@@ -1,5 +1,6 @@
 package com.lacasadelchef.erp.common.audit;
 
+import com.lacasadelchef.erp.entity.Empleado;
 import com.lacasadelchef.erp.entity.Usuario;
 import org.hibernate.event.spi.EventSource;
 import org.hibernate.event.spi.PostDeleteEvent;
@@ -43,6 +44,7 @@ class AuditoriaCambiosListenerTest {
     @Mock private EntityPersister persister;
     @Mock private EventSource session;
     @Mock private Type tipoSimple;
+    @Mock private Type tipoRelacion;
     @Mock private Connection conexion;
     @Mock private PreparedStatement sentencia;
 
@@ -95,5 +97,42 @@ class AuditoriaCambiosListenerTest {
         assertThat(parametros.get(5)).isEqualTo("username: vendedor1 · password_hash: ******** · intentos_acceso: 3");
         assertThat(parametros.get(6)).isNull();
         assertThat(parametros.get(7)).isEqualTo("DELETE");
+    }
+
+    @Test
+    @DisplayName("Una persona relacionada se identifica por nombre y apellido, no solo por el nombre")
+    void relacionConEmpleado() {
+        Empleado empleado = new Empleado();
+        empleado.setNombre("Lucia");
+        empleado.setApellido("Ramirez");
+        when(tipoRelacion.isEntityType()).thenReturn(true);
+        when(session.getContextEntityIdentifier(empleado)).thenReturn(2);
+        when(persister.getPropertyNames()).thenReturn(new String[]{"username"});
+        when(persister.getPropertyTypes()).thenReturn(new Type[]{tipoRelacion});
+
+        listener.onPostDelete(new PostDeleteEvent(new Usuario(), 7, new Object[]{empleado}, persister, session));
+
+        // Se reusa la columna "username" del persister: lo que importa es como se escribe el valor.
+        assertThat(parametros.get(5)).isEqualTo("username: 2 (Lucia Ramirez)");
+    }
+
+    @Test
+    @DisplayName("Un usuario relacionado se identifica por la persona y su nombre de usuario")
+    void relacionConUsuario() {
+        Empleado empleado = new Empleado();
+        empleado.setNombre("Lucia");
+        empleado.setApellido("Ramirez");
+        Usuario usuario = new Usuario();
+        usuario.setEmpleado(empleado);
+        usuario.setUsername("lramirez");
+        when(tipoRelacion.isEntityType()).thenReturn(true);
+        when(session.getContextEntityIdentifier(usuario)).thenReturn(5);
+        when(persister.getPropertyNames()).thenReturn(new String[]{"username"});
+        when(persister.getPropertyTypes()).thenReturn(new Type[]{tipoRelacion});
+
+        listener.onPostDelete(new PostDeleteEvent(new Usuario(), 7, new Object[]{usuario}, persister, session));
+
+        // Se reusa la columna "username" del persister: lo que importa es como se escribe el valor.
+        assertThat(parametros.get(5)).isEqualTo("username: 5 (Lucia Ramirez - lramirez)");
     }
 }

@@ -11,8 +11,17 @@ import java.time.LocalDate;
 
 public interface BitacoraAccesoRepository extends JpaRepository<BitacoraAcceso, Long> {
 
-    @Query("""
+    @Query(value = """
             SELECT b FROM BitacoraAcceso b
+            LEFT JOIN FETCH b.usuario u
+            LEFT JOIN FETCH u.empleado
+            WHERE (CAST(:idUsuario AS integer) IS NULL OR b.usuario.idUsuario = :idUsuario)
+              AND (:resultado IS NULL OR b.resultado = :resultado)
+              AND (CAST(:fechaDesde AS date) IS NULL OR CAST(b.fechaAcceso AS date) >= :fechaDesde)
+              AND (CAST(:fechaHasta AS date) IS NULL OR CAST(b.fechaAcceso AS date) <= :fechaHasta)
+            """,
+            countQuery = """
+            SELECT COUNT(b) FROM BitacoraAcceso b
             WHERE (CAST(:idUsuario AS integer) IS NULL OR b.usuario.idUsuario = :idUsuario)
               AND (:resultado IS NULL OR b.resultado = :resultado)
               AND (CAST(:fechaDesde AS date) IS NULL OR CAST(b.fechaAcceso AS date) >= :fechaDesde)
