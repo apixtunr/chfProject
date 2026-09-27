@@ -53,7 +53,7 @@ export class ClienteList implements OnInit {
 
   readonly puedeCrear: boolean;
   readonly puedeEditar: boolean;
-  /** Permiso de BAJA: antes eliminaba, ahora inactiva y reactiva. */
+  /** Permiso de BAJA: inactiva y reactiva. */
   readonly puedeCambiarEstado: boolean;
 
   constructor() {
@@ -63,7 +63,7 @@ export class ClienteList implements OnInit {
   }
 
   get columnas(): string[] {
-    const base = ['nombre', 'nit', 'telefono', 'correo', 'direccion'];
+    const base = ['no','nombre', 'nit', 'telefono', 'correo', 'direccion'];
     if (this.estado() !== 'ACTIVO') base.push('estado');
     return this.puedeEditar || this.puedeCambiarEstado ? [...base, 'acciones'] : base;
   }

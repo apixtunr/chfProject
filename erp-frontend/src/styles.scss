@@ -990,6 +990,12 @@ mat-paginator {
     }
   }
 
+  // Cuando la fila de 2 columnas es el último elemento de la sección,
+  // todos sus campos necesitan padding inferior para cerrar bien el espacio.
+  &:last-child .pf-field {
+    padding-bottom: 20px;
+  }
+
   @media (max-width: 640px) {
     grid-template-columns: 1fr;
   }
