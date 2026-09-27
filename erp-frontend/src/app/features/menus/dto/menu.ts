@@ -1,10 +1,12 @@
+import { BebidaResumen } from '../../../core/catalogos/bebida';
 import { UnidadVenta } from '../../../core/catalogos/menu';
 
 export interface PlatoRequest {
   nombrePlato: string;
   idEstado: number;
   unidadVenta: UnidadVenta;
-  bebidas: string[];
+  /** Bebidas que incluye (catalogo de bebidas); vacio = no incluye bebida. */
+  idsBebida: number[];
 }
 
 export interface PlatoResponse {
@@ -13,7 +15,7 @@ export interface PlatoResponse {
   idEstado: number;
   estadoNombre: string;
   unidadVenta: UnidadVenta;
-  bebidas: string[];
+  bebidas: BebidaResumen[];
   fechaCreacion: string;
   fechaModificacion: string | null;
 }
@@ -46,5 +48,5 @@ export interface MenuPlatoResponse {
   precioUnitario: number;
   precioDesde100: number | null;
   unidadVenta: UnidadVenta;
-  bebidas: string[];
+  bebidas: BebidaResumen[];
 }

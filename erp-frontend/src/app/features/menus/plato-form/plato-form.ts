@@ -9,7 +9,9 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { EstadoResponse } from '../../../core/catalogos/estado';
 import { EstadoService } from '../../../core/catalogos/estado.service';
-import { BEBIDAS, UnidadVenta } from '../../../core/catalogos/menu';
+import { BebidaResumen } from '../../../core/catalogos/bebida';
+import { BebidaService } from '../../../core/catalogos/bebida.service';
+import { UnidadVenta } from '../../../core/catalogos/menu';
 import { MenuPlatoService } from '../menu-plato.service';
 
 const TIPO_ESTADO_GENERAL = 'GENERAL';
@@ -24,6 +26,7 @@ export class PlatoForm implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly menuPlatoService = inject(MenuPlatoService);
   private readonly estadoService = inject(EstadoService);
+  private readonly bebidaService = inject(BebidaService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly snackBar = inject(MatSnackBar);
@@ -32,18 +35,20 @@ export class PlatoForm implements OnInit {
   readonly guardando = signal(false);
   readonly estados = signal<EstadoResponse[]>([]);
 
-  readonly bebidasDisponibles = BEBIDAS;
+  /** Las activas del catalogo, mas las que ya tenga el plato aunque se hayan inactivado. */
+  readonly bebidasDisponibles = signal<BebidaResumen[]>([]);
 
   readonly formulario = this.fb.nonNullable.group({
     nombrePlato: ['', [Validators.required, Validators.maxLength(120)]],
     idEstado: this.fb.control<number | null>(null, Validators.required),
     unidadVenta: this.fb.nonNullable.control<UnidadVenta>('PERSONA', Validators.required),
     // Bebidas que incluye el plato; ninguna = no lleva bebida (boquitas).
-    bebidas: this.fb.nonNullable.control<string[]>([]),
+    idsBebida: this.fb.nonNullable.control<number[]>([]),
   });
 
   ngOnInit(): void {
     this.estadoService.listarPorTipo(TIPO_ESTADO_GENERAL).subscribe((e) => this.estados.set(e));
+    this.bebidaService.listarActivas().subscribe((activas) => this.agregarOpciones(activas));
 
     const idParam = this.route.snapshot.paramMap.get('id');
     if (!idParam) {
@@ -56,8 +61,18 @@ export class PlatoForm implements OnInit {
         nombrePlato: plato.nombrePlato,
         idEstado: plato.idEstado,
         unidadVenta: plato.unidadVenta,
-        bebidas: plato.bebidas,
+        idsBebida: plato.bebidas.map((b) => b.idBebida),
       });
+      this.agregarOpciones(plato.bebidas);
+    });
+  }
+
+  private agregarOpciones(bebidas: BebidaResumen[]): void {
+    this.bebidasDisponibles.update((actuales) => {
+      const nuevas = bebidas
+        .filter((b) => !actuales.some((a) => a.idBebida === b.idBebida))
+        .map((b) => ({ idBebida: b.idBebida, nombreBebida: b.nombreBebida }));
+      return [...actuales, ...nuevas].sort((a, b) => a.nombreBebida.localeCompare(b.nombreBebida));
     });
   }
 
@@ -73,7 +88,7 @@ export class PlatoForm implements OnInit {
       nombrePlato: v.nombrePlato.trim(),
       idEstado: v.idEstado!,
       unidadVenta: v.unidadVenta,
-      bebidas: v.bebidas,
+      idsBebida: v.idsBebida,
     };
 
     const id = this.idPlato();

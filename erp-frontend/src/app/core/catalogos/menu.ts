@@ -1,3 +1,5 @@
+import { BebidaResumen } from './bebida';
+
 /** Espeja menu/dto/MenuResponse.java del backend. */
 export interface MenuResponse {
   idMenu: number;
@@ -38,11 +40,8 @@ export interface MenuPlatoResponse {
   precioDesde100: number | null;
   unidadVenta: UnidadVenta;
   /** Bebidas que incluye el plato (vacio = ninguna); al cotizarlo se elige una. */
-  bebidas: string[];
+  bebidas: BebidaResumen[];
 }
-
-/** Bebidas que incluyen los platos del menu de la empresa. */
-export const BEBIDAS = ['Té frío', 'Rosa de Jamaica', 'Atol de plátano', 'Jugo de naranja y café'];
 
 /** Lo que cuesta por persona (o por pieza) en un evento de tantas personas (espeja MenuPlato.precioPorUnidadPara). */
 export function precioPorUnidad(plato: MenuPlatoResponse, personasEvento: number): number {

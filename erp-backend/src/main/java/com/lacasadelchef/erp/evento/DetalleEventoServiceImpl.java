@@ -9,6 +9,7 @@ import com.lacasadelchef.erp.entity.MenuPlato;
 import com.lacasadelchef.erp.entity.id.MenuPlatoId;
 import com.lacasadelchef.erp.evento.dto.DetalleEventoRequest;
 import com.lacasadelchef.erp.evento.dto.DetalleEventoResponse;
+import com.lacasadelchef.erp.entity.Bebida;
 import com.lacasadelchef.erp.menu.BebidaDelPlato;
 import com.lacasadelchef.erp.repository.DetalleEventoRepository;
 import com.lacasadelchef.erp.repository.EventoRepository;
@@ -123,6 +124,10 @@ public class DetalleEventoServiceImpl implements DetalleEventoService {
     }
 
     private void aplicar(DetalleEventoRequest request, MenuPlato menuPlato, DetalleEvento detalle) {
+        // La bebida que ya tenia la linea solo cuenta si el plato no cambia.
+        Bebida bebidaActual = detalle.getPlato() != null
+                && detalle.getPlato().getIdPlato().equals(menuPlato.getPlato().getIdPlato())
+                ? detalle.getBebida() : null;
         detalle.setMenu(menuPlato.getMenu());
         detalle.setPlato(menuPlato.getPlato());
         detalle.setCantidadPlatos(request.cantidadPlatos());
@@ -130,6 +135,6 @@ public class DetalleEventoServiceImpl implements DetalleEventoService {
         Integer personas = detalle.getEvento().getCantidadPersonas();
         detalle.setPrecioUnitario(menuPlato.precioPorUnidadPara(personas == null ? 0 : personas));
         detalle.setObservaciones(request.observaciones());
-        detalle.setBebida(BebidaDelPlato.elegir(menuPlato.getPlato(), request.bebida()));
+        detalle.setBebida(BebidaDelPlato.elegir(menuPlato.getPlato(), request.idBebida(), bebidaActual));
     }
 }

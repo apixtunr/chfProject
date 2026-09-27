@@ -9,6 +9,7 @@ import com.lacasadelchef.erp.entity.DetalleCotizacion;
 import com.lacasadelchef.erp.entity.Menu;
 import com.lacasadelchef.erp.entity.MenuPlato;
 import com.lacasadelchef.erp.entity.id.MenuPlatoId;
+import com.lacasadelchef.erp.entity.Bebida;
 import com.lacasadelchef.erp.menu.BebidaDelPlato;
 import com.lacasadelchef.erp.repository.CotizacionVersionRepository;
 import com.lacasadelchef.erp.repository.DetalleCotizacionRepository;
@@ -117,6 +118,10 @@ public class DetalleCotizacionServiceImpl implements DetalleCotizacionService {
     }
 
     private void aplicar(DetalleCotizacionRequest request, MenuPlato menuPlato, DetalleCotizacion detalle) {
+        // La bebida que ya tenia la linea solo cuenta si el plato no cambia.
+        Bebida bebidaActual = detalle.getPlato() != null
+                && detalle.getPlato().getIdPlato().equals(menuPlato.getPlato().getIdPlato())
+                ? detalle.getBebida() : null;
         detalle.setMenu(menuPlato.getMenu());
         detalle.setPlato(menuPlato.getPlato());
         detalle.setCantidadPlatos(request.cantidadPlatos());
@@ -124,6 +129,6 @@ public class DetalleCotizacionServiceImpl implements DetalleCotizacionService {
         int personas = detalle.getCotizacionVersion().getCotizacion().getCantidadPersonas();
         detalle.setPrecioUnitario(menuPlato.precioPorUnidadPara(personas));
         detalle.setObservaciones(request.observaciones());
-        detalle.setBebida(BebidaDelPlato.elegir(menuPlato.getPlato(), request.bebida()));
+        detalle.setBebida(BebidaDelPlato.elegir(menuPlato.getPlato(), request.idBebida(), bebidaActual));
     }
 }

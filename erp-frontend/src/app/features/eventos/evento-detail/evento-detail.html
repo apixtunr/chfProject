@@ -67,7 +67,7 @@
               </ng-container>
               <ng-container matColumnDef="bebida">
                 <th mat-header-cell *matHeaderCellDef>Bebida</th>
-                <td mat-cell *matCellDef="let d">{{ d.bebida ?? '-' }}</td>
+                <td mat-cell *matCellDef="let d">{{ d.nombreBebida ?? '-' }}</td>
               </ng-container>
               <ng-container matColumnDef="cantidad">
                 <th mat-header-cell *matHeaderCellDef>Cantidad</th>
@@ -158,10 +158,10 @@
             @if (bebidasDelPlato().length) {
               <mat-form-field appearance="outline" class="campo-chico">
                 <mat-label>Bebida</mat-label>
-                <mat-select formControlName="bebida">
+                <mat-select formControlName="idBebida">
                   <mat-option [value]="null">Por definir</mat-option>
-                  @for (bebida of bebidasDelPlato(); track bebida) {
-                    <mat-option [value]="bebida">{{ bebida }}</mat-option>
+                  @for (bebida of bebidasDelPlato(); track bebida.idBebida) {
+                    <mat-option [value]="bebida.idBebida">{{ bebida.nombreBebida }}</mat-option>
                   }
                 </mat-select>
               </mat-form-field>
@@ -182,7 +182,7 @@
             </ng-container>
             <ng-container matColumnDef="bebida">
               <th mat-header-cell *matHeaderCellDef>Bebida</th>
-              <td mat-cell *matCellDef="let d">{{ d.bebida ?? '-' }}</td>
+              <td mat-cell *matCellDef="let d">{{ d.nombreBebida ?? '-' }}</td>
             </ng-container>
             <ng-container matColumnDef="cantidad">
               <th mat-header-cell *matHeaderCellDef>Cantidad</th>

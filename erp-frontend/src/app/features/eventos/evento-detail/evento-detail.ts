@@ -33,6 +33,7 @@ import { ProductoResponse } from '../../../core/catalogos/producto';
 import { ProductoService } from '../../../core/catalogos/producto.service';
 import { TipoCostoResponse } from '../../../core/catalogos/tipo-costo';
 import { TipoCostoService } from '../../../core/catalogos/tipo-costo.service';
+import { BebidaResumen } from '../../../core/catalogos/bebida';
 import { ConfirmDialog } from '../../../shared/confirm-dialog/confirm-dialog';
 import { EmpleadoResponse } from '../../empleados/dto/empleado';
 import { EmpleadoService } from '../../empleados/empleado.service';
@@ -165,10 +166,10 @@ export class EventoDetail implements OnInit {
     cantidadPlatos: [1, [Validators.required, Validators.min(1)]],
     observaciones: [''],
     // La bebida viene con el plato: se elige entre las que incluye.
-    bebida: this.fb.control<string | null>(null),
+    idBebida: this.fb.control<number | null>(null),
   });
   /** Bebidas que incluye el plato elegido; vacio = no lleva bebida. */
-  readonly bebidasDelPlato = signal<string[]>([]);
+  readonly bebidasDelPlato = signal<BebidaResumen[]>([]);
   /** Los platos por persona se cuentan en personas; las boquitas, en piezas. */
   readonly esPorPersona = signal(true);
 
@@ -306,7 +307,7 @@ export class EventoDetail implements OnInit {
       this.esPorPersona.set((plato?.unidadVenta ?? 'PERSONA') === 'PERSONA');
       const bebidas = plato?.bebidas ?? [];
       this.bebidasDelPlato.set(bebidas);
-      this.formularioMenu.controls.bebida.setValue(bebidas.length === 1 ? bebidas[0] : null);
+      this.formularioMenu.controls.idBebida.setValue(bebidas.length === 1 ? bebidas[0].idBebida : null);
     });
   }
 
@@ -664,13 +665,13 @@ export class EventoDetail implements OnInit {
         idPlato: v.idPlato!,
         cantidadPlatos: v.cantidadPlatos,
         observaciones: v.observaciones || null,
-        bebida: v.bebida,
+        idBebida: v.idBebida,
       })
       .subscribe(() => {
         this.platosDelMenu.set([]);
         this.precioSeleccionado.set(null);
         this.bebidasDelPlato.set([]);
-        this.formularioMenu.reset({ idMenu: null, idPlato: null, cantidadPlatos: 1, observaciones: '', bebida: null });
+        this.formularioMenu.reset({ idMenu: null, idPlato: null, cantidadPlatos: 1, observaciones: '', idBebida: null });
         this.cargar();
       });
   }

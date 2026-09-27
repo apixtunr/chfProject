@@ -49,6 +49,7 @@ public class DetalleCotizacion extends Auditable {
     private String observaciones;
 
     /** Bebida que eligio el cliente entre las que incluye el plato; null si no incluye. */
-    @Column(name = "bebida", length = 60)
-    private String bebida;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_bebida")
+    private Bebida bebida;
 }

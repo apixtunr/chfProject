@@ -175,7 +175,7 @@ export const routes: Routes = [
         canActivate: [permisoAccionGuard('/api/pagos', 'modificacion')],
         loadComponent: () => import('./features/pagos/pago-form/pago-form').then((m) => m.PagoForm),
       },
-      // Ojo con el orden: las rutas literales (menus/platos, menus/nuevo)
+      // Ojo con el orden: las rutas literales (menus/platos, menus/bebidas, menus/nuevo)
       // deben ir antes que las parametrizadas (menus/:id)
       {
         path: 'menus/platos',
@@ -191,6 +191,21 @@ export const routes: Routes = [
         path: 'menus/platos/:id/editar',
         canActivate: [permisoAccionGuard('/api/platos', 'modificacion')],
         loadComponent: () => import('./features/menus/plato-form/plato-form').then((m) => m.PlatoForm),
+      },
+      {
+        path: 'menus/bebidas',
+        canActivate: [permisoGuard('/api/bebidas')],
+        loadComponent: () => import('./features/menus/bebida-list/bebida-list').then((m) => m.BebidaList),
+      },
+      {
+        path: 'menus/bebidas/nueva',
+        canActivate: [permisoAccionGuard('/api/bebidas', 'alta')],
+        loadComponent: () => import('./features/menus/bebida-form/bebida-form').then((m) => m.BebidaForm),
+      },
+      {
+        path: 'menus/bebidas/:id/editar',
+        canActivate: [permisoAccionGuard('/api/bebidas', 'modificacion')],
+        loadComponent: () => import('./features/menus/bebida-form/bebida-form').then((m) => m.BebidaForm),
       },
       {
         path: 'menus',
