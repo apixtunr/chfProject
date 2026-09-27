@@ -73,7 +73,6 @@ public class CotizacionPdfService {
         Font fuenteTexto = FontFactory.getFont(FontFactory.HELVETICA, 11);
         Font fuenteEncabezadoTabla = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 10);
         Font fuenteCelda = FontFactory.getFont(FontFactory.HELVETICA, 10);
-        Font fuenteResumen = FontFactory.getFont(FontFactory.HELVETICA, 11);
         Font fuenteResumenTotal = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 13, Color.WHITE);
         Font fuenteNota = FontFactory.getFont(FontFactory.HELVETICA, 9);
 
@@ -147,21 +146,22 @@ public class CotizacionPdfService {
 
             documento.add(tabla);
 
-            BigDecimal subtotal = version.getMontoTotal() != null ? version.getMontoTotal() : BigDecimal.ZERO;
-            BigDecimal iva = BigDecimal.ZERO;
-            BigDecimal total = subtotal.add(iva);
+            // Los precios del menu ya incluyen IVA: no se desglosa, se aclara debajo del total.
+            BigDecimal total = version.getMontoTotal() != null ? version.getMontoTotal() : BigDecimal.ZERO;
 
             PdfPTable resumen = new PdfPTable(new float[] {3f, 2f});
             resumen.setWidthPercentage(45);
             resumen.setHorizontalAlignment(Element.ALIGN_RIGHT);
             resumen.setSpacingBefore(6);
-            resumen.setSpacingAfter(20);
+            resumen.setSpacingAfter(4);
 
-            agregarFilaResumen(resumen, "Subtotal:", formatearMoneda(subtotal), fuenteResumen, null, 4);
-            agregarFilaResumen(resumen, "IVA (0%):", formatearMoneda(iva), fuenteResumen, null, 4);
             agregarFilaResumen(resumen, "TOTAL:", formatearMoneda(total), fuenteResumenTotal, VERDE, 8);
 
             documento.add(resumen);
+            Paragraph incluyeIva = new Paragraph("Precios incluyen IVA", fuenteNota);
+            incluyeIva.setAlignment(Element.ALIGN_RIGHT);
+            incluyeIva.setSpacingAfter(20);
+            documento.add(incluyeIva);
 
             documento.add(tituloSeccion("CONDICIONES", fuenteSeccion));
             Font fuenteSubtituloNota = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 9);
