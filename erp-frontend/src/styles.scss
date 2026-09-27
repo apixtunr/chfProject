@@ -704,6 +704,35 @@ mat-paginator {
   }
 }
 
+// ── Calendario del datepicker (overlay fuera del componente) ─────────────────
+// Mismo aspecto que el panel del mat-select de arriba: fondo blanco, borde suave,
+// esquinas de 10px y el azul de los campos. Sin esto salia con los colores por
+// defecto de Material (fondo gris rosado y esquinas muy redondas), distinto de
+// todos los demas desplegables del formulario.
+.mat-datepicker-content {
+  --mat-datepicker-calendar-container-background-color: var(--chf-fondo-seccion);
+  --mat-datepicker-calendar-container-text-color: var(--chf-texto-fuerte);
+  --mat-datepicker-calendar-container-shape: 10px;
+  --mat-datepicker-calendar-container-elevation-shadow: 0 4px 20px rgba(15, 23, 42, 0.12), 0 1px 4px rgba(15, 23, 42, 0.06);
+  --mat-datepicker-calendar-header-text-color: var(--chf-texto-medio);
+  --mat-datepicker-calendar-header-divider-color: var(--chf-borde-suave);
+  --mat-datepicker-calendar-body-label-text-color: var(--chf-texto-medio);
+  --mat-datepicker-calendar-period-button-text-color: var(--chf-texto-fuerte);
+  --mat-datepicker-calendar-period-button-icon-color: var(--chf-texto-medio);
+  --mat-datepicker-calendar-navigation-button-icon-color: var(--chf-texto-medio);
+  --mat-datepicker-calendar-date-text-color: var(--chf-texto-fuerte);
+  --mat-datepicker-calendar-date-disabled-state-text-color: #{rgba(chf.$texto-ejemplo, 0.45)};
+  --mat-datepicker-calendar-date-hover-state-background-color: #{rgba(chf.$campo-acento, 0.1)};
+  --mat-datepicker-calendar-date-focus-state-background-color: #{rgba(chf.$campo-acento, 0.16)};
+  --mat-datepicker-calendar-date-selected-state-background-color: var(--chf-campo-acento);
+  --mat-datepicker-calendar-date-selected-state-text-color: #ffffff;
+  --mat-datepicker-calendar-date-today-outline-color: var(--chf-campo-acento);
+  --mat-datepicker-calendar-date-today-selected-state-outline-color: var(--chf-campo-acento);
+
+  border: 1.5px solid var(--chf-borde-suave);
+  margin-top: 4px;
+}
+
 // ===========================================================================
 // FORMULARIOS pf-* — cabecera de pagina, secciones y campos
 //
