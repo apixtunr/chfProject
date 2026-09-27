@@ -190,6 +190,5 @@ public class CotizacionServiceImpl implements CotizacionService {
                             + " las 21:00, o 22:00 si inicia a las 18:00 o 19:00)");
         }
         cotizacion.setHoraInicio(request.horaInicio());
-        cotizacion.setBebida(request.bebida() == null || request.bebida().isBlank() ? null : request.bebida().trim());
     }
 }

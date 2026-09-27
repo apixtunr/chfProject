@@ -29,6 +29,16 @@
         <mat-hint>Cómo se lee su precio en el menú: "Q800.00 el ciento" se cotiza a Q8.00 por unidad</mat-hint>
       </mat-form-field>
 
+      <mat-form-field appearance="outline" class="campo">
+        <mat-label>Bebida incluida</mat-label>
+        <mat-select formControlName="bebidas" multiple>
+          @for (bebida of bebidasDisponibles; track bebida) {
+            <mat-option [value]="bebida">{{ bebida }}</mat-option>
+          }
+        </mat-select>
+        <mat-hint>Al cotizar el plato se elige una de estas. Ninguna = no incluye bebida.</mat-hint>
+      </mat-form-field>
+
       <div class="acciones">
         <button mat-button type="button" routerLink="/menus/platos">Cancelar</button>
         <button mat-flat-button color="primary" type="submit" [disabled]="guardando()">Guardar</button>

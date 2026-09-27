@@ -63,7 +63,7 @@ export class PlatoList implements OnInit {
   }
 
   get columnas(): string[] {
-    const base = ['nombrePlato', 'unidadVenta', 'estado'];
+    const base = ['nombrePlato', 'unidadVenta', 'bebidas', 'estado'];
     return this.puedeEditar || this.puedeEliminar ? [...base, 'acciones'] : base;
   }
 

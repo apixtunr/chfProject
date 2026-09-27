@@ -32,9 +32,6 @@ public record EventoRequest(
         Integer cantidadPersonas,
 
         @Size(max = 500)
-        String observaciones,
-        /** Si viene de una cotizacion se toma la de ella; en un evento directo se indica aqui. */
-        @Size(max = 60)
-        String bebida
+        String observaciones
 ) {
 }

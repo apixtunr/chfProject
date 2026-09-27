@@ -28,6 +28,11 @@
     <td mat-cell *matCellDef="let p">{{ precioPor(p.unidadVenta) }}</td>
   </ng-container>
 
+  <ng-container matColumnDef="bebidas">
+    <th mat-header-cell *matHeaderCellDef>Bebida incluida</th>
+    <td mat-cell *matCellDef="let p">{{ p.bebidas.length ? p.bebidas.join(' o ') : '-' }}</td>
+  </ng-container>
+
   <ng-container matColumnDef="estado">
     <th mat-header-cell *matHeaderCellDef>Estado</th>
     <td mat-cell *matCellDef="let p">{{ p.estadoNombre }}</td>

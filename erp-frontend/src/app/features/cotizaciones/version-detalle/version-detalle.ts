@@ -93,6 +93,8 @@ export class VersionDetalle implements OnInit {
   readonly precioSeleccionado = signal<number | null>(null);
   /** Como se vende el plato elegido: cambia si la cantidad son porciones o unidades. */
   readonly unidadSeleccionada = signal<UnidadVenta>('PERSONA');
+  /** Bebidas que incluye el plato elegido; vacio = no lleva bebida y el campo no se muestra. */
+  readonly bebidasDelPlato = signal<string[]>([]);
 
   readonly personas = computed(() => this.cotizacion()?.cantidadPersonas ?? 0);
   /** Evento de 100 personas o mas: los platos que tienen precio de volumen se cobran a ese precio. */
@@ -107,7 +109,7 @@ export class VersionDetalle implements OnInit {
   readonly tiposServicio = signal<TipoServicioResponse[]>([]);
   readonly idServicioEditando = signal<number | null>(null);
 
-  readonly columnas = ['menu', 'cantidad', 'precio', 'subtotal', 'acciones'];
+  readonly columnas = ['menu', 'bebida', 'cantidad', 'precio', 'subtotal', 'acciones'];
   readonly columnasServicios = ['tipo', 'descripcion', 'cantidad', 'precio', 'monto', 'acciones'];
   /** Precio del tipo de servicio elegido si es fijo (hora extra de cocinero Q25.00); null = monto libre. */
   readonly precioFijo = signal<number | null>(null);
@@ -126,6 +128,9 @@ export class VersionDetalle implements OnInit {
       idPlato: this.fb.control<number | null>(null, Validators.required),
       cantidadPlatos: [1, [Validators.required, Validators.min(1)]],
       observaciones: [''],
+      // La bebida viene con el plato: se elige entre las que incluye (puede quedar pendiente
+      // mientras se arma el borrador; para enviar la cotizacion es obligatoria).
+      bebida: this.fb.control<string | null>(null),
     });
   }
 
@@ -193,6 +198,10 @@ export class VersionDetalle implements OnInit {
       const plato = this.platosDelMenu().find((p) => p.idPlato === idPlato);
       this.precioSeleccionado.set(plato ? precioPorUnidad(plato, this.personas()) : null);
       this.unidadSeleccionada.set(plato?.unidadVenta ?? 'PERSONA');
+      const bebidas = plato?.bebidas ?? [];
+      this.bebidasDelPlato.set(bebidas);
+      // Si incluye una sola (atol, jugo y cafe) se pone sola.
+      this.formulario.controls.bebida.setValue(bebidas.length === 1 ? bebidas[0] : null);
     });
   }
 
@@ -217,12 +226,14 @@ export class VersionDetalle implements OnInit {
     this.idDetalleEditando.set(detalle.idDetalleCotizacion);
     this.menuService.listarPlatosDeMenu(detalle.idMenu).subscribe((platos) => {
       this.platosDelMenu.set(platos);
+      this.bebidasDelPlato.set(platos.find((p) => p.idPlato === detalle.idPlato)?.bebidas ?? []);
       this.formulario.setValue(
         {
           idMenu: detalle.idMenu,
           idPlato: detalle.idPlato,
           cantidadPlatos: detalle.cantidadPlatos,
           observaciones: detalle.observaciones ?? '',
+          bebida: detalle.bebida,
         },
         { emitEvent: false },
       );
@@ -234,7 +245,8 @@ export class VersionDetalle implements OnInit {
     this.idDetalleEditando.set(null);
     this.platosDelMenu.set([]);
     this.precioSeleccionado.set(null);
-    this.formulario.reset({ idMenu: null, idPlato: null, cantidadPlatos: 1, observaciones: '' });
+    this.bebidasDelPlato.set([]);
+    this.formulario.reset({ idMenu: null, idPlato: null, cantidadPlatos: 1, observaciones: '', bebida: null });
   }
 
   guardarLinea(): void {
@@ -249,6 +261,7 @@ export class VersionDetalle implements OnInit {
       idPlato: valores.idPlato!,
       cantidadPlatos: valores.cantidadPlatos,
       observaciones: valores.observaciones || null,
+      bebida: valores.bebida,
     };
 
     const idEditando = this.idDetalleEditando();

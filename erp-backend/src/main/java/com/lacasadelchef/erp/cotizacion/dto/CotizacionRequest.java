@@ -3,7 +3,6 @@ package com.lacasadelchef.erp.cotizacion.dto;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -30,10 +29,6 @@ public record CotizacionRequest(
         BigDecimal presupuestoCliente,
 
         /** Opcional al crear; obligatoria para enviar. En punto, de 11:00 a 19:00. */
-        LocalTime horaInicio,
-
-        /** Bebida del menu elegida por el cliente (te frio, rosa de Jamaica...). */
-        @Size(max = 60, message = "La bebida no puede exceder 60 caracteres")
-        String bebida
+        LocalTime horaInicio
 ) {
 }

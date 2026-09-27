@@ -74,5 +74,6 @@ public class PlatoServiceImpl implements PlatoService {
         plato.setNombrePlato(request.nombrePlato().trim());
         plato.setEstado(estado);
         plato.setUnidadVenta(request.unidadVenta() == null ? UnidadVenta.PERSONA : request.unidadVenta());
+        plato.setOpcionesBebida(request.bebidas());
     }
 }

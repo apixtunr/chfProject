@@ -6,6 +6,7 @@ import lombok.Builder;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Builder
 public record MenuPlatoResponse(
@@ -16,6 +17,8 @@ public record MenuPlatoResponse(
         BigDecimal precioUnitario,
         BigDecimal precioDesde100,
         UnidadVenta unidadVenta,
+        /** Bebidas que incluye el plato, para elegir una al cotizarlo. */
+        List<String> bebidas,
         LocalDateTime fechaCreacion,
         LocalDateTime fechaModificacion
 ) {
@@ -29,6 +32,7 @@ public record MenuPlatoResponse(
                 .precioUnitario(menuPlato.getPrecioUnitario())
                 .precioDesde100(menuPlato.getPrecioDesde100())
                 .unidadVenta(menuPlato.getPlato().getUnidadVenta())
+                .bebidas(menuPlato.getPlato().opcionesBebida())
                 .fechaCreacion(menuPlato.getFechaCreacion())
                 .fechaModificacion(menuPlato.getFechaModificacion())
                 .build();

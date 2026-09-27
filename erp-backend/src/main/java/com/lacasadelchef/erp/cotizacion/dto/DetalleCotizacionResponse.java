@@ -5,6 +5,7 @@ import lombok.Builder;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Builder
 public record DetalleCotizacionResponse(
@@ -18,6 +19,9 @@ public record DetalleCotizacionResponse(
         BigDecimal precioUnitario,
         BigDecimal subtotal,
         String observaciones,
+        String bebida,
+        /** Bebidas que incluye el plato; si hay y bebida esta vacia, falta elegirla. */
+        List<String> bebidasPlato,
         BigDecimal montoTotalVersion,
         LocalDateTime fechaCreacion,
         LocalDateTime fechaModificacion
@@ -39,6 +43,8 @@ public record DetalleCotizacionResponse(
                 .precioUnitario(detalle.getPrecioUnitario())
                 .subtotal(detalle.getSubtotal())
                 .observaciones(detalle.getObservaciones())
+                .bebida(detalle.getBebida())
+                .bebidasPlato(detalle.getPlato().opcionesBebida())
                 .montoTotalVersion(montoTotalVersion)
                 .fechaCreacion(detalle.getFechaCreacion())
                 .fechaModificacion(detalle.getFechaModificacion())

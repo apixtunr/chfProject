@@ -9,6 +9,7 @@ import com.lacasadelchef.erp.entity.DetalleCotizacion;
 import com.lacasadelchef.erp.entity.Menu;
 import com.lacasadelchef.erp.entity.MenuPlato;
 import com.lacasadelchef.erp.entity.id.MenuPlatoId;
+import com.lacasadelchef.erp.menu.BebidaDelPlato;
 import com.lacasadelchef.erp.repository.CotizacionVersionRepository;
 import com.lacasadelchef.erp.repository.DetalleCotizacionRepository;
 import com.lacasadelchef.erp.repository.MenuPlatoRepository;
@@ -123,5 +124,6 @@ public class DetalleCotizacionServiceImpl implements DetalleCotizacionService {
         int personas = detalle.getCotizacionVersion().getCotizacion().getCantidadPersonas();
         detalle.setPrecioUnitario(menuPlato.precioPorUnidadPara(personas));
         detalle.setObservaciones(request.observaciones());
+        detalle.setBebida(BebidaDelPlato.elegir(menuPlato.getPlato(), request.bebida()));
     }
 }

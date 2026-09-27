@@ -19,7 +19,7 @@ import { UbicacionService } from '../../../core/catalogos/ubicacion.service';
 import { ClienteResponse } from '../../clientes/dto/cliente';
 import { ClienteService } from '../../clientes/cliente.service';
 import { CotizacionService } from '../cotizacion.service';
-import { BEBIDAS, HORAS_DE_INICIO, horarioServicio } from '../dto/cotizacion';
+import { HORAS_DE_INICIO, horarioServicio } from '../dto/cotizacion';
 
 @Component({
   selector: 'app-cotizacion-form',
@@ -63,7 +63,6 @@ export class CotizacionForm implements OnInit {
   private municipioPendiente: number | null = null;
 
   readonly horasDeInicio = HORAS_DE_INICIO;
-  readonly bebidas = BEBIDAS;
   readonly horarioServicio = horarioServicio;
   readonly minimoPersonas = MINIMO_PERSONAS;
   /** El evento no puede ser en el pasado (el backend lo vuelve a validar). */
@@ -81,9 +80,8 @@ export class CotizacionForm implements OnInit {
       cantidadPersonas: this.fb.control<number | null>(null, [Validators.required, Validators.min(1)]),
       fechaEvento: this.fb.control<Date | null>(null),
       presupuestoCliente: this.fb.control<number | null>(null),
-      // Opcionales al crear; la hora es obligatoria para enviar la cotizacion.
+      // Opcional al crear; obligatoria para enviar la cotizacion.
       horaInicio: this.fb.control<string | null>(null),
-      bebida: this.fb.control<string | null>(null),
     });
   }
 
@@ -156,7 +154,6 @@ export class CotizacionForm implements OnInit {
         fechaEvento: c.fechaEvento ? this.deFechaIso(c.fechaEvento) : null,
         presupuestoCliente: c.presupuestoCliente,
         horaInicio: c.horaInicio ? c.horaInicio.substring(0, 5) : null,
-        bebida: c.bebida,
       });
       this.clienteService.obtener(c.idCliente).subscribe((cliente) => {
         // Sin emitir: el cambio de texto borraria el idCliente que se acaba de poner.
@@ -199,7 +196,6 @@ export class CotizacionForm implements OnInit {
       fechaEvento: v.fechaEvento ? this.aFechaIso(v.fechaEvento) : null,
       presupuestoCliente: v.presupuestoCliente,
       horaInicio: v.horaInicio,
-      bebida: v.bebida,
     };
     const ubicacion = { idMunicipio: v.idMunicipio!, direccion: v.direccion };
 

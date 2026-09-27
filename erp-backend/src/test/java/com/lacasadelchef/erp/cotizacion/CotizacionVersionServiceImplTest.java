@@ -4,7 +4,9 @@ import com.lacasadelchef.erp.common.exception.BusinessException;
 import com.lacasadelchef.erp.cotizacion.dto.CotizacionVersionResponse;
 import com.lacasadelchef.erp.entity.Cotizacion;
 import com.lacasadelchef.erp.entity.CotizacionVersion;
+import com.lacasadelchef.erp.entity.DetalleCotizacion;
 import com.lacasadelchef.erp.entity.Estado;
+import com.lacasadelchef.erp.entity.Plato;
 import com.lacasadelchef.erp.entity.TipoEstado;
 import com.lacasadelchef.erp.repository.CotizacionRepository;
 import com.lacasadelchef.erp.repository.CotizacionVersionRepository;
@@ -22,6 +24,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -140,5 +143,22 @@ class CotizacionVersionServiceImplTest {
         CotizacionVersionResponse response = versionService.cambiarEstado(ID_VERSION, ID_ENVIADA);
 
         assertThat(response.estadoNombre()).isEqualTo("ENVIADA");
+    }
+
+    @Test
+    @DisplayName("Enviar con un plato que incluye bebida sin elegirla dice de cual plato falta")
+    void enviarSinBebidaSeRechaza() {
+        prepararCreada(LocalDate.now().plusDays(30), "3600.00");
+        Plato lomo = new Plato();
+        lomo.setNombrePlato("Lomo relleno");
+        lomo.setOpcionesBebida(List.of("Té frío", "Rosa de Jamaica"));
+        DetalleCotizacion linea = new DetalleCotizacion();
+        linea.setPlato(lomo);
+        when(detalleCotizacionRepository.existsByCotizacionVersionIdCotizacionVersion(ID_VERSION)).thenReturn(true);
+        when(detalleCotizacionRepository.findByCotizacionVersionIdCotizacionVersion(ID_VERSION)).thenReturn(List.of(linea));
+
+        assertThatThrownBy(() -> versionService.cambiarEstado(ID_VERSION, ID_ENVIADA))
+                .isInstanceOf(BusinessException.class)
+                .hasMessage("Para enviar la cotización falta elegir la bebida de Lomo relleno");
     }
 }

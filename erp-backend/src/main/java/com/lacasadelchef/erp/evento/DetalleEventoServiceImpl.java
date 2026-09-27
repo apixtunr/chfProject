@@ -2,13 +2,14 @@ package com.lacasadelchef.erp.evento;
 
 import com.lacasadelchef.erp.common.exception.BusinessException;
 import com.lacasadelchef.erp.common.exception.ResourceNotFoundException;
-import com.lacasadelchef.erp.evento.dto.DetalleEventoRequest;
-import com.lacasadelchef.erp.evento.dto.DetalleEventoResponse;
 import com.lacasadelchef.erp.entity.DetalleEvento;
 import com.lacasadelchef.erp.entity.Evento;
 import com.lacasadelchef.erp.entity.Menu;
 import com.lacasadelchef.erp.entity.MenuPlato;
 import com.lacasadelchef.erp.entity.id.MenuPlatoId;
+import com.lacasadelchef.erp.evento.dto.DetalleEventoRequest;
+import com.lacasadelchef.erp.evento.dto.DetalleEventoResponse;
+import com.lacasadelchef.erp.menu.BebidaDelPlato;
 import com.lacasadelchef.erp.repository.DetalleEventoRepository;
 import com.lacasadelchef.erp.repository.EventoRepository;
 import com.lacasadelchef.erp.repository.MenuPlatoRepository;
@@ -129,5 +130,6 @@ public class DetalleEventoServiceImpl implements DetalleEventoService {
         Integer personas = detalle.getEvento().getCantidadPersonas();
         detalle.setPrecioUnitario(menuPlato.precioPorUnidadPara(personas == null ? 0 : personas));
         detalle.setObservaciones(request.observaciones());
+        detalle.setBebida(BebidaDelPlato.elegir(menuPlato.getPlato(), request.bebida()));
     }
 }

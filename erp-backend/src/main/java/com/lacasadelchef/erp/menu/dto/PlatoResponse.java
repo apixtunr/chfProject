@@ -5,6 +5,7 @@ import com.lacasadelchef.erp.entity.UnidadVenta;
 import lombok.Builder;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Builder
 public record PlatoResponse(
@@ -13,6 +14,7 @@ public record PlatoResponse(
         Integer idEstado,
         String estadoNombre,
         UnidadVenta unidadVenta,
+        List<String> bebidas,
         LocalDateTime fechaCreacion,
         LocalDateTime fechaModificacion
 ) {
@@ -24,6 +26,7 @@ public record PlatoResponse(
                 .idEstado(plato.getEstado().getIdEstado())
                 .estadoNombre(plato.getEstado().getNombre())
                 .unidadVenta(plato.getUnidadVenta())
+                .bebidas(plato.opcionesBebida())
                 .fechaCreacion(plato.getFechaCreacion())
                 .fechaModificacion(plato.getFechaModificacion())
                 .build();

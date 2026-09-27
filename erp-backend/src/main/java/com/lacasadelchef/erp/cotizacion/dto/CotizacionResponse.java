@@ -26,7 +26,6 @@ public record CotizacionResponse(
         LocalTime horaInicio,
         /** Calculada: 4 horas despues del inicio, sin pasar del cierre del servicio. */
         LocalTime horaFin,
-        String bebida,
         Integer ultimaVersionId,
         Integer ultimaVersionNumero,
         String ultimaVersionEstado,
@@ -52,7 +51,6 @@ public record CotizacionResponse(
                 .horaInicio(cotizacion.getHoraInicio())
                 .horaFin(cotizacion.getHoraInicio() == null ? null
                         : CondicionesComerciales.horaFinServicio(cotizacion.getHoraInicio()))
-                .bebida(cotizacion.getBebida())
                 .ultimaVersionId(ultimaVersion != null ? ultimaVersion.getIdCotizacionVersion() : null)
                 .ultimaVersionNumero(ultimaVersion != null ? ultimaVersion.getNumeroVersion() : null)
                 .ultimaVersionEstado(ultimaVersion != null ? ultimaVersion.getEstado().getNombre() : null)

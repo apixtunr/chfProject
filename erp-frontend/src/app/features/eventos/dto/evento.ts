@@ -14,8 +14,6 @@ export interface EventoRequest {
   /** Obligatoria solo si idCotizacionVersion viene vacio; si no, se toma de la cotizacion. */
   cantidadPersonas: number | null;
   observaciones: string | null;
-  /** Si viene de una cotizacion, el backend usa la de ella. */
-  bebida?: string | null;
 }
 
 export interface EventoResponse {
@@ -34,7 +32,6 @@ export interface EventoResponse {
   horaFin: string | null;
   cantidadPersonas: number | null;
   observaciones: string | null;
-  bebida: string | null;
   montoMenu: number;
   fechaCreacion: string | null;
   fechaModificacion: string | null;
@@ -64,6 +61,8 @@ export interface DetalleEventoRequest {
   idPlato: number;
   cantidadPlatos: number;
   observaciones: string | null;
+  /** Una de las bebidas que incluye el plato. */
+  bebida: string | null;
 }
 
 export interface DetalleEventoResponse {
@@ -77,6 +76,8 @@ export interface DetalleEventoResponse {
   precioUnitario: number;
   subtotal: number;
   observaciones: string | null;
+  bebida: string | null;
+  bebidasPlato: string[];
   montoMenuEvento: number;
   fechaCreacion: string | null;
   fechaModificacion: string | null;

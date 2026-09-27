@@ -5,6 +5,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
+import java.util.List;
+
 public record PlatoRequest(
 
         @NotBlank(message = "El nombre del plato es obligatorio")
@@ -15,6 +17,9 @@ public record PlatoRequest(
         Integer idEstado,
 
         /** Como se lee su precio: por persona (si viene vacio), por ciento o por unidad. */
-        UnidadVenta unidadVenta
+        UnidadVenta unidadVenta,
+
+        /** Bebidas que incluye ("Te frio", "Rosa de Jamaica"); vacio = no incluye bebida. */
+        List<String> bebidas
 ) {
 }

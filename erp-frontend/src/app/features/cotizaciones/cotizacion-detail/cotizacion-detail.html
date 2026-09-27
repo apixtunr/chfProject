@@ -19,7 +19,6 @@
         <p><strong>Fecha estimada del evento:</strong> {{ c.fechaEvento | date: 'dd/MM/yyyy' }}</p>
       }
       <p><strong>Horario del servicio:</strong> {{ c.horaInicio ? horarioServicio(c.horaInicio) : 'Por definir' }}</p>
-      <p><strong>Bebida:</strong> {{ c.bebida ?? 'Por definir' }}</p>
       @if (c.presupuestoCliente) {
         <p><strong>Presupuesto del cliente:</strong> Q{{ c.presupuestoCliente | number: '1.2-2' }}</p>
       }

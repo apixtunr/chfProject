@@ -47,4 +47,8 @@ public class DetalleCotizacion extends Auditable {
 
     @Column(name = "observaciones", length = 255)
     private String observaciones;
+
+    /** Bebida que eligio el cliente entre las que incluye el plato; null si no incluye. */
+    @Column(name = "bebida", length = 60)
+    private String bebida;
 }

@@ -103,6 +103,7 @@ public class CotizacionVersionServiceImpl implements CotizacionVersionService {
                 copia.setCantidadPlatos(original.getCantidadPlatos());
                 copia.setPrecioUnitario(original.getPrecioUnitario());
                 copia.setObservaciones(original.getObservaciones());
+                copia.setBebida(original.getBebida());
                 entityManager.persist(copia);
             }
 
@@ -160,8 +161,8 @@ public class CotizacionVersionServiceImpl implements CotizacionVersionService {
 
     /**
      * Lo que se le envia al cliente tiene que poder convertirse en un evento: al menos un
-     * plato o servicio con un total mayor a cero, una fecha que todavia no paso y la hora
-     * de inicio del servicio. Se
+     * plato o servicio con un total mayor a cero, una fecha que todavia no paso, la hora
+     * de inicio del servicio y la bebida de cada plato que la incluye. Se
      * revisa todo y se dice todo lo que falta de una vez, para no corregir de a uno.
      */
     private void validarListaParaEnviar(CotizacionVersion version) {
@@ -182,6 +183,14 @@ public class CotizacionVersionServiceImpl implements CotizacionVersionService {
         }
         if (version.getCotizacion().getHoraInicio() == null) {
             faltantes.add("indicar la hora de inicio del servicio");
+        }
+        List<String> sinBebida = detalleCotizacionRepository.findByCotizacionVersionIdCotizacionVersion(id).stream()
+                .filter(d -> d.getBebida() == null && !d.getPlato().opcionesBebida().isEmpty())
+                .map(d -> d.getPlato().getNombrePlato())
+                .distinct()
+                .toList();
+        if (!sinBebida.isEmpty()) {
+            faltantes.add("elegir la bebida de " + String.join(", ", sinBebida));
         }
         if (!faltantes.isEmpty()) {
             throw new BusinessException("Para enviar la cotización falta " + enumerar(faltantes));

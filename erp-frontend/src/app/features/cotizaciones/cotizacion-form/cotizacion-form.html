@@ -127,21 +127,20 @@
       </div>
     </div>
 
-    <!-- Presupuesto -->
-    <div class="pf-field">
-      <label class="pf-label" for="presupuesto">
-        <span class="pf-label-num">5.</span>
-        <span class="pf-label-name">Presupuesto del cliente</span>
-        <span class="pf-label-hint">(Q)</span>
-      </label>
-      <div class="pf-input-wrap">
-        <mat-icon class="pf-input-icon">payments</mat-icon>
-        <input id="presupuesto" class="pf-input" type="number" formControlName="presupuestoCliente" placeholder="0.00" min="0" />
-      </div>
-    </div>
-
-    <!-- Horario + Bebida -->
+    <!-- Presupuesto + Horario -->
     <div class="pf-row-2col">
+      <div class="pf-field">
+        <label class="pf-label" for="presupuesto">
+          <span class="pf-label-num">5.</span>
+          <span class="pf-label-name">Presupuesto del cliente</span>
+          <span class="pf-label-hint">(Q)</span>
+        </label>
+        <div class="pf-input-wrap">
+          <mat-icon class="pf-input-icon">payments</mat-icon>
+          <input id="presupuesto" class="pf-input" type="number" formControlName="presupuestoCliente" placeholder="0.00" min="0" />
+        </div>
+      </div>
+
       <div class="pf-field">
         <label class="pf-label" for="horaInicio">
           <span class="pf-label-num">6.</span>
@@ -154,23 +153,6 @@
             <mat-option [value]="null">Por definir</mat-option>
             @for (hora of horasDeInicio; track hora) {
               <mat-option [value]="hora">{{ horarioServicio(hora) }}</mat-option>
-            }
-          </mat-select>
-        </div>
-      </div>
-
-      <div class="pf-field">
-        <label class="pf-label" for="bebida">
-          <span class="pf-label-num">7.</span>
-          <span class="pf-label-name">Bebida</span>
-          <span class="pf-label-hint">(incluida en el menú)</span>
-        </label>
-        <div class="pf-input-wrap pf-input-wrap--select">
-          <mat-icon class="pf-input-icon">local_drink</mat-icon>
-          <mat-select id="bebida" class="pf-select" formControlName="bebida" placeholder="Seleccioná la bebida">
-            <mat-option [value]="null">Por definir</mat-option>
-            @for (bebida of bebidas; track bebida) {
-              <mat-option [value]="bebida">{{ bebida }}</mat-option>
             }
           </mat-select>
         </div>
@@ -191,7 +173,7 @@
     <div class="pf-row-2col">
       <div class="pf-field">
         <label class="pf-label" for="departamento">
-          <span class="pf-label-num">8.</span>
+          <span class="pf-label-num">7.</span>
           <span class="pf-label-name">Departamento</span>
           <span class="pf-required-mark">*</span>
         </label>
@@ -210,7 +192,7 @@
 
       <div class="pf-field">
         <label class="pf-label" for="municipio">
-          <span class="pf-label-num">9.</span>
+          <span class="pf-label-num">8.</span>
           <span class="pf-label-name">Municipio</span>
           <span class="pf-required-mark">*</span>
         </label>
@@ -234,7 +216,7 @@
     <!-- Dirección -->
     <div class="pf-field pf-field--last">
       <label class="pf-label" for="direccion">
-        <span class="pf-label-num">10.</span>
+        <span class="pf-label-num">9.</span>
         <span class="pf-label-name">Dirección</span>
         <span class="pf-required-mark">*</span>
       </label>

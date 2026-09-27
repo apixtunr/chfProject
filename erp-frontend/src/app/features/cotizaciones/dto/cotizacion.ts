@@ -8,7 +8,6 @@ export interface CotizacionRequest {
   presupuestoCliente: number | null;
   /** "18:00"; opcional al crear, obligatoria para enviar. */
   horaInicio: string | null;
-  bebida: string | null;
 }
 
 export interface CotizacionResponse {
@@ -26,7 +25,6 @@ export interface CotizacionResponse {
   horaInicio: string | null;
   /** Calculada por el backend: 4 horas despues del inicio, sin pasar del cierre. */
   horaFin: string | null;
-  bebida: string | null;
   ultimaVersionId: number | null;
   ultimaVersionNumero: number | null;
   ultimaVersionEstado: string | null;
@@ -52,6 +50,8 @@ export interface DetalleCotizacionRequest {
   idPlato: number;
   cantidadPlatos: number;
   observaciones: string | null;
+  /** Una de las bebidas que incluye el plato. */
+  bebida: string | null;
 }
 
 export interface DetalleCotizacionResponse {
@@ -65,6 +65,9 @@ export interface DetalleCotizacionResponse {
   precioUnitario: number;
   subtotal: number;
   observaciones: string | null;
+  bebida: string | null;
+  /** Bebidas que incluye el plato; si hay y bebida es null, falta elegirla. */
+  bebidasPlato: string[];
   montoTotalVersion: number;
   fechaCreacion: string | null;
   fechaModificacion: string | null;
@@ -101,9 +104,6 @@ export const TRANSICIONES_VALIDAS: Record<string, string[]> = {
 
 /** Horas en que puede empezar el servicio (CondicionesComerciales.HORAS_DE_INICIO). */
 export const HORAS_DE_INICIO = [11, 12, 13, 14, 15, 16, 17, 18, 19].map((h) => `${String(h).padStart(2, '0')}:00`);
-
-/** Bebidas que incluyen los menus de la empresa. */
-export const BEBIDAS = ['Té frío', 'Rosa de Jamaica', 'Atol de plátano', 'Jugo de naranja y café'];
 
 /** "18:00" o "18:00:00" -> "6:00 p.m." */
 export function horaLegible(hora: string): string {

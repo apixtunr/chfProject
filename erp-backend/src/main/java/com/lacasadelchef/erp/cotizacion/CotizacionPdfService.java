@@ -110,9 +110,6 @@ public class CotizacionPdfService {
                     "Fecha del evento: " + formatearFechaEvento(cotizacion.getFechaEvento()), fuenteTexto));
             documento.add(new Paragraph("Horario del servicio: " + formatearHorario(cotizacion.getHoraInicio()), fuenteTexto));
             documento.add(new Paragraph("Ubicación: " + cotizacion.getUbicacion().getDireccion(), fuenteTexto));
-            if (cotizacion.getBebida() != null) {
-                documento.add(new Paragraph("Bebida: " + cotizacion.getBebida(), fuenteTexto));
-            }
             Paragraph personas = new Paragraph(
                     "Cantidad de personas: " + cotizacion.getCantidadPersonas(), fuenteTexto);
             personas.setSpacingAfter(16);
@@ -132,7 +129,8 @@ public class CotizacionPdfService {
             int fila = 0;
             for (DetalleCotizacion detalle : detalles) {
                 Color fondo = fondoZebra(fila++);
-                String descripcion = detalle.getMenu().getNombreMenu() + " - " + detalle.getPlato().getNombrePlato();
+                String descripcion = detalle.getMenu().getNombreMenu() + " - " + detalle.getPlato().getNombrePlato()
+                        + (detalle.getBebida() != null ? " (bebida: " + detalle.getBebida() + ")" : "");
                 tabla.addCell(celda(descripcion, fuenteCelda, Element.ALIGN_LEFT, fondo));
                 tabla.addCell(celda(String.valueOf(detalle.getCantidadPlatos()), fuenteCelda, Element.ALIGN_RIGHT, fondo));
                 tabla.addCell(celda(formatearMoneda(detalle.getPrecioUnitario()), fuenteCelda, Element.ALIGN_RIGHT, fondo));

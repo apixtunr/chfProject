@@ -282,16 +282,12 @@ public class EventoServiceImpl implements EventoService {
 
         evento.setHoraInicio(request.horaInicio());
         evento.setHoraFin(request.horaFin());
-        evento.setBebida(request.bebida() == null || request.bebida().isBlank() ? null : request.bebida().trim());
         var cotizacion = evento.getCotizacionVersion() == null ? null : evento.getCotizacionVersion().getCotizacion();
         if (cotizacion != null) {
-            // Horario y bebida acordados en la cotizacion, salvo que se indiquen otros.
+            // Horario acordado en la cotizacion, salvo que se indique otro.
             if (evento.getHoraInicio() == null && cotizacion.getHoraInicio() != null) {
                 evento.setHoraInicio(cotizacion.getHoraInicio());
                 evento.setHoraFin(CondicionesComerciales.horaFinServicio(cotizacion.getHoraInicio()));
-            }
-            if (evento.getBebida() == null) {
-                evento.setBebida(cotizacion.getBebida());
             }
         }
         evento.setObservaciones(request.observaciones());

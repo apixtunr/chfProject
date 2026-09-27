@@ -124,8 +124,8 @@ export class EventoDetail implements OnInit {
   readonly columnasPersonal = ['empleado', 'salario', 'horario', 'acciones'];
   readonly columnasVehiculos = ['placa', 'conductor', 'acciones'];
   private readonly columnasInventarioBase = ['producto', 'cantidad', 'consumo', 'fechaConfirmacion'];
-  readonly columnasMenu = ['menu', 'cantidad', 'precio', 'subtotal', 'acciones'];
-  readonly columnasMenuCotizacion = ['menu', 'cantidad', 'precio', 'subtotal'];
+  readonly columnasMenu = ['menu', 'bebida', 'cantidad', 'precio', 'subtotal', 'acciones'];
+  readonly columnasMenuCotizacion = ['menu', 'bebida', 'cantidad', 'precio', 'subtotal'];
   readonly columnasServiciosCotizacion = ['tipo', 'descripcion', 'monto'];
 
   readonly formularioCosto = this.fb.nonNullable.group({
@@ -164,7 +164,11 @@ export class EventoDetail implements OnInit {
     idPlato: this.fb.control<number | null>(null, Validators.required),
     cantidadPlatos: [1, [Validators.required, Validators.min(1)]],
     observaciones: [''],
+    // La bebida viene con el plato: se elige entre las que incluye.
+    bebida: this.fb.control<string | null>(null),
   });
+  /** Bebidas que incluye el plato elegido; vacio = no lleva bebida. */
+  readonly bebidasDelPlato = signal<string[]>([]);
 
   constructor() {
     this.idEvento = Number(this.route.snapshot.paramMap.get('id'));
@@ -297,6 +301,9 @@ export class EventoDetail implements OnInit {
     this.formularioMenu.controls.idPlato.valueChanges.subscribe((idPlato) => {
       const plato = this.platosDelMenu().find((p) => p.idPlato === idPlato);
       this.precioSeleccionado.set(plato ? precioPorUnidad(plato, this.evento()?.cantidadPersonas ?? 0) : null);
+      const bebidas = plato?.bebidas ?? [];
+      this.bebidasDelPlato.set(bebidas);
+      this.formularioMenu.controls.bebida.setValue(bebidas.length === 1 ? bebidas[0] : null);
     });
   }
 
@@ -654,11 +661,13 @@ export class EventoDetail implements OnInit {
         idPlato: v.idPlato!,
         cantidadPlatos: v.cantidadPlatos,
         observaciones: v.observaciones || null,
+        bebida: v.bebida,
       })
       .subscribe(() => {
         this.platosDelMenu.set([]);
         this.precioSeleccionado.set(null);
-        this.formularioMenu.reset({ idMenu: null, idPlato: null, cantidadPlatos: 1, observaciones: '' });
+        this.bebidasDelPlato.set([]);
+        this.formularioMenu.reset({ idMenu: null, idPlato: null, cantidadPlatos: 1, observaciones: '', bebida: null });
         this.cargar();
       });
   }

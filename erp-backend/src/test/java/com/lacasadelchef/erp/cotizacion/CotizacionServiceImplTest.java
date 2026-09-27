@@ -89,7 +89,7 @@ class CotizacionServiceImplTest {
     }
 
     private static CotizacionRequest peticion(LocalDate fechaEvento) {
-        return new CotizacionRequest(1, 1, 1, 150, fechaEvento, null, null, null);
+        return new CotizacionRequest(1, 1, 1, 150, fechaEvento, null, null);
     }
 
     @Test
@@ -173,7 +173,7 @@ class CotizacionServiceImplTest {
                 .thenReturn(List.of(linea));
         when(menuPlatoRepository.findById(new MenuPlatoId(11, 31))).thenReturn(Optional.of(catalogo));
 
-        CotizacionRequest a120 = new CotizacionRequest(1, 1, 1, 120, LocalDate.now().plusDays(30), null, null, null);
+        CotizacionRequest a120 = new CotizacionRequest(1, 1, 1, 120, LocalDate.now().plusDays(30), null, null);
         cotizacionService.actualizar(10, a120);
 
         assertThat(linea.getPrecioUnitario()).isEqualByComparingTo("40.00");
@@ -186,7 +186,7 @@ class CotizacionServiceImplTest {
         when(tipoEventoRepository.findById(1)).thenReturn(Optional.of(new TipoEvento()));
         when(ubicacionRepository.findById(1)).thenReturn(Optional.of(new Ubicacion()));
         CotizacionRequest aLas1330 = new CotizacionRequest(1, 1, 1, 80, LocalDate.now().plusDays(30), null,
-                LocalTime.of(13, 30), null);
+                LocalTime.of(13, 30));
 
         assertThatThrownBy(() -> cotizacionService.crear(aLas1330))
                 .isInstanceOf(BusinessException.class)

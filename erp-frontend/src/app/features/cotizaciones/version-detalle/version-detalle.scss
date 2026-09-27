@@ -56,3 +56,12 @@
 .tabla {
   width: 100%;
 }
+
+.campo-bebida {
+  width: 190px;
+}
+
+// Plato que incluye bebida y aun no la tiene: hay que elegirla para enviar.
+.bebida-pendiente {
+  color: var(--chf-estado-aviso);
+}

@@ -6,12 +6,18 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.regex.Pattern;
+
 @Getter
 @Setter
 @NoArgsConstructor
 @Entity
 @Table(name = "plato")
 public class Plato extends Auditable {
+
+    private static final String SEPARADOR_BEBIDAS = "|";
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,4 +35,27 @@ public class Plato extends Auditable {
     @Enumerated(EnumType.STRING)
     @Column(name = "unidad_venta", nullable = false, length = 10)
     private UnidadVenta unidadVenta = UnidadVenta.PERSONA;
+
+    /**
+     * Bebidas que incluye el plato, separadas por '|' ("Te frio|Rosa de Jamaica"); null =
+     * no incluye bebida (boquitas). Se lee y escribe con opcionesBebida().
+     */
+    @Column(name = "bebidas", length = 120)
+    private String bebidas;
+
+    public List<String> opcionesBebida() {
+        if (bebidas == null || bebidas.isBlank()) {
+            return List.of();
+        }
+        return Arrays.stream(bebidas.split(Pattern.quote(SEPARADOR_BEBIDAS)))
+                .map(String::trim)
+                .filter(b -> !b.isEmpty())
+                .toList();
+    }
+
+    public void setOpcionesBebida(List<String> opciones) {
+        List<String> limpias = opciones == null ? List.of()
+                : opciones.stream().filter(b -> b != null && !b.isBlank()).map(String::trim).distinct().toList();
+        this.bebidas = limpias.isEmpty() ? null : String.join(SEPARADOR_BEBIDAS, limpias);
+    }
 }

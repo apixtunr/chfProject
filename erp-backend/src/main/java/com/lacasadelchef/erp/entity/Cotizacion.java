@@ -49,8 +49,4 @@ public class Cotizacion extends Auditable {
     /** Inicio del servicio de 4 horas; el fin se calcula con CondicionesComerciales. */
     @Column(name = "hora_inicio")
     private LocalTime horaInicio;
-
-    /** Bebida del menu que eligio el cliente (te frio, rosa de Jamaica...). */
-    @Column(name = "bebida", length = 60)
-    private String bebida;
 }
