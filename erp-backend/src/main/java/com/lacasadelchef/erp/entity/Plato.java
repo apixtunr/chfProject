@@ -6,9 +6,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
-import java.util.regex.Pattern;
 
 @Getter
 @Setter
@@ -16,8 +16,6 @@ import java.util.regex.Pattern;
 @Entity
 @Table(name = "plato")
 public class Plato extends Auditable {
-
-    private static final String SEPARADOR_BEBIDAS = "|";
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,26 +34,16 @@ public class Plato extends Auditable {
     @Column(name = "unidad_venta", nullable = false, length = 10)
     private UnidadVenta unidadVenta = UnidadVenta.PERSONA;
 
-    /**
-     * Bebidas que incluye el plato, separadas por '|' ("Te frio|Rosa de Jamaica"); null =
-     * no incluye bebida (boquitas). Se lee y escribe con opcionesBebida().
-     */
-    @Column(name = "bebidas", length = 120)
-    private String bebidas;
+    /** Bebidas que incluye el plato; vacio = no incluye bebida (boquitas). */
+    @OneToMany(mappedBy = "plato", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PlatoBebida> bebidas = new ArrayList<>();
 
-    public List<String> opcionesBebida() {
-        if (bebidas == null || bebidas.isBlank()) {
-            return List.of();
-        }
-        return Arrays.stream(bebidas.split(Pattern.quote(SEPARADOR_BEBIDAS)))
-                .map(String::trim)
-                .filter(b -> !b.isEmpty())
+    /** Las bebidas que se pueden elegir al cotizar el plato: las activas, en orden de catalogo. */
+    public List<Bebida> opcionesBebida() {
+        return bebidas.stream()
+                .map(PlatoBebida::getBebida)
+                .filter(b -> b.getEstado() == null || "ACTIVO".equalsIgnoreCase(b.getEstado().getNombre()))
+                .sorted(Comparator.comparing(Bebida::getIdBebida, Comparator.nullsLast(Comparator.naturalOrder())))
                 .toList();
-    }
-
-    public void setOpcionesBebida(List<String> opciones) {
-        List<String> limpias = opciones == null ? List.of()
-                : opciones.stream().filter(b -> b != null && !b.isBlank()).map(String::trim).distinct().toList();
-        this.bebidas = limpias.isEmpty() ? null : String.join(SEPARADOR_BEBIDAS, limpias);
     }
 }

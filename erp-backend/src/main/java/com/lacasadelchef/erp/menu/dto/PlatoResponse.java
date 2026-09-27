@@ -2,6 +2,7 @@ package com.lacasadelchef.erp.menu.dto;
 
 import com.lacasadelchef.erp.entity.Plato;
 import com.lacasadelchef.erp.entity.UnidadVenta;
+import com.lacasadelchef.erp.bebida.dto.BebidaResumen;
 import lombok.Builder;
 
 import java.time.LocalDateTime;
@@ -14,7 +15,7 @@ public record PlatoResponse(
         Integer idEstado,
         String estadoNombre,
         UnidadVenta unidadVenta,
-        List<String> bebidas,
+        List<BebidaResumen> bebidas,
         LocalDateTime fechaCreacion,
         LocalDateTime fechaModificacion
 ) {
@@ -26,7 +27,10 @@ public record PlatoResponse(
                 .idEstado(plato.getEstado().getIdEstado())
                 .estadoNombre(plato.getEstado().getNombre())
                 .unidadVenta(plato.getUnidadVenta())
-                .bebidas(plato.opcionesBebida())
+                .bebidas(plato.getBebidas().stream()
+                        .map(pb -> BebidaResumen.desde(pb.getBebida()))
+                        .sorted(java.util.Comparator.comparing(BebidaResumen::idBebida))
+                        .toList())
                 .fechaCreacion(plato.getFechaCreacion())
                 .fechaModificacion(plato.getFechaModificacion())
                 .build();

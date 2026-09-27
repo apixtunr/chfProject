@@ -2,6 +2,7 @@ package com.lacasadelchef.erp.menu.dto;
 
 import com.lacasadelchef.erp.entity.MenuPlato;
 import com.lacasadelchef.erp.entity.UnidadVenta;
+import com.lacasadelchef.erp.bebida.dto.BebidaResumen;
 import lombok.Builder;
 
 import java.math.BigDecimal;
@@ -18,7 +19,7 @@ public record MenuPlatoResponse(
         BigDecimal precioDesde100,
         UnidadVenta unidadVenta,
         /** Bebidas que incluye el plato, para elegir una al cotizarlo. */
-        List<String> bebidas,
+        List<BebidaResumen> bebidas,
         LocalDateTime fechaCreacion,
         LocalDateTime fechaModificacion
 ) {
@@ -32,7 +33,7 @@ public record MenuPlatoResponse(
                 .precioUnitario(menuPlato.getPrecioUnitario())
                 .precioDesde100(menuPlato.getPrecioDesde100())
                 .unidadVenta(menuPlato.getPlato().getUnidadVenta())
-                .bebidas(menuPlato.getPlato().opcionesBebida())
+                .bebidas(BebidaResumen.lista(menuPlato.getPlato().opcionesBebida()))
                 .fechaCreacion(menuPlato.getFechaCreacion())
                 .fechaModificacion(menuPlato.getFechaModificacion())
                 .build();

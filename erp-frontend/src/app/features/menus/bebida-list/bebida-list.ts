@@ -11,16 +11,14 @@ import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/auth/auth.service';
-import { nombresBebidas } from '../../../core/catalogos/bebida';
-import { PRECIO_POR, UnidadVenta } from '../../../core/catalogos/menu';
+import { BebidaResponse } from '../../../core/catalogos/bebida';
+import { BebidaService } from '../../../core/catalogos/bebida.service';
 import { ConfirmDialog } from '../../../shared/confirm-dialog/confirm-dialog';
-import { MenuPlatoService } from '../menu-plato.service';
-import { PlatoResponse } from '../dto/menu';
 
-const PAGINA_URL = '/api/platos';
+const PAGINA_URL = '/api/bebidas';
 
 @Component({
-  selector: 'app-plato-list',
+  selector: 'app-bebida-list',
   imports: [
     RouterLink,
     FormsModule,
@@ -33,21 +31,20 @@ const PAGINA_URL = '/api/platos';
     MatInputModule,
     MatTooltipModule,
   ],
-  templateUrl: './plato-list.html',
-  styleUrl: './plato-list.scss',
+  templateUrl: './bebida-list.html',
+  styleUrl: './bebida-list.scss',
 })
-export class PlatoList implements OnInit {
-  private readonly menuPlatoService = inject(MenuPlatoService);
+export class BebidaList implements OnInit {
+  private readonly bebidaService = inject(BebidaService);
   private readonly authService = inject(AuthService);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
 
-  readonly platos = signal<PlatoResponse[]>([]);
+  readonly bebidas = signal<BebidaResponse[]>([]);
   readonly totalElements = signal(0);
   readonly pageIndex = signal(0);
   readonly pageSize = signal(20);
   filtroNombre = '';
-  readonly nombresBebidas = nombresBebidas;
 
   readonly puedeCrear: boolean;
   readonly puedeEditar: boolean;
@@ -59,13 +56,8 @@ export class PlatoList implements OnInit {
     this.puedeEliminar = this.authService.tienePermiso(PAGINA_URL, 'baja');
   }
 
-  /** "por persona", "el ciento" o "c/u", como se escribe junto al precio. */
-  precioPor(unidad: UnidadVenta): string {
-    return PRECIO_POR[unidad];
-  }
-
   get columnas(): string[] {
-    const base = ['nombrePlato', 'unidadVenta', 'bebidas', 'estado'];
+    const base = ['nombreBebida', 'estado'];
     return this.puedeEditar || this.puedeEliminar ? [...base, 'acciones'] : base;
   }
 
@@ -74,12 +66,10 @@ export class PlatoList implements OnInit {
   }
 
   cargar(): void {
-    this.menuPlatoService
-      .listarPlatos(this.filtroNombre.trim(), this.pageIndex(), this.pageSize())
-      .subscribe((page) => {
-        this.platos.set(page.content);
-        this.totalElements.set(page.totalElements);
-      });
+    this.bebidaService.listar(this.filtroNombre.trim(), this.pageIndex(), this.pageSize()).subscribe((page) => {
+      this.bebidas.set(page.content);
+      this.totalElements.set(page.totalElements);
+    });
   }
 
   buscar(): void {
@@ -93,17 +83,17 @@ export class PlatoList implements OnInit {
     this.cargar();
   }
 
-  eliminar(plato: PlatoResponse): void {
+  eliminar(bebida: BebidaResponse): void {
     const ref = this.dialog.open(ConfirmDialog, {
-      data: { titulo: 'Eliminar plato', mensaje: `¿Eliminar el plato "${plato.nombrePlato}"?` },
+      data: { titulo: 'Eliminar bebida', mensaje: `¿Eliminar la bebida "${bebida.nombreBebida}"?` },
     });
 
     ref.afterClosed().subscribe((confirmado) => {
       if (!confirmado) {
         return;
       }
-      this.menuPlatoService.eliminarPlato(plato.idPlato).subscribe(() => {
-        this.snackBar.open('Plato eliminado', 'Cerrar', { duration: 3000 });
+      this.bebidaService.eliminar(bebida.idBebida).subscribe(() => {
+        this.snackBar.open('Bebida eliminada', 'Cerrar', { duration: 3000 });
         this.cargar();
       });
     });

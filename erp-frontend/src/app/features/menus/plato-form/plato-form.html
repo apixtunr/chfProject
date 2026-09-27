@@ -31,9 +31,9 @@
 
       <mat-form-field appearance="outline" class="campo">
         <mat-label>Bebida incluida</mat-label>
-        <mat-select formControlName="bebidas" multiple>
-          @for (bebida of bebidasDisponibles; track bebida) {
-            <mat-option [value]="bebida">{{ bebida }}</mat-option>
+        <mat-select formControlName="idsBebida" multiple>
+          @for (bebida of bebidasDisponibles(); track bebida.idBebida) {
+            <mat-option [value]="bebida.idBebida">{{ bebida.nombreBebida }}</mat-option>
           }
         </mat-select>
         <mat-hint>Al cotizar el plato se elige una de estas. Ninguna = no incluye bebida.</mat-hint>

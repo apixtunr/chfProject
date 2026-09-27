@@ -130,7 +130,7 @@ public class CotizacionPdfService {
             for (DetalleCotizacion detalle : detalles) {
                 Color fondo = fondoZebra(fila++);
                 String descripcion = detalle.getMenu().getNombreMenu() + " - " + detalle.getPlato().getNombrePlato()
-                        + (detalle.getBebida() != null ? " (bebida: " + detalle.getBebida() + ")" : "");
+                        + (detalle.getBebida() != null ? " (bebida: " + detalle.getBebida().getNombreBebida() + ")" : "");
                 tabla.addCell(celda(descripcion, fuenteCelda, Element.ALIGN_LEFT, fondo));
                 tabla.addCell(celda(String.valueOf(detalle.getCantidadPlatos()), fuenteCelda, Element.ALIGN_RIGHT, fondo));
                 tabla.addCell(celda(formatearMoneda(detalle.getPrecioUnitario()), fuenteCelda, Element.ALIGN_RIGHT, fondo));

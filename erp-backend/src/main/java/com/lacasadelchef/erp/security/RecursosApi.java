@@ -136,6 +136,9 @@ public final class RecursosApi {
             Map.entry("/api/productos", Regla.modulo("/api/productos")),
             Map.entry("/api/menus", Regla.modulo("/api/menus")),
             Map.entry("/api/platos", Regla.modulo("/api/platos")),
+            // El formulario de plato lista las bebidas activas para asignarlas; lo usa quien
+            // edita platos, que por V28 tiene el mismo permiso sobre Bebidas.
+            Map.entry("/api/bebidas", Regla.modulo("/api/bebidas")),
             Map.entry("/api/vehiculos", Regla.modulo("/api/vehiculos")),
 
             // --- Administracion --------------------------------------------------------

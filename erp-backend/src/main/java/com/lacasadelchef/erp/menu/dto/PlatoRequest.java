@@ -19,7 +19,7 @@ public record PlatoRequest(
         /** Como se lee su precio: por persona (si viene vacio), por ciento o por unidad. */
         UnidadVenta unidadVenta,
 
-        /** Bebidas que incluye ("Te frio", "Rosa de Jamaica"); vacio = no incluye bebida. */
-        List<String> bebidas
+        /** Bebidas que incluye (id de bebida); vacio = no incluye bebida. */
+        List<Integer> idsBebida
 ) {
 }

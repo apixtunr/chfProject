@@ -19,8 +19,7 @@ public record DetalleEventoRequest(
         @Size(max = 255)
         String observaciones,
 
-        /** Una de las bebidas que incluye el plato; si solo incluye una, se pone sola. */
-        @Size(max = 60)
-        String bebida
+        /** Una de las bebidas que incluye el plato (plato_bebida); si solo incluye una, se pone sola. */
+        Integer idBebida
 ) {
 }

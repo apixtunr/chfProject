@@ -1,3 +1,4 @@
+import { BebidaResumen } from '../../../core/catalogos/bebida';
 /** Espeja cotizacion/dto/*.java del backend. */
 export interface CotizacionRequest {
   idCliente: number;
@@ -56,8 +57,8 @@ export interface DetalleCotizacionRequest {
   idPlato: number;
   cantidadPlatos: number;
   observaciones: string | null;
-  /** Una de las bebidas que incluye el plato. */
-  bebida: string | null;
+  /** Una de las bebidas que incluye el plato (id del catalogo). */
+  idBebida: number | null;
 }
 
 export interface DetalleCotizacionResponse {
@@ -71,9 +72,10 @@ export interface DetalleCotizacionResponse {
   precioUnitario: number;
   subtotal: number;
   observaciones: string | null;
-  bebida: string | null;
-  /** Bebidas que incluye el plato; si hay y bebida es null, falta elegirla. */
-  bebidasPlato: string[];
+  idBebida: number | null;
+  nombreBebida: string | null;
+  /** Bebidas que incluye el plato; si hay y no se eligio ninguna, falta elegirla. */
+  bebidasPlato: BebidaResumen[];
   montoTotalVersion: number;
   fechaCreacion: string | null;
   fechaModificacion: string | null;

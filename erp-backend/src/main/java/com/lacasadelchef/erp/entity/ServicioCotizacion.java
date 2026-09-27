@@ -8,7 +8,7 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 
-/** Servicio o costo extra no-menu cotizado dentro de una version (bebidas, decoracion, personal...). */
+/** Servicio o costo extra no-menu cotizado dentro de una version (hora extra de cocinero, cubremantel...). */
 @Getter
 @Setter
 @NoArgsConstructor

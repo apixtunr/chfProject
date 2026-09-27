@@ -28,6 +28,7 @@ import {
 import { MenuService } from '../../../core/catalogos/menu.service';
 import { TipoServicioResponse } from '../../../core/catalogos/tipo-servicio';
 import { TipoServicioService } from '../../../core/catalogos/tipo-servicio.service';
+import { BebidaResumen } from '../../../core/catalogos/bebida';
 import { ConfirmDialog } from '../../../shared/confirm-dialog/confirm-dialog';
 import { CotizacionService } from '../cotizacion.service';
 import {
@@ -99,7 +100,7 @@ export class VersionDetalle implements OnInit {
   /** Como se vende el plato elegido: la cantidad son personas (por persona) o piezas (boquitas). */
   readonly unidadSeleccionada = signal<UnidadVenta>('PERSONA');
   /** Bebidas que incluye el plato elegido; vacio = no lleva bebida y el campo no se muestra. */
-  readonly bebidasDelPlato = signal<string[]>([]);
+  readonly bebidasDelPlato = signal<BebidaResumen[]>([]);
 
   readonly personas = computed(() => this.cotizacion()?.cantidadPersonas ?? 0);
   /** Evento de 100 personas o mas: los platos que tienen precio de volumen se cobran a ese precio. */
@@ -142,7 +143,7 @@ export class VersionDetalle implements OnInit {
       observaciones: [''],
       // La bebida viene con el plato: se elige entre las que incluye (puede quedar pendiente
       // mientras se arma el borrador; para enviar la cotizacion es obligatoria).
-      bebida: this.fb.control<string | null>(null),
+      idBebida: this.fb.control<number | null>(null),
     });
   }
 
@@ -214,7 +215,7 @@ export class VersionDetalle implements OnInit {
       const bebidas = plato?.bebidas ?? [];
       this.bebidasDelPlato.set(bebidas);
       // Si incluye una sola (atol, jugo y cafe) se pone sola.
-      this.formulario.controls.bebida.setValue(bebidas.length === 1 ? bebidas[0] : null);
+      this.formulario.controls.idBebida.setValue(bebidas.length === 1 ? bebidas[0].idBebida : null);
     });
   }
 
@@ -239,14 +240,19 @@ export class VersionDetalle implements OnInit {
     this.idDetalleEditando.set(detalle.idDetalleCotizacion);
     this.menuService.listarPlatosDeMenu(detalle.idMenu).subscribe((platos) => {
       this.platosDelMenu.set(platos);
-      this.bebidasDelPlato.set(platos.find((p) => p.idPlato === detalle.idPlato)?.bebidas ?? []);
+      const bebidas = platos.find((p) => p.idPlato === detalle.idPlato)?.bebidas ?? [];
+      // Si la bebida de la linea ya se inactivo en el catalogo, se muestra igual para no perderla.
+      const actual = detalle.idBebida != null && !bebidas.some((b) => b.idBebida === detalle.idBebida)
+        ? [{ idBebida: detalle.idBebida, nombreBebida: detalle.nombreBebida ?? '' }]
+        : [];
+      this.bebidasDelPlato.set([...bebidas, ...actual]);
       this.formulario.setValue(
         {
           idMenu: detalle.idMenu,
           idPlato: detalle.idPlato,
           cantidadPlatos: detalle.cantidadPlatos,
           observaciones: detalle.observaciones ?? '',
-          bebida: detalle.bebida,
+          idBebida: detalle.idBebida,
         },
         { emitEvent: false },
       );
@@ -259,7 +265,7 @@ export class VersionDetalle implements OnInit {
     this.platosDelMenu.set([]);
     this.precioSeleccionado.set(null);
     this.bebidasDelPlato.set([]);
-    this.formulario.reset({ idMenu: null, idPlato: null, cantidadPlatos: 1, observaciones: '', bebida: null });
+    this.formulario.reset({ idMenu: null, idPlato: null, cantidadPlatos: 1, observaciones: '', idBebida: null });
   }
 
   guardarLinea(): void {
@@ -274,7 +280,7 @@ export class VersionDetalle implements OnInit {
       idPlato: valores.idPlato!,
       cantidadPlatos: valores.cantidadPlatos,
       observaciones: valores.observaciones || null,
-      bebida: valores.bebida,
+      idBebida: valores.idBebida,
     };
 
     const idEditando = this.idDetalleEditando();
@@ -304,7 +310,7 @@ export class VersionDetalle implements OnInit {
     });
   }
 
-  // --- Servicios extra (bebidas, decoracion, personal, etc.) ---
+  // --- Servicios extra (hora extra de cocinero, cubremantel, etc.) ---
 
   /** Con precio fijo, el campo de monto (deshabilitado) muestra cantidad x precio. */
   private mostrarTotalFijo(): void {

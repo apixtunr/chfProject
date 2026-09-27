@@ -60,6 +60,7 @@ export const NAV_GROUPS: NavGroup[] = [
     items: [
       { label: 'Menús', route: '/menus', paginaUrl: '/api/menus', icon: 'restaurant_menu' },
       { label: 'Platos', route: '/menus/platos', paginaUrl: '/api/platos', icon: 'restaurant' },
+      { label: 'Bebidas', route: '/menus/bebidas', paginaUrl: '/api/bebidas', icon: 'local_drink' },
     ],
   },
   {

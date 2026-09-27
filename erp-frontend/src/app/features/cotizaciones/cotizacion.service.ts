@@ -91,7 +91,7 @@ export class CotizacionService {
     return this.http.delete<void>(`${VERSIONES_URL}/${idVersion}/detalles/${idDetalle}`);
   }
 
-  // --- Servicios extra (bebidas, decoracion, personal, etc.) ---
+  // --- Servicios extra (hora extra de cocinero, cubremantel, etc.) ---
 
   listarServicios(idVersion: number): Observable<ServicioCotizacionResponse[]> {
     return this.http.get<ServicioCotizacionResponse[]>(`${VERSIONES_URL}/${idVersion}/servicios`);

@@ -170,7 +170,12 @@ public class AuditoriaCambiosListener
         List<String> partes = new ArrayList<>();
         for (int i = 0; i < nombres.length; i++) {
             String propiedad = nombres[i];
-            if (PROPIEDADES_IGNORADAS.contains(propiedad) || tipos[i].isCollectionType() || (esAlta && !insertables[i])) {
+            // Lo no insertable lo calcula la base (subtotal, monto_total) y en el alta aun no
+            // tiene valor. Las relaciones de una llave compuesta (@MapsId: plato y bebida en
+            // plato_bebida) tambien figuran como no insertables, porque las escribe la llave,
+            // pero si tienen valor y son justo lo que dice que se agrego.
+            boolean calculadaPorLaBase = !insertables[i] && !tipos[i].isEntityType();
+            if (PROPIEDADES_IGNORADAS.contains(propiedad) || tipos[i].isCollectionType() || (esAlta && calculadaPorLaBase)) {
                 continue;
             }
             String valor = PROPIEDADES_ENMASCARADAS.contains(propiedad)

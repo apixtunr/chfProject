@@ -7,6 +7,8 @@ import com.lacasadelchef.erp.entity.CotizacionVersion;
 import com.lacasadelchef.erp.entity.DetalleCotizacion;
 import com.lacasadelchef.erp.entity.Estado;
 import com.lacasadelchef.erp.entity.Plato;
+import com.lacasadelchef.erp.entity.PlatoBebida;
+import com.lacasadelchef.erp.menu.BebidaDelPlatoTest;
 import com.lacasadelchef.erp.entity.TipoEstado;
 import com.lacasadelchef.erp.repository.CotizacionRepository;
 import com.lacasadelchef.erp.repository.CotizacionVersionRepository;
@@ -234,7 +236,8 @@ class CotizacionVersionServiceImplTest {
         prepararCreada(LocalDate.now().plusDays(30), "3600.00");
         Plato lomo = new Plato();
         lomo.setNombrePlato("Lomo relleno");
-        lomo.setOpcionesBebida(List.of("Té frío", "Rosa de Jamaica"));
+        lomo.getBebidas().add(new PlatoBebida(lomo, BebidaDelPlatoTest.TE_FRIO));
+        lomo.getBebidas().add(new PlatoBebida(lomo, BebidaDelPlatoTest.JAMAICA));
         DetalleCotizacion linea = new DetalleCotizacion();
         linea.setPlato(lomo);
         when(detalleCotizacionRepository.existsByCotizacionVersionIdCotizacionVersion(ID_VERSION)).thenReturn(true);
