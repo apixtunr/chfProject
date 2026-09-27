@@ -42,8 +42,11 @@ Detalles y decisiones: `docs/CHANGELOG-configuracion.md`.
 2. Revisar `application.properties` (o definir `DB_PASSWORD` y `JWT_SECRET`).
 3. `mvnw spring-boot:run` — API en `http://localhost:8080`, Swagger en
    `http://localhost:8080/swagger-ui.html`.
-4. Primer usuario admin: generar hash con `util/PasswordHashGenerator` e
-   insertarlo en `usuario` (ver comentario en esa clase).
+4. Primer usuario administrador: generar hash con `util/PasswordHashGenerator` e
+   insertarlo en `usuario` (ver comentario en esa clase), vinculado a su empleado
+   y con la politica de nombres de la empresa: primer nombre, punto y primer
+   apellido, sin tildes (ej. `amado.soto`). Los siguientes usuarios ya los
+   nombra el sistema al crearlos (`PoliticaUsuario`).
 
 ## Tests
 

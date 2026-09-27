@@ -3,6 +3,7 @@ package com.lacasadelchef.erp.administracion.rrhh;
 import com.lacasadelchef.erp.administracion.rrhh.dto.AccesoSistemaRequest;
 import com.lacasadelchef.erp.administracion.rrhh.dto.EmpleadoRequest;
 import com.lacasadelchef.erp.administracion.rrhh.dto.EmpleadoResponse;
+import com.lacasadelchef.erp.administracion.usuario.PoliticaUsuario;
 import com.lacasadelchef.erp.common.exception.BusinessException;
 import com.lacasadelchef.erp.entity.Empleado;
 import com.lacasadelchef.erp.entity.Estado;
@@ -56,6 +57,7 @@ class EmpleadoServiceImplTest {
     @Mock private UsuarioRepository usuarioRepository;
     @Mock private RolRepository rolRepository;
     @Mock private PasswordEncoder passwordEncoder;
+    @Mock private PoliticaUsuario politicaUsuario;
     @InjectMocks private EmpleadoServiceImpl empleadoService;
 
     private static EmpleadoRequest pedido(AccesoSistemaRequest acceso) {
@@ -106,7 +108,7 @@ class EmpleadoServiceImplTest {
         rol.setIdRol(ID_ROL);
         rol.setNombreRol("OPERATIVO");
         when(rolRepository.findById(ID_ROL)).thenReturn(Optional.of(rol));
-        when(usuarioRepository.existsByUsernameIgnoreCase("asoto")).thenReturn(false);
+        when(politicaUsuario.generarPara(any(Empleado.class))).thenReturn("amado.soto");
         when(passwordEncoder.encode(anyString())).thenReturn("hash");
         when(usuarioRepository.save(any(Usuario.class))).thenAnswer(inv -> {
             Usuario u = inv.getArgument(0);
@@ -115,10 +117,11 @@ class EmpleadoServiceImplTest {
         });
 
         EmpleadoResponse resultado = empleadoService.crear(
-                pedido(new AccesoSistemaRequest("asoto", "Secreta2026", ID_ROL)));
+                pedido(new AccesoSistemaRequest("Secreta2026", ID_ROL)));
 
         assertThat(resultado.idUsuario()).isEqualTo(7);
-        assertThat(resultado.username()).isEqualTo("asoto");
+        // El nombre de usuario no lo escribe nadie: sale del nombre del empleado.
+        assertThat(resultado.username()).isEqualTo("amado.soto");
         assertThat(resultado.rolUsuario()).isEqualTo("OPERATIVO");
 
         // El usuario guardado apunta al empleado recien creado: la relacion queda armada
@@ -127,26 +130,10 @@ class EmpleadoServiceImplTest {
     }
 
     @Test
-    @DisplayName("Si el nombre de usuario ya existe, no se graba tampoco el empleado")
-    void usernameRepetidoNoDejaEmpleadoAMedias() {
-        when(usuarioRepository.existsByUsernameIgnoreCase("asoto")).thenReturn(true);
-
-        assertThatThrownBy(() -> empleadoService.crear(
-                pedido(new AccesoSistemaRequest("asoto", "Secreta2026", ID_ROL))))
-                .isInstanceOf(BusinessException.class)
-                .hasMessageContaining("asoto");
-
-        // Lo esencial: el empleado nunca llego a grabarse. Si se hubiera grabado antes de
-        // detectar el choque, al reintentar quedarian dos empleados para la misma persona.
-        verify(empleadoRepository, never()).save(any());
-        verify(usuarioRepository, never()).save(any());
-    }
-
-    @Test
     @DisplayName("Al editar un empleado no se puede crear ni cambiar su acceso")
     void editarNoAdmiteAcceso() {
         assertThatThrownBy(() -> empleadoService.actualizar(1,
-                pedido(new AccesoSistemaRequest("asoto", "Secreta2026", ID_ROL))))
+                pedido(new AccesoSistemaRequest("Secreta2026", ID_ROL))))
                 .isInstanceOf(BusinessException.class)
                 .hasMessageContaining("Usuarios");
 

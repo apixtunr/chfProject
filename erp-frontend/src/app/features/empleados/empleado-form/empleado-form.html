@@ -90,13 +90,11 @@
 
             @if (creaAcceso) {
               <div class="acceso-campos">
-                <mat-form-field appearance="outline" class="campo">
-                  <mat-label>Nombre de usuario</mat-label>
-                  <input matInput formControlName="username" autocomplete="off" />
-                  @if (formulario.controls.username.hasError('required') && formulario.controls.username.touched) {
-                    <mat-error>El nombre de usuario es obligatorio.</mat-error>
-                  }
-                </mat-form-field>
+                <p class="usuario-previsto">
+                  Entrará al sistema como
+                  <strong>{{ usuarioPrevisto || 'nombre.apellido' }}</strong>: primer nombre y primer
+                  apellido, sin tildes. Si ya existe, se le agrega un número.
+                </p>
 
                 <mat-form-field appearance="outline" class="campo">
                   <mat-label>Contraseña (mínimo 8 caracteres)</mat-label>

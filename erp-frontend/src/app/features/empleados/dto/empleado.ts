@@ -4,11 +4,10 @@
  * Acceso al sistema que se le crea al empleado al darlo de alta.
  *
  * Solo viaja en el alta y solo si la persona va a entrar al sistema. El backend graba
- * empleado y usuario en la misma transaccion: si el nombre de usuario ya esta tomado,
- * no se crea ninguno de los dos.
+ * empleado y usuario en la misma transaccion. El nombre de usuario no se envia: lo genera
+ * el backend con el nombre del empleado (nombre.apellido).
  */
 export interface AccesoSistemaRequest {
-  username: string;
   password: string;
   idRol: number;
 }

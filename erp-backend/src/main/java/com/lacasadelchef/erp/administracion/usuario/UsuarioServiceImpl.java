@@ -30,6 +30,7 @@ public class UsuarioServiceImpl implements UsuarioService {
     private final EstadoRepository estadoRepository;
     private final EmpleadoRepository empleadoRepository;
     private final PasswordEncoder passwordEncoder;
+    private final PoliticaUsuario politicaUsuario;
 
     @Override
     @Transactional(readOnly = true)
@@ -49,12 +50,12 @@ public class UsuarioServiceImpl implements UsuarioService {
     @Override
     @Transactional
     public UsuarioResponse crear(UsuarioRequest request) {
-        validarDisponibilidad(request.username(), request.idEmpleado(), null);
+        validarDisponibilidad(request.idEmpleado(), null);
         Usuario usuario = new Usuario();
-        usuario.setUsername(request.username().trim());
         usuario.setPasswordHash(passwordEncoder.encode(request.password()));
         usuario.setIntentosAcceso(0);
         aplicarRolEstadoEmpleado(request.idRol(), request.idEstado(), request.idEmpleado(), usuario);
+        usuario.setUsername(politicaUsuario.generarPara(usuario.getEmpleado()));
         usuario = usuarioRepository.save(usuario);
         return UsuarioResponse.desde(usuario);
     }
@@ -63,7 +64,7 @@ public class UsuarioServiceImpl implements UsuarioService {
     @Transactional
     public UsuarioResponse actualizar(Integer id, UsuarioActualizarRequest request) {
         Usuario usuario = buscar(id);
-        validarDisponibilidad(null, request.idEmpleado(), id);
+        validarDisponibilidad(request.idEmpleado(), id);
         aplicarRolEstadoEmpleado(request.idRol(), request.idEstado(), request.idEmpleado(), usuario);
         usuario = usuarioRepository.save(usuario);
         return UsuarioResponse.desde(usuario);
@@ -102,22 +103,14 @@ public class UsuarioServiceImpl implements UsuarioService {
     }
 
     /**
-     * Comprueba que el username y el empleado esten libres antes de tocar la base.
+     * Comprueba que el empleado no tenga ya un usuario antes de tocar la base. El indice
+     * unico igual lo impediria, pero con un 409 generico que no dice que paso. El nombre
+     * de usuario no hace falta revisarlo: PoliticaUsuario siempre da uno libre.
      *
-     * Los dos tienen indice unico, asi que la base igual lo impediria; el problema es
-     * que devuelve un 409 generico donde no se distingue cual de los dos choco. Esto
-     * importa sobre todo en el alta conjunta de empleado + usuario: si el username esta
-     * tomado hay que decirlo antes de grabar nada, para no dejar al empleado creado a
-     * medias y que el segundo intento lo duplique.
-     *
-     * @param username     null cuando no se esta cambiando (la edicion no lo toca)
      * @param idUsuarioActual null en un alta; en una edicion, el id que se esta editando,
      *                        para no chocar consigo mismo
      */
-    private void validarDisponibilidad(String username, Integer idEmpleado, Integer idUsuarioActual) {
-        if (username != null && usuarioRepository.existsByUsernameIgnoreCase(username.trim())) {
-            throw new BusinessException("El usuario '" + username.trim() + "' ya existe.");
-        }
+    private void validarDisponibilidad(Integer idEmpleado, Integer idUsuarioActual) {
         usuarioRepository.findByEmpleadoIdEmpleado(idEmpleado)
                 .filter(u -> !u.getIdUsuario().equals(idUsuarioActual))
                 .ifPresent(u -> {

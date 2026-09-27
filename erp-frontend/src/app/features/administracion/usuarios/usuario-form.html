@@ -6,8 +6,11 @@
   <mat-card-content>
     <form [formGroup]="formulario" (ngSubmit)="guardar()">
       <mat-form-field appearance="outline" class="campo">
-        <mat-label>Username</mat-label>
-        <input matInput formControlName="username" autocomplete="off" />
+        <mat-label>Usuario</mat-label>
+        <input matInput formControlName="username" placeholder="Se genera al elegir el empleado" />
+        @if (!idUsuario()) {
+          <mat-hint>Primer nombre y primer apellido del empleado. Si ya existe, se le agrega un número.</mat-hint>
+        }
       </mat-form-field>
 
       @if (!idUsuario()) {

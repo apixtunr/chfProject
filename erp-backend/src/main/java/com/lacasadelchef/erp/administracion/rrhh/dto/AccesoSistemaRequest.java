@@ -9,17 +9,14 @@ import jakarta.validation.constraints.Size;
  *
  * Va dentro de {@link EmpleadoRequest} y es opcional: la mayoria de los empleados no
  * entra al sistema. Cuando viene, el empleado y su usuario se graban en la misma
- * transaccion, de modo que si algo falla (por ejemplo, el username ya existe) no queda
- * el empleado creado sin su usuario.
+ * transaccion, de modo que si algo falla no queda el empleado creado sin su usuario.
  *
  * El estado del usuario no se pide: nace ACTIVO. Para desactivarlo despues esta la
- * pantalla de Usuarios.
+ * pantalla de Usuarios. Tampoco el nombre de usuario: lo genera el sistema a partir del
+ * nombre del empleado (PoliticaUsuario).
  */
 public record AccesoSistemaRequest(
 
-        @NotBlank(message = "El nombre de usuario es obligatorio")
-        @Size(max = 50, message = "El nombre de usuario no puede exceder 50 caracteres")
-        String username,
 
         @NotBlank(message = "La contrasena es obligatoria")
         @Size(min = 8, message = "La contrasena debe tener al menos 8 caracteres")

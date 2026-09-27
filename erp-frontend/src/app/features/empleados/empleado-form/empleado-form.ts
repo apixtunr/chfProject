@@ -14,6 +14,7 @@ import { AuthService } from '../../../core/auth/auth.service';
 import { EstadoResponse } from '../../../core/catalogos/estado';
 import { EstadoService } from '../../../core/catalogos/estado.service';
 import { AdminService } from '../../administracion/admin.service';
+import { usuarioSegunPolitica } from '../../administracion/usuarios/politica-usuario';
 import { RolResponse } from '../../administracion/dto/admin';
 import { AccesoSistemaRequest, GeneroResponse, PuestoEmpleadoResponse } from '../dto/empleado';
 import { EmpleadoService } from '../empleado.service';
@@ -82,34 +83,35 @@ export class EmpleadoForm implements OnInit {
       // Acceso al sistema. Solo se usa al dar de alta: el acceso de alguien que ya
       // existe se administra desde la pantalla de Usuarios.
       daAcceso: this.fb.control<boolean>(false),
-      username: [''],
       password: [''],
       idRolUsuario: this.fb.control<number | null>(null),
     });
   }
 
+  /** Como va a quedar su usuario: nombre.apellido, segun la politica de la empresa. */
+  get usuarioPrevisto(): string {
+    const { nombre, apellido } = this.formulario.controls;
+    return usuarioSegunPolitica(nombre.value, apellido.value);
+  }
+
   /**
    * Enciende o apaga las reglas de los campos del acceso.
    *
-   * Hay que hacerlo a mano porque los tres campos existen siempre en el formulario: si
+   * Hay que hacerlo a mano porque los dos campos existen siempre en el formulario: si
    * quedaran obligatorios con el acceso apagado, no se podria guardar a un empleado que
    * no entra al sistema, que es el caso mas comun.
    */
   cambiarAcceso(da: boolean): void {
     const c = this.formulario.controls;
     if (da) {
-      c.username.setValidators([Validators.required, Validators.maxLength(50)]);
       c.password.setValidators([Validators.required, Validators.minLength(8)]);
       c.idRolUsuario.setValidators([Validators.required]);
     } else {
-      c.username.clearValidators();
       c.password.clearValidators();
       c.idRolUsuario.clearValidators();
-      c.username.setValue('');
       c.password.setValue('');
       c.idRolUsuario.setValue(null);
     }
-    c.username.updateValueAndValidity();
     c.password.updateValueAndValidity();
     c.idRolUsuario.updateValueAndValidity();
   }
@@ -159,7 +161,7 @@ export class EmpleadoForm implements OnInit {
     const v = this.formulario.getRawValue();
     const acceso: AccesoSistemaRequest | null =
       !this.idEmpleado() && v.daAcceso
-        ? { username: v.username.trim(), password: v.password, idRol: v.idRolUsuario! }
+        ? { password: v.password, idRol: v.idRolUsuario! }
         : null;
     const request = {
       nombre: v.nombre,
@@ -171,7 +173,7 @@ export class EmpleadoForm implements OnInit {
       telefono: v.telefono || null,
       fechaContratacion: v.fechaContratacion ? this.aFechaIso(v.fechaContratacion) : null,
       // Solo viaja en el alta y solo si se pidio. El backend graba empleado y usuario
-      // juntos: si el nombre de usuario ya existe, no se crea ninguno de los dos.
+      // juntos, y le pone al usuario el nombre segun la politica de la empresa.
       acceso: acceso,
     };
 
@@ -179,11 +181,11 @@ export class EmpleadoForm implements OnInit {
     const operacion = id ? this.empleadoService.actualizar(id, request) : this.empleadoService.crear(request);
 
     operacion.subscribe({
-      next: () => {
+      next: (empleado) => {
         const mensaje = id
           ? 'Empleado actualizado'
-          : acceso
-            ? `Empleado creado con acceso al sistema (${acceso.username})`
+          : empleado.username
+            ? `Empleado creado. Entra al sistema como ${empleado.username}`
             : 'Empleado creado';
         this.snackBar.open(mensaje, 'Cerrar', { duration: 3000 });
         this.router.navigateByUrl('/empleados');

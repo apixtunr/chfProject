@@ -81,3 +81,10 @@
     color: var(--chf-texto-medio);
   }
 }
+
+// Usuario que el sistema le va a asignar: se muestra, no se escribe.
+.usuario-previsto {
+  margin: 0 0 12px;
+  font-size: 0.9rem;
+  color: var(--chf-texto-medio);
+}

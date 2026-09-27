@@ -3,7 +3,7 @@ package com.lacasadelchef.erp.util;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 /**
- * Utilidad para generar hashes BCrypt (crear el primer usuario admin).
+ * Utilidad para generar hashes BCrypt (crear el primer usuario administrador).
  * Ejecutar desde el IDE: Run 'PasswordHashGenerator.main()'.
  * No forma parte de la aplicacion en ejecucion.
  */

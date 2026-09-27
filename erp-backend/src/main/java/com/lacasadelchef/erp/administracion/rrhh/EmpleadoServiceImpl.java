@@ -3,6 +3,7 @@ package com.lacasadelchef.erp.administracion.rrhh;
 import com.lacasadelchef.erp.administracion.rrhh.dto.EmpleadoRequest;
 import com.lacasadelchef.erp.administracion.rrhh.dto.EmpleadoResponse;
 import com.lacasadelchef.erp.administracion.rrhh.dto.AccesoSistemaRequest;
+import com.lacasadelchef.erp.administracion.usuario.PoliticaUsuario;
 import com.lacasadelchef.erp.common.exception.BusinessException;
 import com.lacasadelchef.erp.common.exception.ResourceNotFoundException;
 import com.lacasadelchef.erp.entity.Empleado;
@@ -41,6 +42,7 @@ public class EmpleadoServiceImpl implements EmpleadoService {
     private final UsuarioRepository usuarioRepository;
     private final RolRepository rolRepository;
     private final PasswordEncoder passwordEncoder;
+    private final PoliticaUsuario politicaUsuario;
 
     @Override
     @Transactional(readOnly = true)
@@ -65,20 +67,15 @@ public class EmpleadoServiceImpl implements EmpleadoService {
      * Da de alta al empleado y, si se pidio, su acceso al sistema.
      *
      * Las dos cosas van en la misma transaccion (@Transactional): si la creacion del
-     * usuario falla, la del empleado se deshace. Sin eso, un username repetido dejaria
-     * el empleado grabado sin usuario, y al reintentar quedarian dos empleados para la
-     * misma persona.
-     *
-     * Por eso el username se comprueba ANTES de grabar nada: es el error mas probable y
-     * el que hay que atajar temprano.
+     * usuario falla, la del empleado se deshace. Sin eso, un error al crear el usuario
+     * dejaria el empleado grabado sin usuario, y al reintentar quedarian dos empleados
+     * para la misma persona. El nombre de usuario lo genera PoliticaUsuario con el nombre
+     * del empleado, asi que no puede chocar con otro.
      */
     @Override
     @Transactional
     public EmpleadoResponse crear(EmpleadoRequest request) {
         AccesoSistemaRequest acceso = request.acceso();
-        if (acceso != null && usuarioRepository.existsByUsernameIgnoreCase(acceso.username().trim())) {
-            throw new BusinessException("El usuario '" + acceso.username().trim() + "' ya existe.");
-        }
 
         Empleado empleado = new Empleado();
         aplicar(request, empleado);
@@ -94,7 +91,7 @@ public class EmpleadoServiceImpl implements EmpleadoService {
         Rol rol = rolRepository.findById(acceso.idRol())
                 .orElseThrow(() -> new ResourceNotFoundException("Rol", acceso.idRol()));
         Usuario usuario = new Usuario();
-        usuario.setUsername(acceso.username().trim());
+        usuario.setUsername(politicaUsuario.generarPara(empleado));
         usuario.setPasswordHash(passwordEncoder.encode(acceso.password()));
         usuario.setIntentosAcceso(0);
         usuario.setRol(rol);

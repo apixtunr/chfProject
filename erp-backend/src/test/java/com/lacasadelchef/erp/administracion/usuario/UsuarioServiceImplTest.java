@@ -48,10 +48,11 @@ class UsuarioServiceImplTest {
     @Mock private EstadoRepository estadoRepository;
     @Mock private EmpleadoRepository empleadoRepository;
     @Mock private PasswordEncoder passwordEncoder;
+    @Mock private PoliticaUsuario politicaUsuario;
     @InjectMocks private UsuarioServiceImpl usuarioService;
 
-    private static UsuarioRequest alta(String username) {
-        return new UsuarioRequest(username, "Secreta2026", ID_ROL, ID_ESTADO, ID_EMPLEADO);
+    private static UsuarioRequest alta() {
+        return new UsuarioRequest("Secreta2026", ID_ROL, ID_ESTADO, ID_EMPLEADO);
     }
 
     private static Empleado empleado() {
@@ -77,9 +78,9 @@ class UsuarioServiceImplTest {
     @Test
     @DisplayName("Un usuario nuevo queda vinculado a su empleado")
     void creaVinculadoAlEmpleado() {
-        when(usuarioRepository.existsByUsernameIgnoreCase("asoto")).thenReturn(false);
         when(usuarioRepository.findByEmpleadoIdEmpleado(ID_EMPLEADO)).thenReturn(Optional.empty());
         catalogosDisponibles();
+        when(politicaUsuario.generarPara(any(Empleado.class))).thenReturn("amado.soto");
         when(passwordEncoder.encode(anyString())).thenReturn("hash");
         when(usuarioRepository.save(any(Usuario.class))).thenAnswer(inv -> {
             Usuario u = inv.getArgument(0);
@@ -87,22 +88,11 @@ class UsuarioServiceImplTest {
             return u;
         });
 
-        UsuarioResponse resultado = usuarioService.crear(alta("asoto"));
+        UsuarioResponse resultado = usuarioService.crear(alta());
 
+        assertThat(resultado.username()).isEqualTo("amado.soto");
         assertThat(resultado.idEmpleado()).isEqualTo(ID_EMPLEADO);
         assertThat(resultado.nombreEmpleado()).isEqualTo("Amado Soto Morales");
-    }
-
-    @Test
-    @DisplayName("Un nombre de usuario repetido se rechaza nombrandolo, no con un error generico")
-    void rechazaUsernameRepetido() {
-        when(usuarioRepository.existsByUsernameIgnoreCase("admin")).thenReturn(true);
-
-        assertThatThrownBy(() -> usuarioService.crear(alta("admin")))
-                .isInstanceOf(BusinessException.class)
-                .hasMessageContaining("admin");
-
-        verify(usuarioRepository, never()).save(any());
     }
 
     @Test
@@ -111,10 +101,9 @@ class UsuarioServiceImplTest {
         Usuario existente = new Usuario();
         existente.setIdUsuario(3);
         existente.setUsername("asoto");
-        when(usuarioRepository.existsByUsernameIgnoreCase("asoto2")).thenReturn(false);
         when(usuarioRepository.findByEmpleadoIdEmpleado(ID_EMPLEADO)).thenReturn(Optional.of(existente));
 
-        assertThatThrownBy(() -> usuarioService.crear(alta("asoto2")))
+        assertThatThrownBy(() -> usuarioService.crear(alta()))
                 .isInstanceOf(BusinessException.class)
                 .hasMessageContaining("asoto");
 
