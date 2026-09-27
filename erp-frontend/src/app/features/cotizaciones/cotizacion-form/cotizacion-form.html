@@ -108,9 +108,9 @@
         <label class="pf-label" for="fechaEvento">
           <span class="pf-label-num">4.</span>
           <span class="pf-label-name">Fecha estimada del evento</span>
-          <span class="pf-label-hint">(obligatoria para enviar la cotización)</span>
+          <span class="pf-required-mark">*</span>
         </label>
-        <div class="pf-input-wrap pf-input-wrap--date">
+        <div class="pf-input-wrap pf-input-wrap--date" [class.pf-input-wrap--error]="formulario.controls.fechaEvento.invalid && formulario.controls.fechaEvento.touched">
           <mat-icon class="pf-input-icon">calendar_today</mat-icon>
           <input
             id="fechaEvento"
@@ -124,6 +124,9 @@
           <mat-datepicker-toggle class="pf-date-toggle" [for]="picker" tabindex="-1"></mat-datepicker-toggle>
           <mat-datepicker #picker></mat-datepicker>
         </div>
+        @if (formulario.controls.fechaEvento.invalid && formulario.controls.fechaEvento.touched) {
+          <p class="pf-error">La fecha del evento es obligatoria.</p>
+        }
       </div>
     </div>
 
@@ -145,17 +148,19 @@
         <label class="pf-label" for="horaInicio">
           <span class="pf-label-num">6.</span>
           <span class="pf-label-name">Horario del servicio</span>
-          <span class="pf-label-hint">(4 horas; obligatorio para enviar)</span>
+          <span class="pf-required-mark">*</span>
         </label>
-        <div class="pf-input-wrap pf-input-wrap--select">
+        <div class="pf-input-wrap pf-input-wrap--select" [class.pf-input-wrap--error]="formulario.controls.horaInicio.invalid && formulario.controls.horaInicio.touched">
           <mat-icon class="pf-input-icon">schedule</mat-icon>
           <mat-select id="horaInicio" class="pf-select" formControlName="horaInicio" placeholder="Seleccioná el horario">
-            <mat-option [value]="null">Por definir</mat-option>
             @for (hora of horasDeInicio; track hora) {
               <mat-option [value]="hora">{{ horarioServicio(hora) }}</mat-option>
             }
           </mat-select>
         </div>
+        @if (formulario.controls.horaInicio.invalid && formulario.controls.horaInicio.touched) {
+          <p class="pf-error">El horario del servicio es obligatorio.</p>
+        }
       </div>
     </div>
   </div>

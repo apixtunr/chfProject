@@ -6,7 +6,7 @@ export interface CotizacionRequest {
   cantidadPersonas: number;
   fechaEvento: string | null;
   presupuestoCliente: number | null;
-  /** "18:00"; opcional al crear, obligatoria para enviar. */
+  /** "18:00": el servicio empieza en punto, de 11:00 a 19:00. */
   horaInicio: string | null;
 }
 

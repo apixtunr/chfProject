@@ -23,12 +23,14 @@ public record CotizacionRequest(
         @Min(value = 1, message = "La cantidad de personas debe ser mayor a 0")
         Integer cantidadPersonas,
 
+        @NotNull(message = "La fecha del evento es obligatoria")
         LocalDate fechaEvento,
 
         @DecimalMin(value = "0.0", message = "El presupuesto no puede ser negativo")
         BigDecimal presupuestoCliente,
 
-        /** Opcional al crear; obligatoria para enviar. En punto, de 11:00 a 19:00. */
+        /** En punto, de 11:00 a 19:00. */
+        @NotNull(message = "El horario del servicio es obligatorio")
         LocalTime horaInicio
 ) {
 }

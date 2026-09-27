@@ -78,10 +78,9 @@ export class CotizacionForm implements OnInit {
       idMunicipio: this.fb.control<number | null>(null, Validators.required),
       direccion: ['', [Validators.required, Validators.maxLength(255)]],
       cantidadPersonas: this.fb.control<number | null>(null, [Validators.required, Validators.min(1)]),
-      fechaEvento: this.fb.control<Date | null>(null),
+      fechaEvento: this.fb.control<Date | null>(null, Validators.required),
       presupuestoCliente: this.fb.control<number | null>(null),
-      // Opcional al crear; obligatoria para enviar la cotizacion.
-      horaInicio: this.fb.control<string | null>(null),
+      horaInicio: this.fb.control<string | null>(null, Validators.required),
     });
   }
 
