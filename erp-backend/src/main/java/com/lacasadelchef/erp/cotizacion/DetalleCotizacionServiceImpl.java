@@ -119,7 +119,9 @@ public class DetalleCotizacionServiceImpl implements DetalleCotizacionService {
         detalle.setMenu(menuPlato.getMenu());
         detalle.setPlato(menuPlato.getPlato());
         detalle.setCantidadPlatos(request.cantidadPlatos());
-        detalle.setPrecioUnitario(menuPlato.getPrecioUnitario());
+        // Precio del catalogo segun el tamano del evento (menos de 100 o desde 100 personas).
+        int personas = detalle.getCotizacionVersion().getCotizacion().getCantidadPersonas();
+        detalle.setPrecioUnitario(menuPlato.precioPorUnidadPara(personas));
         detalle.setObservaciones(request.observaciones());
     }
 }

@@ -1,6 +1,7 @@
 package com.lacasadelchef.erp.menu.dto;
 
 import com.lacasadelchef.erp.entity.Plato;
+import com.lacasadelchef.erp.entity.UnidadVenta;
 import lombok.Builder;
 
 import java.time.LocalDateTime;
@@ -11,6 +12,7 @@ public record PlatoResponse(
         String nombrePlato,
         Integer idEstado,
         String estadoNombre,
+        UnidadVenta unidadVenta,
         LocalDateTime fechaCreacion,
         LocalDateTime fechaModificacion
 ) {
@@ -21,6 +23,7 @@ public record PlatoResponse(
                 .nombrePlato(plato.getNombrePlato())
                 .idEstado(plato.getEstado().getIdEstado())
                 .estadoNombre(plato.getEstado().getNombre())
+                .unidadVenta(plato.getUnidadVenta())
                 .fechaCreacion(plato.getFechaCreacion())
                 .fechaModificacion(plato.getFechaModificacion())
                 .build();

@@ -21,7 +21,13 @@ import { interval, of, switchMap } from 'rxjs';
 import { AuthService } from '../../../core/auth/auth.service';
 import { EstadoResponse } from '../../../core/catalogos/estado';
 import { EstadoService } from '../../../core/catalogos/estado.service';
-import { MenuPlatoResponse, MenuResponse } from '../../../core/catalogos/menu';
+import {
+  MenuPlatoResponse,
+  MenuResponse,
+  PERSONAS_PRECIO_VOLUMEN,
+  PRECIO_POR,
+  precioPorUnidad,
+} from '../../../core/catalogos/menu';
 import { MenuService } from '../../../core/catalogos/menu.service';
 import { ProductoResponse } from '../../../core/catalogos/producto';
 import { ProductoService } from '../../../core/catalogos/producto.service';
@@ -290,8 +296,15 @@ export class EventoDetail implements OnInit {
 
     this.formularioMenu.controls.idPlato.valueChanges.subscribe((idPlato) => {
       const plato = this.platosDelMenu().find((p) => p.idPlato === idPlato);
-      this.precioSeleccionado.set(plato?.precioUnitario ?? null);
+      this.precioSeleccionado.set(plato ? precioPorUnidad(plato, this.evento()?.cantidadPersonas ?? 0) : null);
     });
+  }
+
+  /** Precio de catalogo que aplica segun el tamano del evento: "Q40.00 por persona", "Q800.00 el ciento". */
+  etiquetaPrecio(plato: MenuPlatoResponse): string {
+    const volumen = (this.evento()?.cantidadPersonas ?? 0) >= PERSONAS_PRECIO_VOLUMEN;
+    const precio = plato.precioDesde100 != null && volumen ? plato.precioDesde100 : plato.precioUnitario;
+    return `Q${Number(precio).toFixed(2)} ${PRECIO_POR[plato.unidadVenta]}`;
   }
 
   /**

@@ -3,6 +3,7 @@ package com.lacasadelchef.erp.menu;
 import com.lacasadelchef.erp.common.exception.ResourceNotFoundException;
 import com.lacasadelchef.erp.entity.Estado;
 import com.lacasadelchef.erp.entity.Plato;
+import com.lacasadelchef.erp.entity.UnidadVenta;
 import com.lacasadelchef.erp.menu.dto.PlatoRequest;
 import com.lacasadelchef.erp.menu.dto.PlatoResponse;
 import com.lacasadelchef.erp.repository.EstadoRepository;
@@ -72,5 +73,6 @@ public class PlatoServiceImpl implements PlatoService {
                 .orElseThrow(() -> new ResourceNotFoundException("Estado", request.idEstado()));
         plato.setNombrePlato(request.nombrePlato().trim());
         plato.setEstado(estado);
+        plato.setUnidadVenta(request.unidadVenta() == null ? UnidadVenta.PERSONA : request.unidadVenta());
     }
 }

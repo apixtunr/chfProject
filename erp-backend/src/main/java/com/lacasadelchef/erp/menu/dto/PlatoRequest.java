@@ -1,5 +1,6 @@
 package com.lacasadelchef.erp.menu.dto;
 
+import com.lacasadelchef.erp.entity.UnidadVenta;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -11,6 +12,9 @@ public record PlatoRequest(
         String nombrePlato,
 
         @NotNull(message = "El estado es obligatorio")
-        Integer idEstado
+        Integer idEstado,
+
+        /** Como se lee su precio: por persona (si viene vacio), por ciento o por unidad. */
+        UnidadVenta unidadVenta
 ) {
 }

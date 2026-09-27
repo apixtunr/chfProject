@@ -1,5 +1,6 @@
 package com.lacasadelchef.erp.menu;
 
+import com.lacasadelchef.erp.common.exception.BusinessException;
 import com.lacasadelchef.erp.common.exception.ResourceNotFoundException;
 import com.lacasadelchef.erp.entity.Estado;
 import com.lacasadelchef.erp.entity.Menu;
@@ -137,7 +138,12 @@ public class MenuServiceImpl implements MenuService {
     }
 
     private void aplicar(MenuPlatoRequest request, MenuPlato menuPlato) {
+        // El precio de volumen es un descuento por cantidad: nunca mas caro que el base.
+        if (request.precioDesde100() != null && request.precioDesde100().compareTo(request.precioUnitario()) > 0) {
+            throw new BusinessException("El precio desde 100 personas no puede ser mayor que el precio base");
+        }
         menuPlato.setPrecioUnitario(request.precioUnitario());
+        menuPlato.setPrecioDesde100(request.precioDesde100());
         menuPlato.setOrdenMenu(request.ordenMenu() == null ? 0 : request.ordenMenu());
     }
 }

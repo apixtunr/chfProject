@@ -1,6 +1,9 @@
+import { UnidadVenta } from '../../../core/catalogos/menu';
+
 export interface PlatoRequest {
   nombrePlato: string;
   idEstado: number;
+  unidadVenta: UnidadVenta;
 }
 
 export interface PlatoResponse {
@@ -8,6 +11,7 @@ export interface PlatoResponse {
   nombrePlato: string;
   idEstado: number;
   estadoNombre: string;
+  unidadVenta: UnidadVenta;
   fechaCreacion: string;
   fechaModificacion: string | null;
 }
@@ -28,6 +32,7 @@ export interface MenuResponse {
 
 export interface MenuPlatoRequest {
   precioUnitario: number;
+  precioDesde100: number | null;
   ordenMenu: number | null;
 }
 
@@ -37,4 +42,6 @@ export interface MenuPlatoResponse {
   nombrePlato: string;
   ordenMenu: number;
   precioUnitario: number;
+  precioDesde100: number | null;
+  unidadVenta: UnidadVenta;
 }

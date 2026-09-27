@@ -125,7 +125,9 @@ public class DetalleEventoServiceImpl implements DetalleEventoService {
         detalle.setMenu(menuPlato.getMenu());
         detalle.setPlato(menuPlato.getPlato());
         detalle.setCantidadPlatos(request.cantidadPlatos());
-        detalle.setPrecioUnitario(menuPlato.getPrecioUnitario());
+        // Precio del catalogo segun el tamano del evento (menos de 100 o desde 100 personas).
+        Integer personas = detalle.getEvento().getCantidadPersonas();
+        detalle.setPrecioUnitario(menuPlato.precioPorUnidadPara(personas == null ? 0 : personas));
         detalle.setObservaciones(request.observaciones());
     }
 }

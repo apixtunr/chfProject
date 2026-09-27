@@ -15,6 +15,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/auth/auth.service';
 import { ConfirmDialog } from '../../../shared/confirm-dialog/confirm-dialog';
 import { MenuPlatoService } from '../menu-plato.service';
+import { PRECIO_POR, UnidadVenta } from '../../../core/catalogos/menu';
 import { MenuPlatoResponse, MenuResponse, PlatoResponse } from '../dto/menu';
 
 const PAGINA_URL = '/api/menus';
@@ -57,21 +58,29 @@ export class MenuDetail implements OnInit {
     return this.todosLosPlatos().filter((p) => !enMenu.has(p.idPlato));
   });
 
-  readonly precioTotal = computed(() =>
-    this.platosDelMenu().reduce((suma, mp) => suma + Number(mp.precioUnitario), 0),
-  );
-
   readonly puedeAgregar: boolean;
   readonly puedeEditar: boolean;
   readonly puedeEliminar: boolean;
 
-  readonly columnas = ['ordenMenu', 'nombrePlato', 'precioUnitario', 'acciones'];
+  readonly columnas = ['ordenMenu', 'nombrePlato', 'precioUnitario', 'precioDesde100', 'acciones'];
+  /** "por persona", "el ciento" o "c/u", como se escribe junto al precio. */
+  precioPor(unidad: UnidadVenta): string {
+    return PRECIO_POR[unidad];
+  }
 
   readonly formularioPlato = this.fb.nonNullable.group({
     idPlato: this.fb.control<number | null>(null, Validators.required),
     precioUnitario: this.fb.control<number | null>(null, [Validators.required, Validators.min(0)]),
+    // Opcional: sin el, el plato cuesta lo mismo sin importar el tamano del evento.
+    precioDesde100: this.fb.control<number | null>(null, [Validators.min(0)]),
     ordenMenu: this.fb.control<number | null>(null),
   });
+
+  /** Unidad de venta del plato elegido en el formulario, para rotular el precio ("el ciento"). */
+  unidadSeleccionada(): UnidadVenta {
+    const id = this.formularioPlato.controls.idPlato.value;
+    return this.todosLosPlatos().find((p) => p.idPlato === id)?.unidadVenta ?? 'PERSONA';
+  }
 
   private idMenu!: number;
 
@@ -101,6 +110,7 @@ export class MenuDetail implements OnInit {
     this.menuPlatoService
       .agregarPlatoAMenu(this.idMenu, v.idPlato!, {
         precioUnitario: v.precioUnitario!,
+        precioDesde100: v.precioDesde100,
         ordenMenu: v.ordenMenu,
       })
       .subscribe(() => {
@@ -111,17 +121,33 @@ export class MenuDetail implements OnInit {
       });
   }
 
-  actualizarPrecio(mp: MenuPlatoResponse, valor: string): void {
-    const precio = Number(valor);
-    if (isNaN(precio) || precio < 0 || precio === Number(mp.precioUnitario)) {
+  /**
+   * Cambia uno de los dos precios desde la tabla y reenvia el otro tal como esta. Dejar
+   * vacio el de 100 personas lo quita: el plato queda con un solo precio.
+   */
+  actualizarPrecio(mp: MenuPlatoResponse, campo: 'precioUnitario' | 'precioDesde100', valor: string): void {
+    const precio = valor.trim() === '' ? null : Number(valor);
+    const actual = mp[campo] == null ? null : Number(mp[campo]);
+    if ((precio != null && (isNaN(precio) || precio < 0)) || precio === actual) {
       return;
     }
-    this.menuPlatoService
-      .actualizarPlatoDeMenu(this.idMenu, mp.idPlato, { precioUnitario: precio, ordenMenu: mp.ordenMenu })
-      .subscribe(() => {
+    if (campo === 'precioUnitario' && precio == null) {
+      this.cargarPlatos();
+      return;
+    }
+    const cambios = {
+      precioUnitario: campo === 'precioUnitario' ? precio! : Number(mp.precioUnitario),
+      precioDesde100: campo === 'precioDesde100' ? precio : mp.precioDesde100,
+      ordenMenu: mp.ordenMenu,
+    };
+    this.menuPlatoService.actualizarPlatoDeMenu(this.idMenu, mp.idPlato, cambios).subscribe({
+      next: () => {
         this.snackBar.open('Precio actualizado', 'Cerrar', { duration: 2000 });
         this.cargarPlatos();
-      });
+      },
+      // Si el backend lo rechaza (ej. el de 100 mas caro que el base), vuelve a mostrar lo guardado.
+      error: () => this.cargarPlatos(),
+    });
   }
 
   quitarPlato(mp: MenuPlatoResponse): void {

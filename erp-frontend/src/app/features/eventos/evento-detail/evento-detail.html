@@ -135,7 +135,7 @@
               <mat-select formControlName="idPlato">
                 @for (plato of platosDelMenu(); track plato.idPlato) {
                   <mat-option [value]="plato.idPlato">
-                    {{ plato.nombrePlato }} (Q{{ plato.precioUnitario | number: '1.2-2' }})
+                    {{ plato.nombrePlato }} ({{ etiquetaPrecio(plato) }})
                   </mat-option>
                 }
               </mat-select>

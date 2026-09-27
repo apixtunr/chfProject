@@ -7,17 +7,22 @@ import com.lacasadelchef.erp.cotizacion.dto.CotizacionResponse;
 import com.lacasadelchef.erp.entity.Cliente;
 import com.lacasadelchef.erp.entity.Cotizacion;
 import com.lacasadelchef.erp.entity.CotizacionVersion;
+import com.lacasadelchef.erp.entity.DetalleCotizacion;
 import com.lacasadelchef.erp.entity.Estado;
+import com.lacasadelchef.erp.entity.MenuPlato;
 import com.lacasadelchef.erp.entity.TipoEvento;
 import com.lacasadelchef.erp.entity.Ubicacion;
+import com.lacasadelchef.erp.entity.id.MenuPlatoId;
 import com.lacasadelchef.erp.repository.ClienteRepository;
 import com.lacasadelchef.erp.repository.CotizacionRepository;
 import com.lacasadelchef.erp.repository.CotizacionVersionRepository;
 import com.lacasadelchef.erp.repository.DetalleCotizacionRepository;
 import com.lacasadelchef.erp.repository.EstadoRepository;
+import com.lacasadelchef.erp.repository.MenuPlatoRepository;
 import com.lacasadelchef.erp.repository.ServicioCotizacionRepository;
 import com.lacasadelchef.erp.repository.TipoEventoRepository;
 import com.lacasadelchef.erp.repository.UbicacionRepository;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -38,6 +43,8 @@ public class CotizacionServiceImpl implements CotizacionService {
     private final CotizacionVersionRepository cotizacionVersionRepository;
     private final DetalleCotizacionRepository detalleCotizacionRepository;
     private final ServicioCotizacionRepository servicioCotizacionRepository;
+    private final MenuPlatoRepository menuPlatoRepository;
+    private final EntityManager entityManager;
     private final ClienteRepository clienteRepository;
     private final TipoEventoRepository tipoEventoRepository;
     private final UbicacionRepository ubicacionRepository;
@@ -82,8 +89,12 @@ public class CotizacionServiceImpl implements CotizacionService {
                     "La cotizacion ya fue enviada (version %d en %s): sus datos generales ya no se pueden cambiar"
                             .formatted(ultima.getNumeroVersion(), ultima.getEstado().getNombre()));
         }
+        boolean eraDeVolumen = esDeVolumen(cotizacion.getCantidadPersonas());
         aplicar(request, cotizacion);
         cotizacion = cotizacionRepository.save(cotizacion);
+        if (ultima != null && eraDeVolumen != esDeVolumen(cotizacion.getCantidadPersonas())) {
+            reajustarPrecios(ultima, cotizacion.getCantidadPersonas());
+        }
         return CotizacionResponse.desde(cotizacion, ultima);
     }
 
@@ -118,6 +129,25 @@ public class CotizacionServiceImpl implements CotizacionService {
         version.setEstado(creada);
         version.setNumeroVersion(1);
         return cotizacionVersionRepository.save(version);
+    }
+
+    private static boolean esDeVolumen(Integer personas) {
+        return personas != null && personas >= MenuPlato.PERSONAS_PRECIO_VOLUMEN;
+    }
+
+    /**
+     * El evento cruzo las 100 personas (en un sentido u otro): los platos del borrador pasan
+     * al precio de la nueva escala. Los que ya no estan en el catalogo conservan su precio.
+     */
+    private void reajustarPrecios(CotizacionVersion version, int personas) {
+        for (DetalleCotizacion detalle :
+                detalleCotizacionRepository.findByCotizacionVersionIdCotizacionVersion(version.getIdCotizacionVersion())) {
+            menuPlatoRepository.findById(new MenuPlatoId(detalle.getMenu().getIdMenu(), detalle.getPlato().getIdPlato()))
+                    .ifPresent(menuPlato -> detalle.setPrecioUnitario(menuPlato.precioPorUnidadPara(personas)));
+        }
+        // El total de la version lo recalcula un trigger al actualizar los platos.
+        entityManager.flush();
+        entityManager.refresh(version);
     }
 
     private CotizacionVersion buscarUltimaVersion(Integer idCotizacion) {

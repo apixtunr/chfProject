@@ -44,3 +44,14 @@
   border: 1px solid rgba(0, 0, 0, 0.3);
   border-radius: 4px;
 }
+
+// Precio y su unidad ("por persona") en una sola linea.
+.col-precio {
+  white-space: nowrap;
+}
+
+.precio-por {
+  margin-left: 6px;
+  font-size: 0.78rem;
+  color: var(--chf-texto-suave);
+}

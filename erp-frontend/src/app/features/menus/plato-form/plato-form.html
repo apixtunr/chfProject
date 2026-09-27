@@ -19,6 +19,16 @@
         </mat-select>
       </mat-form-field>
 
+      <mat-form-field appearance="outline" class="campo">
+        <mat-label>Se vende</mat-label>
+        <mat-select formControlName="unidadVenta">
+          <mat-option value="PERSONA">Por persona</mat-option>
+          <mat-option value="CIENTO">Por ciento (boquitas)</mat-option>
+          <mat-option value="UNIDAD">Por unidad</mat-option>
+        </mat-select>
+        <mat-hint>Cómo se lee su precio en el menú: "Q800.00 el ciento" se cotiza a Q8.00 por unidad</mat-hint>
+      </mat-form-field>
+
       <div class="acciones">
         <button mat-button type="button" routerLink="/menus/platos">Cancelar</button>
         <button mat-flat-button color="primary" type="submit" [disabled]="guardando()">Guardar</button>

@@ -16,7 +16,15 @@ import { finalize, timer, zip } from 'rxjs';
 import { AuthService } from '../../../core/auth/auth.service';
 import { EstadoResponse } from '../../../core/catalogos/estado';
 import { EstadoService } from '../../../core/catalogos/estado.service';
-import { MenuPlatoResponse, MenuResponse } from '../../../core/catalogos/menu';
+import {
+  MINIMO_PERSONAS,
+  MenuPlatoResponse,
+  MenuResponse,
+  PERSONAS_PRECIO_VOLUMEN,
+  PRECIO_POR,
+  UnidadVenta,
+  precioPorUnidad,
+} from '../../../core/catalogos/menu';
 import { MenuService } from '../../../core/catalogos/menu.service';
 import { TipoServicioResponse } from '../../../core/catalogos/tipo-servicio';
 import { TipoServicioService } from '../../../core/catalogos/tipo-servicio.service';
@@ -83,6 +91,14 @@ export class VersionDetalle implements OnInit {
   /** Platos disponibles dentro del menu (categoria) elegido en el formulario. */
   readonly platosDelMenu = signal<MenuPlatoResponse[]>([]);
   readonly precioSeleccionado = signal<number | null>(null);
+  /** Como se vende el plato elegido: cambia si la cantidad son porciones o unidades. */
+  readonly unidadSeleccionada = signal<UnidadVenta>('PERSONA');
+
+  readonly personas = computed(() => this.cotizacion()?.cantidadPersonas ?? 0);
+  /** Evento de 100 personas o mas: los platos que tienen precio de volumen se cobran a ese precio. */
+  readonly aplicaPrecioVolumen = computed(() => this.personas() >= PERSONAS_PRECIO_VOLUMEN);
+  readonly debajoDelMinimo = computed(() => this.personas() > 0 && this.personas() < MINIMO_PERSONAS);
+  readonly minimoPersonas = MINIMO_PERSONAS;
   readonly estadosCotizacion = signal<EstadoResponse[]>([]);
   readonly idDetalleEditando = signal<number | null>(null);
   readonly descargandoPdf = signal(false);
@@ -158,8 +174,19 @@ export class VersionDetalle implements OnInit {
 
     this.formulario.controls.idPlato.valueChanges.subscribe((idPlato) => {
       const plato = this.platosDelMenu().find((p) => p.idPlato === idPlato);
-      this.precioSeleccionado.set(plato?.precioUnitario ?? null);
+      this.precioSeleccionado.set(plato ? precioPorUnidad(plato, this.personas()) : null);
+      this.unidadSeleccionada.set(plato?.unidadVenta ?? 'PERSONA');
     });
+  }
+
+  /**
+   * Precio de catalogo que aplica a este evento, como lo dice el menu: "Q40.00 por persona"
+   * o "Q800.00 el ciento".
+   */
+  etiquetaPrecio(plato: MenuPlatoResponse): string {
+    const precio =
+      plato.precioDesde100 != null && this.aplicaPrecioVolumen() ? plato.precioDesde100 : plato.precioUnitario;
+    return `Q${Number(precio).toFixed(2)} ${PRECIO_POR[plato.unidadVenta]}`;
   }
 
   cargar(): void {

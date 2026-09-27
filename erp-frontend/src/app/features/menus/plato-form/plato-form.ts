@@ -9,6 +9,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { EstadoResponse } from '../../../core/catalogos/estado';
 import { EstadoService } from '../../../core/catalogos/estado.service';
+import { UnidadVenta } from '../../../core/catalogos/menu';
 import { MenuPlatoService } from '../menu-plato.service';
 
 const TIPO_ESTADO_GENERAL = 'GENERAL';
@@ -34,6 +35,7 @@ export class PlatoForm implements OnInit {
   readonly formulario = this.fb.nonNullable.group({
     nombrePlato: ['', [Validators.required, Validators.maxLength(120)]],
     idEstado: this.fb.control<number | null>(null, Validators.required),
+    unidadVenta: this.fb.nonNullable.control<UnidadVenta>('PERSONA', Validators.required),
   });
 
   ngOnInit(): void {
@@ -46,7 +48,11 @@ export class PlatoForm implements OnInit {
     const id = Number(idParam);
     this.idPlato.set(id);
     this.menuPlatoService.obtenerPlato(id).subscribe((plato) => {
-      this.formulario.patchValue({ nombrePlato: plato.nombrePlato, idEstado: plato.idEstado });
+      this.formulario.patchValue({
+        nombrePlato: plato.nombrePlato,
+        idEstado: plato.idEstado,
+        unidadVenta: plato.unidadVenta,
+      });
     });
   }
 
@@ -58,7 +64,7 @@ export class PlatoForm implements OnInit {
 
     this.guardando.set(true);
     const v = this.formulario.getRawValue();
-    const request = { nombrePlato: v.nombrePlato.trim(), idEstado: v.idEstado! };
+    const request = { nombrePlato: v.nombrePlato.trim(), idEstado: v.idEstado!, unidadVenta: v.unidadVenta };
 
     const id = this.idPlato();
     const operacion = id ? this.menuPlatoService.actualizarPlato(id, request) : this.menuPlatoService.crearPlato(request);

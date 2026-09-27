@@ -12,6 +12,7 @@ import { DepartamentoResponse } from '../../../core/catalogos/departamento';
 import { DepartamentoService } from '../../../core/catalogos/departamento.service';
 import { MunicipioResponse } from '../../../core/catalogos/municipio';
 import { MunicipioService } from '../../../core/catalogos/municipio.service';
+import { MINIMO_PERSONAS } from '../../../core/catalogos/menu';
 import { TipoEventoResponse } from '../../../core/catalogos/tipo-evento';
 import { TipoEventoService } from '../../../core/catalogos/tipo-evento.service';
 import { UbicacionService } from '../../../core/catalogos/ubicacion.service';
@@ -53,6 +54,7 @@ export class CotizacionForm implements OnInit {
   readonly municipios = signal<MunicipioResponse[]>([]);
 
   readonly guardando = signal(false);
+  readonly minimoPersonas = MINIMO_PERSONAS;
   /** El evento no puede ser en el pasado (el backend lo vuelve a validar). */
   readonly hoy = new Date(new Date().setHours(0, 0, 0, 0));
 
@@ -104,6 +106,12 @@ export class CotizacionForm implements OnInit {
         }),
       )
       .subscribe((page) => this.clientesFiltrados.set(page?.content ?? []));
+  }
+
+  /** Solo avisa: la empresa atiende desde 50 personas, pero la decision es de quien cotiza. */
+  debajoDelMinimo(): boolean {
+    const personas = this.formulario.controls.cantidadPersonas.value;
+    return personas != null && personas > 0 && personas < MINIMO_PERSONAS;
   }
 
   mostrarCliente(cliente: ClienteResponse | string | null): string {

@@ -11,6 +11,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/auth/auth.service';
+import { PRECIO_POR, UnidadVenta } from '../../../core/catalogos/menu';
 import { ConfirmDialog } from '../../../shared/confirm-dialog/confirm-dialog';
 import { MenuPlatoService } from '../menu-plato.service';
 import { PlatoResponse } from '../dto/menu';
@@ -56,8 +57,13 @@ export class PlatoList implements OnInit {
     this.puedeEliminar = this.authService.tienePermiso(PAGINA_URL, 'baja');
   }
 
+  /** "por persona", "el ciento" o "c/u", como se escribe junto al precio. */
+  precioPor(unidad: UnidadVenta): string {
+    return PRECIO_POR[unidad];
+  }
+
   get columnas(): string[] {
-    const base = ['nombrePlato', 'estado'];
+    const base = ['nombrePlato', 'unidadVenta', 'estado'];
     return this.puedeEditar || this.puedeEliminar ? [...base, 'acciones'] : base;
   }
 

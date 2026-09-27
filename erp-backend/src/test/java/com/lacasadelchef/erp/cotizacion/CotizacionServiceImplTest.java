@@ -14,6 +14,16 @@ import com.lacasadelchef.erp.repository.EstadoRepository;
 import com.lacasadelchef.erp.repository.ServicioCotizacionRepository;
 import com.lacasadelchef.erp.repository.TipoEventoRepository;
 import com.lacasadelchef.erp.repository.UbicacionRepository;
+import com.lacasadelchef.erp.repository.MenuPlatoRepository;
+import jakarta.persistence.EntityManager;
+import com.lacasadelchef.erp.entity.DetalleCotizacion;
+import com.lacasadelchef.erp.entity.Menu;
+import com.lacasadelchef.erp.entity.MenuPlato;
+import com.lacasadelchef.erp.entity.Plato;
+import com.lacasadelchef.erp.entity.TipoEvento;
+import com.lacasadelchef.erp.entity.Ubicacion;
+import com.lacasadelchef.erp.entity.id.MenuPlatoId;
+import java.math.BigDecimal;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,6 +35,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
@@ -38,6 +49,8 @@ class CotizacionServiceImplTest {
     @Mock private CotizacionVersionRepository cotizacionVersionRepository;
     @Mock private DetalleCotizacionRepository detalleCotizacionRepository;
     @Mock private ServicioCotizacionRepository servicioCotizacionRepository;
+    @Mock private MenuPlatoRepository menuPlatoRepository;
+    @Mock private EntityManager entityManager;
     @Mock private ClienteRepository clienteRepository;
     @Mock private TipoEventoRepository tipoEventoRepository;
     @Mock private UbicacionRepository ubicacionRepository;
@@ -127,5 +140,41 @@ class CotizacionServiceImplTest {
 
         verify(cotizacionVersionRepository).delete(version);
         verify(cotizacionRepository).delete(cotizacion);
+    }
+
+    @Test
+    @DisplayName("Si el borrador pasa de 80 a 120 personas, sus platos bajan al precio desde 100")
+    void cruzarLas100PersonasReajustaPrecios() {
+        Cotizacion cotizacion = cotizacion();
+        cotizacion.setCantidadPersonas(80);
+        CotizacionVersion borrador = version(1, "CREADA");
+        Menu menu = new Menu();
+        menu.setIdMenu(11);
+        Plato lomo = new Plato();
+        lomo.setIdPlato(31);
+        DetalleCotizacion linea = new DetalleCotizacion();
+        linea.setMenu(menu);
+        linea.setPlato(lomo);
+        linea.setPrecioUnitario(new BigDecimal("45.00"));
+        MenuPlato catalogo = new MenuPlato();
+        catalogo.setPlato(lomo);
+        catalogo.setPrecioUnitario(new BigDecimal("45.00"));
+        catalogo.setPrecioDesde100(new BigDecimal("40.00"));
+
+        when(cotizacionRepository.findById(10)).thenReturn(Optional.of(cotizacion));
+        when(cotizacionVersionRepository.findByCotizacionIdCotizacionOrderByNumeroVersionDesc(10))
+                .thenReturn(List.of(borrador));
+        when(clienteRepository.findById(1)).thenReturn(Optional.of(cotizacion.getCliente()));
+        when(tipoEventoRepository.findById(1)).thenReturn(Optional.of(new TipoEvento()));
+        when(ubicacionRepository.findById(1)).thenReturn(Optional.of(new Ubicacion()));
+        when(cotizacionRepository.save(any(Cotizacion.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(detalleCotizacionRepository.findByCotizacionVersionIdCotizacionVersion(borrador.getIdCotizacionVersion()))
+                .thenReturn(List.of(linea));
+        when(menuPlatoRepository.findById(new MenuPlatoId(11, 31))).thenReturn(Optional.of(catalogo));
+
+        CotizacionRequest a120 = new CotizacionRequest(1, 1, 1, 120, LocalDate.now().plusDays(30), null);
+        cotizacionService.actualizar(10, a120);
+
+        assertThat(linea.getPrecioUnitario()).isEqualByComparingTo("40.00");
     }
 }
