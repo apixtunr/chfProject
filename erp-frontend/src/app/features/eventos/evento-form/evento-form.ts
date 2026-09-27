@@ -1,4 +1,4 @@
-import { DatePipe } from '@angular/common';
+import { DatePipe, DecimalPipe } from '@angular/common';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
@@ -27,6 +27,7 @@ import { EventoService } from '../evento.service';
   selector: 'app-evento-form',
   imports: [
     DatePipe,
+    DecimalPipe,
     ReactiveFormsModule,
     RouterLink,
     MatCardModule,

@@ -20,7 +20,7 @@
           <mat-select formControlName="idCotizacionVersion">
             @for (c of cotizacionesAceptadas(); track c.ultimaVersionId) {
               <mat-option [value]="c.ultimaVersionId">
-                #{{ c.idCotizacion }} - {{ c.clienteNombre }} (Q{{ c.ultimaVersionMonto }})
+                #{{ c.idCotizacion }} - {{ c.clienteNombre }} (Q{{ c.ultimaVersionMonto | number: '1.2-2' }})
               </mat-option>
             }
           </mat-select>
