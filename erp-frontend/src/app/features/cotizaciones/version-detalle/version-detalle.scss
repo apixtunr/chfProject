@@ -65,3 +65,10 @@
 .bebida-pendiente {
   color: var(--chf-estado-aviso);
 }
+
+// "vence en 5 dias (dd/MM/yyyy)" junto al estado de una version ENVIADA.
+.vigencia {
+  margin-left: 8px;
+  font-size: 0.8rem;
+  color: var(--chf-estado-aviso);
+}

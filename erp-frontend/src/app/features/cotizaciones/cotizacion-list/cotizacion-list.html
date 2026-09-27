@@ -47,6 +47,11 @@
           <span class="estado-chip estado-chip--{{ c.ultimaVersionEstado | lowercase }}">
             {{ c.ultimaVersionEstado }}
           </span>
+          @if (c.ultimaVersionEstado === 'ENVIADA' && c.ultimaVersionVigenteHasta) {
+            <span class="vigencia" [class.vigencia--pronto]="diasDeVigencia(c.ultimaVersionVigenteHasta) <= 3">
+              {{ textoVigencia(c.ultimaVersionVigenteHasta) }}
+            </span>
+          }
         }
       </td>
     </ng-container>

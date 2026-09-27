@@ -4,11 +4,15 @@ import com.lacasadelchef.erp.entity.CotizacionVersion;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public interface CotizacionVersionRepository extends JpaRepository<CotizacionVersion, Integer> {
 
     List<CotizacionVersion> findByCotizacionIdCotizacionOrderByNumeroVersionDesc(Integer idCotizacion);
+
+    /** Para vencer: versiones en el estado indicado cuya vigencia termino antes de la fecha. */
+    List<CotizacionVersion> findByEstadoNombreAndVigenteHastaBefore(String estado, LocalDate fecha);
 
     /** true si alguna version de la cotizacion ya salio del estado indicado (ej. ya se envio). */
     boolean existsByCotizacionIdCotizacionAndEstadoNombreNot(Integer idCotizacion, String estado);

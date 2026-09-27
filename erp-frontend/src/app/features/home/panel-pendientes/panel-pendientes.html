@@ -150,6 +150,9 @@
                 @if (yaPaso(c.fechaEvento)) {
                   · <strong class="texto-alerta">ya se realizó</strong>
                 }
+                @if (c.anticipoFaltante) {
+                  · <strong class="texto-alerta">falta el primer 50%: Q {{ c.anticipoFaltante | number: '1.2-2' }}</strong>
+                }
               </span>
               <span class="barra" [matTooltip]="porcentaje(c.abonado, c.total) + '% cobrado'">
                 <span class="barra-valor" [style.width.%]="porcentaje(c.abonado, c.total)"></span>

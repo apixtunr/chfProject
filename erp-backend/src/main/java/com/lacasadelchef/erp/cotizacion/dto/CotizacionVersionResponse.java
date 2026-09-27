@@ -4,6 +4,7 @@ import com.lacasadelchef.erp.entity.CotizacionVersion;
 import lombok.Builder;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Builder
@@ -15,6 +16,8 @@ public record CotizacionVersionResponse(
         Integer numeroVersion,
         BigDecimal montoTotal,
         LocalDateTime fechaVersion,
+        LocalDateTime fechaEnvio,
+        LocalDate vigenteHasta,
         LocalDateTime fechaCreacion,
         LocalDateTime fechaModificacion
 ) {
@@ -28,6 +31,8 @@ public record CotizacionVersionResponse(
                 .numeroVersion(version.getNumeroVersion())
                 .montoTotal(version.getMontoTotal())
                 .fechaVersion(version.getFechaVersion())
+                .fechaEnvio(version.getFechaEnvio())
+                .vigenteHasta(version.getVigenteHasta())
                 .fechaCreacion(version.getFechaCreacion())
                 .fechaModificacion(version.getFechaModificacion())
                 .build();

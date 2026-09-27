@@ -19,6 +19,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -33,16 +35,22 @@ public class CotizacionVersionServiceImpl implements CotizacionVersionService {
     private static final String ESTADO_ENVIADA = "ENVIADA";
     private static final String ESTADO_ACEPTADA = "ACEPTADA";
     private static final String ESTADO_RECHAZADA = "RECHAZADA";
+    private static final String ESTADO_REEMPLAZADA = "REEMPLAZADA";
+    static final String ESTADO_VENCIDA = "VENCIDA";
 
     /**
-     * Maquina de estados de una version de cotizacion. ACEPTADA y RECHAZADA son
-     * terminales (no aparecen como llave): si el cliente pide mas cambios despues de
-     * un rechazo, se crea una version nueva (siempre nace en CREADA) en vez de
-     * reabrir la rechazada.
+     * Maquina de estados de una version de cotizacion, para los cambios que hace el
+     * usuario. ACEPTADA, RECHAZADA, VENCIDA y REEMPLAZADA son terminales (no aparecen
+     * como llave). VENCIDA la pone la tarea automatica cuando pasa la vigencia
+     * (CotizacionVencimientoJob) y REEMPLAZADA se pone sola al crear una version nueva
+     * sobre una ENVIADA; ninguna de las dos se elige a mano.
      */
     private static final Map<String, Set<String>> TRANSICIONES_VALIDAS = Map.of(
             ESTADO_CREADA, Set.of(ESTADO_ENVIADA),
             ESTADO_ENVIADA, Set.of(ESTADO_ACEPTADA, ESTADO_RECHAZADA));
+
+    /** Sobre que ultima version se puede crear otra: lo que el cliente no acepto. */
+    private static final Set<String> PERMITEN_VERSION_NUEVA = Set.of(ESTADO_ENVIADA, ESTADO_RECHAZADA, ESTADO_VENCIDA);
 
     private final CotizacionVersionRepository cotizacionVersionRepository;
     private final CotizacionRepository cotizacionRepository;
@@ -50,6 +58,7 @@ public class CotizacionVersionServiceImpl implements CotizacionVersionService {
     private final ServicioCotizacionRepository servicioCotizacionRepository;
     private final EstadoRepository estadoRepository;
     private final EntityManager entityManager;
+    private final CondicionesComerciales condicionesComerciales;
 
     @Override
     @Transactional(readOnly = true)
@@ -76,15 +85,26 @@ public class CotizacionVersionServiceImpl implements CotizacionVersionService {
             throw new ResourceNotFoundException("La cotizacion %d no tiene versiones previas".formatted(idCotizacion));
         }
         CotizacionVersion ultima = versiones.get(0);
-        if (!ESTADO_RECHAZADA.equalsIgnoreCase(ultima.getEstado().getNombre())) {
-            throw new BusinessException(
-                    "Solo se puede crear una nueva version cuando la ultima quedo en RECHAZADA (actual: %s)"
-                            .formatted(ultima.getEstado().getNombre()));
+        String estadoUltima = ultima.getEstado().getNombre().toUpperCase();
+        if (ESTADO_CREADA.equals(estadoUltima)) {
+            throw new BusinessException("La versión %d todavía no se ha enviado: haga los cambios en ella"
+                    .formatted(ultima.getNumeroVersion()));
+        }
+        if (ESTADO_ACEPTADA.equals(estadoUltima)) {
+            throw new BusinessException("La versión %d ya fue aceptada: los cambios se hacen en el evento"
+                    .formatted(ultima.getNumeroVersion()));
+        }
+        if (!PERMITEN_VERSION_NUEVA.contains(estadoUltima)) {
+            throw new BusinessException("No se puede crear una versión nueva sobre una versión %s".formatted(estadoUltima));
         }
 
-        Estado creada = estadoRepository.findByTipoEstadoNombreTipoAndNombre(TIPO_ESTADO_COTIZACION, ESTADO_CREADA)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "No existe el estado %s/%s (revisar datos semilla)".formatted(TIPO_ESTADO_COTIZACION, ESTADO_CREADA)));
+        // El cliente pidio cambios a la que tenia en la mano: esa ya no se puede aceptar.
+        if (ESTADO_ENVIADA.equals(estadoUltima)) {
+            ultima.setEstado(buscarEstado(ESTADO_REEMPLAZADA));
+            cotizacionVersionRepository.save(ultima);
+        }
+
+        Estado creada = buscarEstado(ESTADO_CREADA);
 
         CotizacionVersion nueva = new CotizacionVersion();
         nueva.setCotizacion(cotizacion);
@@ -153,6 +173,15 @@ public class CotizacionVersionServiceImpl implements CotizacionVersionService {
 
         if (ESTADO_ENVIADA.equals(estadoDestino)) {
             validarListaParaEnviar(version);
+            // La vigencia corre desde que el cliente la recibe y queda fija aunque despues
+            // se cambie app.cotizacion.vigencia-dias: es lo que dice el PDF que se le mando.
+            version.setFechaEnvio(LocalDateTime.now());
+            version.setVigenteHasta(LocalDate.now().plusDays(condicionesComerciales.vigenciaDias()));
+        } else if (ESTADO_ACEPTADA.equals(estadoDestino) && version.getVigenteHasta() != null
+                && version.getVigenteHasta().isBefore(LocalDate.now())) {
+            // Por si la tarea automatica todavia no la paso a VENCIDA.
+            throw new BusinessException("La cotización venció el %s. Cree una versión nueva con los precios actuales"
+                    .formatted(version.getVigenteHasta().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))));
         }
         version.setEstado(estado);
         version = cotizacionVersionRepository.save(version);
@@ -203,6 +232,12 @@ public class CotizacionVersionServiceImpl implements CotizacionVersionService {
             return partes.get(0);
         }
         return String.join(", ", partes.subList(0, partes.size() - 1)) + " y " + partes.get(partes.size() - 1);
+    }
+
+    private Estado buscarEstado(String nombre) {
+        return estadoRepository.findByTipoEstadoNombreTipoAndNombre(TIPO_ESTADO_COTIZACION, nombre)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "No existe el estado %s/%s (revisar datos semilla)".formatted(TIPO_ESTADO_COTIZACION, nombre)));
     }
 
     private CotizacionVersion buscarVersion(Integer id) {

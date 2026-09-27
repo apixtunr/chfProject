@@ -14,6 +14,9 @@
       <div class="pf-title-row">
         <h1 class="pf-title">Version {{ v.numeroVersion }}</h1>
         <span class="pf-badge">{{ v.estadoNombre }}</span>
+        @if (v.estadoNombre === 'ENVIADA' && v.vigenteHasta) {
+          <span class="vigencia">{{ textoVigencia(v.vigenteHasta) }} ({{ v.vigenteHasta | date: 'dd/MM/yyyy' }})</span>
+        }
       </div>
 
       <p class="pf-subtitle">

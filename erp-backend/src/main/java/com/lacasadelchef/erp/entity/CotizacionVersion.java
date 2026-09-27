@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
@@ -38,4 +39,12 @@ public class CotizacionVersion extends Auditable {
 
     @Column(name = "fecha_version", insertable = false, updatable = false)
     private LocalDateTime fechaVersion;
+
+    /** Cuando se envio al cliente; null mientras es borrador. */
+    @Column(name = "fecha_envio")
+    private LocalDateTime fechaEnvio;
+
+    /** Ultimo dia en que el cliente puede aceptarla; despues pasa a VENCIDA. */
+    @Column(name = "vigente_hasta")
+    private LocalDate vigenteHasta;
 }

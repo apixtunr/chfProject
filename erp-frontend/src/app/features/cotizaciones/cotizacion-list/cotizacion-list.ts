@@ -11,7 +11,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/auth/auth.service';
 import { CotizacionService } from '../cotizacion.service';
-import { CotizacionResponse } from '../dto/cotizacion';
+import { CotizacionResponse, diasDeVigencia, textoVigencia } from '../dto/cotizacion';
 
 const PAGINA_URL = '/api/cotizaciones';
 
@@ -41,6 +41,9 @@ export class CotizacionList implements OnInit {
   readonly totalElements = signal(0);
   readonly pageIndex = signal(0);
   readonly pageSize = signal(20);
+
+  readonly diasDeVigencia = diasDeVigencia;
+  readonly textoVigencia = textoVigencia;
 
   readonly columnas = ['cliente', 'tipoEvento', 'fechaCotizacion', 'estado', 'monto', 'acciones'];
 

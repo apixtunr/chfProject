@@ -25,10 +25,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -68,6 +70,9 @@ public class InicioServiceImpl implements InicioService {
     /** Ventana para anticipar faltantes de insumos: lo que se va a consumir en estas dos semanas. */
     private static final int DIAS_INSUMOS = 14;
     private static final int LIMITE_LISTA = 8;
+    /** Forma de pago del menu: el primer 50% se paga una semana antes del evento. */
+    private static final int DIAS_ANTICIPO = 7;
+    private static final BigDecimal PORCION_ANTICIPO = new BigDecimal("0.50");
 
     private final EntityManager em;
     private final RolOpcionRepository rolOpcionRepository;
@@ -168,12 +173,15 @@ public class InicioServiceImpl implements InicioService {
                     """, VPagoEvento.class)
                     .setParameter("cancelado", ESTADO_CANCELADO)
                     .getResultList();
-            // Lo mas urgente primero: lo que ya paso o esta por pasar y sigue sin pagarse.
+            // Lo mas urgente primero: los eventos de esta semana sin el primer 50%, y despues
+            // lo que ya paso o esta por pasar y sigue sin pagarse.
             panel.cobrosPendientes(conSaldo.stream()
                     .filter(v -> !v.getFechaEvento().isAfter(hoy.plusDays(30)))
-                    .limit(LIMITE_LISTA)
                     .map(v -> new CobroPanelResponse(v.getIdEvento(), v.getFechaEvento(), v.getClienteNombre(),
-                            v.getTipoEventoNombre(), v.getEstadoNombre(), v.getTotal(), v.getAbonado(), v.getPendiente()))
+                            v.getTipoEventoNombre(), v.getEstadoNombre(), v.getTotal(), v.getAbonado(), v.getPendiente(),
+                            anticipoFaltante(v, hoy)))
+                    .sorted(Comparator.comparing((CobroPanelResponse c) -> c.anticipoFaltante() == null))
+                    .limit(LIMITE_LISTA)
                     .toList());
             resumen.saldoPendiente(conSaldo.stream().map(VPagoEvento::getPendiente).reduce(BigDecimal.ZERO, BigDecimal::add));
             resumen.eventosConSaldo((long) conSaldo.size());
@@ -266,6 +274,16 @@ public class InicioServiceImpl implements InicioService {
             mapa.computeIfAbsent((Integer) fila[0], k -> new LinkedHashSet<>()).add((String) fila[1]);
         }
         return mapa;
+    }
+
+    /** Lo que falta del primer 50% si el evento es en los proximos 7 dias; null si no aplica. */
+    static BigDecimal anticipoFaltante(VPagoEvento v, LocalDate hoy) {
+        if (v.getFechaEvento().isBefore(hoy) || v.getFechaEvento().isAfter(hoy.plusDays(DIAS_ANTICIPO))) {
+            return null;
+        }
+        BigDecimal anticipo = v.getTotal().multiply(PORCION_ANTICIPO).setScale(2, RoundingMode.HALF_UP);
+        BigDecimal falta = anticipo.subtract(v.getAbonado() == null ? BigDecimal.ZERO : v.getAbonado());
+        return falta.signum() > 0 ? falta : null;
     }
 
     // ---------------------------------------------------------------- cotizacion

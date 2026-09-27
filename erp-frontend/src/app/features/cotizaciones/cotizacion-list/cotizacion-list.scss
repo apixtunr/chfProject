@@ -138,9 +138,9 @@ mat-paginator {
 //
 // El nombre de la variante lo arma la plantilla con el estado en minusculas
 // (estado-chip--{{ estado | lowercase }}), asi que estos nombres tienen que ser
-// exactamente los cuatro estados de la tabla `estado`: CREADA, ENVIADA, ACEPTADA y
-// RECHAZADA. Antes decian borrador/pendiente/aprobada y solo coincidia una, por lo que
-// tres de los cuatro estados salian sin fondo, como texto suelto.
+// exactamente los estados de la tabla `estado`: CREADA, ENVIADA, ACEPTADA, RECHAZADA,
+// VENCIDA y REEMPLAZADA. Antes decian borrador/pendiente/aprobada y solo coincidia una,
+// por lo que casi todos los estados salian sin fondo, como texto suelto.
 //
 // Los colores son los mismos que usan las demas pantallas con estados (bitacora,
 // inventario, pagos), para que un ACEPTADA se vea igual en todo el sistema.
@@ -167,5 +167,26 @@ mat-paginator {
   &--rechazada {
     background-color: var(--chf-estado-peligro-fondo);
     color: var(--chf-estado-peligro);
+  }
+  &--vencida {
+    background-color: var(--chf-estado-aviso-fondo);
+    color: var(--chf-estado-aviso);
+  }
+  &--reemplazada {
+    background-color: var(--chf-estado-neutro-fondo);
+    color: var(--chf-estado-neutro);
+  }
+}
+
+// "vence en 5 dias" debajo de una cotizacion ENVIADA; en ambar si le quedan 3 dias o menos.
+.vigencia {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.75rem;
+  color: var(--chf-texto-medio);
+
+  &--pronto {
+    color: var(--chf-estado-aviso);
+    font-weight: 600;
   }
 }

@@ -47,6 +47,9 @@
       <th mat-header-cell *matHeaderCellDef>Estado</th>
       <td mat-cell *matCellDef="let v">
         <mat-chip [color]="colorEstado(v.estadoNombre)" highlighted>{{ v.estadoNombre }}</mat-chip>
+        @if (v.estadoNombre === 'ENVIADA' && v.vigenteHasta) {
+          <span class="vigencia">{{ textoVigencia(v.vigenteHasta) }} ({{ v.vigenteHasta | date: 'dd/MM/yyyy' }})</span>
+        }
       </td>
     </ng-container>
 

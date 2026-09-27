@@ -30,6 +30,8 @@ public record CotizacionResponse(
         Integer ultimaVersionNumero,
         String ultimaVersionEstado,
         BigDecimal ultimaVersionMonto,
+        /** Hasta que dia vale la ultima version si esta ENVIADA (para el aviso "vence en X dias"). */
+        LocalDate ultimaVersionVigenteHasta,
         LocalDateTime fechaCreacion,
         LocalDateTime fechaModificacion
 ) {
@@ -55,6 +57,7 @@ public record CotizacionResponse(
                 .ultimaVersionNumero(ultimaVersion != null ? ultimaVersion.getNumeroVersion() : null)
                 .ultimaVersionEstado(ultimaVersion != null ? ultimaVersion.getEstado().getNombre() : null)
                 .ultimaVersionMonto(ultimaVersion != null ? ultimaVersion.getMontoTotal() : null)
+                .ultimaVersionVigenteHasta(ultimaVersion != null ? ultimaVersion.getVigenteHasta() : null)
                 .fechaCreacion(cotizacion.getFechaCreacion())
                 .fechaModificacion(cotizacion.getFechaModificacion())
                 .build();

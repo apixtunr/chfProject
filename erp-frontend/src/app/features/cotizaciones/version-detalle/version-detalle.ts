@@ -36,6 +36,7 @@ import {
   DetalleCotizacionResponse,
   ServicioCotizacionResponse,
   TRANSICIONES_VALIDAS,
+  textoVigencia,
 } from '../dto/cotizacion';
 
 const PAGINA_URL = '/api/cotizaciones';
@@ -108,6 +109,7 @@ export class VersionDetalle implements OnInit {
   readonly servicios = signal<ServicioCotizacionResponse[]>([]);
   readonly tiposServicio = signal<TipoServicioResponse[]>([]);
   readonly idServicioEditando = signal<number | null>(null);
+  readonly textoVigencia = textoVigencia;
   /** Tipo que tenia la linea que se esta editando: se muestra aunque ya no se ofrezca. */
   private readonly idTipoServicioEditando = signal<number | null>(null);
   /** Solo los servicios que se ofrecen; los desactivados quedan en las cotizaciones viejas. */

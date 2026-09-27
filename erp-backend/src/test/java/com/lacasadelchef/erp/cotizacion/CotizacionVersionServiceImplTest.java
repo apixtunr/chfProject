@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
@@ -47,6 +48,7 @@ class CotizacionVersionServiceImplTest {
     @Mock private ServicioCotizacionRepository servicioCotizacionRepository;
     @Mock private EstadoRepository estadoRepository;
     @Mock private EntityManager entityManager;
+    @Spy private CondicionesComerciales condicionesComerciales = new CondicionesComerciales(15);
     @InjectMocks private CotizacionVersionServiceImpl versionService;
 
     private static Estado estado(int id, String nombre) {
@@ -72,7 +74,7 @@ class CotizacionVersionServiceImplTest {
         version.setEstado(estado(1, "CREADA"));
         version.setMontoTotal(new BigDecimal(montoTotal));
         when(cotizacionVersionRepository.findById(ID_VERSION)).thenReturn(Optional.of(version));
-        when(estadoRepository.findById(ID_ENVIADA)).thenReturn(Optional.of(estado(ID_ENVIADA, "ENVIADA")));
+        lenient().when(estadoRepository.findById(ID_ENVIADA)).thenReturn(Optional.of(estado(ID_ENVIADA, "ENVIADA")));
         return version;
     }
 
@@ -143,6 +145,87 @@ class CotizacionVersionServiceImplTest {
         CotizacionVersionResponse response = versionService.cambiarEstado(ID_VERSION, ID_ENVIADA);
 
         assertThat(response.estadoNombre()).isEqualTo("ENVIADA");
+        assertThat(response.fechaEnvio()).isNotNull();
+        assertThat(response.vigenteHasta()).isEqualTo(LocalDate.now().plusDays(15));
+    }
+
+    @Test
+    @DisplayName("Aceptar una cotizacion cuya vigencia ya paso se rechaza, aunque la tarea no la haya vencido")
+    void aceptarVencidaSeRechaza() {
+        CotizacionVersion version = prepararCreada(LocalDate.now().plusDays(30), "800.00");
+        version.setEstado(estado(ID_ENVIADA, "ENVIADA"));
+        version.setVigenteHasta(LocalDate.now().minusDays(1));
+        when(estadoRepository.findById(3)).thenReturn(Optional.of(estado(3, "ACEPTADA")));
+
+        assertThatThrownBy(() -> versionService.cambiarEstado(ID_VERSION, 3))
+                .isInstanceOf(BusinessException.class)
+                .hasMessageContaining("venció");
+        verify(cotizacionVersionRepository, never()).save(any());
+    }
+
+    /** Cotizacion 10 cuya ultima version (v1) esta en el estado indicado. */
+    private CotizacionVersion ultimaVersionEn(String estadoNombre) {
+        Cotizacion cotizacion = new Cotizacion();
+        cotizacion.setIdCotizacion(10);
+        CotizacionVersion v1 = new CotizacionVersion();
+        v1.setIdCotizacionVersion(ID_VERSION);
+        v1.setCotizacion(cotizacion);
+        v1.setNumeroVersion(1);
+        v1.setEstado(estado(1, estadoNombre));
+        when(cotizacionRepository.findById(10)).thenReturn(Optional.of(cotizacion));
+        when(cotizacionVersionRepository.findByCotizacionIdCotizacionOrderByNumeroVersionDesc(10)).thenReturn(List.of(v1));
+        return v1;
+    }
+
+    private void estadoDelCatalogo(int id, String nombre) {
+        when(estadoRepository.findByTipoEstadoNombreTipoAndNombre("COTIZACION", nombre))
+                .thenReturn(Optional.of(estado(id, nombre)));
+    }
+
+    @Test
+    @DisplayName("Version nueva sobre una ENVIADA: la enviada pasa sola a REEMPLAZADA")
+    void versionNuevaReemplazaLaEnviada() {
+        CotizacionVersion v1 = ultimaVersionEn("ENVIADA");
+        estadoDelCatalogo(7, "REEMPLAZADA");
+        estadoDelCatalogo(1, "CREADA");
+        when(cotizacionVersionRepository.save(any(CotizacionVersion.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        CotizacionVersionResponse v2 = versionService.crearVersion(10, false);
+
+        assertThat(v1.getEstado().getNombre()).isEqualTo("REEMPLAZADA");
+        assertThat(v2.numeroVersion()).isEqualTo(2);
+        assertThat(v2.estadoNombre()).isEqualTo("CREADA");
+    }
+
+    @Test
+    @DisplayName("Version nueva sobre una VENCIDA: la vencida se queda como esta")
+    void versionNuevaSobreVencida() {
+        CotizacionVersion v1 = ultimaVersionEn("VENCIDA");
+        estadoDelCatalogo(1, "CREADA");
+        when(cotizacionVersionRepository.save(any(CotizacionVersion.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        CotizacionVersionResponse v2 = versionService.crearVersion(10, false);
+
+        assertThat(v1.getEstado().getNombre()).isEqualTo("VENCIDA");
+        assertThat(v2.estadoNombre()).isEqualTo("CREADA");
+    }
+
+    @Test
+    @DisplayName("No hay version nueva sobre un borrador: se cambia el borrador")
+    void versionNuevaNoPermitida() {
+        ultimaVersionEn("CREADA");
+        assertThatThrownBy(() -> versionService.crearVersion(10, false))
+                .isInstanceOf(BusinessException.class)
+                .hasMessageContaining("todavía no se ha enviado");
+    }
+
+    @Test
+    @DisplayName("No hay version nueva sobre una aceptada: los cambios van en el evento")
+    void versionNuevaSobreAceptada() {
+        ultimaVersionEn("ACEPTADA");
+        assertThatThrownBy(() -> versionService.crearVersion(10, false))
+                .isInstanceOf(BusinessException.class)
+                .hasMessageContaining("los cambios se hacen en el evento");
     }
 
     @Test

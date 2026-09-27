@@ -84,6 +84,8 @@ export interface CobroPanel {
   total: number;
   abonado: number;
   pendiente: number;
+  /** Lo que falta del primer 50% (se paga una semana antes); solo si el evento es en 7 dias o menos. */
+  anticipoFaltante: number | null;
 }
 
 export interface ActividadPanel {
