@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -158,25 +159,36 @@ public class CotizacionVersionServiceImpl implements CotizacionVersionService {
 
     /**
      * Lo que se le envia al cliente tiene que poder convertirse en un evento: al menos un
-     * plato o servicio con un total mayor a cero, y una fecha que todavia no paso.
+     * plato o servicio con un total mayor a cero, y una fecha que todavia no paso. Se
+     * revisa todo y se dice todo lo que falta de una vez, para no corregir de a uno.
      */
     private void validarListaParaEnviar(CotizacionVersion version) {
         Integer id = version.getIdCotizacionVersion();
-        if (!detalleCotizacionRepository.existsByCotizacionVersionIdCotizacionVersion(id)
-                && !servicioCotizacionRepository.existsByCotizacionVersionIdCotizacionVersion(id)) {
-            throw new BusinessException("Agregue al menos un plato o servicio antes de enviar la cotizacion");
-        }
-        if (version.getMontoTotal() == null || version.getMontoTotal().signum() <= 0) {
-            throw new BusinessException("El total de la cotizacion debe ser mayor a Q 0.00 para enviarla");
+        List<String> faltantes = new ArrayList<>();
+        boolean tieneLineas = detalleCotizacionRepository.existsByCotizacionVersionIdCotizacionVersion(id)
+                || servicioCotizacionRepository.existsByCotizacionVersionIdCotizacionVersion(id);
+        if (!tieneLineas) {
+            faltantes.add("agregar al menos un plato o servicio");
+        } else if (version.getMontoTotal() == null || version.getMontoTotal().signum() <= 0) {
+            faltantes.add("que el total sea mayor a Q 0.00");
         }
         LocalDate fechaEvento = version.getCotizacion().getFechaEvento();
         if (fechaEvento == null) {
-            throw new BusinessException("Indique la fecha del evento antes de enviar la cotizacion");
+            faltantes.add("indicar la fecha del evento");
+        } else if (fechaEvento.isBefore(LocalDate.now())) {
+            faltantes.add("actualizar la fecha del evento, que ya pasó (%s)".formatted(fechaEvento));
         }
-        if (fechaEvento.isBefore(LocalDate.now())) {
-            throw new BusinessException("La fecha del evento (%s) ya paso: actualicela antes de enviar la cotizacion"
-                    .formatted(fechaEvento));
+        if (!faltantes.isEmpty()) {
+            throw new BusinessException("Para enviar la cotización falta " + enumerar(faltantes));
         }
+    }
+
+    /** "a", "a y b", "a, b y c". */
+    private static String enumerar(List<String> partes) {
+        if (partes.size() == 1) {
+            return partes.get(0);
+        }
+        return String.join(", ", partes.subList(0, partes.size() - 1)) + " y " + partes.get(partes.size() - 1);
     }
 
     private CotizacionVersion buscarVersion(Integer id) {

@@ -44,7 +44,6 @@ public class CotizacionPdfService {
 
     private static final DateTimeFormatter FORMATO_FECHA_CORTA = DateTimeFormatter.ofPattern("d/M/yyyy");
     private static final Locale LOCALE_ES = Locale.of("es", "GT");
-    private static final String VIGENCIA = "15 días";
 
     private static final Color NAVY = new Color(0x2c, 0x3e, 0x50);
     private static final Color VERDE = new Color(0x27, 0xae, 0x60);
@@ -54,6 +53,7 @@ public class CotizacionPdfService {
     private final CotizacionVersionRepository cotizacionVersionRepository;
     private final DetalleCotizacionRepository detalleCotizacionRepository;
     private final ServicioCotizacionRepository servicioCotizacionRepository;
+    private final CondicionesComerciales condiciones;
 
     @Transactional(readOnly = true)
     public byte[] generar(Integer idCotizacionVersion) {
@@ -91,7 +91,7 @@ public class CotizacionPdfService {
             documento.add(new Paragraph("No. Cotización: " + numeroCotizacion, fuenteTexto));
             documento.add(new Paragraph(
                     "Fecha: " + cotizacion.getFechaCotizacion().format(FORMATO_FECHA_CORTA), fuenteTexto));
-            Paragraph vigencia = new Paragraph("Vigencia: " + VIGENCIA, fuenteTexto);
+            Paragraph vigencia = new Paragraph("Vigencia: %d días".formatted(condiciones.vigenciaDias()), fuenteTexto);
             vigencia.setSpacingAfter(16);
             documento.add(vigencia);
 
@@ -161,16 +161,45 @@ public class CotizacionPdfService {
 
             documento.add(resumen);
 
-            documento.add(tituloSeccion("NOTAS:", fuenteSeccion));
-            documento.add(new Paragraph("- Se requiere un anticipo del 50% para confirmar la reserva.", fuenteNota));
-            documento.add(new Paragraph("- El saldo restante debe pagarse 3 días antes del evento.", fuenteNota));
-            documento.add(new Paragraph("- Los precios están sujetos a cambios sin previo aviso.", fuenteNota));
+            documento.add(tituloSeccion("CONDICIONES", fuenteSeccion));
+            Font fuenteSubtituloNota = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 9);
+            agregarCondicion(documento, "Vigencia: ", condiciones.textoVigencia(), fuenteSubtituloNota, fuenteNota);
+            agregarCondicion(documento, "Forma de pago: ", CondicionesComerciales.FORMA_DE_PAGO,
+                    fuenteSubtituloNota, fuenteNota);
+            agregarCondicion(documento, "Horario: ", CondicionesComerciales.HORARIO, fuenteSubtituloNota, fuenteNota);
+            agregarLista(documento, "El servicio incluye:", CondicionesComerciales.EL_SERVICIO_INCLUYE,
+                    fuenteSubtituloNota, fuenteNota);
+            agregarLista(documento, "Otras condiciones:", CondicionesComerciales.OTRAS_CONDICIONES,
+                    fuenteSubtituloNota, fuenteNota);
 
             documento.close();
             return salida.toByteArray();
         } catch (DocumentException ex) {
             throw new IllegalStateException("No se pudo generar el PDF de la cotizacion", ex);
         }
+    }
+
+    /** "Titulo: texto" en un parrafo, con el titulo en negrita. */
+    private void agregarCondicion(Document documento, String titulo, String texto, Font fuenteTitulo, Font fuente)
+            throws DocumentException {
+        Paragraph p = new Paragraph();
+        p.add(new Phrase(titulo, fuenteTitulo));
+        p.add(new Phrase(texto, fuente));
+        p.setSpacingAfter(4);
+        // Si no cabe al final de la pagina pasa entera a la siguiente, en vez de partirse.
+        p.setKeepTogether(true);
+        documento.add(p);
+    }
+
+    private void agregarLista(Document documento, String titulo, List<String> puntos, Font fuenteTitulo, Font fuente)
+            throws DocumentException {
+        documento.add(new Paragraph(titulo, fuenteTitulo));
+        for (String punto : puntos) {
+            Paragraph p = new Paragraph("- " + punto, fuente);
+            p.setIndentationLeft(8);
+            documento.add(p);
+        }
+        documento.add(new Paragraph(" ", fuente));
     }
 
     private Paragraph tituloSeccion(String texto, Font fuente) {

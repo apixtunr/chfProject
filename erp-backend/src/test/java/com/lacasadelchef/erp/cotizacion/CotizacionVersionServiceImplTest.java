@@ -78,7 +78,8 @@ class CotizacionVersionServiceImplTest {
 
         assertThatThrownBy(() -> versionService.cambiarEstado(ID_VERSION, ID_ENVIADA))
                 .isInstanceOf(BusinessException.class)
-                .hasMessageContaining("al menos un plato o servicio");
+                .hasMessageContaining("agregar al menos un plato o servicio")
+                .hasMessageNotContaining("fecha");
         verify(cotizacionVersionRepository, never()).save(any());
     }
 
@@ -90,7 +91,7 @@ class CotizacionVersionServiceImplTest {
 
         assertThatThrownBy(() -> versionService.cambiarEstado(ID_VERSION, ID_ENVIADA))
                 .isInstanceOf(BusinessException.class)
-                .hasMessageContaining("mayor a Q 0.00");
+                .hasMessageContaining("total sea mayor a Q 0.00");
     }
 
     @Test
@@ -101,7 +102,7 @@ class CotizacionVersionServiceImplTest {
 
         assertThatThrownBy(() -> versionService.cambiarEstado(ID_VERSION, ID_ENVIADA))
                 .isInstanceOf(BusinessException.class)
-                .hasMessageContaining("fecha del evento");
+                .hasMessageContaining("indicar la fecha del evento");
     }
 
     @Test
@@ -112,7 +113,18 @@ class CotizacionVersionServiceImplTest {
 
         assertThatThrownBy(() -> versionService.cambiarEstado(ID_VERSION, ID_ENVIADA))
                 .isInstanceOf(BusinessException.class)
-                .hasMessageContaining("ya paso");
+                .hasMessageContaining("ya pasó");
+    }
+
+    @Test
+    @DisplayName("Enviar sin platos y sin fecha dice las dos cosas que faltan en un solo mensaje")
+    void enviarDiceTodoLoQueFalta() {
+        prepararCreada(null, "0");
+
+        assertThatThrownBy(() -> versionService.cambiarEstado(ID_VERSION, ID_ENVIADA))
+                .isInstanceOf(BusinessException.class)
+                .hasMessage("Para enviar la cotización falta agregar al menos un plato o servicio"
+                        + " y indicar la fecha del evento");
     }
 
     @Test
