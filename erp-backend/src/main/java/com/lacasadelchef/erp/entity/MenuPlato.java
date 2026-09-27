@@ -44,7 +44,7 @@ public class MenuPlato extends Auditable {
     private BigDecimal precioDesde100;
 
     /**
-     * Precio de una porcion o unidad para un evento de tantas personas: la escala la
+     * Precio por persona (o por unidad) para un evento de tantas personas: la escala la
      * decide el total de invitados, no la cantidad de este plato, y el precio de
      * catalogo se lleva a una sola unidad (el ciento de Q800.00 da Q8.00).
      */

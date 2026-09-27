@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/** Precio que se cobra por porcion segun el tamano del evento y como se vende el plato. */
+/** Precio que se cobra por persona (o por unidad) segun el tamano del evento y como se vende el plato. */
 class MenuPlatoTest {
 
     private static MenuPlato menuPlato(UnidadVenta unidad, String precioBase, String precioDesde100) {

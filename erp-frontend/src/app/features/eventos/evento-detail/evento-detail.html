@@ -148,7 +148,7 @@
               }
             </mat-form-field>
             <mat-form-field appearance="outline" class="campo-chico">
-              <mat-label>Cantidad</mat-label>
+              <mat-label>{{ esPorPersona() ? 'Personas' : 'Unidades' }}</mat-label>
               <input matInput type="number" formControlName="cantidadPlatos" min="1" />
             </mat-form-field>
             <mat-form-field appearance="outline" class="campo-chico">

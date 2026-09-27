@@ -169,6 +169,8 @@ export class EventoDetail implements OnInit {
   });
   /** Bebidas que incluye el plato elegido; vacio = no lleva bebida. */
   readonly bebidasDelPlato = signal<string[]>([]);
+  /** Los platos por persona se cuentan en personas; las boquitas, en piezas. */
+  readonly esPorPersona = signal(true);
 
   constructor() {
     this.idEvento = Number(this.route.snapshot.paramMap.get('id'));
@@ -301,6 +303,7 @@ export class EventoDetail implements OnInit {
     this.formularioMenu.controls.idPlato.valueChanges.subscribe((idPlato) => {
       const plato = this.platosDelMenu().find((p) => p.idPlato === idPlato);
       this.precioSeleccionado.set(plato ? precioPorUnidad(plato, this.evento()?.cantidadPersonas ?? 0) : null);
+      this.esPorPersona.set((plato?.unidadVenta ?? 'PERSONA') === 'PERSONA');
       const bebidas = plato?.bebidas ?? [];
       this.bebidasDelPlato.set(bebidas);
       this.formularioMenu.controls.bebida.setValue(bebidas.length === 1 ? bebidas[0] : null);

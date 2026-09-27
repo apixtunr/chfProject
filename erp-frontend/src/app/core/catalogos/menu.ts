@@ -44,7 +44,7 @@ export interface MenuPlatoResponse {
 /** Bebidas que incluyen los platos del menu de la empresa. */
 export const BEBIDAS = ['Té frío', 'Rosa de Jamaica', 'Atol de plátano', 'Jugo de naranja y café'];
 
-/** Lo que cuesta una porcion o unidad en un evento de tantas personas (espeja MenuPlato.precioPorUnidadPara). */
+/** Lo que cuesta por persona (o por pieza) en un evento de tantas personas (espeja MenuPlato.precioPorUnidadPara). */
 export function precioPorUnidad(plato: MenuPlatoResponse, personasEvento: number): number {
   const precio =
     plato.precioDesde100 != null && personasEvento >= PERSONAS_PRECIO_VOLUMEN

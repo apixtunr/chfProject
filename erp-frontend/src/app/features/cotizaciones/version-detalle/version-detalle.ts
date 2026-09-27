@@ -91,7 +91,7 @@ export class VersionDetalle implements OnInit {
   /** Platos disponibles dentro del menu (categoria) elegido en el formulario. */
   readonly platosDelMenu = signal<MenuPlatoResponse[]>([]);
   readonly precioSeleccionado = signal<number | null>(null);
-  /** Como se vende el plato elegido: cambia si la cantidad son porciones o unidades. */
+  /** Como se vende el plato elegido: la cantidad son personas (por persona) o piezas (boquitas). */
   readonly unidadSeleccionada = signal<UnidadVenta>('PERSONA');
   /** Bebidas que incluye el plato elegido; vacio = no lleva bebida y el campo no se muestra. */
   readonly bebidasDelPlato = signal<string[]>([]);
