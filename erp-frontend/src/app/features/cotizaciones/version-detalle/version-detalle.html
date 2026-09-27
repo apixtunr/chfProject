@@ -125,14 +125,6 @@
       </form>
     }
 
-    @for (aviso of porcionesDescuadradas(); track aviso.menu) {
-      <p class="alerta-presupuesto aviso-porciones">
-        <mat-icon>info</mat-icon>
-        {{ aviso.menu }}: {{ aviso.porciones }} porciones para {{ aviso.personas }} personas
-        ({{ aviso.porciones < aviso.personas ? 'faltan ' + (aviso.personas - aviso.porciones) : 'sobran ' + (aviso.porciones - aviso.personas) }}).
-      </p>
-    }
-
     <table mat-table [dataSource]="detalles()" class="tabla">
       <ng-container matColumnDef="menu">
         <th mat-header-cell *matHeaderCellDef>Menu / Plato</th>
