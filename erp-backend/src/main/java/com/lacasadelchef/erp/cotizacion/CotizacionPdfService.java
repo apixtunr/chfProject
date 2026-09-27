@@ -44,6 +44,8 @@ public class CotizacionPdfService {
 
     private static final DateTimeFormatter FORMATO_FECHA_CORTA = DateTimeFormatter.ofPattern("d/M/yyyy");
     private static final Locale LOCALE_ES = Locale.of("es", "GT");
+    /** Contacto que se imprime en el encabezado de cada pagina. */
+    private static final String TELEFONO_EMPRESA = "5173-0435";
 
     private static final Color NAVY = new Color(0x2c, 0x3e, 0x50);
     private static final Color VERDE = new Color(0x27, 0xae, 0x60);
@@ -296,7 +298,7 @@ public class CotizacionPdfService {
             ColumnText.showTextAligned(cb, Element.ALIGN_CENTER,
                     new Phrase("Servicios de Banquetes y Eventos", fuenteSubtitulo), anchoPagina / 2, altoPagina - 55, 0);
             ColumnText.showTextAligned(cb, Element.ALIGN_CENTER,
-                    new Phrase("Tel: 5555-1234 | info@casadelchef.com", fuenteContacto), anchoPagina / 2, altoPagina - 72, 0);
+                    new Phrase("Tel: " + TELEFONO_EMPRESA, fuenteContacto), anchoPagina / 2, altoPagina - 72, 0);
 
             ColumnText.showTextAligned(cb, Element.ALIGN_CENTER,
                     new Phrase("Gracias por su preferencia | La Casa del Chef", fuentePie),
