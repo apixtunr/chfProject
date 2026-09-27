@@ -7,7 +7,7 @@ export interface CampoCatalogo {
   /** Clave del campo en el request (y en el response, para editar). */
   key: string;
   label: string;
-  tipo: 'texto' | 'select' | 'checkbox';
+  tipo: 'texto' | 'numero' | 'select' | 'checkbox';
   requerido?: boolean;
   maxLength?: number;
   /** Solo para tipo select: endpoint que devuelve las opciones (List). */
@@ -80,6 +80,17 @@ export const CATALOGOS: CatalogoConfig[] = [
     id: 'tipos-evento', titulo: 'Tipos de evento', endpoint: '/tipos-evento',
     paginaUrl: '/api/tipos-evento', idKey: 'idTipoEvento',
     campos: [{ key: 'nombreTipo', label: 'Nombre', tipo: 'texto', requerido: true, maxLength: 80 }],
+  },
+  {
+    // Servicios extra que se cotizan. Con precio (hora extra de cocinero Q25.00) el total se
+    // calcula solo al cotizar; sin precio, se escribe el monto en cada cotizacion.
+    id: 'tipos-servicio', titulo: 'Tipos de servicio', endpoint: '/tipos-servicio',
+    paginaUrl: '/api/tipos-servicio', idKey: 'idTipoServicio',
+    campos: [
+      { key: 'nombreTipo', label: 'Nombre', tipo: 'texto', requerido: true, maxLength: 80 },
+      { key: 'descripcion', label: 'Descripcion', tipo: 'texto', maxLength: 255 },
+      { key: 'precioUnitario', label: 'Precio por unidad (Q)', tipo: 'numero' },
+    ],
   },
   {
     id: 'tipos-costo', titulo: 'Tipos de costo', endpoint: '/tipos-costo',

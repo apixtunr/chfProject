@@ -184,5 +184,12 @@ public class CotizacionServiceImpl implements CotizacionService {
         cotizacion.setCantidadPersonas(request.cantidadPersonas());
         cotizacion.setFechaEvento(request.fechaEvento());
         cotizacion.setPresupuestoCliente(request.presupuestoCliente());
+        if (request.horaInicio() != null && !CondicionesComerciales.esHoraDeInicioPermitida(request.horaInicio())) {
+            throw new BusinessException(
+                    "El servicio empieza en punto, entre las 11:00 y las 19:00 (dura 4 horas y termina a mas tardar a"
+                            + " las 21:00, o 22:00 si inicia a las 18:00 o 19:00)");
+        }
+        cotizacion.setHoraInicio(request.horaInicio());
+        cotizacion.setBebida(request.bebida() == null || request.bebida().isBlank() ? null : request.bebida().trim());
     }
 }

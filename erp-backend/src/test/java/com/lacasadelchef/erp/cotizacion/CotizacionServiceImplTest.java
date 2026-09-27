@@ -32,6 +32,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -88,7 +89,7 @@ class CotizacionServiceImplTest {
     }
 
     private static CotizacionRequest peticion(LocalDate fechaEvento) {
-        return new CotizacionRequest(1, 1, 1, 150, fechaEvento, null);
+        return new CotizacionRequest(1, 1, 1, 150, fechaEvento, null, null, null);
     }
 
     @Test
@@ -172,9 +173,24 @@ class CotizacionServiceImplTest {
                 .thenReturn(List.of(linea));
         when(menuPlatoRepository.findById(new MenuPlatoId(11, 31))).thenReturn(Optional.of(catalogo));
 
-        CotizacionRequest a120 = new CotizacionRequest(1, 1, 1, 120, LocalDate.now().plusDays(30), null);
+        CotizacionRequest a120 = new CotizacionRequest(1, 1, 1, 120, LocalDate.now().plusDays(30), null, null, null);
         cotizacionService.actualizar(10, a120);
 
         assertThat(linea.getPrecioUnitario()).isEqualByComparingTo("40.00");
+    }
+
+    @Test
+    @DisplayName("Una hora de inicio fuera de los turnos del servicio (13:30) se rechaza")
+    void horaFueraDeTurnoSeRechaza() {
+        when(clienteRepository.findById(1)).thenReturn(Optional.of(clienteActivo()));
+        when(tipoEventoRepository.findById(1)).thenReturn(Optional.of(new TipoEvento()));
+        when(ubicacionRepository.findById(1)).thenReturn(Optional.of(new Ubicacion()));
+        CotizacionRequest aLas1330 = new CotizacionRequest(1, 1, 1, 80, LocalDate.now().plusDays(30), null,
+                LocalTime.of(13, 30), null);
+
+        assertThatThrownBy(() -> cotizacionService.crear(aLas1330))
+                .isInstanceOf(BusinessException.class)
+                .hasMessageContaining("entre las 11:00 y las 19:00");
+        verify(cotizacionRepository, never()).save(any());
     }
 }

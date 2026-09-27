@@ -21,6 +21,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -60,6 +61,7 @@ class CotizacionVersionServiceImplTest {
         Cotizacion cotizacion = new Cotizacion();
         cotizacion.setIdCotizacion(10);
         cotizacion.setFechaEvento(fechaEvento);
+        cotizacion.setHoraInicio(LocalTime.of(18, 0));
         CotizacionVersion version = new CotizacionVersion();
         version.setIdCotizacionVersion(ID_VERSION);
         version.setCotizacion(cotizacion);
@@ -117,14 +119,14 @@ class CotizacionVersionServiceImplTest {
     }
 
     @Test
-    @DisplayName("Enviar sin platos y sin fecha dice las dos cosas que faltan en un solo mensaje")
+    @DisplayName("Enviar sin platos, sin fecha y sin hora dice todo lo que falta en un solo mensaje")
     void enviarDiceTodoLoQueFalta() {
-        prepararCreada(null, "0");
+        prepararCreada(null, "0").getCotizacion().setHoraInicio(null);
 
         assertThatThrownBy(() -> versionService.cambiarEstado(ID_VERSION, ID_ENVIADA))
                 .isInstanceOf(BusinessException.class)
-                .hasMessage("Para enviar la cotización falta agregar al menos un plato o servicio"
-                        + " y indicar la fecha del evento");
+                .hasMessage("Para enviar la cotización falta agregar al menos un plato o servicio,"
+                        + " indicar la fecha del evento y indicar la hora de inicio del servicio");
     }
 
     @Test

@@ -189,7 +189,7 @@
           <mat-label>Tipo de servicio</mat-label>
           <mat-select formControlName="idTipoServicio">
             @for (tipo of tiposServicio(); track tipo.idTipoServicio) {
-              <mat-option [value]="tipo.idTipoServicio">{{ tipo.nombreTipo }}</mat-option>
+              <mat-option [value]="tipo.idTipoServicio">{{ etiquetaTipoServicio(tipo) }}</mat-option>
             }
           </mat-select>
         </mat-form-field>
@@ -200,8 +200,16 @@
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="campo-chico">
-          <mat-label>Monto (Q)</mat-label>
+          <mat-label>Cantidad</mat-label>
+          <input matInput type="number" formControlName="cantidad" min="1" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="campo-chico">
+          <mat-label>{{ precioFijo() != null ? 'Total (Q)' : 'Monto (Q)' }}</mat-label>
           <input matInput type="number" formControlName="monto" min="0" />
+          @if (precioFijo() != null) {
+            <mat-hint>Cantidad × Q{{ precioFijo() | number: '1.2-2' }}</mat-hint>
+          }
         </mat-form-field>
 
         <div class="botones-formulario">
@@ -226,6 +234,16 @@
       <ng-container matColumnDef="descripcion">
         <th mat-header-cell *matHeaderCellDef>Descripción</th>
         <td mat-cell *matCellDef="let s">{{ s.descripcion || '-' }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="cantidad">
+        <th mat-header-cell *matHeaderCellDef>Cantidad</th>
+        <td mat-cell *matCellDef="let s">{{ s.cantidad }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="precio">
+        <th mat-header-cell *matHeaderCellDef>Precio unit.</th>
+        <td mat-cell *matCellDef="let s">Q{{ s.precioUnitario | number: '1.2-2' }}</td>
       </ng-container>
 
       <ng-container matColumnDef="monto">

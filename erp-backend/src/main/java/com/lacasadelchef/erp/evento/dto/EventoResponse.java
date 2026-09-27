@@ -25,6 +25,7 @@ public record EventoResponse(
         LocalTime horaFin,
         Integer cantidadPersonas,
         String observaciones,
+        String bebida,
         BigDecimal montoMenu,
         LocalDateTime fechaCreacion,
         LocalDateTime fechaModificacion
@@ -49,6 +50,7 @@ public record EventoResponse(
                 .horaFin(evento.getHoraFin())
                 .cantidadPersonas(evento.getCantidadPersonas())
                 .observaciones(evento.getObservaciones())
+                .bebida(evento.getBebida())
                 .fechaCreacion(evento.getFechaCreacion())
                 .fechaModificacion(evento.getFechaModificacion())
                 .build();

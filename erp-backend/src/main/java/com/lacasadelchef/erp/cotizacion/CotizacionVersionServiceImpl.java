@@ -113,6 +113,7 @@ public class CotizacionVersionServiceImpl implements CotizacionVersionService {
                 copia.setCotizacionVersion(nueva);
                 copia.setTipoServicio(original.getTipoServicio());
                 copia.setDescripcion(original.getDescripcion());
+                copia.setCantidad(original.getCantidad());
                 copia.setMonto(original.getMonto());
                 entityManager.persist(copia);
             }
@@ -159,7 +160,8 @@ public class CotizacionVersionServiceImpl implements CotizacionVersionService {
 
     /**
      * Lo que se le envia al cliente tiene que poder convertirse en un evento: al menos un
-     * plato o servicio con un total mayor a cero, y una fecha que todavia no paso. Se
+     * plato o servicio con un total mayor a cero, una fecha que todavia no paso y la hora
+     * de inicio del servicio. Se
      * revisa todo y se dice todo lo que falta de una vez, para no corregir de a uno.
      */
     private void validarListaParaEnviar(CotizacionVersion version) {
@@ -177,6 +179,9 @@ public class CotizacionVersionServiceImpl implements CotizacionVersionService {
             faltantes.add("indicar la fecha del evento");
         } else if (fechaEvento.isBefore(LocalDate.now())) {
             faltantes.add("actualizar la fecha del evento, que ya pasó (%s)".formatted(fechaEvento));
+        }
+        if (version.getCotizacion().getHoraInicio() == null) {
+            faltantes.add("indicar la hora de inicio del servicio");
         }
         if (!faltantes.isEmpty()) {
             throw new BusinessException("Para enviar la cotización falta " + enumerar(faltantes));

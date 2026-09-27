@@ -3,7 +3,9 @@ package com.lacasadelchef.erp.cotizacion;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalTime;
 import java.util.List;
+import java.util.stream.IntStream;
 
 /**
  * Condiciones que la empresa ofrece en toda cotizacion, tomadas de su menu de banquetes
@@ -38,10 +40,37 @@ public class CondicionesComerciales {
             "Prueba de menú para 4 personas: se reserva con un mes de anticipación y su costo es el precio del"
                     + " menú elegido.");
 
+    /** El servicio dura 4 horas desde la hora solicitada. */
+    public static final int HORAS_DE_SERVICIO = 4;
+
+    /** Turnos del menu: el servicio empieza en punto entre las 11:00 y las 19:00. */
+    public static final List<LocalTime> HORAS_DE_INICIO = IntStream.rangeClosed(11, 19)
+            .mapToObj(hora -> LocalTime.of(hora, 0))
+            .toList();
+
+    private static final LocalTime CIERRE = LocalTime.of(21, 0);
+    /** Excepcion del menu: si empieza a las 18 o 19, se atiende hasta las 22:00. */
+    private static final LocalTime CIERRE_NOCTURNO = LocalTime.of(22, 0);
+    private static final LocalTime INICIO_NOCTURNO = LocalTime.of(18, 0);
+
     private final int vigenciaDias;
 
     public CondicionesComerciales(@Value("${app.cotizacion.vigencia-dias:15}") int vigenciaDias) {
         this.vigenciaDias = vigenciaDias;
+    }
+
+    public static boolean esHoraDeInicioPermitida(LocalTime inicio) {
+        return HORAS_DE_INICIO.contains(inicio);
+    }
+
+    /**
+     * Fin del servicio: 4 horas despues del inicio, sin pasar de las 21:00 (22:00 si
+     * empieza a las 18 o 19). Un servicio de las 19:00 dura hasta las 22:00.
+     */
+    public static LocalTime horaFinServicio(LocalTime inicio) {
+        LocalTime cierre = inicio.isBefore(INICIO_NOCTURNO) ? CIERRE : CIERRE_NOCTURNO;
+        LocalTime fin = inicio.plusHours(HORAS_DE_SERVICIO);
+        return fin.isAfter(cierre) ? cierre : fin;
     }
 
     public int vigenciaDias() {

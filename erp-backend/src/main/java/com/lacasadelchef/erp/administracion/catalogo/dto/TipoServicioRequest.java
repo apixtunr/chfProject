@@ -1,7 +1,10 @@
 package com.lacasadelchef.erp.administracion.catalogo.dto;
 
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+
+import java.math.BigDecimal;
 
 public record TipoServicioRequest(
 
@@ -10,6 +13,10 @@ public record TipoServicioRequest(
         String nombreTipo,
 
         @Size(max = 255)
-        String descripcion
+        String descripcion,
+
+        /** Opcional: precio por unidad (ej. por cocinero y hora). Vacio = monto libre al cotizar. */
+        @DecimalMin(value = "0.0", message = "El precio no puede ser negativo")
+        BigDecimal precioUnitario
 ) {
 }

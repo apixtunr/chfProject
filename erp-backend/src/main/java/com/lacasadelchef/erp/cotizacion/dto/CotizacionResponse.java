@@ -1,5 +1,6 @@
 package com.lacasadelchef.erp.cotizacion.dto;
 
+import com.lacasadelchef.erp.cotizacion.CondicionesComerciales;
 import com.lacasadelchef.erp.entity.Cotizacion;
 import com.lacasadelchef.erp.entity.CotizacionVersion;
 import lombok.Builder;
@@ -7,6 +8,7 @@ import lombok.Builder;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Builder
 public record CotizacionResponse(
@@ -21,6 +23,10 @@ public record CotizacionResponse(
         LocalDate fechaCotizacion,
         LocalDate fechaEvento,
         BigDecimal presupuestoCliente,
+        LocalTime horaInicio,
+        /** Calculada: 4 horas despues del inicio, sin pasar del cierre del servicio. */
+        LocalTime horaFin,
+        String bebida,
         Integer ultimaVersionId,
         Integer ultimaVersionNumero,
         String ultimaVersionEstado,
@@ -43,6 +49,10 @@ public record CotizacionResponse(
                 .fechaCotizacion(cotizacion.getFechaCotizacion())
                 .fechaEvento(cotizacion.getFechaEvento())
                 .presupuestoCliente(cotizacion.getPresupuestoCliente())
+                .horaInicio(cotizacion.getHoraInicio())
+                .horaFin(cotizacion.getHoraInicio() == null ? null
+                        : CondicionesComerciales.horaFinServicio(cotizacion.getHoraInicio()))
+                .bebida(cotizacion.getBebida())
                 .ultimaVersionId(ultimaVersion != null ? ultimaVersion.getIdCotizacionVersion() : null)
                 .ultimaVersionNumero(ultimaVersion != null ? ultimaVersion.getNumeroVersion() : null)
                 .ultimaVersionEstado(ultimaVersion != null ? ultimaVersion.getEstado().getNombre() : null)

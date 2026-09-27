@@ -108,7 +108,9 @@ export class VersionDetalle implements OnInit {
   readonly idServicioEditando = signal<number | null>(null);
 
   readonly columnas = ['menu', 'cantidad', 'precio', 'subtotal', 'acciones'];
-  readonly columnasServicios = ['tipo', 'descripcion', 'monto', 'acciones'];
+  readonly columnasServicios = ['tipo', 'descripcion', 'cantidad', 'precio', 'monto', 'acciones'];
+  /** Precio del tipo de servicio elegido si es fijo (hora extra de cocinero Q25.00); null = monto libre. */
+  readonly precioFijo = signal<number | null>(null);
 
   readonly formulario = this.crearFormulario();
   readonly formularioServicio = this.crearFormularioServicio();
@@ -131,6 +133,7 @@ export class VersionDetalle implements OnInit {
     return this.fb.nonNullable.group({
       idTipoServicio: this.fb.control<number | null>(null, Validators.required),
       descripcion: [''],
+      cantidad: this.fb.nonNullable.control<number>(1, [Validators.required, Validators.min(1)]),
       monto: this.fb.control<number | null>(null, [Validators.required, Validators.min(0)]),
     });
   }
@@ -161,6 +164,20 @@ export class VersionDetalle implements OnInit {
     this.tipoServicioService.listar().subscribe((tipos) => this.tiposServicio.set(tipos));
     this.estadoService.listarPorTipo(TIPO_ESTADO_COTIZACION).subscribe((estados) => this.estadosCotizacion.set(estados));
     this.cargar();
+
+    // Un cargo con precio fijo no se escribe: el total es cantidad x precio y lo muestra el formulario.
+    const servicio = this.formularioServicio.controls;
+    servicio.idTipoServicio.valueChanges.subscribe((idTipo) => {
+      const precio = this.tiposServicio().find((t) => t.idTipoServicio === idTipo)?.precioUnitario ?? null;
+      this.precioFijo.set(precio);
+      if (precio != null) {
+        servicio.monto.disable({ emitEvent: false });
+      } else {
+        servicio.monto.enable({ emitEvent: false });
+      }
+      this.mostrarTotalFijo();
+    });
+    servicio.cantidad.valueChanges.subscribe(() => this.mostrarTotalFijo());
 
     this.formulario.controls.idMenu.valueChanges.subscribe((idMenu) => {
       this.formulario.controls.idPlato.setValue(null);
@@ -263,18 +280,35 @@ export class VersionDetalle implements OnInit {
 
   // --- Servicios extra (bebidas, decoracion, personal, etc.) ---
 
+  /** Con precio fijo, el campo de monto (deshabilitado) muestra cantidad x precio. */
+  private mostrarTotalFijo(): void {
+    const precio = this.precioFijo();
+    if (precio != null) {
+      const cantidad = this.formularioServicio.controls.cantidad.value || 0;
+      this.formularioServicio.controls.monto.setValue(Number(precio) * cantidad, { emitEvent: false });
+    }
+  }
+
+  /** "Hora extra de cocinero (Q25.00 c/u)" en el selector. */
+  etiquetaTipoServicio(tipo: TipoServicioResponse): string {
+    return tipo.precioUnitario != null
+      ? `${tipo.nombreTipo} (Q${Number(tipo.precioUnitario).toFixed(2)} c/u)`
+      : tipo.nombreTipo;
+  }
+
   editarServicio(servicio: ServicioCotizacionResponse): void {
     this.idServicioEditando.set(servicio.idServicioCotizacion);
     this.formularioServicio.setValue({
       idTipoServicio: servicio.idTipoServicio,
       descripcion: servicio.descripcion ?? '',
+      cantidad: servicio.cantidad,
       monto: servicio.monto,
     });
   }
 
   cancelarEdicionServicio(): void {
     this.idServicioEditando.set(null);
-    this.formularioServicio.reset({ idTipoServicio: null, descripcion: '', monto: null });
+    this.formularioServicio.reset({ idTipoServicio: null, descripcion: '', cantidad: 1, monto: null });
   }
 
   guardarServicio(): void {
@@ -287,7 +321,9 @@ export class VersionDetalle implements OnInit {
     const request = {
       idTipoServicio: valores.idTipoServicio!,
       descripcion: valores.descripcion || null,
-      monto: valores.monto!,
+      cantidad: valores.cantidad,
+      // Con precio fijo el total lo calcula el backend; solo se manda el monto libre.
+      monto: this.precioFijo() != null ? null : valores.monto,
     };
 
     const idEditando = this.idServicioEditando();

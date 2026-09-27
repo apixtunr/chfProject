@@ -116,6 +116,12 @@ export class EventoForm implements OnInit {
 
     this.formulario.controls.idCotizacionVersion.valueChanges.subscribe((idCotizacionVersion) => {
       this.idCotizacionVersionSeleccionada.set(idCotizacionVersion);
+      // El horario ya se acordo en la cotizacion: se propone el mismo (se puede cambiar).
+      const hora = this.cotizacionSeleccionada()?.horaInicio;
+      if (hora) {
+        const turno = this.horarios.find((h) => h.horaInicio.getHours() === Number(hora.split(':')[0]));
+        this.formulario.controls.horaInicio.setValue(turno?.horaInicio ?? null);
+      }
     });
 
     this.formulario.controls.idDepartamento.valueChanges.subscribe((idDepartamento) => {

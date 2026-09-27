@@ -44,6 +44,12 @@
         <span class="etiqueta-info">Fecha y horario</span>
         <span class="valor-info">{{ e.fechaEvento | date: 'dd/MM/yyyy' }} • {{ e.horaInicio?.slice(0, 5) }} a {{ e.horaFin?.slice(0, 5) }}</span>
       </div>
+      @if (e.bebida) {
+        <div class="campo-info">
+          <span class="etiqueta-info">Bebida</span>
+          <span class="valor-info">{{ e.bebida }}</span>
+        </div>
+      }
       @if (e.cantidadPersonas) {
         <div class="campo-info">
           <span class="etiqueta-info">Invitados</span>

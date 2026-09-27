@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service
@@ -97,8 +98,19 @@ public class ServicioCotizacionServiceImpl implements ServicioCotizacionService 
     private void aplicar(ServicioCotizacionRequest request, ServicioCotizacion servicio) {
         TipoServicio tipoServicio = tipoServicioRepository.findById(request.idTipoServicio())
                 .orElseThrow(() -> new ResourceNotFoundException("TipoServicio", request.idTipoServicio()));
+        int cantidad = request.cantidad() == null ? 1 : request.cantidad();
+        BigDecimal monto;
+        if (tipoServicio.getPrecioUnitario() != null) {
+            // Cargo con precio fijo (hora extra de cocinero Q25.00): el total no se escribe.
+            monto = tipoServicio.getPrecioUnitario().multiply(BigDecimal.valueOf(cantidad));
+        } else if (request.monto() != null) {
+            monto = request.monto();
+        } else {
+            throw new BusinessException("Indique el monto de '%s'".formatted(tipoServicio.getNombreTipo()));
+        }
         servicio.setTipoServicio(tipoServicio);
         servicio.setDescripcion(request.descripcion());
-        servicio.setMonto(request.monto());
+        servicio.setCantidad(cantidad);
+        servicio.setMonto(monto);
     }
 }

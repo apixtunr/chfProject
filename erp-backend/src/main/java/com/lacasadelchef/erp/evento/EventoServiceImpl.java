@@ -2,6 +2,7 @@ package com.lacasadelchef.erp.evento;
 
 import com.lacasadelchef.erp.common.exception.BusinessException;
 import com.lacasadelchef.erp.common.exception.ResourceNotFoundException;
+import com.lacasadelchef.erp.cotizacion.CondicionesComerciales;
 import com.lacasadelchef.erp.cotizacion.dto.CotizacionResponse;
 import com.lacasadelchef.erp.entity.Cliente;
 import com.lacasadelchef.erp.entity.CotizacionVersion;
@@ -281,6 +282,18 @@ public class EventoServiceImpl implements EventoService {
 
         evento.setHoraInicio(request.horaInicio());
         evento.setHoraFin(request.horaFin());
+        evento.setBebida(request.bebida() == null || request.bebida().isBlank() ? null : request.bebida().trim());
+        var cotizacion = evento.getCotizacionVersion() == null ? null : evento.getCotizacionVersion().getCotizacion();
+        if (cotizacion != null) {
+            // Horario y bebida acordados en la cotizacion, salvo que se indiquen otros.
+            if (evento.getHoraInicio() == null && cotizacion.getHoraInicio() != null) {
+                evento.setHoraInicio(cotizacion.getHoraInicio());
+                evento.setHoraFin(CondicionesComerciales.horaFinServicio(cotizacion.getHoraInicio()));
+            }
+            if (evento.getBebida() == null) {
+                evento.setBebida(cotizacion.getBebida());
+            }
+        }
         evento.setObservaciones(request.observaciones());
     }
 

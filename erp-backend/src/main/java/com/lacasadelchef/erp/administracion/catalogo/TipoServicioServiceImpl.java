@@ -62,5 +62,6 @@ public class TipoServicioServiceImpl implements TipoServicioService {
     private void aplicar(TipoServicioRequest request, TipoServicio tipoServicio) {
         tipoServicio.setNombreTipo(request.nombreTipo().trim());
         tipoServicio.setDescripcion(request.descripcion());
+        tipoServicio.setPrecioUnitario(request.precioUnitario());
     }
 }

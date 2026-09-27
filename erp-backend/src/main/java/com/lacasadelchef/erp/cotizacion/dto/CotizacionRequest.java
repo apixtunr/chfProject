@@ -3,9 +3,11 @@ package com.lacasadelchef.erp.cotizacion.dto;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalTime;
 
 public record CotizacionRequest(
 
@@ -25,6 +27,13 @@ public record CotizacionRequest(
         LocalDate fechaEvento,
 
         @DecimalMin(value = "0.0", message = "El presupuesto no puede ser negativo")
-        BigDecimal presupuestoCliente
+        BigDecimal presupuestoCliente,
+
+        /** Opcional al crear; obligatoria para enviar. En punto, de 11:00 a 19:00. */
+        LocalTime horaInicio,
+
+        /** Bebida del menu elegida por el cliente (te frio, rosa de Jamaica...). */
+        @Size(max = 60, message = "La bebida no puede exceder 60 caracteres")
+        String bebida
 ) {
 }

@@ -6,6 +6,9 @@ export interface CotizacionRequest {
   cantidadPersonas: number;
   fechaEvento: string | null;
   presupuestoCliente: number | null;
+  /** "18:00"; opcional al crear, obligatoria para enviar. */
+  horaInicio: string | null;
+  bebida: string | null;
 }
 
 export interface CotizacionResponse {
@@ -20,6 +23,10 @@ export interface CotizacionResponse {
   fechaCotizacion: string;
   fechaEvento: string | null;
   presupuestoCliente: number | null;
+  horaInicio: string | null;
+  /** Calculada por el backend: 4 horas despues del inicio, sin pasar del cierre. */
+  horaFin: string | null;
+  bebida: string | null;
   ultimaVersionId: number | null;
   ultimaVersionNumero: number | null;
   ultimaVersionEstado: string | null;
@@ -66,7 +73,10 @@ export interface DetalleCotizacionResponse {
 export interface ServicioCotizacionRequest {
   idTipoServicio: number;
   descripcion: string | null;
-  monto: number;
+  /** Unidades (ej. horas de cocinero); si el tipo tiene precio fijo, el total lo calcula el backend. */
+  cantidad: number | null;
+  /** Solo para tipos sin precio fijo. */
+  monto: number | null;
 }
 
 export interface ServicioCotizacionResponse {
@@ -75,6 +85,8 @@ export interface ServicioCotizacionResponse {
   idTipoServicio: number;
   tipoServicioNombre: string;
   descripcion: string | null;
+  cantidad: number;
+  precioUnitario: number;
   monto: number;
   montoTotalVersion: number;
   fechaCreacion: string | null;
@@ -86,3 +98,30 @@ export const TRANSICIONES_VALIDAS: Record<string, string[]> = {
   CREADA: ['ENVIADA'],
   ENVIADA: ['ACEPTADA', 'RECHAZADA'],
 };
+
+/** Horas en que puede empezar el servicio (CondicionesComerciales.HORAS_DE_INICIO). */
+export const HORAS_DE_INICIO = [11, 12, 13, 14, 15, 16, 17, 18, 19].map((h) => `${String(h).padStart(2, '0')}:00`);
+
+/** Bebidas que incluyen los menus de la empresa. */
+export const BEBIDAS = ['Té frío', 'Rosa de Jamaica', 'Atol de plátano', 'Jugo de naranja y café'];
+
+/** "18:00" o "18:00:00" -> "6:00 p.m." */
+export function horaLegible(hora: string): string {
+  const [h, m] = hora.split(':').map(Number);
+  return `${h % 12 === 0 ? 12 : h % 12}:${String(m).padStart(2, '0')} ${h < 12 ? 'a.m.' : 'p.m.'}`;
+}
+
+/**
+ * Fin del servicio de 4 horas: hasta las 21:00, o 22:00 si empieza a las 18 o 19
+ * (espeja CondicionesComerciales.horaFinServicio).
+ */
+export function horaFinServicio(inicio: string): string {
+  const h = Number(inicio.split(':')[0]);
+  const fin = Math.min(h + 4, h >= 18 ? 22 : 21);
+  return `${String(fin).padStart(2, '0')}:00`;
+}
+
+/** "6:00 p.m. a 10:00 p.m." */
+export function horarioServicio(inicio: string): string {
+  return `${horaLegible(inicio)} a ${horaLegible(horaFinServicio(inicio))}`;
+}

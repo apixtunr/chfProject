@@ -59,6 +59,10 @@ public class Evento extends Auditable {
     @Column(name = "observaciones", length = 500)
     private String observaciones;
 
+    /** Bebida del menu (te frio, rosa de Jamaica...); si viene de una cotizacion, la de ella. */
+    @Column(name = "bebida", length = 60)
+    private String bebida;
+
     /** Mantenido por trigger en la base de datos a partir de detalle_evento. */
     @Column(name = "monto_menu", insertable = false, updatable = false, precision = 12, scale = 2)
     private BigDecimal montoMenu;

@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
+
 /** Catalogo de servicios extra no-menu que se cotizan al cliente (bebidas, decoracion, personal...). */
 @Getter
 @Setter
@@ -24,4 +26,8 @@ public class TipoServicio extends Auditable {
 
     @Column(name = "descripcion", length = 255)
     private String descripcion;
+
+    /** Precio por unidad (ej. por cocinero y hora); null = el monto se escribe en cada cotizacion. */
+    @Column(name = "precio_unitario", precision = 12, scale = 2)
+    private BigDecimal precioUnitario;
 }

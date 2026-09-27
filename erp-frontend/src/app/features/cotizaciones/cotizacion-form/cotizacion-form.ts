@@ -6,7 +6,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { debounceTime, distinctUntilChanged, of, switchMap } from 'rxjs';
 import { DepartamentoResponse } from '../../../core/catalogos/departamento';
 import { DepartamentoService } from '../../../core/catalogos/departamento.service';
@@ -19,6 +19,7 @@ import { UbicacionService } from '../../../core/catalogos/ubicacion.service';
 import { ClienteResponse } from '../../clientes/dto/cliente';
 import { ClienteService } from '../../clientes/cliente.service';
 import { CotizacionService } from '../cotizacion.service';
+import { BEBIDAS, HORAS_DE_INICIO, horarioServicio } from '../dto/cotizacion';
 
 @Component({
   selector: 'app-cotizacion-form',
@@ -43,6 +44,7 @@ export class CotizacionForm implements OnInit {
   private readonly municipioService = inject(MunicipioService);
   private readonly tipoEventoService = inject(TipoEventoService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   private readonly snackBar = inject(MatSnackBar);
 
   /** Texto que el usuario escribe para buscar; separado del idCliente que en realidad se envia. */
@@ -54,6 +56,15 @@ export class CotizacionForm implements OnInit {
   readonly municipios = signal<MunicipioResponse[]>([]);
 
   readonly guardando = signal(false);
+  /** En edicion: la cotizacion y su ubicacion (la direccion se corrige sobre la misma). */
+  readonly idCotizacion = signal<number | null>(null);
+  private idUbicacion: number | null = null;
+  /** Municipio a elegir en cuanto llegue la lista del departamento (al cargar para editar). */
+  private municipioPendiente: number | null = null;
+
+  readonly horasDeInicio = HORAS_DE_INICIO;
+  readonly bebidas = BEBIDAS;
+  readonly horarioServicio = horarioServicio;
   readonly minimoPersonas = MINIMO_PERSONAS;
   /** El evento no puede ser en el pasado (el backend lo vuelve a validar). */
   readonly hoy = new Date(new Date().setHours(0, 0, 0, 0));
@@ -70,18 +81,34 @@ export class CotizacionForm implements OnInit {
       cantidadPersonas: this.fb.control<number | null>(null, [Validators.required, Validators.min(1)]),
       fechaEvento: this.fb.control<Date | null>(null),
       presupuestoCliente: this.fb.control<number | null>(null),
+      // Opcionales al crear; la hora es obligatoria para enviar la cotizacion.
+      horaInicio: this.fb.control<string | null>(null),
+      bebida: this.fb.control<string | null>(null),
     });
   }
 
   ngOnInit(): void {
     this.tipoEventoService.listar().subscribe((t) => this.tiposEvento.set(t));
-    this.departamentoService.listar().subscribe((d) => this.departamentos.set(d));
+    const idParam = this.route.snapshot.paramMap.get('id');
+    this.departamentoService.listar().subscribe((d) => {
+      this.departamentos.set(d);
+      // La ubicacion guardada trae el nombre del departamento: hace falta la lista para elegirlo.
+      if (idParam) {
+        this.cargarParaEditar(Number(idParam));
+      }
+    });
 
     this.formulario.controls.idDepartamento.valueChanges.subscribe((idDepartamento) => {
       this.formulario.controls.idMunicipio.setValue(null);
       this.municipios.set([]);
       if (idDepartamento) {
-        this.municipioService.listar(idDepartamento).subscribe((m) => this.municipios.set(m));
+        this.municipioService.listar(idDepartamento).subscribe((m) => {
+          this.municipios.set(m);
+          if (this.municipioPendiente) {
+            this.formulario.controls.idMunicipio.setValue(this.municipioPendiente);
+            this.municipioPendiente = null;
+          }
+        });
       }
     });
 
@@ -114,6 +141,36 @@ export class CotizacionForm implements OnInit {
     return personas != null && personas > 0 && personas < MINIMO_PERSONAS;
   }
 
+  /**
+   * Edicion de los datos generales. Solo se llega aqui con la ultima version en CREADA:
+   * una vez enviada, el backend ya no deja cambiarlos (hay que crear una version nueva).
+   */
+  private cargarParaEditar(id: number): void {
+    this.idCotizacion.set(id);
+    this.cotizacionService.obtener(id).subscribe((c) => {
+      this.idUbicacion = c.idUbicacion;
+      this.formulario.patchValue({
+        idCliente: c.idCliente,
+        idTipoEvento: c.idTipoEvento,
+        cantidadPersonas: c.cantidadPersonas,
+        fechaEvento: c.fechaEvento ? this.deFechaIso(c.fechaEvento) : null,
+        presupuestoCliente: c.presupuestoCliente,
+        horaInicio: c.horaInicio ? c.horaInicio.substring(0, 5) : null,
+        bebida: c.bebida,
+      });
+      this.clienteService.obtener(c.idCliente).subscribe((cliente) => {
+        // Sin emitir: el cambio de texto borraria el idCliente que se acaba de poner.
+        this.busquedaCliente.setValue(cliente as never, { emitEvent: false });
+      });
+      this.ubicacionService.obtener(c.idUbicacion).subscribe((u) => {
+        this.formulario.controls.direccion.setValue(u.direccion);
+        this.municipioPendiente = u.idMunicipio;
+        const departamento = this.departamentos().find((d) => d.nombreDepartamento === u.departamentoNombre);
+        this.formulario.controls.idDepartamento.setValue(departamento?.idDepartamento ?? null);
+      });
+    });
+  }
+
   mostrarCliente(cliente: ClienteResponse | string | null): string {
     if (!cliente || typeof cliente === 'string') {
       return '';
@@ -135,19 +192,39 @@ export class CotizacionForm implements OnInit {
 
     this.guardando.set(true);
     const v = this.formulario.getRawValue();
+    const datos = {
+      idCliente: v.idCliente!,
+      idTipoEvento: v.idTipoEvento!,
+      cantidadPersonas: v.cantidadPersonas!,
+      fechaEvento: v.fechaEvento ? this.aFechaIso(v.fechaEvento) : null,
+      presupuestoCliente: v.presupuestoCliente,
+      horaInicio: v.horaInicio,
+      bebida: v.bebida,
+    };
+    const ubicacion = { idMunicipio: v.idMunicipio!, direccion: v.direccion };
+
+    const idCotizacion = this.idCotizacion();
+    if (idCotizacion && this.idUbicacion) {
+      const idUbicacion = this.idUbicacion;
+      this.ubicacionService.actualizar(idUbicacion, ubicacion).subscribe({
+        next: () =>
+          this.cotizacionService.actualizar(idCotizacion, { ...datos, idUbicacion }).subscribe({
+            next: () => {
+              this.snackBar.open('Cotizacion actualizada', 'Cerrar', { duration: 3000 });
+              this.router.navigateByUrl(`/cotizaciones/${idCotizacion}`);
+            },
+            error: () => this.guardando.set(false),
+          }),
+        error: () => this.guardando.set(false),
+      });
+      return;
+    }
 
     // La ubicacion es propia de esta cotizacion: se crea primero, y luego se usa su id.
-    this.ubicacionService.crear({ idMunicipio: v.idMunicipio!, direccion: v.direccion }).subscribe({
-      next: (ubicacion) => {
+    this.ubicacionService.crear(ubicacion).subscribe({
+      next: (nueva) => {
         this.cotizacionService
-          .crear({
-            idCliente: v.idCliente!,
-            idTipoEvento: v.idTipoEvento!,
-            idUbicacion: ubicacion.idUbicacion,
-            cantidadPersonas: v.cantidadPersonas!,
-            fechaEvento: v.fechaEvento ? this.aFechaIso(v.fechaEvento) : null,
-            presupuestoCliente: v.presupuestoCliente,
-          })
+          .crear({ ...datos, idUbicacion: nueva.idUbicacion })
           .subscribe({
             next: (cotizacion) => {
               this.snackBar.open('Cotizacion creada', 'Cerrar', { duration: 3000 });
@@ -158,6 +235,12 @@ export class CotizacionForm implements OnInit {
       },
       error: () => this.guardando.set(false),
     });
+  }
+
+  /** "2026-12-05" -> fecha local (sin pasar por UTC, que la correria un dia). */
+  private deFechaIso(fecha: string): Date {
+    const [anio, mes, dia] = fecha.split('-').map(Number);
+    return new Date(anio, mes - 1, dia);
   }
 
   private aFechaIso(fecha: Date): string {

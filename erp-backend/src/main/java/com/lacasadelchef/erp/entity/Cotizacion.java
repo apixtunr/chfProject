@@ -8,6 +8,7 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalTime;
 
 @Getter
 @Setter
@@ -44,4 +45,12 @@ public class Cotizacion extends Auditable {
 
     @Column(name = "presupuesto_cliente", precision = 12, scale = 2)
     private BigDecimal presupuestoCliente;
+
+    /** Inicio del servicio de 4 horas; el fin se calcula con CondicionesComerciales. */
+    @Column(name = "hora_inicio")
+    private LocalTime horaInicio;
+
+    /** Bebida del menu que eligio el cliente (te frio, rosa de Jamaica...). */
+    @Column(name = "bebida", length = 60)
+    private String bebida;
 }

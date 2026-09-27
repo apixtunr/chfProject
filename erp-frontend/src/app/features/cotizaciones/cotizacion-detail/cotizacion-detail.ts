@@ -10,7 +10,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/auth/auth.service';
 import { CotizacionService } from '../cotizacion.service';
-import { CotizacionResponse, CotizacionVersionResponse } from '../dto/cotizacion';
+import { CotizacionResponse, CotizacionVersionResponse, horarioServicio } from '../dto/cotizacion';
 
 const PAGINA_URL = '/api/cotizaciones';
 
@@ -43,6 +43,15 @@ export class CotizacionDetail implements OnInit {
 
   constructor() {
     this.idCotizacion = Number(this.route.snapshot.paramMap.get('id'));
+  }
+
+  readonly horarioServicio = horarioServicio;
+
+  /** Los datos generales se corrigen mientras la ultima version sigue en borrador (CREADA). */
+  get puedeEditarDatos(): boolean {
+    return (
+      this.authService.tienePermiso(PAGINA_URL, 'modificacion') && this.versiones()[0]?.estadoNombre === 'CREADA'
+    );
   }
 
   get puedeCrear(): boolean {

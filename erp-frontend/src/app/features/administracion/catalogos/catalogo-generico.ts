@@ -168,6 +168,9 @@ export class CatalogoGenerico implements OnInit {
       if (campo.tipo === 'texto' && typeof valor === 'string') {
         valor = valor.trim() || null;
       }
+      if (campo.tipo === 'numero') {
+        valor = valor === null || valor === undefined || valor === '' ? null : Number(valor);
+      }
       payload[campo.key] = valor;
     }
 

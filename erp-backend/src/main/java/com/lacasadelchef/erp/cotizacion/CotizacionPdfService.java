@@ -32,6 +32,7 @@ import java.io.ByteArrayOutputStream;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.util.Locale;
@@ -107,7 +108,11 @@ public class CotizacionPdfService {
             documento.add(new Paragraph("Tipo de evento: " + cotizacion.getTipoEvento().getNombreTipo(), fuenteTexto));
             documento.add(new Paragraph(
                     "Fecha del evento: " + formatearFechaEvento(cotizacion.getFechaEvento()), fuenteTexto));
+            documento.add(new Paragraph("Horario del servicio: " + formatearHorario(cotizacion.getHoraInicio()), fuenteTexto));
             documento.add(new Paragraph("Ubicación: " + cotizacion.getUbicacion().getDireccion(), fuenteTexto));
+            if (cotizacion.getBebida() != null) {
+                documento.add(new Paragraph("Bebida: " + cotizacion.getBebida(), fuenteTexto));
+            }
             Paragraph personas = new Paragraph(
                     "Cantidad de personas: " + cotizacion.getCantidadPersonas(), fuenteTexto);
             personas.setSpacingAfter(16);
@@ -138,9 +143,11 @@ public class CotizacionPdfService {
                 String descripcion = servicio.getDescripcion() != null && !servicio.getDescripcion().isBlank()
                         ? servicio.getDescripcion()
                         : servicio.getTipoServicio().getNombreTipo();
+                BigDecimal precioUnidad = servicio.getMonto()
+                        .divide(BigDecimal.valueOf(servicio.getCantidad()), 2, RoundingMode.HALF_UP);
                 tabla.addCell(celda(descripcion, fuenteCelda, Element.ALIGN_LEFT, fondo));
-                tabla.addCell(celda("1", fuenteCelda, Element.ALIGN_RIGHT, fondo));
-                tabla.addCell(celda(formatearMoneda(servicio.getMonto()), fuenteCelda, Element.ALIGN_RIGHT, fondo));
+                tabla.addCell(celda(String.valueOf(servicio.getCantidad()), fuenteCelda, Element.ALIGN_RIGHT, fondo));
+                tabla.addCell(celda(formatearMoneda(precioUnidad), fuenteCelda, Element.ALIGN_RIGHT, fondo));
                 tabla.addCell(celda(formatearMoneda(servicio.getMonto()), fuenteCelda, Element.ALIGN_RIGHT, fondo));
             }
 
@@ -222,6 +229,19 @@ public class CotizacionPdfService {
         String mes = fecha.getMonth().getDisplayName(TextStyle.FULL, LOCALE_ES);
         mes = mes.substring(0, 1).toUpperCase(LOCALE_ES) + mes.substring(1);
         return "%d de %s, %d".formatted(fecha.getDayOfMonth(), mes, fecha.getYear());
+    }
+
+    /** "6:00 p.m. a 10:00 p.m.", o "Por definir" si aun no se eligio la hora. */
+    private String formatearHorario(LocalTime inicio) {
+        if (inicio == null) {
+            return "Por definir";
+        }
+        return formatearHora(inicio) + " a " + formatearHora(CondicionesComerciales.horaFinServicio(inicio));
+    }
+
+    private static String formatearHora(LocalTime hora) {
+        int h12 = hora.getHour() % 12 == 0 ? 12 : hora.getHour() % 12;
+        return "%d:%02d %s".formatted(h12, hora.getMinute(), hora.getHour() < 12 ? "a.m." : "p.m.");
     }
 
     private Color fondoZebra(int indiceFila) {

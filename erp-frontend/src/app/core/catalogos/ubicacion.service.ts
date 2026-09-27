@@ -15,6 +15,14 @@ export class UbicacionService {
     return this.http.get<UbicacionResponse[]>(BASE_URL);
   }
 
+  obtener(id: number): Observable<UbicacionResponse> {
+    return this.http.get<UbicacionResponse>(`${BASE_URL}/${id}`);
+  }
+
+  actualizar(id: number, request: UbicacionRequest): Observable<UbicacionResponse> {
+    return this.http.put<UbicacionResponse>(`${BASE_URL}/${id}`, request);
+  }
+
   crear(request: UbicacionRequest): Observable<UbicacionResponse> {
     return this.http.post<UbicacionResponse>(BASE_URL, request);
   }

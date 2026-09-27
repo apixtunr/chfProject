@@ -4,13 +4,15 @@
     <nav class="pf-breadcrumb" aria-label="Ruta de navegación">
       <a routerLink="/cotizaciones" class="pf-breadcrumb-link">Cotizaciones</a>
       <mat-icon class="pf-breadcrumb-sep">chevron_right</mat-icon>
-      <span class="pf-breadcrumb-current">Nueva cotización</span>
+      <span class="pf-breadcrumb-current">{{ idCotizacion() ? 'Editar cotización' : 'Nueva cotización' }}</span>
     </nav>
     <div class="pf-title-row">
-      <h1 class="pf-title">Nueva Cotización</h1>
-      <span class="pf-badge">ALTA EN SISTEMA</span>
+      <h1 class="pf-title">{{ idCotizacion() ? 'Editar Cotización' : 'Nueva Cotización' }}</h1>
+      <span class="pf-badge">{{ idCotizacion() ? 'BORRADOR' : 'ALTA EN SISTEMA' }}</span>
     </div>
-    <p class="pf-subtitle">Ingresá los datos del evento para crear una nueva cotización.</p>
+    <p class="pf-subtitle">
+      {{ idCotizacion() ? 'Corregí los datos del evento antes de enviar la cotización.' : 'Ingresá los datos del evento para crear una nueva cotización.' }}
+    </p>
   </div>
 </div>
 
@@ -137,6 +139,43 @@
         <input id="presupuesto" class="pf-input" type="number" formControlName="presupuestoCliente" placeholder="0.00" min="0" />
       </div>
     </div>
+
+    <!-- Horario + Bebida -->
+    <div class="pf-row-2col">
+      <div class="pf-field">
+        <label class="pf-label" for="horaInicio">
+          <span class="pf-label-num">6.</span>
+          <span class="pf-label-name">Horario del servicio</span>
+          <span class="pf-label-hint">(4 horas; obligatorio para enviar)</span>
+        </label>
+        <div class="pf-input-wrap pf-input-wrap--select">
+          <mat-icon class="pf-input-icon">schedule</mat-icon>
+          <mat-select id="horaInicio" class="pf-select" formControlName="horaInicio" placeholder="Seleccioná el horario">
+            <mat-option [value]="null">Por definir</mat-option>
+            @for (hora of horasDeInicio; track hora) {
+              <mat-option [value]="hora">{{ horarioServicio(hora) }}</mat-option>
+            }
+          </mat-select>
+        </div>
+      </div>
+
+      <div class="pf-field">
+        <label class="pf-label" for="bebida">
+          <span class="pf-label-num">7.</span>
+          <span class="pf-label-name">Bebida</span>
+          <span class="pf-label-hint">(incluida en el menú)</span>
+        </label>
+        <div class="pf-input-wrap pf-input-wrap--select">
+          <mat-icon class="pf-input-icon">local_drink</mat-icon>
+          <mat-select id="bebida" class="pf-select" formControlName="bebida" placeholder="Seleccioná la bebida">
+            <mat-option [value]="null">Por definir</mat-option>
+            @for (bebida of bebidas; track bebida) {
+              <mat-option [value]="bebida">{{ bebida }}</mat-option>
+            }
+          </mat-select>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- ── SECCIÓN 3: Ubicación ── -->
@@ -152,7 +191,7 @@
     <div class="pf-row-2col">
       <div class="pf-field">
         <label class="pf-label" for="departamento">
-          <span class="pf-label-num">6.</span>
+          <span class="pf-label-num">8.</span>
           <span class="pf-label-name">Departamento</span>
           <span class="pf-required-mark">*</span>
         </label>
@@ -171,7 +210,7 @@
 
       <div class="pf-field">
         <label class="pf-label" for="municipio">
-          <span class="pf-label-num">7.</span>
+          <span class="pf-label-num">9.</span>
           <span class="pf-label-name">Municipio</span>
           <span class="pf-required-mark">*</span>
         </label>
@@ -195,7 +234,7 @@
     <!-- Dirección -->
     <div class="pf-field pf-field--last">
       <label class="pf-label" for="direccion">
-        <span class="pf-label-num">8.</span>
+        <span class="pf-label-num">10.</span>
         <span class="pf-label-name">Dirección</span>
         <span class="pf-required-mark">*</span>
       </label>
@@ -211,12 +250,17 @@
 
   <!-- ══ ACCIONES ════════════════════════════════════════════ -->
   <div class="pf-footer-actions">
-    <button mat-stroked-button type="button" routerLink="/cotizaciones" class="pf-btn-cancel">
+    <button
+      mat-stroked-button
+      type="button"
+      [routerLink]="idCotizacion() ? ['/cotizaciones', idCotizacion()] : ['/cotizaciones']"
+      class="pf-btn-cancel"
+    >
       Cancelar
     </button>
     <button mat-flat-button type="submit" class="pf-btn-save" [disabled]="guardando()">
       <mat-icon>save</mat-icon>
-      Guardar cotización
+      {{ idCotizacion() ? 'Guardar cambios' : 'Guardar cotización' }}
     </button>
   </div>
 

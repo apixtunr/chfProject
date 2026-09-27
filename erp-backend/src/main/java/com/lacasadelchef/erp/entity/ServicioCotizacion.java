@@ -32,6 +32,11 @@ public class ServicioCotizacion extends Auditable {
     @Column(name = "descripcion", length = 255)
     private String descripcion;
 
+    /** Unidades cotizadas; si el tipo tiene precio fijo, monto = cantidad x precio. */
+    @Column(name = "cantidad", nullable = false)
+    private Integer cantidad = 1;
+
+    /** Total de la linea. */
     @Column(name = "monto", nullable = false, precision = 12, scale = 2)
     private BigDecimal monto;
 }

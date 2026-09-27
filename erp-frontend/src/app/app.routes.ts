@@ -51,6 +51,12 @@ export const routes: Routes = [
           import('./features/cotizaciones/cotizacion-form/cotizacion-form').then((m) => m.CotizacionForm),
       },
       {
+        path: 'cotizaciones/:id/editar',
+        canActivate: [permisoAccionGuard('/api/cotizaciones', 'modificacion')],
+        loadComponent: () =>
+          import('./features/cotizaciones/cotizacion-form/cotizacion-form').then((m) => m.CotizacionForm),
+      },
+      {
         path: 'cotizaciones/:id',
         canActivate: [permisoGuard('/api/cotizaciones')],
         loadComponent: () =>
