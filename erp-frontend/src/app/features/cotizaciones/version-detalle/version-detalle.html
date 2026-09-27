@@ -213,7 +213,7 @@
         <mat-form-field appearance="outline" class="campo-menu">
           <mat-label>Tipo de servicio</mat-label>
           <mat-select formControlName="idTipoServicio">
-            @for (tipo of tiposServicio(); track tipo.idTipoServicio) {
+            @for (tipo of tiposServicioOfrecidos(); track tipo.idTipoServicio) {
               <mat-option [value]="tipo.idTipoServicio">{{ etiquetaTipoServicio(tipo) }}</mat-option>
             }
           </mat-select>

@@ -12,6 +12,7 @@ public record TipoServicioResponse(
         String nombreTipo,
         String descripcion,
         BigDecimal precioUnitario,
+        Boolean activo,
         LocalDateTime fechaCreacion,
         LocalDateTime fechaModificacion
 ) {
@@ -22,6 +23,7 @@ public record TipoServicioResponse(
                 .nombreTipo(tipoServicio.getNombreTipo())
                 .descripcion(tipoServicio.getDescripcion())
                 .precioUnitario(tipoServicio.getPrecioUnitario())
+                .activo(tipoServicio.getActivo())
                 .fechaCreacion(tipoServicio.getFechaCreacion())
                 .fechaModificacion(tipoServicio.getFechaModificacion())
                 .build();

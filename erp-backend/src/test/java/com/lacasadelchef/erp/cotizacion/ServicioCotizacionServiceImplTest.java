@@ -39,6 +39,8 @@ class ServicioCotizacionServiceImplTest {
     @Mock private EntityManager entityManager;
     @InjectMocks private ServicioCotizacionServiceImpl servicioService;
 
+    private CotizacionVersion version;
+
     @BeforeEach
     void versionEnBorrador() {
         Estado creada = new Estado();
@@ -46,17 +48,19 @@ class ServicioCotizacionServiceImplTest {
         CotizacionVersion version = new CotizacionVersion();
         version.setIdCotizacionVersion(ID_VERSION);
         version.setEstado(creada);
-        when(cotizacionVersionRepository.findById(ID_VERSION)).thenReturn(Optional.of(version));
+        this.version = version;
+        lenient().when(cotizacionVersionRepository.findById(ID_VERSION)).thenReturn(Optional.of(version));
         lenient().when(servicioCotizacionRepository.save(any(ServicioCotizacion.class)))
                 .thenAnswer(inv -> inv.getArgument(0));
     }
 
-    private void tipo(int id, String nombre, String precio) {
+    private TipoServicio tipo(int id, String nombre, String precio) {
         TipoServicio tipo = new TipoServicio();
         tipo.setIdTipoServicio(id);
         tipo.setNombreTipo(nombre);
         tipo.setPrecioUnitario(precio == null ? null : new BigDecimal(precio));
         when(tipoServicioRepository.findById(id)).thenReturn(Optional.of(tipo));
+        return tipo;
     }
 
     @Test
@@ -75,10 +79,10 @@ class ServicioCotizacionServiceImplTest {
     @Test
     @DisplayName("Un servicio sin precio fijo usa el monto que se indique")
     void montoLibre() {
-        tipo(2, "Decoracion de salon", null);
+        tipo(2, "Personal de cocina adicional", null);
 
         ServicioCotizacionResponse linea = servicioService.agregar(ID_VERSION,
-                new ServicioCotizacionRequest(2, "Arco de flores", null, new BigDecimal("1200")));
+                new ServicioCotizacionRequest(2, "2 cocineros para la segunda entrada", null, new BigDecimal("1200")));
 
         assertThat(linea.cantidad()).isEqualTo(1);
         assertThat(linea.monto()).isEqualByComparingTo("1200");
@@ -87,11 +91,39 @@ class ServicioCotizacionServiceImplTest {
     @Test
     @DisplayName("Un servicio sin precio fijo y sin monto se rechaza")
     void montoLibreObligatorio() {
-        tipo(2, "Decoracion de salon", null);
+        tipo(2, "Personal de cocina adicional", null);
 
         assertThatThrownBy(() -> servicioService.agregar(ID_VERSION,
                 new ServicioCotizacionRequest(2, null, null, null)))
                 .isInstanceOf(BusinessException.class)
                 .hasMessageContaining("Indique el monto");
+    }
+
+    @Test
+    @DisplayName("Un servicio que ya no se ofrece no se puede agregar")
+    void tipoInactivoNoSeAgrega() {
+        tipo(9, "Transporte", null).setActivo(false);
+
+        assertThatThrownBy(() -> servicioService.agregar(ID_VERSION,
+                new ServicioCotizacionRequest(9, null, null, new BigDecimal("300"))))
+                .isInstanceOf(BusinessException.class)
+                .hasMessageContaining("'Transporte' ya no se ofrece");
+    }
+
+    @Test
+    @DisplayName("La linea que ya tenia un servicio desactivado se puede seguir editando")
+    void tipoInactivoEnLineaExistente() {
+        TipoServicio transporte = tipo(9, "Transporte", null);
+        transporte.setActivo(false);
+        ServicioCotizacion existente = new ServicioCotizacion();
+        existente.setIdServicioCotizacion(50);
+        existente.setCotizacionVersion(version);
+        existente.setTipoServicio(transporte);
+        when(servicioCotizacionRepository.findById(50)).thenReturn(Optional.of(existente));
+
+        ServicioCotizacionResponse linea = servicioService.actualizar(ID_VERSION, 50,
+                new ServicioCotizacionRequest(9, "Flete a Antigua", null, new BigDecimal("350")));
+
+        assertThat(linea.monto()).isEqualByComparingTo("350");
     }
 }

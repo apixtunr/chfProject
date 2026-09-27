@@ -5,4 +5,6 @@ export interface TipoServicioResponse {
   descripcion: string | null;
   /** Precio por unidad (ej. por cocinero y hora); null = monto libre al cotizar. */
   precioUnitario: number | null;
+  /** false = ya no se ofrece al cotizar. */
+  activo: boolean;
 }

@@ -108,6 +108,12 @@ export class VersionDetalle implements OnInit {
   readonly servicios = signal<ServicioCotizacionResponse[]>([]);
   readonly tiposServicio = signal<TipoServicioResponse[]>([]);
   readonly idServicioEditando = signal<number | null>(null);
+  /** Tipo que tenia la linea que se esta editando: se muestra aunque ya no se ofrezca. */
+  private readonly idTipoServicioEditando = signal<number | null>(null);
+  /** Solo los servicios que se ofrecen; los desactivados quedan en las cotizaciones viejas. */
+  readonly tiposServicioOfrecidos = computed(() =>
+    this.tiposServicio().filter((t) => t.activo || t.idTipoServicio === this.idTipoServicioEditando()),
+  );
 
   readonly columnas = ['menu', 'bebida', 'cantidad', 'precio', 'subtotal', 'acciones'];
   readonly columnasServicios = ['tipo', 'descripcion', 'cantidad', 'precio', 'monto', 'acciones'];
@@ -311,6 +317,7 @@ export class VersionDetalle implements OnInit {
 
   editarServicio(servicio: ServicioCotizacionResponse): void {
     this.idServicioEditando.set(servicio.idServicioCotizacion);
+    this.idTipoServicioEditando.set(servicio.idTipoServicio);
     this.formularioServicio.setValue({
       idTipoServicio: servicio.idTipoServicio,
       descripcion: servicio.descripcion ?? '',
@@ -321,6 +328,7 @@ export class VersionDetalle implements OnInit {
 
   cancelarEdicionServicio(): void {
     this.idServicioEditando.set(null);
+    this.idTipoServicioEditando.set(null);
     this.formularioServicio.reset({ idTipoServicio: null, descripcion: '', cantidad: 1, monto: null });
   }
 

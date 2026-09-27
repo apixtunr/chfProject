@@ -99,7 +99,7 @@ export class CatalogoGenerico implements OnInit {
       if (campo.maxLength) {
         validadores.push(Validators.maxLength(campo.maxLength));
       }
-      controles[campo.key] = new FormControl(campo.tipo === 'checkbox' ? false : null, validadores);
+      controles[campo.key] = new FormControl(campo.tipo === 'checkbox' ? (campo.valorInicial ?? false) : null, validadores);
     }
     this.formulario = new FormGroup(controles);
     this.mostrandoForm.set(false);
@@ -140,7 +140,7 @@ export class CatalogoGenerico implements OnInit {
     this.formulario.reset();
     for (const campo of this.config.campos) {
       if (campo.tipo === 'checkbox') {
-        this.formulario.get(campo.key)?.setValue(false);
+        this.formulario.get(campo.key)?.setValue(campo.valorInicial ?? false);
       }
     }
     this.mostrandoForm.set(true);

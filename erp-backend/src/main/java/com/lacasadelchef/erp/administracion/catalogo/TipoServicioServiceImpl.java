@@ -63,5 +63,6 @@ public class TipoServicioServiceImpl implements TipoServicioService {
         tipoServicio.setNombreTipo(request.nombreTipo().trim());
         tipoServicio.setDescripcion(request.descripcion());
         tipoServicio.setPrecioUnitario(request.precioUnitario());
+        tipoServicio.setActivo(request.activo() == null || request.activo());
     }
 }

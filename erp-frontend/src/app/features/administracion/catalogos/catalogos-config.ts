@@ -16,6 +16,8 @@ export interface CampoCatalogo {
   opcionLabel?: string;
   /** Campo del response a mostrar en la tabla (p.ej. el nombre de la FK). */
   displayKey?: string;
+  /** Solo para tipo checkbox: valor al crear un registro nuevo (por defecto false). */
+  valorInicial?: boolean;
 }
 
 export interface CatalogoConfig {
@@ -90,6 +92,7 @@ export const CATALOGOS: CatalogoConfig[] = [
       { key: 'nombreTipo', label: 'Nombre', tipo: 'texto', requerido: true, maxLength: 80 },
       { key: 'descripcion', label: 'Descripcion', tipo: 'texto', maxLength: 255 },
       { key: 'precioUnitario', label: 'Precio por unidad (Q)', tipo: 'numero' },
+      { key: 'activo', label: 'Se ofrece al cotizar', tipo: 'checkbox', valorInicial: true },
     ],
   },
   {

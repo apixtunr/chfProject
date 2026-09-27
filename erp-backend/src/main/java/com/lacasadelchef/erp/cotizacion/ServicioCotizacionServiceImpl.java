@@ -98,6 +98,12 @@ public class ServicioCotizacionServiceImpl implements ServicioCotizacionService 
     private void aplicar(ServicioCotizacionRequest request, ServicioCotizacion servicio) {
         TipoServicio tipoServicio = tipoServicioRepository.findById(request.idTipoServicio())
                 .orElseThrow(() -> new ResourceNotFoundException("TipoServicio", request.idTipoServicio()));
+        // Un tipo desactivado ya no se cotiza, pero la linea que ya lo tenia se puede seguir editando.
+        boolean yaLoTenia = servicio.getTipoServicio() != null
+                && servicio.getTipoServicio().getIdTipoServicio().equals(tipoServicio.getIdTipoServicio());
+        if (!Boolean.TRUE.equals(tipoServicio.getActivo()) && !yaLoTenia) {
+            throw new BusinessException("'%s' ya no se ofrece como servicio extra".formatted(tipoServicio.getNombreTipo()));
+        }
         int cantidad = request.cantidad() == null ? 1 : request.cantidad();
         BigDecimal monto;
         if (tipoServicio.getPrecioUnitario() != null) {
