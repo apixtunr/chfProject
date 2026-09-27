@@ -704,6 +704,42 @@ mat-paginator {
   }
 }
 
+// ── Lista de platos al cotizar (panelClass="panel-platos") ───────────────────
+// Los nombres de los platos son largos ("Festival de pollo al horno con salsa de
+// tomate y lomo de cerdo...") y con el precio al final quedaban tres renglones
+// pegados de una opcion a la otra. Nombre arriba, precio abajo en gris, mas aire
+// y una linea entre platos.
+.panel-platos {
+  .mat-mdc-option {
+    padding: 10px 12px !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    line-height: 1.35;
+
+    & + .mat-mdc-option {
+      border-top: 1px solid var(--chf-borde-suave);
+    }
+  }
+
+  .opcion-plato-nombre {
+    display: block;
+  }
+
+  .opcion-plato-precio {
+    display: block;
+    margin-top: 2px;
+    font-size: 0.8rem;
+    color: var(--chf-texto-medio);
+  }
+
+  // En la opcion resaltada o elegida el precio toma el azul del texto.
+  .mat-mdc-option-active .opcion-plato-precio,
+  .mdc-list-item--selected .opcion-plato-precio {
+    color: inherit;
+    opacity: 0.8;
+  }
+}
+
 // ── Calendario del datepicker (overlay fuera del componente) ─────────────────
 // Mismo aspecto que el panel del mat-select de arriba: fondo blanco, borde suave,
 // esquinas de 10px y el azul de los campos. Sin esto salia con los colores por

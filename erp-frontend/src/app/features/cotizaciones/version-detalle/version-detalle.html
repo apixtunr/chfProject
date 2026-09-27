@@ -97,10 +97,13 @@
 
         <mat-form-field appearance="outline" class="campo-menu">
           <mat-label>Plato</mat-label>
-          <mat-select formControlName="idPlato">
+          <mat-select formControlName="idPlato" panelClass="panel-platos">
+            <!-- En el campo cerrado basta el nombre; el precio ya se ve en la linea. -->
+            <mat-select-trigger>{{ nombrePlatoElegido() }}</mat-select-trigger>
             @for (plato of platosDelMenu(); track plato.idPlato) {
               <mat-option [value]="plato.idPlato">
-                {{ plato.nombrePlato }} ({{ etiquetaPrecio(plato) }})
+                <span class="opcion-plato-nombre">{{ plato.nombrePlato }}</span>
+                <span class="opcion-plato-precio">{{ etiquetaPrecio(plato) }}</span>
               </mat-option>
             }
           </mat-select>

@@ -91,6 +91,10 @@ export class VersionDetalle implements OnInit {
   readonly menus = signal<MenuResponse[]>([]);
   /** Platos disponibles dentro del menu (categoria) elegido en el formulario. */
   readonly platosDelMenu = signal<MenuPlatoResponse[]>([]);
+  private readonly idPlatoElegido = signal<number | null>(null);
+  readonly nombrePlatoElegido = computed(
+    () => this.platosDelMenu().find((p) => p.idPlato === this.idPlatoElegido())?.nombrePlato ?? '',
+  );
   readonly precioSeleccionado = signal<number | null>(null);
   /** Como se vende el plato elegido: la cantidad son personas (por persona) o piezas (boquitas). */
   readonly unidadSeleccionada = signal<UnidadVenta>('PERSONA');
@@ -203,6 +207,7 @@ export class VersionDetalle implements OnInit {
     });
 
     this.formulario.controls.idPlato.valueChanges.subscribe((idPlato) => {
+      this.idPlatoElegido.set(idPlato);
       const plato = this.platosDelMenu().find((p) => p.idPlato === idPlato);
       this.precioSeleccionado.set(plato ? precioPorUnidad(plato, this.personas()) : null);
       this.unidadSeleccionada.set(plato?.unidadVenta ?? 'PERSONA');
