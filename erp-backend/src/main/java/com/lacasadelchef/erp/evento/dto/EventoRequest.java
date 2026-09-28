@@ -25,6 +25,7 @@ public record EventoRequest(
 
         LocalTime horaInicio,
 
+        /** Se ignora: el fin lo calcula el sistema a partir de horaInicio (CondicionesComerciales). */
         LocalTime horaFin,
 
         /** Obligatoria solo si idCotizacionVersion viene vacio; si no, se toma de la cotizacion. */

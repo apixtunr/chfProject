@@ -35,6 +35,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -132,6 +133,7 @@ public class EventoServiceImpl implements EventoService {
     @Transactional
     public EventoResponse actualizar(Integer id, EventoRequest request) {
         Evento evento = buscarEvento(id);
+        EventoReglas.validarModificable(evento, "modificar");
         aplicar(request, evento);
         evento = eventoRepository.save(evento);
         estadoSchedulerService.programar(evento);
@@ -280,16 +282,23 @@ public class EventoServiceImpl implements EventoService {
             evento.setCantidadPersonas(request.cantidadPersonas());
         }
 
-        evento.setHoraInicio(request.horaInicio());
-        evento.setHoraFin(request.horaFin());
+        // El horario sigue las mismas reglas que la cotizacion, venga o no de una: empieza en
+        // punto entre las 11:00 y las 19:00 y el fin lo calcula el sistema (4 horas, hasta
+        // las 21:00 o las 22:00). Si viene de una cotizacion y no se indica otro, el acordado.
+        LocalTime inicio = request.horaInicio();
         var cotizacion = evento.getCotizacionVersion() == null ? null : evento.getCotizacionVersion().getCotizacion();
-        if (cotizacion != null) {
-            // Horario acordado en la cotizacion, salvo que se indique otro.
-            if (evento.getHoraInicio() == null && cotizacion.getHoraInicio() != null) {
-                evento.setHoraInicio(cotizacion.getHoraInicio());
-                evento.setHoraFin(CondicionesComerciales.horaFinServicio(cotizacion.getHoraInicio()));
-            }
+        if (inicio == null && cotizacion != null) {
+            inicio = cotizacion.getHoraInicio();
         }
+        if (inicio == null) {
+            throw new BusinessException("Indique el horario del servicio");
+        }
+        boolean cambiaElHorario = !inicio.equals(evento.getHoraInicio());
+        if (cambiaElHorario && !CondicionesComerciales.esHoraDeInicioPermitida(inicio)) {
+            throw new BusinessException("El servicio empieza en punto entre las 11:00 y las 19:00");
+        }
+        evento.setHoraInicio(inicio);
+        evento.setHoraFin(CondicionesComerciales.horaFinServicio(inicio));
         evento.setObservaciones(request.observaciones());
     }
 

@@ -3,11 +3,8 @@ import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
-import { MatButtonToggleModule } from '@angular/material/button-toggle';
-import { MatCardModule } from '@angular/material/card';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
+import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router, RouterLink } from '@angular/router';
@@ -16,10 +13,11 @@ import { DepartamentoResponse } from '../../../core/catalogos/departamento';
 import { DepartamentoService } from '../../../core/catalogos/departamento.service';
 import { MunicipioResponse } from '../../../core/catalogos/municipio';
 import { MunicipioService } from '../../../core/catalogos/municipio.service';
+import { MINIMO_PERSONAS } from '../../../core/catalogos/menu';
 import { UbicacionService } from '../../../core/catalogos/ubicacion.service';
 import { ClienteResponse } from '../../clientes/dto/cliente';
 import { ClienteService } from '../../clientes/cliente.service';
-import { CotizacionResponse } from '../../cotizaciones/dto/cotizacion';
+import { CotizacionResponse, HORAS_DE_INICIO, horarioServicio } from '../../cotizaciones/dto/cotizacion';
 import { TipoEventoResponse } from '../dto/evento';
 import { EventoService } from '../evento.service';
 
@@ -30,27 +28,16 @@ import { EventoService } from '../evento.service';
     DecimalPipe,
     ReactiveFormsModule,
     RouterLink,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
+    MatIconModule,
     MatSelectModule,
     MatAutocompleteModule,
     MatDatepickerModule,
     MatButtonModule,
-    MatButtonToggleModule,
   ],
   templateUrl: './evento-form.html',
   styleUrl: './evento-form.scss',
 })
 export class EventoForm implements OnInit {
-  // Horarios de servicio del negocio: cada hora de inicio dura 4 horas, salvo
-  // que exceda las 10:00 pm, en cuyo caso se recorta a esa hora (excepcion
-  // vigente solo para el arranque de las 6:00 pm y 7:00 pm).
-  private static readonly HORA_INICIO_MINIMA = 11;
-  private static readonly HORA_INICIO_MAXIMA = 19;
-  private static readonly HORA_FIN_TOPE = 22;
-  private static readonly DURACION_HORAS = 4;
-
   private readonly fb = inject(FormBuilder);
   private readonly eventoService = inject(EventoService);
   private readonly clienteService = inject(ClienteService);
@@ -83,8 +70,10 @@ export class EventoForm implements OnInit {
    */
   readonly fechaMinima = this.calcularManana();
 
-  /** Franjas de horario validas segun los horarios de servicio del negocio. */
-  readonly horarios: { horaInicio: Date; label: string }[] = this.crearHorarios();
+  /** Mismos turnos que la cotizacion: empieza en punto de 11:00 a 19:00; el fin lo calcula el sistema. */
+  readonly horasDeInicio = HORAS_DE_INICIO;
+  readonly horarioServicio = horarioServicio;
+  readonly minimoPersonas = MINIMO_PERSONAS;
 
   private crearFormulario() {
     return this.fb.nonNullable.group({
@@ -96,8 +85,7 @@ export class EventoForm implements OnInit {
       idMunicipio: this.fb.control<number | null>(null, Validators.required),
       direccion: ['', [Validators.required, Validators.maxLength(255)]],
       fechaEvento: this.fb.control<Date | null>(null, Validators.required),
-      horaInicio: this.fb.control<Date | null>(null),
-      horaFin: this.fb.control<Date | null>(null),
+      horaInicio: this.fb.control<string | null>(null, Validators.required),
       cantidadPersonas: this.fb.control<number | null>(null),
       observaciones: [''],
     });
@@ -108,20 +96,12 @@ export class EventoForm implements OnInit {
     this.eventoService.listarTiposEvento().subscribe((t) => this.tiposEvento.set(t));
     this.departamentoService.listar().subscribe((d) => this.departamentos.set(d));
 
-    // La hora fin la calcula el sistema segun el horario de servicio: el usuario
-    // no la edita directamente.
-    this.formulario.controls.horaFin.disable();
-    this.formulario.controls.horaInicio.valueChanges.subscribe((horaInicio) => {
-      this.formulario.controls.horaFin.setValue(this.calcularHoraFin(horaInicio), { emitEvent: false });
-    });
-
     this.formulario.controls.idCotizacionVersion.valueChanges.subscribe((idCotizacionVersion) => {
       this.idCotizacionVersionSeleccionada.set(idCotizacionVersion);
       // El horario ya se acordo en la cotizacion: se propone el mismo (se puede cambiar).
       const hora = this.cotizacionSeleccionada()?.horaInicio;
       if (hora) {
-        const turno = this.horarios.find((h) => h.horaInicio.getHours() === Number(hora.split(':')[0]));
-        this.formulario.controls.horaInicio.setValue(turno?.horaInicio ?? null);
+        this.formulario.controls.horaInicio.setValue(hora.substring(0, 5));
       }
     });
 
@@ -154,6 +134,7 @@ export class EventoForm implements OnInit {
         this.formulario.controls.idDepartamento,
         this.formulario.controls.idMunicipio,
         this.formulario.controls.fechaEvento,
+        this.formulario.controls.cantidadPersonas,
       ];
       for (const campo of camposSimples) {
         campo.setValidators(esDirecto ? Validators.required : null);
@@ -186,6 +167,16 @@ export class EventoForm implements OnInit {
         }),
       )
       .subscribe((page) => this.clientesFiltrados.set(page?.content ?? []));
+  }
+
+  elegirModo(tieneCotizacion: boolean): void {
+    this.formulario.controls.tieneCotizacion.setValue(tieneCotizacion);
+  }
+
+  /** Aviso (no bloquea) igual que en la cotizacion: la empresa atiende desde 50 personas. */
+  debajoDelMinimo(): boolean {
+    const personas = this.formulario.controls.cantidadPersonas.value;
+    return personas != null && personas > 0 && personas < MINIMO_PERSONAS;
   }
 
   tieneCotizacion(): boolean | null {
@@ -228,8 +219,8 @@ export class EventoForm implements OnInit {
           idTipoEvento: null,
           idUbicacion: null,
           fechaEvento: null,
-          horaInicio: this.aHoraString(v.horaInicio),
-          horaFin: this.aHoraString(v.horaFin),
+          horaInicio: v.horaInicio,
+          horaFin: null,
           cantidadPersonas: null,
           observaciones: v.observaciones || null,
         })
@@ -253,8 +244,8 @@ export class EventoForm implements OnInit {
             idTipoEvento: v.idTipoEvento!,
             idUbicacion: ubicacion.idUbicacion,
             fechaEvento: this.aFechaIso(v.fechaEvento!),
-            horaInicio: this.aHoraString(v.horaInicio),
-            horaFin: this.aHoraString(v.horaFin),
+            horaInicio: v.horaInicio,
+            horaFin: null,
             cantidadPersonas: v.cantidadPersonas,
             observaciones: v.observaciones || null,
           })
@@ -281,39 +272,5 @@ export class EventoForm implements OnInit {
     const mes = String(fecha.getMonth() + 1).padStart(2, '0');
     const dia = String(fecha.getDate()).padStart(2, '0');
     return `${anio}-${mes}-${dia}`;
-  }
-
-  private crearHorarios(): { horaInicio: Date; label: string }[] {
-    const horarios: { horaInicio: Date; label: string }[] = [];
-    for (let hora = EventoForm.HORA_INICIO_MINIMA; hora <= EventoForm.HORA_INICIO_MAXIMA; hora++) {
-      const inicio = new Date();
-      inicio.setHours(hora, 0, 0, 0);
-      const fin = this.calcularHoraFin(inicio)!;
-      horarios.push({ horaInicio: inicio, label: `${this.formatearHora24(inicio)} a ${this.formatearHora24(fin)}` });
-    }
-    return horarios;
-  }
-
-  private calcularHoraFin(horaInicio: Date | null): Date | null {
-    if (!horaInicio) {
-      return null;
-    }
-    const horaFin = new Date(horaInicio);
-    const horaFinCalculada = Math.min(horaInicio.getHours() + EventoForm.DURACION_HORAS, EventoForm.HORA_FIN_TOPE);
-    horaFin.setHours(horaFinCalculada, 0, 0, 0);
-    return horaFin;
-  }
-
-  private formatearHora24(fecha: Date): string {
-    return `${String(fecha.getHours()).padStart(2, '0')}:00`;
-  }
-
-  private aHoraString(hora: Date | null): string | null {
-    if (!hora) {
-      return null;
-    }
-    const horas = String(hora.getHours()).padStart(2, '0');
-    const minutos = String(hora.getMinutes()).padStart(2, '0');
-    return `${horas}:${minutos}`;
   }
 }

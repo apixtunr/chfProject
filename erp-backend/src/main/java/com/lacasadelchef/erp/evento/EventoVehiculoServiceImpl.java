@@ -1,5 +1,6 @@
 package com.lacasadelchef.erp.evento;
 
+import com.lacasadelchef.erp.common.exception.BusinessException;
 import com.lacasadelchef.erp.common.exception.ResourceNotFoundException;
 import com.lacasadelchef.erp.entity.Empleado;
 import com.lacasadelchef.erp.entity.Evento;
@@ -22,6 +23,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class EventoVehiculoServiceImpl implements EventoVehiculoService {
 
+    private static final String ESTADO_DISPONIBLE = "DISPONIBLE";
+    private static final String ESTADO_ACTIVO = "ACTIVO";
+
     private final EventoVehiculoRepository eventoVehiculoRepository;
     private final EventoRepository eventoRepository;
     private final VehiculoRepository vehiculoRepository;
@@ -42,6 +46,21 @@ public class EventoVehiculoServiceImpl implements EventoVehiculoService {
                 .orElseThrow(() -> new ResourceNotFoundException("Evento", idEvento));
         Vehiculo vehiculo = vehiculoRepository.findById(idVehiculo)
                 .orElseThrow(() -> new ResourceNotFoundException("Vehiculo", idVehiculo));
+        EventoReglas.validarModificable(evento, "asignar vehículos a");
+        if (!ESTADO_DISPONIBLE.equalsIgnoreCase(vehiculo.getEstado().getNombre())) {
+            throw new BusinessException("El vehículo %s está %s y no se puede asignar"
+                    .formatted(vehiculo.getPlaca(), vehiculo.getEstado().getNombre()));
+        }
+        if (eventoVehiculoRepository.existsById(new EventoVehiculoId(idEvento, idVehiculo))) {
+            throw new BusinessException("El vehículo %s ya está asignado a este evento".formatted(vehiculo.getPlaca()));
+        }
+        // Un vehiculo hace un evento por dia: va, espera el servicio y regresa con el equipo.
+        eventoVehiculoRepository.otrasAsignacionesDelDia(idVehiculo, idEvento, evento.getFechaEvento()).stream()
+                .findFirst()
+                .ifPresent(otra -> {
+                    throw new BusinessException("El vehículo %s ya está asignado al evento #%d del mismo día"
+                            .formatted(vehiculo.getPlaca(), otra.getEvento().getIdEvento()));
+                });
 
         EventoVehiculo eventoVehiculo = new EventoVehiculo();
         eventoVehiculo.setId(new EventoVehiculoId(idEvento, idVehiculo));
@@ -56,6 +75,7 @@ public class EventoVehiculoServiceImpl implements EventoVehiculoService {
     @Transactional
     public EventoVehiculoResponse actualizar(Integer idEvento, Integer idVehiculo, EventoVehiculoRequest request) {
         EventoVehiculo eventoVehiculo = buscar(idEvento, idVehiculo);
+        EventoReglas.validarModificable(eventoVehiculo.getEvento(), "modificar los vehículos de");
         aplicar(request, eventoVehiculo);
         eventoVehiculo = eventoVehiculoRepository.save(eventoVehiculo);
         return EventoVehiculoResponse.desde(eventoVehiculo);
@@ -65,6 +85,7 @@ public class EventoVehiculoServiceImpl implements EventoVehiculoService {
     @Transactional
     public void quitar(Integer idEvento, Integer idVehiculo) {
         EventoVehiculo eventoVehiculo = buscar(idEvento, idVehiculo);
+        EventoReglas.validarModificable(eventoVehiculo.getEvento(), "quitar vehículos de");
         eventoVehiculoRepository.delete(eventoVehiculo);
     }
 
@@ -79,6 +100,9 @@ public class EventoVehiculoServiceImpl implements EventoVehiculoService {
         if (request.idEmpleadoConductor() != null) {
             conductor = empleadoRepository.findById(request.idEmpleadoConductor())
                     .orElseThrow(() -> new ResourceNotFoundException("Empleado", request.idEmpleadoConductor()));
+            if (!ESTADO_ACTIVO.equalsIgnoreCase(conductor.getEstado().getNombre())) {
+                throw new BusinessException("%s está inactivo y no puede conducir".formatted(conductor.getNombreCompleto()));
+            }
         }
         eventoVehiculo.setEmpleado(conductor);
     }

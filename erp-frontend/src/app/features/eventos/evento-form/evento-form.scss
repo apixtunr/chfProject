@@ -1,73 +1,130 @@
-.tarjeta {
-  max-width: 800px;
-  margin: 0 auto;
-}
+// Los estilos pf-* de este formulario viven en src/styles.scss, compartidos con
+// Clientes y Cotizaciones. Aqui solo va lo propio de esta pantalla.
 
 // El calendario del datepicker se renderiza en un overlay fuera de este componente,
-// pero conserva el atributo de encapsulacion (igual que el tooltip de "Registro de
-// costo extra"), asi que ::ng-deep si alcanza. Hoy sale deshabilitado (no se puede
-// crear un evento para hoy) pero Material igual le dibuja un aro para marcarlo como
-// "hoy" -no hace falta, con que se vea deshabilitado como cualquier otro dia basta.
+// pero conserva el atributo de encapsulacion, asi que ::ng-deep si alcanza. Hoy sale
+// deshabilitado (no se puede crear un evento para hoy) pero Material igual le dibuja
+// un aro para marcarlo como "hoy": no hace falta.
 ::ng-deep .mat-datepicker-content {
   --mat-datepicker-calendar-date-today-disabled-state-outline-color: transparent;
 }
 
-.pregunta {
-  font-weight: 500;
-  margin-bottom: 8px;
-}
-
-.campo {
-  width: 100%;
-  margin-top: 8px;
-  display: block;
-}
-
-.interruptor {
-  width: 100%;
-  margin-top: 8px;
-
-  .mat-button-toggle {
-    flex: 1;
-  }
-}
-
-.error-modo {
-  margin: 4px 0 0;
-  font-size: 0.75rem;
-  color: var(--mat-sys-error);
-}
-
-.fila {
-  display: flex;
+// "¿Tiene cotizacion?": dos tarjetas elegibles, con el mismo borde y fondo que los
+// campos pf-*; la elegida toma el azul de los campos.
+.opciones-origen {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 12px;
-}
 
-.campo-medio {
-  flex: 1;
-  margin-top: 8px;
-}
-
-.resumen-cotizacion {
-  background: var(--mat-sys-surface-container, #f2f2f2);
-  border-radius: 8px;
-  padding: 12px 16px;
-  margin: 8px 0 16px;
-
-  p {
-    margin: 4px 0;
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
   }
 }
 
-.resumen-titulo {
-  font-weight: 500;
-  letter-spacing: 0.5px;
-  margin-bottom: 8px;
+.opcion-origen {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 14px;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+  background: var(--chf-fondo-campo);
+  border: 1.5px solid var(--chf-borde-control);
+  border-radius: 8px;
+  color: var(--chf-texto-fuerte);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+
+  mat-icon {
+    flex-shrink: 0;
+    color: var(--chf-texto-ejemplo);
+  }
+
+  &:hover {
+    border-color: var(--chf-campo-acento);
+  }
+
+  &:focus-visible {
+    outline: none;
+    border-color: var(--chf-campo-acento);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--chf-campo-acento) 14%, transparent);
+  }
+
+  &--activa {
+    border-color: var(--chf-campo-acento);
+    background: color-mix(in srgb, var(--chf-campo-acento) 8%, var(--chf-fondo-seccion));
+
+    mat-icon,
+    strong {
+      color: var(--chf-campo-acento);
+    }
+  }
 }
 
-.acciones {
+.opcion-origen-texto {
   display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-  margin-top: 16px;
+  flex-direction: column;
+  gap: 2px;
+
+  strong {
+    font-size: 0.9rem;
+  }
+
+  small {
+    font-size: 0.78rem;
+    line-height: 1.35;
+    color: var(--chf-texto-medio);
+  }
+}
+
+// Lo que el evento toma de la cotizacion elegida, en una rejilla de solo lectura.
+.resumen-cotizacion {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px 24px;
+  padding: 12px 14px;
+  border: 1.5px dashed var(--chf-borde-control);
+  border-radius: 8px;
+
+  div {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+
+  span {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--chf-texto-ejemplo);
+  }
+
+  strong {
+    font-size: 0.875rem;
+    color: var(--chf-texto-fuerte);
+  }
+
+  .resumen-ancho {
+    grid-column: 1 / -1;
+  }
+
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+// Textarea dentro del wrapper pf-*: el icono se queda arriba, a la altura del primer renglon.
+.pf-input-wrap--area.pf-input-wrap {
+  align-items: flex-start;
+
+  .pf-input-icon {
+    margin-top: 2px;
+  }
+
+  textarea.pf-input {
+    resize: vertical;
+    min-height: 60px;
+  }
 }

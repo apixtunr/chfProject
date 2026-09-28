@@ -1,137 +1,355 @@
-<mat-card class="tarjeta">
-  <mat-card-header>
-    <mat-card-title>Nuevo evento</mat-card-title>
-  </mat-card-header>
+<!-- ══ CABECERA DE PÁGINA ══════════════════════════════════════ -->
+<div class="pf-page-header">
+  <div class="pf-header-left">
+    <nav class="pf-breadcrumb" aria-label="Ruta de navegación">
+      <a routerLink="/eventos" class="pf-breadcrumb-link">Eventos</a>
+      <mat-icon class="pf-breadcrumb-sep">chevron_right</mat-icon>
+      <span class="pf-breadcrumb-current">Nuevo evento</span>
+    </nav>
+    <div class="pf-title-row">
+      <h1 class="pf-title">Nuevo Evento</h1>
+      <span class="pf-badge">ALTA EN SISTEMA</span>
+    </div>
+    <p class="pf-subtitle">Crea el evento a partir de una cotización aceptada o ingresa sus datos directamente.</p>
+  </div>
+</div>
 
-  <mat-card-content>
-    <form [formGroup]="formulario" (ngSubmit)="guardar()">
-      <p class="pregunta">¿Tiene cotización?</p>
-      <mat-button-toggle-group formControlName="tieneCotizacion" class="interruptor">
-        <mat-button-toggle [value]="true">Si</mat-button-toggle>
-        <mat-button-toggle [value]="false">No</mat-button-toggle>
-      </mat-button-toggle-group>
+<!-- ══ FORMULARIO ══════════════════════════════════════════════ -->
+<form [formGroup]="formulario" (ngSubmit)="guardar()" novalidate>
+
+  <!-- ── SECCIÓN 1: Origen del evento ── -->
+  <div class="pf-section">
+    <div class="pf-section-header">
+      <div class="pf-section-title">
+        <mat-icon>request_quote</mat-icon>
+        <span>Origen del Evento</span>
+      </div>
+    </div>
+
+    <div class="pf-field">
+      <span class="pf-label">
+        <span class="pf-label-num">1.</span>
+        <span class="pf-label-name">¿Tiene cotización?</span>
+        <span class="pf-required-mark">*</span>
+      </span>
+      <div class="opciones-origen" role="radiogroup" aria-label="¿Tiene cotización?">
+        <button
+          type="button"
+          class="opcion-origen"
+          role="radio"
+          [attr.aria-checked]="tieneCotizacion() === true"
+          [class.opcion-origen--activa]="tieneCotizacion() === true"
+          (click)="elegirModo(true)"
+        >
+          <mat-icon>request_quote</mat-icon>
+          <span class="opcion-origen-texto">
+            <strong>Con cotización</strong>
+            <small>Toma cliente, lugar, fecha, personas y menú de la cotización aceptada</small>
+          </span>
+        </button>
+        <button
+          type="button"
+          class="opcion-origen"
+          role="radio"
+          [attr.aria-checked]="tieneCotizacion() === false"
+          [class.opcion-origen--activa]="tieneCotizacion() === false"
+          (click)="elegirModo(false)"
+        >
+          <mat-icon>edit_calendar</mat-icon>
+          <span class="opcion-origen-texto">
+            <strong>Sin cotización</strong>
+            <small>Se ingresan los datos aquí y el menú en el detalle del evento</small>
+          </span>
+        </button>
+      </div>
       @if (modoTocado() && tieneCotizacion() === null) {
-        <p class="error-modo">Debes elegir una opción</p>
+        <p class="pf-error">Elige una opción.</p>
       }
+    </div>
 
-      @if (tieneCotizacion() === true) {
-        <mat-form-field appearance="outline" class="campo">
-          <mat-label>Cotización aceptada</mat-label>
-          <mat-select formControlName="idCotizacionVersion">
+    @if (tieneCotizacion() === true) {
+      <div class="pf-field">
+        <label class="pf-label" for="cotizacion">
+          <span class="pf-label-num">2.</span>
+          <span class="pf-label-name">Cotización aceptada</span>
+          <span class="pf-required-mark">*</span>
+        </label>
+        <div
+          class="pf-input-wrap pf-input-wrap--select"
+          [class.pf-input-wrap--error]="formulario.controls.idCotizacionVersion.invalid && formulario.controls.idCotizacionVersion.touched"
+        >
+          <mat-icon class="pf-input-icon">receipt_long</mat-icon>
+          <mat-select id="cotizacion" class="pf-select" formControlName="idCotizacionVersion" placeholder="Selecciona la cotización">
             @for (c of cotizacionesAceptadas(); track c.ultimaVersionId) {
               <mat-option [value]="c.ultimaVersionId">
                 #{{ c.idCotizacion }} - {{ c.clienteNombre }} (Q{{ c.ultimaVersionMonto | number: '1.2-2' }})
               </mat-option>
             }
           </mat-select>
-          @if (cotizacionesAceptadas().length === 0) {
-            <mat-hint>No hay cotizaciones aceptadas disponibles, cree una o ingrese un evento sin cotización</mat-hint>
-          }
-          @if (formulario.controls.idCotizacionVersion.hasError('required') && formulario.controls.idCotizacionVersion.touched) {
-            <mat-error>Debes seleccionar una cotización</mat-error>
-          }
-        </mat-form-field>
-      } @else if (tieneCotizacion() === false) {
-        <mat-form-field appearance="outline" class="campo">
-          <mat-label>Cliente</mat-label>
-          <input matInput [formControl]="busquedaCliente" [matAutocomplete]="autoCliente" placeholder="Buscar cliente por nombre" />
+        </div>
+        @if (cotizacionesAceptadas().length === 0) {
+          <p class="pf-aviso">No hay cotizaciones aceptadas sin evento. Acepta una o crea el evento sin cotización.</p>
+        } @else if (formulario.controls.idCotizacionVersion.invalid && formulario.controls.idCotizacionVersion.touched) {
+          <p class="pf-error">La cotización es obligatoria.</p>
+        }
+      </div>
+
+      @if (cotizacionSeleccionada(); as c) {
+        <div class="pf-field">
+          <div class="resumen-cotizacion">
+            <div><span>Cliente</span><strong>{{ c.clienteNombre }}</strong></div>
+            <div><span>Tipo de evento</span><strong>{{ c.tipoEventoNombre }}</strong></div>
+            <div><span>Personas</span><strong>{{ c.cantidadPersonas }}</strong></div>
+            <div><span>Fecha</span><strong>{{ c.fechaEvento ? (c.fechaEvento | date: 'dd/MM/yyyy') : 'Por definir' }}</strong></div>
+            <div class="resumen-ancho"><span>Ubicación</span><strong>{{ c.direccionUbicacion }}</strong></div>
+          </div>
+        </div>
+      }
+    } @else if (tieneCotizacion() === false) {
+      <div class="pf-field">
+        <label class="pf-label" for="cliente">
+          <span class="pf-label-num">2.</span>
+          <span class="pf-label-name">Cliente</span>
+          <span class="pf-required-mark">*</span>
+        </label>
+        <div class="pf-input-wrap" [class.pf-input-wrap--error]="formulario.controls.idCliente.invalid && busquedaCliente.touched">
+          <mat-icon class="pf-input-icon">search</mat-icon>
+          <input
+            id="cliente"
+            class="pf-input"
+            [formControl]="busquedaCliente"
+            [matAutocomplete]="autoCliente"
+            placeholder="Buscar cliente por nombre"
+            autocomplete="off"
+          />
           <mat-autocomplete #autoCliente="matAutocomplete" [displayWith]="mostrarCliente" (optionSelected)="seleccionarCliente($event)">
             @for (cliente of clientesFiltrados(); track cliente.idCliente) {
               <mat-option [value]="cliente">{{ cliente.nombre }}</mat-option>
             }
           </mat-autocomplete>
-          @if (formulario.controls.idCliente.hasError('required') && busquedaCliente.touched) {
-            <mat-error>Debes seleccionar un cliente</mat-error>
-          }
-        </mat-form-field>
-      }
+        </div>
+        @if (formulario.controls.idCliente.invalid && busquedaCliente.touched) {
+          <p class="pf-error">El cliente es obligatorio.</p>
+        }
+      </div>
+    }
+  </div>
 
-      @if (tieneCotizacion() === true && cotizacionSeleccionada(); as c) {
-        <div class="resumen-cotizacion">
-          <p class="resumen-titulo"><strong>DATOS DE LA COTIZACIÓN:</strong></p>
-          <p><strong>Tipo de evento:</strong> {{ c.tipoEventoNombre }}</p>
-          <p><strong>Ubicación:</strong> {{ c.direccionUbicacion }}</p>
-          <p><strong>Cantidad de personas:</strong> {{ c.cantidadPersonas }}</p>
-          @if (c.fechaEvento) {
-            <p><strong>Fecha del evento:</strong> {{ c.fechaEvento | date: 'dd/MM/yyyy' }}</p>
-          }
+  @if (tieneCotizacion() !== null) {
+    <!-- ── SECCIÓN 2: Detalles del evento ── -->
+    <div class="pf-section">
+      <div class="pf-section-header">
+        <div class="pf-section-title">
+          <mat-icon>event_note</mat-icon>
+          <span>Detalles del Evento</span>
+        </div>
+      </div>
+
+      @if (tieneCotizacion() === false) {
+        <div class="pf-row-2col">
+          <div class="pf-field">
+            <label class="pf-label" for="tipoEvento">
+              <span class="pf-label-num">3.</span>
+              <span class="pf-label-name">Tipo de evento</span>
+              <span class="pf-required-mark">*</span>
+            </label>
+            <div
+              class="pf-input-wrap pf-input-wrap--select"
+              [class.pf-input-wrap--error]="formulario.controls.idTipoEvento.invalid && formulario.controls.idTipoEvento.touched"
+            >
+              <mat-icon class="pf-input-icon">celebration</mat-icon>
+              <mat-select id="tipoEvento" class="pf-select" formControlName="idTipoEvento" placeholder="Selecciona el tipo">
+                @for (tipo of tiposEvento(); track tipo.idTipoEvento) {
+                  <mat-option [value]="tipo.idTipoEvento">{{ tipo.nombreTipo }}</mat-option>
+                }
+              </mat-select>
+            </div>
+            @if (formulario.controls.idTipoEvento.invalid && formulario.controls.idTipoEvento.touched) {
+              <p class="pf-error">El tipo de evento es obligatorio.</p>
+            }
+          </div>
+
+          <div class="pf-field">
+            <label class="pf-label" for="cantidadPersonas">
+              <span class="pf-label-num">4.</span>
+              <span class="pf-label-name">Cantidad de personas</span>
+              <span class="pf-required-mark">*</span>
+            </label>
+            <div
+              class="pf-input-wrap"
+              [class.pf-input-wrap--error]="formulario.controls.cantidadPersonas.invalid && formulario.controls.cantidadPersonas.touched"
+            >
+              <mat-icon class="pf-input-icon">groups</mat-icon>
+              <input id="cantidadPersonas" class="pf-input" type="number" formControlName="cantidadPersonas" placeholder="Ej. 150" min="1" />
+            </div>
+            @if (formulario.controls.cantidadPersonas.invalid && formulario.controls.cantidadPersonas.touched) {
+              <p class="pf-error">Ingresa un número válido mayor a 0.</p>
+            } @else if (debajoDelMinimo()) {
+              <p class="pf-aviso">Los menús se ofrecen desde {{ minimoPersonas }} personas. Puede crearlo igual.</p>
+            }
+          </div>
         </div>
       }
 
-      @if (tieneCotizacion() === false) {
-        <mat-form-field appearance="outline" class="campo">
-          <mat-label>Tipo de evento</mat-label>
-          <mat-select formControlName="idTipoEvento">
-            @for (tipo of tiposEvento(); track tipo.idTipoEvento) {
-              <mat-option [value]="tipo.idTipoEvento">{{ tipo.nombreTipo }}</mat-option>
+      <div class="pf-row-2col">
+        @if (tieneCotizacion() === false) {
+          <div class="pf-field">
+            <label class="pf-label" for="fechaEvento">
+              <span class="pf-label-num">5.</span>
+              <span class="pf-label-name">Fecha del evento</span>
+              <span class="pf-required-mark">*</span>
+            </label>
+            <div
+              class="pf-input-wrap pf-input-wrap--date"
+              [class.pf-input-wrap--error]="formulario.controls.fechaEvento.invalid && formulario.controls.fechaEvento.touched"
+            >
+              <mat-icon class="pf-input-icon">calendar_today</mat-icon>
+              <input
+                id="fechaEvento"
+                class="pf-input"
+                [matDatepicker]="picker"
+                [min]="fechaMinima"
+                formControlName="fechaEvento"
+                placeholder="dd/mm/aaaa"
+                readonly
+              />
+              <mat-datepicker-toggle class="pf-date-toggle" [for]="picker" tabindex="-1"></mat-datepicker-toggle>
+              <mat-datepicker #picker></mat-datepicker>
+            </div>
+            @if (formulario.controls.fechaEvento.invalid && formulario.controls.fechaEvento.touched) {
+              <p class="pf-error">La fecha es obligatoria.</p>
             }
-          </mat-select>
-        </mat-form-field>
+          </div>
+        }
 
-        <p class="pregunta">Ubicación del evento</p>
-        <div class="fila">
-          <mat-form-field appearance="outline" class="campo-medio">
-            <mat-label>Departamento</mat-label>
-            <mat-select formControlName="idDepartamento">
+        <div class="pf-field">
+          <label class="pf-label" for="horaInicio">
+            <span class="pf-label-num">{{ tieneCotizacion() === false ? '6.' : '3.' }}</span>
+            <span class="pf-label-name">Horario del servicio</span>
+            <span class="pf-required-mark">*</span>
+          </label>
+          <div
+            class="pf-input-wrap pf-input-wrap--select"
+            [class.pf-input-wrap--error]="formulario.controls.horaInicio.invalid && formulario.controls.horaInicio.touched"
+          >
+            <mat-icon class="pf-input-icon">schedule</mat-icon>
+            <mat-select id="horaInicio" class="pf-select" formControlName="horaInicio" placeholder="Selecciona el horario">
+              @for (hora of horasDeInicio; track hora) {
+                <mat-option [value]="hora">{{ horarioServicio(hora) }}</mat-option>
+              }
+            </mat-select>
+          </div>
+          @if (formulario.controls.horaInicio.invalid && formulario.controls.horaInicio.touched) {
+            <p class="pf-error">El horario del servicio es obligatorio.</p>
+          }
+        </div>
+      </div>
+
+      <div class="pf-field pf-field--last">
+        <label class="pf-label" for="observaciones">
+          <span class="pf-label-num">{{ tieneCotizacion() === false ? '7.' : '4.' }}</span>
+          <span class="pf-label-name">Observaciones</span>
+          <span class="pf-label-hint">(Opcional)</span>
+        </label>
+        <div class="pf-input-wrap pf-input-wrap--area">
+          <mat-icon class="pf-input-icon">notes</mat-icon>
+          <textarea
+            id="observaciones"
+            class="pf-input"
+            formControlName="observaciones"
+            rows="3"
+            placeholder="Indicaciones para cocina o para el montaje"
+          ></textarea>
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (tieneCotizacion() === false) {
+    <!-- ── SECCIÓN 3: Ubicación ── -->
+    <div class="pf-section">
+      <div class="pf-section-header">
+        <div class="pf-section-title">
+          <mat-icon>location_on</mat-icon>
+          <span>Ubicación del Evento</span>
+        </div>
+      </div>
+
+      <div class="pf-row-2col">
+        <div class="pf-field">
+          <label class="pf-label" for="departamento">
+            <span class="pf-label-num">8.</span>
+            <span class="pf-label-name">Departamento</span>
+            <span class="pf-required-mark">*</span>
+          </label>
+          <div
+            class="pf-input-wrap pf-input-wrap--select"
+            [class.pf-input-wrap--error]="formulario.controls.idDepartamento.invalid && formulario.controls.idDepartamento.touched"
+          >
+            <mat-icon class="pf-input-icon">map</mat-icon>
+            <mat-select id="departamento" class="pf-select" formControlName="idDepartamento" placeholder="Selecciona un departamento">
               @for (d of departamentos(); track d.idDepartamento) {
                 <mat-option [value]="d.idDepartamento">{{ d.nombreDepartamento }}</mat-option>
               }
             </mat-select>
-          </mat-form-field>
+          </div>
+          @if (formulario.controls.idDepartamento.invalid && formulario.controls.idDepartamento.touched) {
+            <p class="pf-error">El departamento es obligatorio.</p>
+          }
+        </div>
 
-          <mat-form-field appearance="outline" class="campo-medio">
-            <mat-label>Municipio</mat-label>
-            <mat-select formControlName="idMunicipio">
+        <div class="pf-field">
+          <label class="pf-label" for="municipio">
+            <span class="pf-label-num">9.</span>
+            <span class="pf-label-name">Municipio</span>
+            <span class="pf-required-mark">*</span>
+          </label>
+          <div
+            class="pf-input-wrap pf-input-wrap--select"
+            [class.pf-input-wrap--error]="formulario.controls.idMunicipio.invalid && formulario.controls.idMunicipio.touched"
+          >
+            <mat-icon class="pf-input-icon">location_city</mat-icon>
+            <mat-select id="municipio" class="pf-select" formControlName="idMunicipio" placeholder="Selecciona un municipio">
               @for (m of municipios(); track m.idMunicipio) {
                 <mat-option [value]="m.idMunicipio">{{ m.nombreMunicipio }}</mat-option>
               }
             </mat-select>
-          </mat-form-field>
-        </div>
-
-        <mat-form-field appearance="outline" class="campo">
-          <mat-label>Dirección</mat-label>
-          <textarea matInput formControlName="direccion" rows="2"></textarea>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" class="campo">
-          <mat-label>Fecha del evento</mat-label>
-          <input matInput [matDatepicker]="picker" [min]="fechaMinima" formControlName="fechaEvento" />
-          <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-          <mat-datepicker #picker></mat-datepicker>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" class="campo">
-          <mat-label>Cantidad de personas</mat-label>
-          <input matInput type="number" formControlName="cantidadPersonas" min="1" />
-        </mat-form-field>
-      }
-
-      <mat-form-field appearance="outline" class="campo">
-        <mat-label>Horario</mat-label>
-        <mat-select formControlName="horaInicio">
-          @for (h of horarios; track h.label) {
-            <mat-option [value]="h.horaInicio">{{ h.label }}</mat-option>
+          </div>
+          @if (formulario.controls.idMunicipio.invalid && formulario.controls.idMunicipio.touched) {
+            <p class="pf-error">El municipio es obligatorio.</p>
           }
-        </mat-select>
-      </mat-form-field>
-
-      <mat-form-field appearance="outline" class="campo">
-        <mat-label>Observaciones</mat-label>
-        <textarea matInput formControlName="observaciones" rows="2"></textarea>
-      </mat-form-field>
-
-      <div class="acciones">
-        <button mat-button type="button" routerLink="/eventos">Cancelar</button>
-        <button
-          mat-flat-button
-          color="primary"
-          type="submit"
-          [disabled]="guardando() || (tieneCotizacion() === true && cotizacionesAceptadas().length === 0)"
-        >
-          Guardar
-        </button>
+        </div>
       </div>
-    </form>
-  </mat-card-content>
-</mat-card>
+
+      <div class="pf-field pf-field--last">
+        <label class="pf-label" for="direccion">
+          <span class="pf-label-num">10.</span>
+          <span class="pf-label-name">Dirección</span>
+          <span class="pf-required-mark">*</span>
+        </label>
+        <div class="pf-input-wrap" [class.pf-input-wrap--error]="formulario.controls.direccion.invalid && formulario.controls.direccion.touched">
+          <mat-icon class="pf-input-icon">location_on</mat-icon>
+          <input id="direccion" class="pf-input" formControlName="direccion" placeholder="Calle, número, zona o colonia" />
+        </div>
+        @if (formulario.controls.direccion.invalid && formulario.controls.direccion.touched) {
+          <p class="pf-error">La dirección es obligatoria.</p>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- ══ ACCIONES ════════════════════════════════════════════ -->
+  <div class="pf-footer-actions">
+    <button mat-stroked-button type="button" routerLink="/eventos" class="pf-btn-cancel">Cancelar</button>
+    <button
+      mat-flat-button
+      type="submit"
+      class="pf-btn-save"
+      [disabled]="guardando() || (tieneCotizacion() === true && cotizacionesAceptadas().length === 0)"
+    >
+      <mat-icon>save</mat-icon>
+      Guardar evento
+    </button>
+  </div>
+
+</form>
