@@ -996,6 +996,15 @@ mat-paginator {
     padding-bottom: 20px;
   }
 
+  // Cuando dos pf-row-2col van seguidos, el segundo no tiene padding-top
+  // porque sus pf-field son los primeros del grid y no del padre.
+  // Se lo damos al propio row cuando viene después de otro.
+  & + & {
+    .pf-field {
+      padding-top: 16px;
+    }
+  }
+
   @media (max-width: 640px) {
     grid-template-columns: 1fr;
   }

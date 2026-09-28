@@ -110,6 +110,7 @@ export class VersionDetalle implements OnInit {
   readonly estadosCotizacion = signal<EstadoResponse[]>([]);
   readonly idDetalleEditando = signal<number | null>(null);
   readonly descargandoPdf = signal(false);
+  readonly cargandoVistaPrevia = signal(false);
 
   readonly servicios = signal<ServicioCotizacionResponse[]>([]);
   readonly tiposServicio = signal<TipoServicioResponse[]>([]);
@@ -216,6 +217,13 @@ export class VersionDetalle implements OnInit {
       this.bebidasDelPlato.set(bebidas);
       // Si incluye una sola (atol, jugo y cafe) se pone sola.
       this.formulario.controls.idBebida.setValue(bebidas.length === 1 ? bebidas[0].idBebida : null);
+      // Bebida obligatoria cuando el plato tiene opciones.
+      if (bebidas.length > 0) {
+        this.formulario.controls.idBebida.addValidators(Validators.required);
+      } else {
+        this.formulario.controls.idBebida.removeValidators(Validators.required);
+      }
+      this.formulario.controls.idBebida.updateValueAndValidity({ emitEvent: false });
     });
   }
 
@@ -246,6 +254,13 @@ export class VersionDetalle implements OnInit {
         ? [{ idBebida: detalle.idBebida, nombreBebida: detalle.nombreBebida ?? '' }]
         : [];
       this.bebidasDelPlato.set([...bebidas, ...actual]);
+      // Si el plato tiene bebidas, la bebida es obligatoria también al editar.
+      if (bebidas.length > 0) {
+        this.formulario.controls.idBebida.addValidators(Validators.required);
+      } else {
+        this.formulario.controls.idBebida.removeValidators(Validators.required);
+      }
+      this.formulario.controls.idBebida.updateValueAndValidity({ emitEvent: false });
       this.formulario.setValue(
         {
           idMenu: detalle.idMenu,
@@ -404,7 +419,7 @@ export class VersionDetalle implements OnInit {
 
   descargarPdf(): void {
     this.descargandoPdf.set(true);
-    // Espera minima para que el spinner sea perceptible incluso si el PDF llega al instante.
+    // Mostrar spinner de descarga.
     zip(this.cotizacionService.descargarPdf(this.idVersion), timer(500))
       .pipe(finalize(() => this.descargandoPdf.set(false)))
       .subscribe(([blob]) => {
@@ -413,6 +428,17 @@ export class VersionDetalle implements OnInit {
         enlace.href = url;
         enlace.download = `cotizacion-${this.idVersion}.pdf`;
         enlace.click();
+        URL.revokeObjectURL(url);
+      });
+  }
+
+  verVistaPreviaPdf(): void {
+    this.cargandoVistaPrevia.set(true);
+    zip(this.cotizacionService.descargarPdf(this.idVersion), timer(500))
+      .pipe(finalize(() => this.cargandoVistaPrevia.set(false)))
+      .subscribe(([blob]) => {
+        const url = URL.createObjectURL(blob);
+        window.open(url, '_blank');
         URL.revokeObjectURL(url);
       });
   }

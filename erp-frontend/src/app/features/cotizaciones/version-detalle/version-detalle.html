@@ -55,14 +55,30 @@
     </div>
 
     <div class="pf-header-actions">
+
+      @if (puedeImprimir) {
+        <button mat-stroked-button class="pf-btn-cancel" (click)="verVistaPreviaPdf()" [disabled]="cargandoVistaPrevia()">
+          <span class="btn-content">
+            @if (cargandoVistaPrevia()) {
+              <mat-spinner diameter="18"></mat-spinner>
+            } @else {
+              <mat-icon>visibility</mat-icon>
+            }
+            Vista previa
+          </span>
+        </button>
+      }
+
       @if (puedeImprimir) {
         <button mat-stroked-button class="pf-btn-cancel" (click)="descargarPdf()" [disabled]="descargandoPdf()">
-          @if (descargandoPdf()) {
-            <mat-spinner diameter="18"></mat-spinner>
-          } @else {
-            <mat-icon>picture_as_pdf</mat-icon>
-          }
-          Descargar cotización
+          <span class="btn-content">
+            @if (descargandoPdf()) {
+              <mat-spinner diameter="18"></mat-spinner>
+            } @else {
+              <mat-icon>file_download</mat-icon>
+            }
+            Descargar cotización
+          </span>
         </button>
       }
       @if (puedeModificar) {
@@ -126,11 +142,13 @@
           <mat-form-field appearance="outline" class="campo-bebida">
             <mat-label>Bebida</mat-label>
             <mat-select formControlName="idBebida">
-              <mat-option [value]="null">Por definir</mat-option>
               @for (bebida of bebidasDelPlato(); track bebida.idBebida) {
                 <mat-option [value]="bebida.idBebida">{{ bebida.nombreBebida }}</mat-option>
               }
             </mat-select>
+            @if (formulario.controls.idBebida.hasError('required') && formulario.controls.idBebida.touched) {
+              <mat-error>Elegí una bebida</mat-error>
+            }
           </mat-form-field>
         }
 
