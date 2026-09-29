@@ -32,18 +32,18 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<ApiError> badCredentials(BadCredentialsException ex, HttpServletRequest req) {
-        return build(HttpStatus.UNAUTHORIZED, "Usuario o contrasena incorrectos", req, null);
+        return build(HttpStatus.UNAUTHORIZED, "Usuario o contraseña incorrectos", req, null);
     }
 
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ApiError> accessDenied(AccessDeniedException ex, HttpServletRequest req) {
-        return build(HttpStatus.FORBIDDEN, "No tiene permisos para esta operacion", req, null);
+        return build(HttpStatus.FORBIDDEN, "No tiene permisos para esta operación", req, null);
     }
 
     /**
      * Verbo HTTP que la ruta no admite (por ejemplo un PATCH donde solo hay GET y POST).
-     * Sin este manejador caia en el generico y salia como 500, dando a entender que algo
-     * se rompio en el servidor cuando en realidad la peticion estaba mal formada.
+     * Sin este manejador caía en el genérico y salía como 500, dando a entender que algo
+     * se rompió en el servidor cuando en realidad la petición estaba mal formada.
      */
     /**
      * Ruta inexistente. Sin este manejador caia en el generico y salia como 500, lo que
@@ -67,14 +67,14 @@ public class GlobalExceptionHandler {
         List<String> detalles = ex.getBindingResult().getFieldErrors().stream()
                 .map(e -> e.getField() + ": " + e.getDefaultMessage())
                 .toList();
-        return build(HttpStatus.BAD_REQUEST, "Datos de entrada invalidos", req, detalles);
+        return build(HttpStatus.BAD_REQUEST, "Datos de entrada inválidos", req, detalles);
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ApiError> integrity(DataIntegrityViolationException ex, HttpServletRequest req) {
         log.warn("Violacion de integridad: {}", ex.getMostSpecificCause().getMessage());
         return build(HttpStatus.CONFLICT,
-                "La operacion viola una restriccion de datos (duplicado o referencia en uso)", req, null);
+                "La operación viola una restricción de datos (dúplicado o referencia en uso)", req, null);
     }
 
     @ExceptionHandler(Exception.class)

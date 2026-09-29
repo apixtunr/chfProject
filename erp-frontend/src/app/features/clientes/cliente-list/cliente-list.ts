@@ -63,7 +63,7 @@ export class ClienteList implements OnInit {
   }
 
   get columnas(): string[] {
-    const base = ['no','nombre', 'nit', 'telefono', 'correo', 'direccion'];
+    const base = ['nombre', 'nit', 'telefono', 'correo', 'direccion'];
     if (this.estado() !== 'ACTIVO') base.push('estado');
     return this.puedeEditar || this.puedeCambiarEstado ? [...base, 'acciones'] : base;
   }
