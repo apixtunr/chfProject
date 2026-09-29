@@ -1,0 +1,67 @@
+<h2 mat-dialog-title>Cancelar evento #{{ data.idEvento }}</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="formulario" class="formulario" novalidate>
+    <div class="pf-field campo">
+      <label class="pf-label" for="motivo">
+        <span class="pf-label-name">Motivo</span>
+        <span class="pf-required-mark">*</span>
+      </label>
+      <div class="pf-input-wrap pf-input-wrap--area" [class.pf-input-wrap--error]="formulario.controls.motivo.invalid && formulario.controls.motivo.touched">
+        <mat-icon class="pf-input-icon">edit_note</mat-icon>
+        <textarea id="motivo" class="pf-input" formControlName="motivo" rows="3" placeholder="Ej. El cliente pospuso la boda"></textarea>
+      </div>
+      @if (formulario.controls.motivo.invalid && formulario.controls.motivo.touched) {
+        <p class="pf-error">El motivo es obligatorio.</p>
+      }
+    </div>
+
+    @if (huboPagos) {
+      <p class="pagado">El cliente ha pagado <strong>Q{{ data.abonado | number: '1.2-2' }}</strong>. ¿En qué quedó con él?</p>
+
+      <div class="pf-field campo">
+        <label class="pf-label" for="acuerdo">
+          <span class="pf-label-name">Lo pagado</span>
+          <span class="pf-required-mark">*</span>
+        </label>
+        <div class="pf-input-wrap pf-input-wrap--select" [class.pf-input-wrap--error]="formulario.controls.acuerdoAnticipo.invalid && formulario.controls.acuerdoAnticipo.touched">
+          <mat-icon class="pf-input-icon">handshake</mat-icon>
+          <mat-select id="acuerdo" class="pf-select" formControlName="acuerdoAnticipo" placeholder="Selecciona el acuerdo">
+            @for (acuerdo of acuerdos; track acuerdo) {
+              <mat-option [value]="acuerdo">{{ etiquetaAcuerdo[acuerdo] }}</mat-option>
+            }
+          </mat-select>
+        </div>
+        @if (formulario.controls.acuerdoAnticipo.invalid && formulario.controls.acuerdoAnticipo.touched) {
+          <p class="pf-error">Indica en qué quedó lo pagado.</p>
+        }
+      </div>
+
+      @if (devuelveParte) {
+        <div class="pf-field campo">
+          <label class="pf-label" for="monto">
+            <span class="pf-label-name">Monto devuelto (Q)</span>
+            <span class="pf-required-mark">*</span>
+          </label>
+          <div class="pf-input-wrap" [class.pf-input-wrap--error]="formulario.controls.montoDevuelto.invalid && formulario.controls.montoDevuelto.touched">
+            <mat-icon class="pf-input-icon">payments</mat-icon>
+            <input id="monto" class="pf-input" type="number" formControlName="montoDevuelto" placeholder="0.00" />
+          </div>
+          @if (formulario.controls.montoDevuelto.invalid && formulario.controls.montoDevuelto.touched) {
+            <p class="pf-error">Más de Q0.00 y menos de Q{{ data.abonado | number: '1.2-2' }}.</p>
+          }
+        </div>
+      }
+
+      <p class="pf-aviso">Si se devuelve dinero, anula o ajusta los pagos en Pagos.</p>
+    }
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button [mat-dialog-close]="undefined">Volver</button>
+  <button mat-flat-button class="btn-danger-soft" (click)="confirmar()">
+    <mat-icon>close</mat-icon>
+    Cancelar evento
+  </button>
+</mat-dialog-actions>

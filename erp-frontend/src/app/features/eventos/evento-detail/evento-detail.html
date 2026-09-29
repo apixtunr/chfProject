@@ -19,8 +19,8 @@
               PLANIFICAR EVENTO
             </button>
           }
-          @for (estado of transicionesDisponibles; track estado.idEstado) {
-            <button mat-flat-button class="btn-danger-soft" (click)="cambiarEstado(estado)">
+          @if (puedeCancelarEvento) {
+            <button mat-flat-button class="btn-danger-soft" (click)="cancelarEvento()">
               <mat-icon>close</mat-icon>
               CANCELAR EVENTO
             </button>
@@ -30,6 +30,26 @@
     </div>
 
     <hr class="separador-encabezado" />
+
+    @if (e.estadoNombre === 'CANCELADO' && e.motivoCancelacion) {
+      <div class="aviso-evento aviso-evento--cancelado">
+        <mat-icon>cancel</mat-icon>
+        <span>
+          <strong>Cancelado:</strong> {{ e.motivoCancelacion }}
+          @if (e.acuerdoAnticipo) {
+            · {{ etiquetaAcuerdo(e.acuerdoAnticipo) }}
+            @if (e.acuerdoAnticipo === 'DEVUELTO' || e.acuerdoAnticipo === 'DEVUELTO_PARCIAL') {
+              (Q{{ e.montoDevuelto | number: '1.2-2' }})
+            }
+          }
+        </span>
+      </div>
+    } @else if (e.planificadoSinAnticipo) {
+      <div class="aviso-evento">
+        <mat-icon>warning</mat-icon>
+        <span>Se planificó sin tener pagado el 50% del evento.</span>
+      </div>
+    }
 
     <div class="grid-info">
       <div class="campo-info">

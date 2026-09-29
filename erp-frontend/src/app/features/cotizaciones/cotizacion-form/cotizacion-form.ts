@@ -19,7 +19,7 @@ import { UbicacionService } from '../../../core/catalogos/ubicacion.service';
 import { ClienteResponse } from '../../clientes/dto/cliente';
 import { ClienteService } from '../../clientes/cliente.service';
 import { CotizacionService } from '../cotizacion.service';
-import { HORAS_DE_INICIO, horarioServicio } from '../dto/cotizacion';
+import { HORAS_DE_INICIO, fechaMinimaEvento, horarioServicio } from '../dto/cotizacion';
 
 @Component({
   selector: 'app-cotizacion-form',
@@ -65,8 +65,11 @@ export class CotizacionForm implements OnInit {
   readonly horasDeInicio = HORAS_DE_INICIO;
   readonly horarioServicio = horarioServicio;
   readonly minimoPersonas = MINIMO_PERSONAS;
-  /** El evento no puede ser en el pasado (el backend lo vuelve a validar). */
-  readonly hoy = new Date(new Date().setHours(0, 0, 0, 0));
+  /**
+   * Una semana de anticipacion (el backend lo vuelve a validar). Al editar, si la fecha que
+   * ya tenia es mas cercana, se deja elegible para no bloquear el guardado de otros datos.
+   */
+  readonly fechaMinima = signal(fechaMinimaEvento());
 
   readonly formulario = this.crearFormulario();
 
@@ -146,6 +149,12 @@ export class CotizacionForm implements OnInit {
     this.idCotizacion.set(id);
     this.cotizacionService.obtener(id).subscribe((c) => {
       this.idUbicacion = c.idUbicacion;
+      if (c.fechaEvento) {
+        const actual = this.deFechaIso(c.fechaEvento);
+        if (actual < this.fechaMinima()) {
+          this.fechaMinima.set(actual);
+        }
+      }
       this.formulario.patchValue({
         idCliente: c.idCliente,
         idTipoEvento: c.idTipoEvento,

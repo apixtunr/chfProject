@@ -5,6 +5,8 @@ import { API_URL } from '../../core/api-config';
 import { Page } from '../../core/models/page';
 import { CotizacionResponse } from '../cotizaciones/dto/cotizacion';
 import {
+  AnticipoResponse,
+  CancelarEventoRequest,
   CostoEventoRequest,
   CostoEventoResponse,
   DetalleEventoRequest,
@@ -80,9 +82,18 @@ export class EventoService {
   }
 
   /** Pasa un evento CREADO a PLANIFICADO; el backend valida que ya tenga Menu, Personal,
-   * Vehiculos e Inventario, y rechaza el cambio (con el detalle de que falta) si no. */
-  planificar(id: number): Observable<EventoResponse> {
-    return this.http.put<EventoResponse>(`${BASE_URL}/${id}/planificar`, null);
+   * Vehiculos e Inventario, y rechaza el cambio (con el detalle de que falta) si no.
+   * sinAnticipo: el usuario confirma planificar aunque el cliente no haya pagado el 50%. */
+  planificar(id: number, sinAnticipo = false): Observable<EventoResponse> {
+    return this.http.put<EventoResponse>(`${BASE_URL}/${id}/planificar`, null, { params: { sinAnticipo } });
+  }
+
+  anticipo(id: number): Observable<AnticipoResponse> {
+    return this.http.get<AnticipoResponse>(`${BASE_URL}/${id}/anticipo`);
+  }
+
+  cancelar(id: number, request: CancelarEventoRequest): Observable<EventoResponse> {
+    return this.http.post<EventoResponse>(`${BASE_URL}/${id}/cancelar`, request);
   }
 
   listarTiposEvento(): Observable<TipoEventoResponse[]> {

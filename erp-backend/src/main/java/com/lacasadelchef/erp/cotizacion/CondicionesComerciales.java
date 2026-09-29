@@ -3,6 +3,8 @@ package com.lacasadelchef.erp.cotizacion;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.IntStream;
@@ -40,6 +42,15 @@ public class CondicionesComerciales {
             "Prueba de menú para 4 personas: se reserva con un mes de anticipación y su costo es el precio del"
                     + " menú elegido.");
 
+    /**
+     * Anticipacion minima para reservar: el primer 50% se paga una semana antes del
+     * evento, asi que no se agenda (ni se cotiza) un evento para dentro de menos de 7 dias.
+     */
+    public static final int DIAS_ANTICIPACION = 7;
+
+    /** Porcion del total que se paga una semana antes del evento. */
+    public static final BigDecimal PORCION_ANTICIPO = new BigDecimal("0.50");
+
     /** El servicio dura 4 horas desde la hora solicitada. */
     public static final int HORAS_DE_SERVICIO = 4;
 
@@ -57,6 +68,11 @@ public class CondicionesComerciales {
 
     public CondicionesComerciales(@Value("${app.cotizacion.vigencia-dias:15}") int vigenciaDias) {
         this.vigenciaDias = vigenciaDias;
+    }
+
+    /** Primer dia en que se puede agendar un evento si se reserva hoy. */
+    public static LocalDate fechaMinimaEvento(LocalDate hoy) {
+        return hoy.plusDays(DIAS_ANTICIPACION);
     }
 
     public static boolean esHoraDeInicioPermitida(LocalTime inicio) {

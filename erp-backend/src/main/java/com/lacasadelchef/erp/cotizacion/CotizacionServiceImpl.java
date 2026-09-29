@@ -30,6 +30,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
@@ -171,8 +172,14 @@ public class CotizacionServiceImpl implements CotizacionService {
         if (clienteNuevo && !cliente.estaActivo()) {
             throw new BusinessException("El cliente %s está inactivo: reactívelo antes de %s".formatted(cliente.getNombre(), "cotizarle"));
         }
-        if (request.fechaEvento() != null && request.fechaEvento().isBefore(LocalDate.now())) {
-            throw new BusinessException("La fecha del evento no puede estar en el pasado");
+        // Una semana de anticipacion, igual que el evento (el 50% se cobra una semana antes).
+        // Solo si la fecha cambia: corregir otro dato no obliga a mover una fecha ya puesta.
+        LocalDate minima = CondicionesComerciales.fechaMinimaEvento(LocalDate.now());
+        boolean cambiaLaFecha = request.fechaEvento() != null && !request.fechaEvento().equals(cotizacion.getFechaEvento());
+        if (cambiaLaFecha && request.fechaEvento().isBefore(minima)) {
+            throw new BusinessException("La fecha del evento debe ser al menos %d días después de hoy (desde el %s)"
+                    .formatted(CondicionesComerciales.DIAS_ANTICIPACION,
+                            minima.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))));
         }
         TipoEvento tipoEvento = tipoEventoRepository.findById(request.idTipoEvento())
                 .orElseThrow(() -> new ResourceNotFoundException("TipoEvento", request.idTipoEvento()));

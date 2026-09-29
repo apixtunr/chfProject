@@ -17,7 +17,7 @@ import { MINIMO_PERSONAS } from '../../../core/catalogos/menu';
 import { UbicacionService } from '../../../core/catalogos/ubicacion.service';
 import { ClienteResponse } from '../../clientes/dto/cliente';
 import { ClienteService } from '../../clientes/cliente.service';
-import { CotizacionResponse, HORAS_DE_INICIO, horarioServicio } from '../../cotizaciones/dto/cotizacion';
+import { CotizacionResponse, HORAS_DE_INICIO, fechaMinimaEvento, horarioServicio } from '../../cotizaciones/dto/cotizacion';
 import { TipoEventoResponse } from '../dto/evento';
 import { EventoService } from '../evento.service';
 
@@ -64,11 +64,8 @@ export class EventoForm implements OnInit {
 
   readonly formulario = this.crearFormulario();
 
-  /**
-   * Tope minimo del datepicker: no se permite crear eventos el mismo dia, solo a futuro.
-   * El backend igual lo valida, esto solo evita el viaje al servidor.
-   */
-  readonly fechaMinima = this.calcularManana();
+  /** Una semana de anticipacion; el backend igual lo valida, esto solo evita el viaje. */
+  readonly fechaMinima = fechaMinimaEvento();
 
   /** Mismos turnos que la cotizacion: empieza en punto de 11:00 a 19:00; el fin lo calcula el sistema. */
   readonly horasDeInicio = HORAS_DE_INICIO;
@@ -259,12 +256,6 @@ export class EventoForm implements OnInit {
       },
       error: () => this.guardando.set(false),
     });
-  }
-
-  private calcularManana(): Date {
-    const manana = new Date();
-    manana.setDate(manana.getDate() + 1);
-    return manana;
   }
 
   private aFechaIso(fecha: Date): string {

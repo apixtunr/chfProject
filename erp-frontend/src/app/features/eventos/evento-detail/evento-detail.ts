@@ -19,8 +19,6 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { interval, of, switchMap } from 'rxjs';
 import { AuthService } from '../../../core/auth/auth.service';
-import { EstadoResponse } from '../../../core/catalogos/estado';
-import { EstadoService } from '../../../core/catalogos/estado.service';
 import {
   MenuPlatoResponse,
   MenuResponse,
@@ -35,6 +33,7 @@ import { TipoCostoResponse } from '../../../core/catalogos/tipo-costo';
 import { TipoCostoService } from '../../../core/catalogos/tipo-costo.service';
 import { BebidaResumen } from '../../../core/catalogos/bebida';
 import { ConfirmDialog } from '../../../shared/confirm-dialog/confirm-dialog';
+import { CancelarEventoDialog, CancelarEventoDialogData } from '../cancelar-evento-dialog/cancelar-evento-dialog';
 import { EmpleadoResponse } from '../../empleados/dto/empleado';
 import { EmpleadoService } from '../../empleados/empleado.service';
 import { VehiculoResponse } from '../../vehiculos/dto/vehiculo';
@@ -44,6 +43,9 @@ import { PagoService } from '../../pagos/pago.service';
 import { CotizacionService } from '../../cotizaciones/cotizacion.service';
 import { DetalleCotizacionResponse, ServicioCotizacionResponse } from '../../cotizaciones/dto/cotizacion';
 import {
+  ACUERDOS_ANTICIPO,
+  AcuerdoAnticipo,
+  CancelarEventoRequest,
   ColorEstado,
   COLOR_ESTADO_EVENTO_DEFECTO,
   COLOR_POR_ESTADO_EVENTO,
@@ -53,12 +55,10 @@ import {
   EventoInventarioResponse,
   EventoResponse,
   EventoVehiculoResponse,
-  TRANSICIONES_VALIDAS_EVENTO,
 } from '../dto/evento';
 import { EventoService } from '../evento.service';
 
 const PAGINA_URL = '/api/eventos';
-const TIPO_ESTADO_EVENTO = 'EVENTO';
 
 @Component({
   selector: 'app-evento-detail',
@@ -95,7 +95,6 @@ export class EventoDetail implements OnInit {
   private readonly menuService = inject(MenuService);
   private readonly cotizacionService = inject(CotizacionService);
   private readonly pagoService = inject(PagoService);
-  private readonly estadoService = inject(EstadoService);
   private readonly authService = inject(AuthService);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
@@ -115,7 +114,6 @@ export class EventoDetail implements OnInit {
   readonly vehiculosDisponibles = signal<VehiculoResponse[]>([]);
   readonly productosDisponibles = signal<ProductoResponse[]>([]);
   readonly tiposCosto = signal<TipoCostoResponse[]>([]);
-  readonly estadosEvento = signal<EstadoResponse[]>([]);
   readonly metodosPago = signal<MetodoPagoResponse[]>([]);
   readonly menusDisponibles = signal<MenuResponse[]>([]);
   readonly platosDelMenu = signal<MenuPlatoResponse[]>([]);
@@ -216,15 +214,32 @@ export class EventoDetail implements OnInit {
     return this.puedeModificar && this.evento()?.estadoNombre === 'CREADO';
   }
 
-  get transicionesDisponibles(): EstadoResponse[] {
-    const actual = this.evento()?.estadoNombre;
-    if (!actual) {
-      return [];
-    }
-    const permitidos = TRANSICIONES_VALIDAS_EVENTO[actual] ?? [];
-    return this.estadosEvento().filter(
-      (e) => permitidos.includes(e.nombre) && (e.nombre !== 'CANCELADO' || this.puedeCancelar),
-    );
+  /** Cancelar pide motivo y acuerdo con el cliente; solo administrador, y no si ya termino. */
+  get puedeCancelarEvento(): boolean {
+    const estado = this.evento()?.estadoNombre;
+    return this.puedeModificar && this.puedeCancelar && !!estado && estado !== 'FINALIZADO';
+  }
+
+  etiquetaAcuerdo(acuerdo: AcuerdoAnticipo): string {
+    return ACUERDOS_ANTICIPO[acuerdo];
+  }
+
+  cancelarEvento(): void {
+    this.eventoService.anticipo(this.idEvento).subscribe((anticipo) => {
+      const ref = this.dialog.open<CancelarEventoDialog, CancelarEventoDialogData, CancelarEventoRequest>(
+        CancelarEventoDialog,
+        { data: { idEvento: this.idEvento, abonado: Number(anticipo.abonado) } },
+      );
+      ref.afterClosed().subscribe((request) => {
+        if (!request) {
+          return;
+        }
+        this.eventoService.cancelar(this.idEvento, request).subscribe(() => {
+          this.snackBar.open('Evento cancelado', 'Cerrar', { duration: 3000 });
+          this.cargar();
+        });
+      });
+    });
   }
 
   colorEstado(estado: string): ColorEstado {
@@ -254,7 +269,6 @@ export class EventoDetail implements OnInit {
     }
     // Estos tres son catalogos: cualquiera con sesion los puede leer.
     this.tipoCostoService.listar().subscribe((t) => this.tiposCosto.set(t));
-    this.estadoService.listarPorTipo(TIPO_ESTADO_EVENTO).subscribe((e) => this.estadosEvento.set(e));
     this.pagoService.listarMetodos().subscribe((m) => this.metodosPago.set(m));
     this.cargar();
 
@@ -347,21 +361,6 @@ export class EventoDetail implements OnInit {
     this.eventoService.listarDetalle(this.idEvento).subscribe((d) => this.detalleMenu.set(d));
   }
 
-  cambiarEstado(estado: EstadoResponse): void {
-    const ref = this.dialog.open(ConfirmDialog, {
-      data: { titulo: 'Cambiar estado', mensaje: `¿Pasar este evento a "${estado.nombre}"?` },
-    });
-    ref.afterClosed().subscribe((confirmado) => {
-      if (!confirmado) {
-        return;
-      }
-      this.eventoService.cambiarEstado(this.idEvento, estado.idEstado).subscribe(() => {
-        this.snackBar.open('Estado actualizado', 'Cerrar', { duration: 3000 });
-        this.cargar();
-      });
-    });
-  }
-
   /** Chequeo rapido en el cliente (el backend igual lo valida de verdad): evita el viaje
    * al servidor para el caso comun de que a todos se les olvida algo antes de planificar. */
   private seccionesFaltantesParaPlanificar(): string[] {
@@ -389,19 +388,24 @@ export class EventoDetail implements OnInit {
       });
       return;
     }
-    const ref = this.dialog.open(ConfirmDialog, {
-      data: {
-        titulo: 'Planificar evento',
-        mensaje: '¿Confirmar que el evento ya está listo (menú, personal, vehículos e inventario)?',
-      },
-    });
-    ref.afterClosed().subscribe((confirmado) => {
-      if (!confirmado) {
-        return;
-      }
-      this.eventoService.planificar(this.idEvento).subscribe(() => {
-        this.snackBar.open('Evento planificado', 'Cerrar', { duration: 3000 });
-        this.cargar();
+    // El 50% se cobra una semana antes: si falta, se avisa y queda a criterio del usuario.
+    this.eventoService.anticipo(this.idEvento).subscribe((anticipo) => {
+      const q = (n: number) => `Q${Number(n).toLocaleString('es-GT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      const mensaje = anticipo.cubierto
+        ? '¿Confirmar que el evento ya está listo (menú, personal, vehículos e inventario)?'
+        : `El cliente ha pagado ${q(anticipo.abonado)} de ${q(anticipo.total)}; falta ${q(anticipo.faltante)} para el 50%` +
+          ' que se cobra una semana antes del evento.\n\n¿Planificarlo de todos modos? Quedará registrado.';
+      const ref = this.dialog.open(ConfirmDialog, {
+        data: { titulo: anticipo.cubierto ? 'Planificar evento' : 'Falta el primer 50%', mensaje },
+      });
+      ref.afterClosed().subscribe((confirmado) => {
+        if (!confirmado) {
+          return;
+        }
+        this.eventoService.planificar(this.idEvento, !anticipo.cubierto).subscribe(() => {
+          this.snackBar.open('Evento planificado', 'Cerrar', { duration: 3000 });
+          this.cargar();
+        });
       });
     });
   }

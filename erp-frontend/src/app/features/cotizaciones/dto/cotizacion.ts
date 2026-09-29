@@ -134,6 +134,17 @@ export function textoVigencia(vigenteHasta: string): string {
   return `vence en ${dias} días`;
 }
 
+/** Anticipacion minima para agendar un evento (CondicionesComerciales.DIAS_ANTICIPACION). */
+export const DIAS_ANTICIPACION = 7;
+
+/** Primer dia que se puede elegir para un evento si se reserva hoy. */
+export function fechaMinimaEvento(): Date {
+  const minima = new Date();
+  minima.setHours(0, 0, 0, 0);
+  minima.setDate(minima.getDate() + DIAS_ANTICIPACION);
+  return minima;
+}
+
 /** Horas en que puede empezar el servicio (CondicionesComerciales.HORAS_DE_INICIO). */
 export const HORAS_DE_INICIO = [11, 12, 13, 14, 15, 16, 17, 18, 19].map((h) => `${String(h).padStart(2, '0')}:00`);
 

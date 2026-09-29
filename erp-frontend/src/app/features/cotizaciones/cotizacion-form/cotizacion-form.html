@@ -133,7 +133,7 @@
             id="fechaEvento"
             class="pf-input"
             [matDatepicker]="picker"
-            [min]="hoy"
+            [min]="fechaMinima()"
             formControlName="fechaEvento"
             placeholder="dd/mm/aaaa"
             readonly

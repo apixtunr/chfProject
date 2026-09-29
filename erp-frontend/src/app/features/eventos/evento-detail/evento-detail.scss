@@ -335,3 +335,25 @@ h1 {
     justify-content: center;
   }
 }
+
+// Aviso bajo el encabezado: evento planificado sin el 50%, o cancelado con su motivo.
+.aviso-evento {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 12px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  background: var(--chf-estado-aviso-fondo);
+  color: var(--chf-estado-aviso);
+
+  mat-icon {
+    flex-shrink: 0;
+  }
+
+  &--cancelado {
+    background: var(--chf-estado-peligro-fondo);
+    color: var(--chf-estado-peligro);
+  }
+}

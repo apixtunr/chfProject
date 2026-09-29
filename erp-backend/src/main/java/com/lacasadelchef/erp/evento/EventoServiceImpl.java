@@ -11,6 +11,9 @@ import com.lacasadelchef.erp.entity.Evento;
 import com.lacasadelchef.erp.entity.TipoEvento;
 import com.lacasadelchef.erp.entity.Ubicacion;
 import com.lacasadelchef.erp.entity.Usuario;
+import com.lacasadelchef.erp.entity.VPagoEvento;
+import com.lacasadelchef.erp.evento.dto.AnticipoResponse;
+import com.lacasadelchef.erp.evento.dto.CancelarEventoRequest;
 import com.lacasadelchef.erp.evento.dto.ConteoResponse;
 import com.lacasadelchef.erp.evento.dto.EventoRequest;
 import com.lacasadelchef.erp.evento.dto.EventoResponse;
@@ -25,6 +28,7 @@ import com.lacasadelchef.erp.repository.EventoRepository;
 import com.lacasadelchef.erp.repository.EventoVehiculoRepository;
 import com.lacasadelchef.erp.repository.TipoEventoRepository;
 import com.lacasadelchef.erp.repository.UbicacionRepository;
+import com.lacasadelchef.erp.repository.VPagoEventoRepository;
 import com.lacasadelchef.erp.security.UsuarioPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -34,8 +38,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -52,6 +59,10 @@ public class EventoServiceImpl implements EventoService {
     private static final String ESTADO_CANCELADO = "CANCELADO";
     private static final String ESTADO_COTIZACION_ACEPTADA = "ACEPTADA";
     private static final String ROL_ADMINISTRADOR = "ADMINISTRADOR";
+    private static final String ACUERDO_SIN_ANTICIPO = "SIN_ANTICIPO";
+    private static final String ACUERDO_RETENIDO = "RETENIDO";
+    private static final String ACUERDO_DEVUELTO = "DEVUELTO";
+    private static final String ACUERDO_DEVUELTO_PARCIAL = "DEVUELTO_PARCIAL";
 
     // EN CURSO y FINALIZADO los pone solo EventoEstadoAutomaticoJob/EventoEstadoSchedulerService,
     // en base a la fecha/hora cargada; CANCELADO es la unica transicion que un usuario puede
@@ -74,6 +85,7 @@ public class EventoServiceImpl implements EventoService {
     private final EventoVehiculoRepository eventoVehiculoRepository;
     private final EventoInventarioRepository eventoInventarioRepository;
     private final EventoEstadoSchedulerService estadoSchedulerService;
+    private final VPagoEventoRepository vPagoEventoRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -122,7 +134,7 @@ public class EventoServiceImpl implements EventoService {
     public EventoResponse crear(EventoRequest request) {
         Evento evento = new Evento();
         aplicar(request, evento);
-        validarNoEnElPasado(evento);
+        validarAnticipacion(evento);
         evento.setEstado(buscarEstado(TIPO_ESTADO_EVENTO, ESTADO_CREADO));
         evento = eventoRepository.save(evento);
         estadoSchedulerService.programar(evento);
@@ -168,8 +180,9 @@ public class EventoServiceImpl implements EventoService {
             throw new BusinessException(
                     "No se puede pasar el evento de %s a %s".formatted(estadoActual, estadoDestino));
         }
-        if (ESTADO_CANCELADO.equals(estadoDestino) && !ROL_ADMINISTRADOR.equalsIgnoreCase(rolUsuarioActual())) {
-            throw new BusinessException("Solo un administrador puede cancelar un evento");
+        if (ESTADO_CANCELADO.equals(estadoDestino)) {
+            throw new BusinessException("Para cancelar un evento use la opción Cancelar, que pide el motivo y el"
+                    + " acuerdo con el cliente");
         }
 
         evento.setEstado(estado);
@@ -182,7 +195,7 @@ public class EventoServiceImpl implements EventoService {
 
     @Override
     @Transactional
-    public EventoResponse planificar(Integer id) {
+    public EventoResponse planificar(Integer id, boolean sinAnticipo) {
         Evento evento = buscarEvento(id);
         if (!ESTADO_CREADO.equalsIgnoreCase(evento.getEstado().getNombre())) {
             throw new BusinessException(
@@ -210,10 +223,78 @@ public class EventoServiceImpl implements EventoService {
                     "Para planificar el evento primero hay que completar: %s".formatted(String.join(", ", faltantes)));
         }
 
+        // El 50% se cobra una semana antes: planificar sin el queda a criterio del usuario,
+        // que tiene que confirmarlo (sinAnticipo); se marca en el evento y la bitacora guarda
+        // quien lo hizo.
+        AnticipoResponse anticipo = anticipo(id);
+        if (!anticipo.cubierto() && !sinAnticipo) {
+            throw new BusinessException(("El cliente ha pagado Q%s de Q%s; falta Q%s para el 50%% que se cobra una"
+                    + " semana antes del evento. Confirme si desea planificarlo de todos modos.")
+                    .formatted(anticipo.abonado(), anticipo.total(), anticipo.faltante()));
+        }
+        evento.setPlanificadoSinAnticipo(!anticipo.cubierto());
+
         evento.setEstado(buscarEstado(TIPO_ESTADO_EVENTO, ESTADO_PLANIFICADO));
         evento = eventoRepository.save(evento);
         // Recien aqui entra a la automatizacion: se programa el temporizador exacto de inicio.
         estadoSchedulerService.programar(evento);
+        return EventoResponse.desde(evento);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public AnticipoResponse anticipo(Integer id) {
+        buscarEvento(id);
+        VPagoEvento pagos = vPagoEventoRepository.findById(id).orElse(null);
+        BigDecimal total = (pagos == null || pagos.getTotal() == null ? BigDecimal.ZERO : pagos.getTotal())
+                .setScale(2, RoundingMode.HALF_UP);
+        BigDecimal abonado = (pagos == null || pagos.getAbonado() == null ? BigDecimal.ZERO : pagos.getAbonado())
+                .setScale(2, RoundingMode.HALF_UP);
+        BigDecimal requerido = total.multiply(CondicionesComerciales.PORCION_ANTICIPO).setScale(2, RoundingMode.HALF_UP);
+        BigDecimal faltante = requerido.subtract(abonado).max(BigDecimal.ZERO);
+        return new AnticipoResponse(total, abonado, requerido, faltante, faltante.signum() == 0);
+    }
+
+    @Override
+    @Transactional
+    public EventoResponse cancelar(Integer id, CancelarEventoRequest request) {
+        Evento evento = buscarEvento(id);
+        EventoReglas.validarModificable(evento, "cancelar");
+        if (!ROL_ADMINISTRADOR.equalsIgnoreCase(rolUsuarioActual())) {
+            throw new BusinessException("Solo un administrador puede cancelar un evento");
+        }
+
+        // No hay una politica fija de devolucion: se negocia con el cliente y aqui se
+        // registra en que quedo lo pagado. Si se devuelve, los pagos se anulan en Pagos.
+        BigDecimal abonado = anticipo(id).abonado();
+        String acuerdo = request.acuerdoAnticipo() == null ? null : request.acuerdoAnticipo().trim().toUpperCase();
+        BigDecimal devuelto;
+        if (abonado.signum() == 0) {
+            acuerdo = ACUERDO_SIN_ANTICIPO;
+            devuelto = null;
+        } else if (ACUERDO_RETENIDO.equals(acuerdo)) {
+            devuelto = BigDecimal.ZERO;
+        } else if (ACUERDO_DEVUELTO.equals(acuerdo)) {
+            devuelto = abonado;
+        } else if (ACUERDO_DEVUELTO_PARCIAL.equals(acuerdo)) {
+            devuelto = request.montoDevuelto();
+            if (devuelto == null || devuelto.signum() <= 0 || devuelto.compareTo(abonado) >= 0) {
+                throw new BusinessException(
+                        "Indique cuánto se devuelve: más de Q0.00 y menos de lo pagado (Q%s)".formatted(abonado));
+            }
+        } else {
+            throw new BusinessException(("El cliente ha pagado Q%s: indique si se retiene, se devuelve todo o se"
+                    + " devuelve una parte").formatted(abonado));
+        }
+
+        evento.setMotivoCancelacion(request.motivo().trim());
+        evento.setAcuerdoAnticipo(acuerdo);
+        evento.setMontoDevuelto(devuelto);
+        evento.setEstado(buscarEstado(TIPO_ESTADO_EVENTO, ESTADO_CANCELADO));
+        evento = eventoRepository.save(evento);
+        // Ya no inicia ni finaliza solo. Lo planificado del inventario no se habia descontado
+        // (solo se descuenta al iniciar) y un evento cancelado ya no cuenta en los faltantes.
+        estadoSchedulerService.cancelarTareas(evento.getIdEvento());
         return EventoResponse.desde(evento);
     }
 
@@ -302,13 +383,15 @@ public class EventoServiceImpl implements EventoService {
         evento.setObservaciones(request.observaciones());
     }
 
-    // Regla provisional mientras se define con gerencia cuantos dias de anticipacion se
-    // exigen para reservar: por ahora no se permite crear un evento el mismo dia, tiene
-    // que ser una fecha futura. Solo aplica al crear; un evento existente (ya en curso o
-    // finalizado) puede tener fecha pasada sin que eso impida actualizar otros datos.
-    private void validarNoEnElPasado(Evento evento) {
-        if (!evento.getFechaEvento().isAfter(LocalDate.now())) {
-            throw new BusinessException("No se pueden crear eventos en la fecha actual");
+    // Una semana de anticipacion (el 50% se cobra una semana antes). Solo aplica al crear:
+    // un evento existente puede quedar a menos de 7 dias, o ya haber pasado, sin que eso
+    // impida registrarle cosas.
+    private void validarAnticipacion(Evento evento) {
+        LocalDate minima = CondicionesComerciales.fechaMinimaEvento(LocalDate.now());
+        if (evento.getFechaEvento() == null || evento.getFechaEvento().isBefore(minima)) {
+            throw new BusinessException("Los eventos se agendan con al menos %d días de anticipación: la fecha más"
+                    .formatted(CondicionesComerciales.DIAS_ANTICIPACION)
+                    + " próxima es el %s".formatted(minima.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))));
         }
     }
 

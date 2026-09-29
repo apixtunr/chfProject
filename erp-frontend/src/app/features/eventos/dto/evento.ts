@@ -36,6 +36,36 @@ export interface EventoResponse {
   montoMenu: number;
   fechaCreacion: string | null;
   fechaModificacion: string | null;
+  /** Se planifico sin tener pagado el 50% (decision del usuario). */
+  planificadoSinAnticipo: boolean;
+  motivoCancelacion: string | null;
+  acuerdoAnticipo: AcuerdoAnticipo | null;
+  montoDevuelto: number | null;
+}
+
+/** En que quedo lo pagado al cancelar (espeja EventoServiceImpl.cancelar). */
+export type AcuerdoAnticipo = 'SIN_ANTICIPO' | 'RETENIDO' | 'DEVUELTO' | 'DEVUELTO_PARCIAL';
+
+export const ACUERDOS_ANTICIPO: Record<AcuerdoAnticipo, string> = {
+  SIN_ANTICIPO: 'No había pagos',
+  RETENIDO: 'Se retiene lo pagado',
+  DEVUELTO: 'Se devuelve todo',
+  DEVUELTO_PARCIAL: 'Se devuelve una parte',
+};
+
+/** Cuanto ha pagado el cliente contra el 50% que se cobra una semana antes (AnticipoResponse). */
+export interface AnticipoResponse {
+  total: number;
+  abonado: number;
+  anticipoRequerido: number;
+  faltante: number;
+  cubierto: boolean;
+}
+
+export interface CancelarEventoRequest {
+  motivo: string;
+  acuerdoAnticipo: AcuerdoAnticipo | null;
+  montoDevuelto: number | null;
 }
 
 export interface ConteoResponse {
@@ -169,15 +199,6 @@ export interface TipoEventoResponse {
   idTipoEvento: number;
   nombreTipo: string;
 }
-
-// EN CURSO y FINALIZADO los pone solo el job automatico del backend, en base a la
-// fecha/hora cargada; CANCELADO es la unica transicion que un usuario dispara a mano
-// (espeja EventoServiceImpl.TRANSICIONES_VALIDAS).
-export const TRANSICIONES_VALIDAS_EVENTO: Record<string, string[]> = {
-  CREADO: ['CANCELADO'],
-  PLANIFICADO: ['CANCELADO'],
-  'EN CURSO': ['CANCELADO'],
-};
 
 export interface ColorEstado {
   bg: string;

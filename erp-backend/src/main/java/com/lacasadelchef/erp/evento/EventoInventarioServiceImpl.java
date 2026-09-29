@@ -53,6 +53,7 @@ public class EventoInventarioServiceImpl implements EventoInventarioService {
                 .orElseThrow(() -> new ResourceNotFoundException("Evento", idEvento));
         Producto producto = productoRepository.findById(idProducto)
                 .orElseThrow(() -> new ResourceNotFoundException("Producto", idProducto));
+        validarNoCancelado(evento);
 
         EventoInventario eventoInventario = new EventoInventario();
         eventoInventario.setId(new EventoInventarioId(idEvento, idProducto));
@@ -83,6 +84,7 @@ public class EventoInventarioServiceImpl implements EventoInventarioService {
     @Transactional
     public EventoInventarioResponse confirmarConsumo(Integer idEvento, Integer idProducto) {
         EventoInventario eventoInventario = buscar(idEvento, idProducto);
+        validarNoCancelado(eventoInventario.getEvento());
         if (eventoInventario.getFechaConsumo() != null) {
             throw new BusinessException(
                     "El consumo de este producto ya fue confirmado para este evento el %s"
@@ -162,5 +164,12 @@ public class EventoInventarioServiceImpl implements EventoInventarioService {
     private void aplicar(EventoInventarioRequest request, EventoInventario eventoInventario) {
         eventoInventario.setCantidad(request.cantidad());
         eventoInventario.setFechaConsumo(request.fechaConsumo());
+    }
+
+    /** Un evento cancelado ya no usa inventario: no se planifica ni se descuenta nada mas. */
+    private static void validarNoCancelado(Evento evento) {
+        if (EventoReglas.ESTADO_CANCELADO.equalsIgnoreCase(evento.getEstado().getNombre())) {
+            throw new BusinessException("El evento está CANCELADO: ya no se le asigna ni descuenta inventario");
+        }
     }
 }

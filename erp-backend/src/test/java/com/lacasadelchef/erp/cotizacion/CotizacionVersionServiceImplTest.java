@@ -115,14 +115,14 @@ class CotizacionVersionServiceImplTest {
     }
 
     @Test
-    @DisplayName("Enviar una cotizacion cuya fecha de evento ya paso se rechaza")
+    @DisplayName("Enviar una cotizacion cuyo evento es en menos de una semana se rechaza")
     void enviarConFechaPasadaSeRechaza() {
         prepararCreada(LocalDate.now().minusDays(1), "1500.00");
         when(detalleCotizacionRepository.existsByCotizacionVersionIdCotizacionVersion(ID_VERSION)).thenReturn(true);
 
         assertThatThrownBy(() -> versionService.cambiarEstado(ID_VERSION, ID_ENVIADA))
                 .isInstanceOf(BusinessException.class)
-                .hasMessageContaining("ya pasó");
+                .hasMessageContaining("debe ser al menos 7 días después de hoy");
     }
 
     @Test
@@ -139,7 +139,7 @@ class CotizacionVersionServiceImplTest {
     @Test
     @DisplayName("Enviar una cotizacion completa (solo con servicios) pasa a ENVIADA")
     void enviarCompleta() {
-        prepararCreada(LocalDate.now(), "800.00");
+        prepararCreada(LocalDate.now().plusDays(7), "800.00");
         lenient().when(detalleCotizacionRepository.existsByCotizacionVersionIdCotizacionVersion(ID_VERSION)).thenReturn(false);
         when(servicioCotizacionRepository.existsByCotizacionVersionIdCotizacionVersion(ID_VERSION)).thenReturn(true);
         when(cotizacionVersionRepository.save(any(CotizacionVersion.class))).thenAnswer(inv -> inv.getArgument(0));

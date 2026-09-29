@@ -93,13 +93,13 @@ class CotizacionServiceImplTest {
     }
 
     @Test
-    @DisplayName("Crear cotizacion con fecha de evento en el pasado se rechaza")
+    @DisplayName("Crear cotizacion para dentro de menos de una semana se rechaza")
     void crearConFechaPasada() {
         when(clienteRepository.findById(1)).thenReturn(Optional.of(clienteActivo()));
 
-        assertThatThrownBy(() -> cotizacionService.crear(peticion(LocalDate.now().minusDays(1))))
+        assertThatThrownBy(() -> cotizacionService.crear(peticion(LocalDate.now().plusDays(6))))
                 .isInstanceOf(BusinessException.class)
-                .hasMessageContaining("pasado");
+                .hasMessageContaining("al menos 7 días después de hoy");
         verify(cotizacionRepository, never()).save(any());
     }
 

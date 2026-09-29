@@ -1,6 +1,8 @@
 package com.lacasadelchef.erp.evento;
 
 import com.lacasadelchef.erp.cotizacion.dto.CotizacionResponse;
+import com.lacasadelchef.erp.evento.dto.AnticipoResponse;
+import com.lacasadelchef.erp.evento.dto.CancelarEventoRequest;
 import com.lacasadelchef.erp.evento.dto.EventoRequest;
 import com.lacasadelchef.erp.evento.dto.EventoResponse;
 import com.lacasadelchef.erp.evento.dto.EventoResumenResponse;
@@ -36,5 +38,11 @@ public interface EventoService {
      * (recien ahi entra a la automatizacion de EN CURSO/FINALIZADO). Valida que ya tenga
      * Menu, Personal, Vehiculos e Inventario asignados; si falta alguno, rechaza el cambio.
      */
-    EventoResponse planificar(Integer id);
+    EventoResponse planificar(Integer id, boolean sinAnticipo);
+
+    /** Cuanto ha pagado el cliente contra el 50% que se cobra una semana antes. */
+    AnticipoResponse anticipo(Integer id);
+
+    /** Cancela con motivo y registra en que quedo lo pagado (se negocia con el cliente). */
+    EventoResponse cancelar(Integer id, CancelarEventoRequest request);
 }

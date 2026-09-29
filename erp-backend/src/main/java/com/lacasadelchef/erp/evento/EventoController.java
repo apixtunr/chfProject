@@ -1,7 +1,9 @@
 package com.lacasadelchef.erp.evento;
 
 import com.lacasadelchef.erp.cotizacion.dto.CotizacionResponse;
+import com.lacasadelchef.erp.evento.dto.AnticipoResponse;
 import com.lacasadelchef.erp.evento.dto.CambiarEstadoRequest;
+import com.lacasadelchef.erp.evento.dto.CancelarEventoRequest;
 import com.lacasadelchef.erp.evento.dto.EventoRequest;
 import com.lacasadelchef.erp.evento.dto.EventoResponse;
 import com.lacasadelchef.erp.evento.dto.EventoResumenResponse;
@@ -79,9 +81,22 @@ public class EventoController {
         return eventoService.cambiarEstado(id, request.idEstado());
     }
 
+    /** sinAnticipo=true: el usuario confirma planificar aunque el cliente no haya pagado el 50%. */
     @PutMapping("/{id}/planificar")
     @PreAuthorize("@permisoService.tienePermiso('/api/eventos', T(com.lacasadelchef.erp.security.TipoPermiso).MODIFICACION)")
-    public EventoResponse planificar(@PathVariable Integer id) {
-        return eventoService.planificar(id);
+    public EventoResponse planificar(@PathVariable Integer id,
+                                     @RequestParam(defaultValue = "false") boolean sinAnticipo) {
+        return eventoService.planificar(id, sinAnticipo);
+    }
+
+    @GetMapping("/{id}/anticipo")
+    public AnticipoResponse anticipo(@PathVariable Integer id) {
+        return eventoService.anticipo(id);
+    }
+
+    @PostMapping("/{id}/cancelar")
+    @PreAuthorize("@permisoService.tienePermiso('/api/eventos', T(com.lacasadelchef.erp.security.TipoPermiso).MODIFICACION)")
+    public EventoResponse cancelar(@PathVariable Integer id, @Valid @RequestBody CancelarEventoRequest request) {
+        return eventoService.cancelar(id, request);
     }
 }

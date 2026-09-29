@@ -27,7 +27,11 @@ public record EventoResponse(
         String observaciones,
         BigDecimal montoMenu,
         LocalDateTime fechaCreacion,
-        LocalDateTime fechaModificacion
+        LocalDateTime fechaModificacion,
+        Boolean planificadoSinAnticipo,
+        String motivoCancelacion,
+        String acuerdoAnticipo,
+        BigDecimal montoDevuelto
 ) {
 
     public static EventoResponse desde(Evento evento) {
@@ -51,6 +55,10 @@ public record EventoResponse(
                 .observaciones(evento.getObservaciones())
                 .fechaCreacion(evento.getFechaCreacion())
                 .fechaModificacion(evento.getFechaModificacion())
+                .planificadoSinAnticipo(evento.getPlanificadoSinAnticipo())
+                .motivoCancelacion(evento.getMotivoCancelacion())
+                .acuerdoAnticipo(evento.getAcuerdoAnticipo())
+                .montoDevuelto(evento.getMontoDevuelto())
                 .build();
     }
 

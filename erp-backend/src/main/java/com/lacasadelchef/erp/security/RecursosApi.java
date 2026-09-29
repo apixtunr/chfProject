@@ -129,6 +129,9 @@ public final class RecursosApi {
             // alta eventos, no tener el modulo de Cotizaciones: Operativo crea eventos sin
             // tener Cotizaciones, y exigirle ese modulo le rompia el formulario.
             Map.entry("/api/eventos/cotizaciones-disponibles", Regla.financiero("/api/eventos")),
+            // Cuanto ha pagado el cliente: lo pide quien planifica el evento, no quien solo
+            // mira la agenda.
+            Map.entry("/api/eventos/{idEvento}/anticipo", Regla.financiero("/api/eventos")),
             Map.entry("/api/pagos", Regla.modulo("/api/pagos")),
             Map.entry("/api/rentabilidad", Regla.modulo("/api/rentabilidad")),
             Map.entry("/api/inventarios", Regla.modulo("/api/inventarios")),

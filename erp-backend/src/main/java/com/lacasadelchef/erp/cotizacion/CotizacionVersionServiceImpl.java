@@ -182,6 +182,13 @@ public class CotizacionVersionServiceImpl implements CotizacionVersionService {
             // Por si la tarea automatica todavia no la paso a VENCIDA.
             throw new BusinessException("La cotización venció el %s. Cree una versión nueva con los precios actuales"
                     .formatted(version.getVigenteHasta().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))));
+        } else if (ESTADO_ACEPTADA.equals(estadoDestino) && version.getCotizacion().getFechaEvento() != null
+                && version.getCotizacion().getFechaEvento().isBefore(CondicionesComerciales.fechaMinimaEvento(LocalDate.now()))) {
+            // Aceptarla crearia un evento que ya no se puede agendar.
+            throw new BusinessException(("El evento es el %s y los eventos se agendan con al menos %d días de"
+                    + " anticipación. Cree una versión nueva con otra fecha")
+                    .formatted(version.getCotizacion().getFechaEvento().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
+                            CondicionesComerciales.DIAS_ANTICIPACION));
         }
         version.setEstado(estado);
         version = cotizacionVersionRepository.save(version);
@@ -207,8 +214,10 @@ public class CotizacionVersionServiceImpl implements CotizacionVersionService {
         LocalDate fechaEvento = version.getCotizacion().getFechaEvento();
         if (fechaEvento == null) {
             faltantes.add("indicar la fecha del evento");
-        } else if (fechaEvento.isBefore(LocalDate.now())) {
-            faltantes.add("actualizar la fecha del evento, que ya pasó (%s)".formatted(fechaEvento));
+        } else if (fechaEvento.isBefore(CondicionesComerciales.fechaMinimaEvento(LocalDate.now()))) {
+            faltantes.add("cambiar la fecha del evento (%s): debe ser al menos %d días después de hoy"
+                    .formatted(fechaEvento.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
+                            CondicionesComerciales.DIAS_ANTICIPACION));
         }
         if (version.getCotizacion().getHoraInicio() == null) {
             faltantes.add("indicar la hora de inicio del servicio");

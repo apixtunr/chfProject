@@ -1,5 +1,6 @@
 package com.lacasadelchef.erp.inicio;
 
+import com.lacasadelchef.erp.cotizacion.CondicionesComerciales;
 import com.lacasadelchef.erp.entity.BitacoraMovimiento;
 import com.lacasadelchef.erp.entity.Cliente;
 import com.lacasadelchef.erp.entity.CotizacionVersion;
@@ -71,8 +72,8 @@ public class InicioServiceImpl implements InicioService {
     private static final int DIAS_INSUMOS = 14;
     private static final int LIMITE_LISTA = 8;
     /** Forma de pago del menu: el primer 50% se paga una semana antes del evento. */
-    private static final int DIAS_ANTICIPO = 7;
-    private static final BigDecimal PORCION_ANTICIPO = new BigDecimal("0.50");
+    private static final int DIAS_ANTICIPO = CondicionesComerciales.DIAS_ANTICIPACION;
+    private static final BigDecimal PORCION_ANTICIPO = CondicionesComerciales.PORCION_ANTICIPO;
 
     private final EntityManager em;
     private final RolOpcionRepository rolOpcionRepository;

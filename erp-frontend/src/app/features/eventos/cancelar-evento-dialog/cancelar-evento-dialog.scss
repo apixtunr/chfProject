@@ -1,0 +1,25 @@
+// Los estilos pf-* vienen de src/styles.scss, igual que en los formularios.
+.formulario {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: min(440px, 80vw);
+}
+
+.campo.pf-field {
+  padding: 0;
+}
+
+.pagado {
+  margin: 4px 0 0;
+  font-size: 0.875rem;
+  color: var(--chf-texto-medio);
+}
+
+.pf-input-wrap--area.pf-input-wrap {
+  align-items: flex-start;
+
+  textarea.pf-input {
+    resize: vertical;
+  }
+}
