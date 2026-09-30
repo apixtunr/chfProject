@@ -1,28 +1,89 @@
-<mat-card class="tarjeta">
-  <mat-card-header>
-    <mat-card-title>{{ idMenu() ? 'Editar menu' : 'Nuevo menu' }}</mat-card-title>
-  </mat-card-header>
+<!-- ══ CABECERA DE PÁGINA ══════════════════════════════════════ -->
+<div class="pf-page-header">
+  <div class="pf-header-left">
+    <nav class="pf-breadcrumb" aria-label="Ruta de navegación">
+      <a routerLink="/menus" class="pf-breadcrumb-link">Menús</a>
+      <mat-icon class="pf-breadcrumb-sep">chevron_right</mat-icon>
+      <span class="pf-breadcrumb-current">{{ idMenu() ? 'Editar menú' : 'Nuevo menú' }}</span>
+    </nav>
+    <div class="pf-title-row">
+      <h1 class="pf-title">{{ idMenu() ? 'Editar Menú' : 'Nuevo Menú' }}</h1>
+      <span class="pf-badge">{{ idMenu() ? 'EDITANDO' : 'ALTA EN SISTEMA' }}</span>
+    </div>
+    <p class="pf-subtitle">Crea el menú a partir de una cotización aceptada o ingresa sus datos directamente.</p>
+  </div>
+</div>
 
-  <mat-card-content>
-    <form [formGroup]="formulario" (ngSubmit)="guardar()">
-      <mat-form-field appearance="outline" class="campo">
-        <mat-label>Nombre del menu</mat-label>
-        <input matInput formControlName="nombreMenu" placeholder="Menu ejecutivo, Buffet bodas..." />
-      </mat-form-field>
+<!-- ══ SECCIÓN: DATOS DEL MENÚ ════════════════════════════════ -->
+<form [formGroup]="formulario" (ngSubmit)="guardar()" novalidate>
+  <div class="pf-section">
 
-      <mat-form-field appearance="outline" class="campo">
-        <mat-label>Estado</mat-label>
-        <mat-select formControlName="idEstado">
+    <div class="pf-section-header">
+      <div class="pf-section-title">
+        <mat-icon>restaurant_menu</mat-icon>
+        <span>Datos del Menú</span>
+      </div>
+    </div>
+
+    <!-- ── Campo 1: Nombre ── -->
+    <div class="pf-field">
+      <label class="pf-label" for="nombreMenu">
+        <span class="pf-label-num">1.</span>
+        <span class="pf-label-name">Nombre del menú</span>
+        <span class="pf-required-mark">*</span>
+      </label>
+      <div class="pf-input-wrap" [class.pf-input-wrap--error]="formulario.controls.nombreMenu.invalid && formulario.controls.nombreMenu.touched">
+        <mat-icon class="pf-input-icon">menu_book</mat-icon>
+        <input
+          id="nombreMenu"
+          class="pf-input"
+          formControlName="nombreMenu"
+          placeholder="Ej. Menú ejecutivo, Buffet bodas"
+          autocomplete="off"
+        />
+      </div>
+      @if (formulario.controls.nombreMenu.hasError('required') && formulario.controls.nombreMenu.touched) {
+        <p class="pf-error">El nombre del menú es obligatorio.</p>
+      } @else if (formulario.controls.nombreMenu.hasError('maxlength') && formulario.controls.nombreMenu.touched) {
+        <p class="pf-error">El nombre no puede pasar de 120 caracteres.</p>
+      }
+    </div>
+
+    <!-- ── Campo 2: Estado ── -->
+    <div class="pf-field">
+      <label class="pf-label" for="estado">
+        <span class="pf-label-num">2.</span>
+        <span class="pf-label-name">Estado</span>
+        <span class="pf-required-mark">*</span>
+      </label>
+      <div class="pf-input-wrap pf-input-wrap--select" [class.pf-input-wrap--error]="formulario.controls.idEstado.invalid && formulario.controls.idEstado.touched">
+        <mat-icon class="pf-input-icon">toggle_on</mat-icon>
+        <mat-select
+          id="estado"
+          class="pf-select"
+          formControlName="idEstado"
+          placeholder="Seleccionar estado"
+        >
           @for (estado of estados(); track estado.idEstado) {
             <mat-option [value]="estado.idEstado">{{ estado.nombre }}</mat-option>
           }
         </mat-select>
-      </mat-form-field>
-
-      <div class="acciones">
-        <button mat-button type="button" routerLink="/menus">Cancelar</button>
-        <button mat-flat-button color="primary" type="submit" [disabled]="guardando()">Guardar</button>
       </div>
-    </form>
-  </mat-card-content>
-</mat-card>
+      @if (formulario.controls.idEstado.invalid && formulario.controls.idEstado.touched) {
+        <p class="pf-error">El estado es obligatorio.</p>
+      }
+    </div>
+
+  </div><!-- /pf-section -->
+
+  <!-- ══ ACCIONES ABAJO ══════════════════════════════════════ -->
+  <div class="pf-footer-actions">
+    <button mat-stroked-button type="button" routerLink="/menus" class="pf-btn-cancel">
+      Cancelar
+    </button>
+    <button mat-flat-button type="submit" class="pf-btn-save" [disabled]="guardando()">
+      <mat-icon>save</mat-icon>
+      {{ idMenu() ? 'Guardar cambios' : 'Guardar menú' }}
+    </button>
+  </div>
+</form>

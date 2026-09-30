@@ -1,40 +1,144 @@
-<mat-card class="tarjeta">
-  <mat-card-header>
-    <mat-card-title>{{ idProducto() ? 'Editar producto' : 'Nuevo producto' }}</mat-card-title>
-  </mat-card-header>
+<!-- ══ CABECERA DE PÁGINA ══════════════════════════════════════ -->
+<div class="pf-page-header">
+  <div class="pf-header-left">
+    <nav class="pf-breadcrumb" aria-label="Ruta de navegación">
+      <a routerLink="/inventario/productos" class="pf-breadcrumb-link">Productos</a>
+      <mat-icon class="pf-breadcrumb-sep">chevron_right</mat-icon>
+      <span class="pf-breadcrumb-current">{{ idProducto() ? 'Editar producto' : 'Nuevo producto' }}</span>
+    </nav>
+    <div class="pf-title-row">
+      <h1 class="pf-title">{{ idProducto() ? 'Editar Producto' : 'Nuevo Producto' }}</h1>
+      <span class="pf-badge">{{ idProducto() ? 'EDITANDO' : 'ALTA EN SISTEMA' }}</span>
+    </div>
+    <p class="pf-subtitle">
+      {{ idProducto()
+        ? 'Modifica los datos del producto y guarda los cambios.'
+        : 'Ingresa el producto para poder llevar su existencia en el inventario.' }}
+    </p>
+  </div>
+</div>
 
-  <mat-card-content>
-    <form [formGroup]="formulario" (ngSubmit)="guardar()">
-      <mat-form-field appearance="outline" class="campo">
-        <mat-label>Nombre del producto</mat-label>
-        <input matInput formControlName="nombreProducto" />
-      </mat-form-field>
+<!-- ══ SECCIÓN: DATOS DEL PRODUCTO ════════════════════════════ -->
+<form [formGroup]="formulario" (ngSubmit)="guardar()" novalidate>
+  <div class="pf-section">
 
-      <mat-form-field appearance="outline" class="campo">
-        <mat-label>Categoria</mat-label>
-        <mat-select formControlName="idCategoria">
+    <div class="pf-section-header">
+      <div class="pf-section-title">
+        <mat-icon>inventory_2</mat-icon>
+        <span>Datos del Producto</span>
+      </div>
+    </div>
+
+    <!-- ── Campo 1: Nombre ── -->
+    <div class="pf-field">
+      <label class="pf-label" for="nombreProducto">
+        <span class="pf-label-num">1.</span>
+        <span class="pf-label-name">Nombre del producto</span>
+        <span class="pf-required-mark">*</span>
+      </label>
+      <div class="pf-input-wrap" [class.pf-input-wrap--error]="formulario.controls.nombreProducto.invalid && formulario.controls.nombreProducto.touched">
+        <mat-icon class="pf-input-icon">inventory_2</mat-icon>
+        <input
+          id="nombreProducto"
+          class="pf-input"
+          formControlName="nombreProducto"
+          placeholder="Ej. Pechuga de pollo, Mantel blanco"
+          autocomplete="off"
+        />
+      </div>
+      @if (formulario.controls.nombreProducto.hasError('required') && formulario.controls.nombreProducto.touched) {
+        <p class="pf-error">El nombre del producto es obligatorio.</p>
+      } @else if (formulario.controls.nombreProducto.hasError('maxlength') && formulario.controls.nombreProducto.touched) {
+        <p class="pf-error">El nombre no puede pasar de 120 caracteres.</p>
+      }
+    </div>
+
+    <!-- ── Campo 2: Categoría ── -->
+    <div class="pf-field">
+      <label class="pf-label" for="categoria">
+        <span class="pf-label-num">2.</span>
+        <span class="pf-label-name">Categoría</span>
+        <span class="pf-required-mark">*</span>
+      </label>
+      <div class="pf-input-wrap pf-input-wrap--select" [class.pf-input-wrap--error]="formulario.controls.idCategoria.invalid && formulario.controls.idCategoria.touched">
+        <mat-icon class="pf-input-icon">category</mat-icon>
+        <mat-select id="categoria" class="pf-select" formControlName="idCategoria" placeholder="Seleccionar categoría">
           @for (categoria of categorias(); track categoria.idCategoria) {
             <mat-option [value]="categoria.idCategoria">
               {{ categoria.nombreTipo }} - {{ categoria.nombreCategoria }}
             </mat-option>
           }
         </mat-select>
-      </mat-form-field>
-
-      <mat-form-field appearance="outline" class="campo">
-        <mat-label>Unidad de medida</mat-label>
-        <input matInput formControlName="unidadMedida" placeholder="unidad, libra, litro..." />
-      </mat-form-field>
-
-      <mat-form-field appearance="outline" class="campo">
-        <mat-label>Precio unitario (Q)</mat-label>
-        <input matInput type="number" min="0" step="0.01" formControlName="precioUnitario" />
-      </mat-form-field>
-
-      <div class="acciones">
-        <button mat-button type="button" routerLink="/inventario/productos">Cancelar</button>
-        <button mat-flat-button color="primary" type="submit" [disabled]="guardando()">Guardar</button>
       </div>
-    </form>
-  </mat-card-content>
-</mat-card>
+      @if (formulario.controls.idCategoria.invalid && formulario.controls.idCategoria.touched) {
+        <p class="pf-error">La categoría es obligatoria.</p>
+      }
+    </div>
+
+    <!-- ── Fila 2 columnas: Unidad de medida + Precio ── -->
+    <div class="pf-row-2col">
+
+      <div class="pf-field">
+        <label class="pf-label" for="unidadMedida">
+          <span class="pf-label-num">3.</span>
+          <span class="pf-label-name">Unidad de medida</span>
+          <span class="pf-required-mark">*</span>
+        </label>
+        <div class="pf-input-wrap" [class.pf-input-wrap--error]="formulario.controls.unidadMedida.invalid && formulario.controls.unidadMedida.touched">
+          <mat-icon class="pf-input-icon">straighten</mat-icon>
+          <input
+            id="unidadMedida"
+            class="pf-input"
+            formControlName="unidadMedida"
+            placeholder="Ej. unidad, libra, litro"
+            autocomplete="off"
+          />
+        </div>
+        @if (formulario.controls.unidadMedida.hasError('required') && formulario.controls.unidadMedida.touched) {
+          <p class="pf-error">La unidad de medida es obligatoria.</p>
+        } @else if (formulario.controls.unidadMedida.hasError('maxlength') && formulario.controls.unidadMedida.touched) {
+          <p class="pf-error">La unidad no puede pasar de 30 caracteres.</p>
+        }
+      </div>
+
+      <div class="pf-field">
+        <label class="pf-label" for="precioUnitario">
+          <span class="pf-label-num">4.</span>
+          <span class="pf-label-name">Precio unitario</span>
+          <span class="pf-required-mark">*</span>
+          <span class="pf-label-hint">(Q)</span>
+        </label>
+        <div class="pf-input-wrap" [class.pf-input-wrap--error]="formulario.controls.precioUnitario.invalid && formulario.controls.precioUnitario.touched">
+          <mat-icon class="pf-input-icon">payments</mat-icon>
+          <input
+            id="precioUnitario"
+            class="pf-input"
+            type="number"
+            min="0"
+            step="0.01"
+            formControlName="precioUnitario"
+            placeholder="0.00"
+          />
+        </div>
+        @if (formulario.controls.precioUnitario.hasError('required') && formulario.controls.precioUnitario.touched) {
+          <p class="pf-error">El precio es obligatorio.</p>
+        } @else if (formulario.controls.precioUnitario.hasError('min') && formulario.controls.precioUnitario.touched) {
+          <p class="pf-error">El precio no puede ser negativo.</p>
+        }
+      </div>
+
+    </div>
+
+  </div><!-- /pf-section -->
+
+  <!-- ══ ACCIONES ABAJO ══════════════════════════════════════ -->
+  <div class="pf-footer-actions">
+    <button mat-stroked-button type="button" routerLink="/inventario/productos" class="pf-btn-cancel">
+      Cancelar
+    </button>
+    <button mat-flat-button type="submit" class="pf-btn-save" [disabled]="guardando()">
+      <mat-icon>save</mat-icon>
+      {{ idProducto() ? 'Guardar cambios' : 'Guardar producto' }}
+    </button>
+  </div>
+</form>

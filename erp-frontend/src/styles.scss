@@ -1078,9 +1078,20 @@ mat-paginator {
     pointer-events: none;
   }
 
-  // Para mat-select, ajustar altura
+  // Los tres tipos de campo tienen que medir lo mismo (44px) para que dos campos en la
+  // misma fila queden parejos. Cada uno trae un contenido de distinta altura, asi que el
+  // relleno vertical compensa la diferencia:
+  //   texto  -> la linea del input mide ~21px, con 10px arriba y abajo da 44.
+  //   lista  -> el mat-select mide ~24px; con 6px quedaba en 38 y se veia hundida al lado
+  //             de un campo de texto.
+  //   fecha  -> el boton del calendario mide 32px; con los 10px de base llegaba a 54.
   &--select {
-    padding: 6px 14px;
+    padding: 9px 14px;
+  }
+
+  &--date {
+    padding-top: 5px;
+    padding-bottom: 5px;
   }
 }
 
@@ -1117,6 +1128,15 @@ mat-paginator {
 // mat-select dentro del wrapper custom — estilos globales en styles.scss
 .pf-select {
   flex: 1 1 auto;
+}
+
+// Explicacion bajo el campo, para cuando no alcanza con el ejemplo del placeholder ni
+// con la aclaracion corta de la etiqueta (.pf-label-hint). Mismo tamano que el error y
+// el tono de los ejemplos: se lee, pero no compite con el dato.
+.pf-ayuda {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--chf-texto-ejemplo);
 }
 
 // Error inline

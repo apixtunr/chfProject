@@ -1,61 +1,186 @@
-<mat-card class="tarjeta">
-  <mat-card-header>
-    <mat-card-title>{{ idPago() ? 'Editar pago' : 'Registrar pago' }}</mat-card-title>
-  </mat-card-header>
+<!-- ══ CABECERA DE PÁGINA ══════════════════════════════════════ -->
+<div class="pf-page-header">
+  <div class="pf-header-left">
+    <nav class="pf-breadcrumb" aria-label="Ruta de navegación">
+      <a routerLink="/pagos" class="pf-breadcrumb-link">Pagos</a>
+      <mat-icon class="pf-breadcrumb-sep">chevron_right</mat-icon>
+      <a [routerLink]="['/pagos/evento', idEvento()]" class="pf-breadcrumb-link">Evento #{{ idEvento() }}</a>
+      <mat-icon class="pf-breadcrumb-sep">chevron_right</mat-icon>
+      <span class="pf-breadcrumb-current">{{ idPago() ? 'Editar pago' : 'Registrar pago' }}</span>
+    </nav>
+    <div class="pf-title-row">
+      <h1 class="pf-title">{{ idPago() ? 'Editar Pago' : 'Registrar Pago' }}</h1>
+      <span class="pf-badge">{{ idPago() ? 'EDITANDO' : 'NUEVO PAGO' }}</span>
+    </div>
+    @if (evento(); as e) {
+      <p class="pf-subtitle">Evento #{{ e.idEvento }} · {{ e.clienteNombre }} · {{ e.fechaEvento }}</p>
+    }
+  </div>
+</div>
 
-  <mat-card-content>
-    <form [formGroup]="formulario" (ngSubmit)="guardar()">
-      @if (evento(); as e) {
-        <p class="evento-fijo"><span class="etiqueta-resumen">Evento:</span> #{{ e.idEvento }} · {{ e.clienteNombre }} · {{ e.fechaEvento }}</p>
-      }
+<form [formGroup]="formulario" (ngSubmit)="guardar()" novalidate>
+  <div class="pf-section">
 
-      @if (resumenEvento(); as r) {
-        <div class="resumen-evento">
-          <div><span class="etiqueta-resumen">Total del evento</span><span>Q {{ r.total | number: '1.2-2' }}</span></div>
-          <div><span class="etiqueta-resumen">Abonado</span><span>Q {{ r.abonado | number: '1.2-2' }}</span></div>
-          <div class="pendiente"><span class="etiqueta-resumen">Pendiente</span><span>Q {{ r.pendiente | number: '1.2-2' }}</span></div>
-        </div>
-      }
-
-      <mat-form-field appearance="outline" class="campo">
-        <mat-label>Metodo de pago</mat-label>
-        <mat-select formControlName="idMetodoPago">
-          @for (metodo of metodos(); track metodo.idMetodoPago) {
-            <mat-option [value]="metodo.idMetodoPago">{{ metodo.nombreMetodo }}</mat-option>
-          }
-        </mat-select>
-      </mat-form-field>
-
-      <mat-form-field appearance="outline" class="campo">
-        <mat-label>Monto (Q)</mat-label>
-        <input matInput type="number" min="0.01" step="0.01" formControlName="monto" />
-      </mat-form-field>
-
-      <mat-form-field appearance="outline" class="campo">
-        <mat-label>Referencia de transaccion {{ metodoRequiereReferencia ? '' : '(opcional)' }}</mat-label>
-        <input matInput formControlName="referenciaTransaccion" placeholder="No. de boleta o transferencia" />
-        @if (formulario.controls.referenciaTransaccion.hasError('required')) {
-          <mat-error>Este metodo de pago requiere una referencia</mat-error>
-        }
-      </mat-form-field>
-
-      <mat-form-field appearance="outline" class="campo">
-        <mat-label>Fecha del pago</mat-label>
-        <input matInput [matDatepicker]="pickerFechaPago" formControlName="fechaPago" />
-        <mat-hint>Si no elije una fecha, se usará la fecha y hora actual</mat-hint>
-        <mat-datepicker-toggle matSuffix [for]="pickerFechaPago"></mat-datepicker-toggle>
-        <mat-datepicker #pickerFechaPago></mat-datepicker>
-      </mat-form-field>
-
-      <mat-form-field appearance="outline" class="campo">
-        <mat-label>Observaciones (opcional)</mat-label>
-        <input matInput formControlName="observaciones" />
-      </mat-form-field>
-
-      <div class="acciones">
-        <button mat-button type="button" [routerLink]="['/pagos/evento', idEvento()]">Cancelar</button>
-        <button mat-flat-button color="primary" type="submit" [disabled]="guardando()">Guardar</button>
+    <div class="pf-section-header">
+      <div class="pf-section-title">
+        <mat-icon>payments</mat-icon>
+        <span>Datos del Pago</span>
       </div>
-    </form>
-  </mat-card-content>
-</mat-card>
+    </div>
+
+    <!-- Saldo del evento: a la vista antes de escribir el monto, para no cobrar de mas. -->
+    @if (resumenEvento(); as r) {
+      <div class="saldo-evento">
+        <div class="saldo-evento__dato">
+          <span class="saldo-evento__etiqueta">Total del evento</span>
+          <span class="saldo-evento__monto">Q {{ r.total | number: '1.2-2' }}</span>
+        </div>
+        <div class="saldo-evento__dato">
+          <span class="saldo-evento__etiqueta">Abonado</span>
+          <span class="saldo-evento__monto">Q {{ r.abonado | number: '1.2-2' }}</span>
+        </div>
+        <div class="saldo-evento__dato saldo-evento__dato--pendiente">
+          <span class="saldo-evento__etiqueta">Pendiente</span>
+          <span class="saldo-evento__monto">Q {{ r.pendiente | number: '1.2-2' }}</span>
+        </div>
+      </div>
+    }
+
+    <!-- ── Fila 2 columnas: Método + Monto ── -->
+    <div class="pf-row-2col">
+
+      <div class="pf-field">
+        <label class="pf-label" for="metodoPago">
+          <span class="pf-label-num">1.</span>
+          <span class="pf-label-name">Método de pago</span>
+          <span class="pf-required-mark">*</span>
+        </label>
+        <div class="pf-input-wrap pf-input-wrap--select" [class.pf-input-wrap--error]="formulario.controls.idMetodoPago.invalid && formulario.controls.idMetodoPago.touched">
+          <mat-icon class="pf-input-icon">credit_card</mat-icon>
+          <mat-select id="metodoPago" class="pf-select" formControlName="idMetodoPago" placeholder="Seleccionar método">
+            @for (metodo of metodos(); track metodo.idMetodoPago) {
+              <mat-option [value]="metodo.idMetodoPago">{{ metodo.nombreMetodo }}</mat-option>
+            }
+          </mat-select>
+        </div>
+        @if (formulario.controls.idMetodoPago.invalid && formulario.controls.idMetodoPago.touched) {
+          <p class="pf-error">El método de pago es obligatorio.</p>
+        }
+      </div>
+
+      <div class="pf-field">
+        <label class="pf-label" for="monto">
+          <span class="pf-label-num">2.</span>
+          <span class="pf-label-name">Monto</span>
+          <span class="pf-required-mark">*</span>
+          <span class="pf-label-hint">(Q)</span>
+        </label>
+        <div class="pf-input-wrap" [class.pf-input-wrap--error]="formulario.controls.monto.invalid && formulario.controls.monto.touched">
+          <mat-icon class="pf-input-icon">payments</mat-icon>
+          <input
+            id="monto"
+            class="pf-input"
+            type="number"
+            min="0.01"
+            step="0.01"
+            formControlName="monto"
+            placeholder="0.00"
+          />
+        </div>
+        @if (formulario.controls.monto.hasError('required') && formulario.controls.monto.touched) {
+          <p class="pf-error">El monto es obligatorio.</p>
+        } @else if (formulario.controls.monto.hasError('min') && formulario.controls.monto.touched) {
+          <p class="pf-error">El monto debe ser mayor que cero.</p>
+        }
+      </div>
+
+    </div>
+
+    <!-- ── Fila 2 columnas: Referencia + Fecha ── -->
+    <div class="pf-row-2col">
+
+      <div class="pf-field">
+        <label class="pf-label" for="referencia">
+          <span class="pf-label-num">3.</span>
+          <span class="pf-label-name">Referencia de transacción</span>
+          @if (metodoRequiereReferencia) {
+            <span class="pf-required-mark">*</span>
+          } @else {
+            <span class="pf-label-hint">(opcional)</span>
+          }
+        </label>
+        <div class="pf-input-wrap" [class.pf-input-wrap--error]="formulario.controls.referenciaTransaccion.invalid && formulario.controls.referenciaTransaccion.touched">
+          <mat-icon class="pf-input-icon">receipt_long</mat-icon>
+          <input
+            id="referencia"
+            class="pf-input"
+            formControlName="referenciaTransaccion"
+            placeholder="No. de boleta o transferencia"
+            autocomplete="off"
+          />
+        </div>
+        @if (formulario.controls.referenciaTransaccion.hasError('required') && formulario.controls.referenciaTransaccion.touched) {
+          <p class="pf-error">Este método de pago requiere una referencia.</p>
+        } @else if (formulario.controls.referenciaTransaccion.hasError('maxlength') && formulario.controls.referenciaTransaccion.touched) {
+          <p class="pf-error">La referencia no puede pasar de 100 caracteres.</p>
+        }
+      </div>
+
+      <div class="pf-field">
+        <label class="pf-label" for="fechaPago">
+          <span class="pf-label-num">4.</span>
+          <span class="pf-label-name">Fecha del pago</span>
+          <span class="pf-label-hint">(opcional)</span>
+        </label>
+        <div class="pf-input-wrap pf-input-wrap--date">
+          <mat-icon class="pf-input-icon">event</mat-icon>
+          <input
+            id="fechaPago"
+            class="pf-input"
+            [matDatepicker]="pickerFechaPago"
+            formControlName="fechaPago"
+            placeholder="dd/mm/aaaa"
+          />
+          <mat-datepicker-toggle class="pf-date-toggle" [for]="pickerFechaPago" tabindex="-1"></mat-datepicker-toggle>
+          <mat-datepicker #pickerFechaPago></mat-datepicker>
+        </div>
+        <p class="pf-ayuda">Si no eliges una fecha, se usará la fecha y hora actual.</p>
+      </div>
+
+    </div>
+
+    <!-- ── Campo 5: Observaciones ── -->
+    <div class="pf-field">
+      <label class="pf-label" for="observaciones">
+        <span class="pf-label-num">5.</span>
+        <span class="pf-label-name">Observaciones</span>
+        <span class="pf-label-hint">(opcional)</span>
+      </label>
+      <div class="pf-input-wrap" [class.pf-input-wrap--error]="formulario.controls.observaciones.invalid && formulario.controls.observaciones.touched">
+        <mat-icon class="pf-input-icon">notes</mat-icon>
+        <input
+          id="observaciones"
+          class="pf-input"
+          formControlName="observaciones"
+          placeholder="Ej. Anticipo del 50%"
+          autocomplete="off"
+        />
+      </div>
+      @if (formulario.controls.observaciones.hasError('maxlength') && formulario.controls.observaciones.touched) {
+        <p class="pf-error">Las observaciones no pueden pasar de 255 caracteres.</p>
+      }
+    </div>
+
+  </div><!-- /pf-section -->
+
+  <!-- ══ ACCIONES ABAJO ══════════════════════════════════════ -->
+  <div class="pf-footer-actions">
+    <button mat-stroked-button type="button" [routerLink]="['/pagos/evento', idEvento()]" class="pf-btn-cancel">
+      Cancelar
+    </button>
+    <button mat-flat-button type="submit" class="pf-btn-save" [disabled]="guardando()">
+      <mat-icon>save</mat-icon>
+      {{ idPago() ? 'Guardar cambios' : 'Registrar pago' }}
+    </button>
+  </div>
+</form>

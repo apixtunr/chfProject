@@ -1,48 +1,129 @@
-<mat-card class="tarjeta">
-  <mat-card-header>
-    <mat-card-title>{{ idPlato() ? 'Editar plato' : 'Nuevo plato' }}</mat-card-title>
-  </mat-card-header>
+<!-- ══ CABECERA DE PÁGINA ══════════════════════════════════════ -->
+<div class="pf-page-header">
+  <div class="pf-header-left">
+    <nav class="pf-breadcrumb" aria-label="Ruta de navegación">
+      <a routerLink="/menus/platos" class="pf-breadcrumb-link">Platos</a>
+      <mat-icon class="pf-breadcrumb-sep">chevron_right</mat-icon>
+      <span class="pf-breadcrumb-current">{{ idPlato() ? 'Editar plato' : 'Nuevo plato' }}</span>
+    </nav>
+    <div class="pf-title-row">
+      <h1 class="pf-title">{{ idPlato() ? 'Editar Plato' : 'Nuevo Plato' }}</h1>
+      <span class="pf-badge">{{ idPlato() ? 'EDITANDO' : 'ALTA EN SISTEMA' }}</span>
+    </div>
+    <p class="pf-subtitle">
+      {{ idPlato()
+        ? 'Modifica los datos del plato y guarda los cambios.'
+        : 'Ingresa los datos del plato para poder agregarlo a los menús.' }}
+    </p>
+  </div>
+</div>
 
-  <mat-card-content>
-    <form [formGroup]="formulario" (ngSubmit)="guardar()">
-      <mat-form-field appearance="outline" class="campo">
-        <mat-label>Nombre del plato</mat-label>
-        <input matInput formControlName="nombrePlato" />
-      </mat-form-field>
+<!-- ══ SECCIÓN: DATOS DEL PLATO ═══════════════════════════════ -->
+<form [formGroup]="formulario" (ngSubmit)="guardar()" novalidate>
+  <div class="pf-section">
 
-      <mat-form-field appearance="outline" class="campo">
-        <mat-label>Estado</mat-label>
-        <mat-select formControlName="idEstado">
-          @for (estado of estados(); track estado.idEstado) {
-            <mat-option [value]="estado.idEstado">{{ estado.nombre }}</mat-option>
-          }
-        </mat-select>
-      </mat-form-field>
+    <div class="pf-section-header">
+      <div class="pf-section-title">
+        <mat-icon>restaurant</mat-icon>
+        <span>Datos del Plato</span>
+      </div>
+    </div>
 
-      <mat-form-field appearance="outline" class="campo">
-        <mat-label>Se vende</mat-label>
-        <mat-select formControlName="unidadVenta">
-          <mat-option value="PERSONA">Por persona</mat-option>
-          <mat-option value="CIENTO">Por ciento (boquitas)</mat-option>
-          <mat-option value="UNIDAD">Por unidad</mat-option>
-        </mat-select>
-        <mat-hint>Cómo se lee su precio en el menú: "Q800.00 el ciento" se cotiza a Q8.00 por unidad</mat-hint>
-      </mat-form-field>
+    <!-- ── Campo 1: Nombre ── -->
+    <div class="pf-field">
+      <label class="pf-label" for="nombrePlato">
+        <span class="pf-label-num">1.</span>
+        <span class="pf-label-name">Nombre del plato</span>
+        <span class="pf-required-mark">*</span>
+      </label>
+      <div class="pf-input-wrap" [class.pf-input-wrap--error]="formulario.controls.nombrePlato.invalid && formulario.controls.nombrePlato.touched">
+        <mat-icon class="pf-input-icon">restaurant</mat-icon>
+        <input
+          id="nombrePlato"
+          class="pf-input"
+          formControlName="nombrePlato"
+          placeholder="Ej. Pollo en crema, Lomito a la parrilla"
+          autocomplete="off"
+        />
+      </div>
+      @if (formulario.controls.nombrePlato.hasError('required') && formulario.controls.nombrePlato.touched) {
+        <p class="pf-error">El nombre del plato es obligatorio.</p>
+      } @else if (formulario.controls.nombrePlato.hasError('maxlength') && formulario.controls.nombrePlato.touched) {
+        <p class="pf-error">El nombre no puede pasar de 120 caracteres.</p>
+      }
+    </div>
 
-      <mat-form-field appearance="outline" class="campo">
-        <mat-label>Bebida incluida</mat-label>
-        <mat-select formControlName="idsBebida" multiple>
+    <!-- ── Fila 2 columnas: Estado + Se vende ── -->
+    <div class="pf-row-2col">
+
+      <!-- Campo 2: Estado -->
+      <div class="pf-field">
+        <label class="pf-label" for="estado">
+          <span class="pf-label-num">2.</span>
+          <span class="pf-label-name">Estado</span>
+          <span class="pf-required-mark">*</span>
+        </label>
+        <div class="pf-input-wrap pf-input-wrap--select" [class.pf-input-wrap--error]="formulario.controls.idEstado.invalid && formulario.controls.idEstado.touched">
+          <mat-icon class="pf-input-icon">toggle_on</mat-icon>
+          <mat-select id="estado" class="pf-select" formControlName="idEstado" placeholder="Seleccionar estado">
+            @for (estado of estados(); track estado.idEstado) {
+              <mat-option [value]="estado.idEstado">{{ estado.nombre }}</mat-option>
+            }
+          </mat-select>
+        </div>
+        @if (formulario.controls.idEstado.invalid && formulario.controls.idEstado.touched) {
+          <p class="pf-error">El estado es obligatorio.</p>
+        }
+      </div>
+
+      <!-- Campo 3: Se vende -->
+      <div class="pf-field">
+        <label class="pf-label" for="unidadVenta">
+          <span class="pf-label-num">3.</span>
+          <span class="pf-label-name">Se vende</span>
+          <span class="pf-required-mark">*</span>
+        </label>
+        <div class="pf-input-wrap pf-input-wrap--select">
+          <mat-icon class="pf-input-icon">sell</mat-icon>
+          <mat-select id="unidadVenta" class="pf-select" formControlName="unidadVenta">
+            <mat-option value="PERSONA">Por persona</mat-option>
+            <mat-option value="CIENTO">Por ciento (boquitas)</mat-option>
+            <mat-option value="UNIDAD">Por unidad</mat-option>
+          </mat-select>
+        </div>
+        <p class="pf-ayuda">Cómo se lee su precio en el menú: "Q800.00 el ciento" se cotiza a Q8.00 por unidad.</p>
+      </div>
+
+    </div>
+
+    <!-- ── Campo 4: Bebidas ── -->
+    <div class="pf-field">
+      <label class="pf-label" for="bebidas">
+        <span class="pf-label-num">4.</span>
+        <span class="pf-label-name">Bebida incluida</span>
+        <span class="pf-label-hint">(opcional, se puede elegir más de una)</span>
+      </label>
+      <div class="pf-input-wrap pf-input-wrap--select">
+        <mat-icon class="pf-input-icon">local_bar</mat-icon>
+        <mat-select id="bebidas" class="pf-select" formControlName="idsBebida" multiple placeholder="Sin bebida">
           @for (bebida of bebidasDisponibles(); track bebida.idBebida) {
             <mat-option [value]="bebida.idBebida">{{ bebida.nombreBebida }}</mat-option>
           }
         </mat-select>
-        <mat-hint>Al cotizar el plato se elige una de estas. Ninguna = no incluye bebida.</mat-hint>
-      </mat-form-field>
-
-      <div class="acciones">
-        <button mat-button type="button" routerLink="/menus/platos">Cancelar</button>
-        <button mat-flat-button color="primary" type="submit" [disabled]="guardando()">Guardar</button>
       </div>
-    </form>
-  </mat-card-content>
-</mat-card>
+      <p class="pf-ayuda">Al cotizar el plato se elige una de estas. Si no marcas ninguna, el plato no incluye bebida.</p>
+    </div>
+
+  </div><!-- /pf-section -->
+
+  <!-- ══ ACCIONES ABAJO ══════════════════════════════════════ -->
+  <div class="pf-footer-actions">
+    <button mat-stroked-button type="button" routerLink="/menus/platos" class="pf-btn-cancel">
+      Cancelar
+    </button>
+    <button mat-flat-button type="submit" class="pf-btn-save" [disabled]="guardando()">
+      <mat-icon>save</mat-icon>
+      {{ idPlato() ? 'Guardar cambios' : 'Guardar plato' }}
+    </button>
+  </div>
+</form>

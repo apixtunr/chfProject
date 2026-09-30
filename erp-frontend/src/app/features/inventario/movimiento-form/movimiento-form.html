@@ -1,51 +1,133 @@
-<mat-card class="tarjeta">
-  <mat-card-header>
-    <mat-card-title>Registrar movimiento de inventario</mat-card-title>
-  </mat-card-header>
+<!-- ══ CABECERA DE PÁGINA ══════════════════════════════════════ -->
+<div class="pf-page-header">
+  <div class="pf-header-left">
+    <nav class="pf-breadcrumb" aria-label="Ruta de navegación">
+      <a routerLink="/inventario/movimientos" class="pf-breadcrumb-link">Movimientos</a>
+      <mat-icon class="pf-breadcrumb-sep">chevron_right</mat-icon>
+      <span class="pf-breadcrumb-current">Registrar movimiento</span>
+    </nav>
+    <div class="pf-title-row">
+      <h1 class="pf-title">Registrar Movimiento</h1>
+      <span class="pf-badge">INVENTARIO</span>
+    </div>
+    <p class="pf-subtitle">Registra una entrada, una salida o un ajuste de existencias de un producto.</p>
+  </div>
+</div>
 
-  <mat-card-content>
-    <form [formGroup]="formulario" (ngSubmit)="guardar()">
-      <mat-form-field appearance="outline" class="campo">
-        <mat-label>Producto</mat-label>
-        <mat-select formControlName="idProducto">
+<!-- ══ SECCIÓN: DATOS DEL MOVIMIENTO ══════════════════════════ -->
+<form [formGroup]="formulario" (ngSubmit)="guardar()" novalidate>
+  <div class="pf-section">
+
+    <div class="pf-section-header">
+      <div class="pf-section-title">
+        <mat-icon>swap_vert</mat-icon>
+        <span>Datos del Movimiento</span>
+      </div>
+    </div>
+
+    <!-- ── Campo 1: Producto ── -->
+    <div class="pf-field">
+      <label class="pf-label" for="producto">
+        <span class="pf-label-num">1.</span>
+        <span class="pf-label-name">Producto</span>
+        <span class="pf-required-mark">*</span>
+      </label>
+      <div class="pf-input-wrap pf-input-wrap--select" [class.pf-input-wrap--error]="formulario.controls.idProducto.invalid && formulario.controls.idProducto.touched">
+        <mat-icon class="pf-input-icon">inventory_2</mat-icon>
+        <mat-select id="producto" class="pf-select" formControlName="idProducto" placeholder="Seleccionar producto">
           @for (producto of productos(); track producto.idProducto) {
             <mat-option [value]="producto.idProducto">
               {{ producto.nombreProducto }} ({{ producto.unidadMedida }})
             </mat-option>
           }
         </mat-select>
-      </mat-form-field>
-
-      <mat-form-field appearance="outline" class="campo">
-        <mat-label>Tipo de movimiento</mat-label>
-        <mat-select formControlName="tipoMovimiento">
-          @for (tipo of tipos; track tipo.valor) {
-            <mat-option [value]="tipo.valor">{{ tipo.etiqueta }}</mat-option>
-          }
-        </mat-select>
-        <mat-hint>{{ ayudaTipo }}</mat-hint>
-      </mat-form-field>
-
-      <mat-form-field appearance="outline" class="campo">
-        <mat-label>Cantidad</mat-label>
-        <input matInput type="number" step="0.01" formControlName="cantidad" />
-        @if (formulario.controls.cantidad.hasError('positiva')) {
-          <mat-error>En entradas y salidas la cantidad debe ser mayor que cero</mat-error>
-        }
-        @if (formulario.controls.cantidad.hasError('cero')) {
-          <mat-error>El ajuste no puede ser cero</mat-error>
-        }
-      </mat-form-field>
-
-      <mat-form-field appearance="outline" class="campo">
-        <mat-label>Descripcion (opcional)</mat-label>
-        <input matInput formControlName="descripcion" placeholder="Compra semanal, conteo fisico..." />
-      </mat-form-field>
-
-      <div class="acciones">
-        <button mat-button type="button" routerLink="/inventario/movimientos">Cancelar</button>
-        <button mat-flat-button color="primary" type="submit" [disabled]="guardando()">Registrar</button>
       </div>
-    </form>
-  </mat-card-content>
-</mat-card>
+      @if (formulario.controls.idProducto.invalid && formulario.controls.idProducto.touched) {
+        <p class="pf-error">El producto es obligatorio.</p>
+      }
+    </div>
+
+    <!-- ── Fila 2 columnas: Tipo + Cantidad ── -->
+    <div class="pf-row-2col">
+
+      <div class="pf-field">
+        <label class="pf-label" for="tipoMovimiento">
+          <span class="pf-label-num">2.</span>
+          <span class="pf-label-name">Tipo de movimiento</span>
+          <span class="pf-required-mark">*</span>
+        </label>
+        <div class="pf-input-wrap pf-input-wrap--select">
+          <mat-icon class="pf-input-icon">swap_vert</mat-icon>
+          <mat-select id="tipoMovimiento" class="pf-select" formControlName="tipoMovimiento">
+            @for (tipo of tipos; track tipo.valor) {
+              <mat-option [value]="tipo.valor">{{ tipo.etiqueta }}</mat-option>
+            }
+          </mat-select>
+        </div>
+        <!-- Cambia segun el tipo elegido: explica que le hace al stock. -->
+        <p class="pf-ayuda">{{ ayudaTipo }}</p>
+      </div>
+
+      <div class="pf-field">
+        <label class="pf-label" for="cantidad">
+          <span class="pf-label-num">3.</span>
+          <span class="pf-label-name">Cantidad</span>
+          <span class="pf-required-mark">*</span>
+        </label>
+        <div class="pf-input-wrap" [class.pf-input-wrap--error]="formulario.controls.cantidad.invalid && formulario.controls.cantidad.touched">
+          <mat-icon class="pf-input-icon">numbers</mat-icon>
+          <input
+            id="cantidad"
+            class="pf-input"
+            type="number"
+            step="0.01"
+            formControlName="cantidad"
+            placeholder="Ej. 25"
+          />
+        </div>
+        @if (formulario.controls.cantidad.hasError('required') && formulario.controls.cantidad.touched) {
+          <p class="pf-error">La cantidad es obligatoria.</p>
+        } @else if (formulario.controls.cantidad.hasError('positiva')) {
+          <p class="pf-error">En entradas y salidas la cantidad debe ser mayor que cero.</p>
+        } @else if (formulario.controls.cantidad.hasError('cero')) {
+          <p class="pf-error">El ajuste no puede ser cero.</p>
+        }
+      </div>
+
+    </div>
+
+    <!-- ── Campo 4: Descripción ── -->
+    <div class="pf-field">
+      <label class="pf-label" for="descripcion">
+        <span class="pf-label-num">4.</span>
+        <span class="pf-label-name">Descripción</span>
+        <span class="pf-label-hint">(opcional)</span>
+      </label>
+      <div class="pf-input-wrap" [class.pf-input-wrap--error]="formulario.controls.descripcion.invalid && formulario.controls.descripcion.touched">
+        <mat-icon class="pf-input-icon">notes</mat-icon>
+        <input
+          id="descripcion"
+          class="pf-input"
+          formControlName="descripcion"
+          placeholder="Ej. Compra semanal, conteo físico"
+          autocomplete="off"
+        />
+      </div>
+      @if (formulario.controls.descripcion.hasError('maxlength') && formulario.controls.descripcion.touched) {
+        <p class="pf-error">La descripción no puede pasar de 255 caracteres.</p>
+      }
+    </div>
+
+  </div><!-- /pf-section -->
+
+  <!-- ══ ACCIONES ABAJO ══════════════════════════════════════ -->
+  <div class="pf-footer-actions">
+    <button mat-stroked-button type="button" routerLink="/inventario/movimientos" class="pf-btn-cancel">
+      Cancelar
+    </button>
+    <button mat-flat-button type="submit" class="pf-btn-save" [disabled]="guardando()">
+      <mat-icon>save</mat-icon>
+      Registrar movimiento
+    </button>
+  </div>
+</form>

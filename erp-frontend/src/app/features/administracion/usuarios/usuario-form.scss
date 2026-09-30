@@ -1,15 +1,3 @@
-.tarjeta {
-  max-width: 480px;
-}
-
-.campo {
-  width: 100%;
-  margin-top: 8px;
-}
-
-.acciones {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-  margin-top: 16px;
-}
+// Los estilos pf-* de este formulario viven en src/styles.scss, compartidos con las
+// demas pantallas que usan el mismo patron. Aqui solo van los ajustes propios de esta
+// pantalla, si llegan a hacer falta.

@@ -2,7 +2,6 @@ package com.lacasadelchef.erp.evento;
 
 import com.lacasadelchef.erp.common.exception.BusinessException;
 import com.lacasadelchef.erp.entity.Cliente;
-import com.lacasadelchef.erp.entity.Estado;
 import com.lacasadelchef.erp.entity.Evento;
 import com.lacasadelchef.erp.entity.Rol;
 import com.lacasadelchef.erp.entity.TipoEvento;

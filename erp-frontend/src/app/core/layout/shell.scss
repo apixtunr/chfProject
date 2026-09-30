@@ -56,16 +56,12 @@ mat-sidenav-content {
 }
 
 .logo-sidebar {
-  // El archivo es arte lineal 100% negra sobre transparencia, asi que sobre el fondo
-  // oscuro desaparece. El filtro lo pasa a blanco puro respetando la transparencia, sin
-  // necesidad de mantener una segunda version del logo.
-  filter: brightness(0) invert(1);
-  opacity: 0.85;
   display: block;
-  width: 150px;
-  height: 150px;
+  width: 200px;
+  height: 200px;
   object-fit: contain;
   margin: auto auto 16px;
+  opacity: 0.85;
 }
 
 // Sobre el fondo oscuro, el item activo se marca con un velo claro traslucido y texto
@@ -137,8 +133,7 @@ mat-sidenav-content {
 
 .toolbar-oscura {
   background-color: var(--chf-marca-barra);
-  color: white;
-  // Sin esto, Flexbox puede encoger el navbar por debajo de su alto fijo (64px) si el
+  color: white;  // Sin esto, Flexbox puede encoger el navbar por debajo de su alto fijo (64px) si el
   // contenido de abajo pide mas espacio del que hay en los 100vh del .shell -eso paso,
   // se veia mas chico en pantallas con mas contenido, sin que ninguna regla CSS "ganara".
   flex-shrink: 0;

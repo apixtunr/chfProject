@@ -1,51 +1,154 @@
-<mat-card class="tarjeta">
-  <mat-card-header>
-    <mat-card-title>{{ idVehiculo() ? 'Editar vehiculo' : 'Nuevo vehiculo' }}</mat-card-title>
-  </mat-card-header>
+<!-- ══ CABECERA DE PÁGINA ══════════════════════════════════════ -->
+<div class="pf-page-header">
+  <div class="pf-header-left">
+    <nav class="pf-breadcrumb" aria-label="Ruta de navegación">
+      <a routerLink="/vehiculos" class="pf-breadcrumb-link">Vehículos</a>
+      <mat-icon class="pf-breadcrumb-sep">chevron_right</mat-icon>
+      <span class="pf-breadcrumb-current">{{ idVehiculo() ? 'Editar vehículo' : 'Nuevo vehículo' }}</span>
+    </nav>
+    <div class="pf-title-row">
+      <h1 class="pf-title">{{ idVehiculo() ? 'Editar Vehículo' : 'Nuevo Vehículo' }}</h1>
+      <span class="pf-badge">{{ idVehiculo() ? 'EDITANDO' : 'ALTA EN SISTEMA' }}</span>
+    </div>
+    <p class="pf-subtitle">
+      {{ idVehiculo()
+        ? 'Modifica los datos del vehículo y guarda los cambios.'
+        : 'Ingresa el vehículo para poder asignarlo a los eventos.' }}
+    </p>
+  </div>
+</div>
 
-  <mat-card-content>
-    <form [formGroup]="formulario" (ngSubmit)="guardar()">
-      <mat-form-field appearance="outline" class="campo">
-        <mat-label>Placa</mat-label>
-        <input matInput formControlName="placa" />
-      </mat-form-field>
+<!-- ══ SECCIÓN: DATOS DEL VEHÍCULO ════════════════════════════ -->
+<form [formGroup]="formulario" (ngSubmit)="guardar()" novalidate>
+  <div class="pf-section">
 
-      <mat-form-field appearance="outline" class="campo">
-        <mat-label>Linea</mat-label>
-        <mat-select formControlName="idLineaVehiculo">
-          @for (linea of lineas(); track linea.idLineaVehiculo) {
-            <mat-option [value]="linea.idLineaVehiculo">{{ linea.nombreMarca }} - {{ linea.nombreLinea }}</mat-option>
-          }
-        </mat-select>
-      </mat-form-field>
+    <div class="pf-section-header">
+      <div class="pf-section-title">
+        <mat-icon>local_shipping</mat-icon>
+        <span>Datos del Vehículo</span>
+      </div>
+    </div>
 
-      <mat-form-field appearance="outline" class="campo">
-        <mat-label>Tipo de placa</mat-label>
-        <mat-select formControlName="idTipoPlaca">
-          @for (tipo of tiposPlaca(); track tipo.idTipoPlaca) {
-            <mat-option [value]="tipo.idTipoPlaca">{{ tipo.nombreTipo }}</mat-option>
-          }
-        </mat-select>
-      </mat-form-field>
+    <!-- ── Fila 2 columnas: Tipo de placa + Placa ──
+         En ese orden porque asi se lee una placa guatemalteca: P-123ABC. -->
+    <div class="pf-row-2col">
 
-      <mat-form-field appearance="outline" class="campo">
-        <mat-label>Estado</mat-label>
-        <mat-select formControlName="idEstado">
+      <div class="pf-field">
+        <label class="pf-label" for="tipoPlaca">
+          <span class="pf-label-num">1.</span>
+          <span class="pf-label-name">Tipo de placa</span>
+          <span class="pf-required-mark">*</span>
+        </label>
+        <div class="pf-input-wrap pf-input-wrap--select" [class.pf-input-wrap--error]="formulario.controls.idTipoPlaca.invalid && formulario.controls.idTipoPlaca.touched">
+          <mat-icon class="pf-input-icon">badge</mat-icon>
+          <mat-select id="tipoPlaca" class="pf-select" formControlName="idTipoPlaca" placeholder="Seleccionar tipo">
+            @for (tipo of tiposPlaca(); track tipo.idTipoPlaca) {
+              <mat-option [value]="tipo.idTipoPlaca">{{ tipo.nombreTipo }}</mat-option>
+            }
+          </mat-select>
+        </div>
+        @if (formulario.controls.idTipoPlaca.invalid && formulario.controls.idTipoPlaca.touched) {
+          <p class="pf-error">El tipo de placa es obligatorio.</p>
+        }
+      </div>
+
+      <div class="pf-field">
+        <label class="pf-label" for="placa">
+          <span class="pf-label-num">2.</span>
+          <span class="pf-label-name">Placa</span>
+          <span class="pf-required-mark">*</span>
+        </label>
+        <div class="pf-input-wrap" [class.pf-input-wrap--error]="formulario.controls.placa.invalid && formulario.controls.placa.touched">
+          <mat-icon class="pf-input-icon">pin</mat-icon>
+          <input
+            id="placa"
+            class="pf-input"
+            formControlName="placa"
+            placeholder="Ej. 123ABC"
+            autocomplete="off"
+          />
+        </div>
+        @if (formulario.controls.placa.hasError('required') && formulario.controls.placa.touched) {
+          <p class="pf-error">La placa es obligatoria.</p>
+        } @else if (formulario.controls.placa.hasError('maxlength') && formulario.controls.placa.touched) {
+          <p class="pf-error">La placa no puede pasar de 20 caracteres.</p>
+        }
+      </div>
+
+    </div>
+
+    <!-- ── Fila 2 columnas: Línea + Año ── -->
+    <div class="pf-row-2col">
+
+      <div class="pf-field">
+        <label class="pf-label" for="linea">
+          <span class="pf-label-num">3.</span>
+          <span class="pf-label-name">Marca y línea</span>
+          <span class="pf-required-mark">*</span>
+        </label>
+        <div class="pf-input-wrap pf-input-wrap--select" [class.pf-input-wrap--error]="formulario.controls.idLineaVehiculo.invalid && formulario.controls.idLineaVehiculo.touched">
+          <mat-icon class="pf-input-icon">directions_car</mat-icon>
+          <mat-select id="linea" class="pf-select" formControlName="idLineaVehiculo" placeholder="Seleccionar marca y línea">
+            @for (linea of lineas(); track linea.idLineaVehiculo) {
+              <mat-option [value]="linea.idLineaVehiculo">{{ linea.nombreMarca }} - {{ linea.nombreLinea }}</mat-option>
+            }
+          </mat-select>
+        </div>
+        @if (formulario.controls.idLineaVehiculo.invalid && formulario.controls.idLineaVehiculo.touched) {
+          <p class="pf-error">La marca y línea son obligatorias.</p>
+        }
+      </div>
+
+      <div class="pf-field">
+        <label class="pf-label" for="anio">
+          <span class="pf-label-num">4.</span>
+          <span class="pf-label-name">Año</span>
+          <span class="pf-label-hint">(opcional)</span>
+        </label>
+        <div class="pf-input-wrap">
+          <mat-icon class="pf-input-icon">calendar_today</mat-icon>
+          <input
+            id="anio"
+            class="pf-input"
+            type="number"
+            formControlName="anioVehiculo"
+            placeholder="Ej. 2019"
+          />
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── Campo 5: Estado ── -->
+    <div class="pf-field">
+      <label class="pf-label" for="estado">
+        <span class="pf-label-num">5.</span>
+        <span class="pf-label-name">Estado</span>
+        <span class="pf-required-mark">*</span>
+      </label>
+      <div class="pf-input-wrap pf-input-wrap--select" [class.pf-input-wrap--error]="formulario.controls.idEstado.invalid && formulario.controls.idEstado.touched">
+        <mat-icon class="pf-input-icon">toggle_on</mat-icon>
+        <mat-select id="estado" class="pf-select" formControlName="idEstado" placeholder="Seleccionar estado">
           @for (estado of estados(); track estado.idEstado) {
             <mat-option [value]="estado.idEstado">{{ estado.nombre }}</mat-option>
           }
         </mat-select>
-      </mat-form-field>
-
-      <mat-form-field appearance="outline" class="campo">
-        <mat-label>Año</mat-label>
-        <input matInput type="number" formControlName="anioVehiculo" />
-      </mat-form-field>
-
-      <div class="acciones">
-        <button mat-button type="button" routerLink="/vehiculos">Cancelar</button>
-        <button mat-flat-button color="primary" type="submit" [disabled]="guardando()">Guardar</button>
       </div>
-    </form>
-  </mat-card-content>
-</mat-card>
+      @if (formulario.controls.idEstado.invalid && formulario.controls.idEstado.touched) {
+        <p class="pf-error">El estado es obligatorio.</p>
+      }
+    </div>
+
+  </div><!-- /pf-section -->
+
+  <!-- ══ ACCIONES ABAJO ══════════════════════════════════════ -->
+  <div class="pf-footer-actions">
+    <button mat-stroked-button type="button" routerLink="/vehiculos" class="pf-btn-cancel">
+      Cancelar
+    </button>
+    <button mat-flat-button type="submit" class="pf-btn-save" [disabled]="guardando()">
+      <mat-icon>save</mat-icon>
+      {{ idVehiculo() ? 'Guardar cambios' : 'Guardar vehículo' }}
+    </button>
+  </div>
+</form>

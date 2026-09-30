@@ -1,8 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormControl, ReactiveFormsModule } from '@angular/forms';
+import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -10,6 +10,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
+import { debounceTime, distinctUntilChanged, of, switchMap } from 'rxjs';
 import type { ChartData } from 'chart.js';
 import { EstadoResponse } from '../../../core/catalogos/estado';
 import { EstadoService } from '../../../core/catalogos/estado.service';
@@ -42,10 +43,10 @@ const PALETA_TIPOS = ['#5c6bc0', '#26a69a', '#fb8c00', '#8d6e63', '#7e57c2', '#2
     MatButtonModule,
     MatIconModule,
     MatChipsModule,
-    MatCardModule,
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
+    MatAutocompleteModule,
     ChartComponent,
   ],
   templateUrl: './evento-reporte.html',
@@ -66,6 +67,10 @@ export class EventoReporte implements OnInit {
   readonly clientes = signal<ClienteResponse[]>([]);
   readonly tiposEvento = signal<TipoEventoResponse[]>([]);
   readonly estadosEvento = signal<EstadoResponse[]>([]);
+
+  /** Autocomplete de cliente — igual que en cotizacion-form */
+  readonly busquedaCliente = new FormControl('', { nonNullable: true });
+  readonly clientesFiltrados = signal<ClienteResponse[]>([]);
 
   readonly resumen = signal<EventoResumenResponse | null>(null);
   readonly rentabilidadResumen = signal<RentabilidadResumenResponse | null>(null);
@@ -114,11 +119,79 @@ export class EventoReporte implements OnInit {
     scales: { y: { beginAtZero: true, ticks: { precision: 0 } } },
   };
 
+  readonly opcionesDona = {
+    cutout: '68%',
+    plugins: { legend: { display: false } },
+  };
+
+  readonly tasaFinalizacion = computed(() => {
+    const total = this.resumen()?.totalEventos ?? 0;
+    if (!total) return 0;
+    const finalizados = this.resumen()?.porEstado.find((e) => e.etiqueta === 'FINALIZADO')?.cantidad ?? 0;
+    return (finalizados / total) * 100;
+  });
+
+  readonly mayorDemanda = computed(() => {
+    const tipos = this.resumen()?.porTipo ?? [];
+    if (!tipos.length) return null;
+    const max = Math.max(...tipos.map((t) => t.cantidad));
+    const lideres = tipos.filter((t) => t.cantidad === max);
+    return lideres.map((t) => t.etiqueta).join(' & ') + ` (${max} evento${max !== 1 ? 's' : ''} cada uno)`;
+  });
+
+  margenBarWidth(margen: number): number {
+    return Math.min(Math.max(margen, 0), 100);
+  }
+
+  colorTipo(tipo: string): string {
+    const colores: Record<string, string> = {
+      'Boda': '#8b5cf6',
+      'Cumpleaños': '#f59e0b',
+      'Bautizo': '#3b82f6',
+      'Confirmación': '#f97316',
+      'Quince años': '#ec4899',
+      'Graduación': '#10b981',
+      'Corporativo': '#6366f1',
+      'Aniversario': '#ef4444',
+    };
+    return colores[tipo] ?? '#6366f1';
+  }
+
   ngOnInit(): void {
-    this.clienteService.listar('', 0, 200).subscribe((p) => this.clientes.set(p.content));
     this.eventoService.listarTiposEvento().subscribe((t) => this.tiposEvento.set(t));
     this.estadoService.listarPorTipo(TIPO_ESTADO_EVENTO).subscribe((e) => this.estadosEvento.set(e));
+
+    // Autocomplete de cliente
+    this.busquedaCliente.valueChanges.subscribe((texto) => {
+      if (typeof texto === 'string' && !texto.trim()) {
+        this.formulario.controls.idCliente.setValue(null);
+        this.clientesFiltrados.set([]);
+      }
+    });
+    this.busquedaCliente.valueChanges.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      switchMap((texto) => {
+        const valor = typeof texto === 'string' ? texto.trim() : '';
+        return valor ? this.clienteService.listar(valor, 0, 10) : of(null);
+      }),
+    ).subscribe((page) => this.clientesFiltrados.set(page?.content ?? []));
+
     this.cargar();
+  }
+
+  mostrarCliente(cliente: ClienteResponse | string | null): string {
+    if (!cliente || typeof cliente === 'string') return '';
+    return cliente.nombre;
+  }
+
+  seleccionarCliente(event: MatAutocompleteSelectedEvent): void {
+    const valor = event.option.value;
+    if (valor === null) {
+      this.formulario.controls.idCliente.setValue(null);
+    } else {
+      this.formulario.controls.idCliente.setValue((valor as ClienteResponse).idCliente);
+    }
   }
 
   private get filtros(): FiltrosEvento {
@@ -156,6 +229,8 @@ export class EventoReporte implements OnInit {
 
   limpiarFiltros(): void {
     this.formulario.reset();
+    this.busquedaCliente.setValue('');
+    this.clientesFiltrados.set([]);
     this.aplicarFiltros();
   }
 

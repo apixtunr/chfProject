@@ -1,21 +1,19 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { EstadoResponse } from '../../../core/catalogos/estado';
 import { EstadoService } from '../../../core/catalogos/estado.service';
 import { MenuPlatoService } from '../menu-plato.service';
+import { MatIconModule } from '@angular/material/icon';
 
 const TIPO_ESTADO_GENERAL = 'GENERAL';
 
 @Component({
   selector: 'app-menu-form',
-  imports: [ReactiveFormsModule, RouterLink, MatCardModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatButtonModule],
+  imports: [ReactiveFormsModule, RouterLink, MatSelectModule, MatButtonModule, MatIconModule],
   templateUrl: './menu-form.html',
   styleUrl: './menu-form.scss',
 })

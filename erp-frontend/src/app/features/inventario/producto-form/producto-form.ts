@@ -1,9 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
+import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -12,7 +10,7 @@ import { InventarioService } from '../inventario.service';
 
 @Component({
   selector: 'app-producto-form',
-  imports: [ReactiveFormsModule, RouterLink, MatCardModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatButtonModule],
+  imports: [MatIconModule, ReactiveFormsModule, RouterLink, MatSelectModule, MatButtonModule],
   templateUrl: './producto-form.html',
   styleUrl: './producto-form.scss',
 })

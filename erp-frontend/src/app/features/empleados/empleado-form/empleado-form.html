@@ -1,144 +1,302 @@
-<mat-card class="tarjeta">
-  <mat-card-header>
-    <mat-card-title>{{ idEmpleado() ? 'Editar empleado' : 'Nuevo empleado' }}</mat-card-title>
-  </mat-card-header>
+<!-- ══ CABECERA DE PÁGINA ══════════════════════════════════════ -->
+<div class="pf-page-header">
+  <div class="pf-header-left">
+    <nav class="pf-breadcrumb" aria-label="Ruta de navegación">
+      <a routerLink="/empleados" class="pf-breadcrumb-link">Empleados</a>
+      <mat-icon class="pf-breadcrumb-sep">chevron_right</mat-icon>
+      <span class="pf-breadcrumb-current">{{ idEmpleado() ? 'Editar empleado' : 'Nuevo empleado' }}</span>
+    </nav>
+    <div class="pf-title-row">
+      <h1 class="pf-title">{{ idEmpleado() ? 'Editar Empleado' : 'Nuevo Empleado' }}</h1>
+      <span class="pf-badge">{{ idEmpleado() ? 'EDITANDO' : 'ALTA EN SISTEMA' }}</span>
+    </div>
+    <p class="pf-subtitle">
+      {{ idEmpleado()
+        ? 'Modifica los datos del empleado y guarda los cambios.'
+        : 'Ingresa los datos de la persona y, si va a usar el sistema, créale su acceso.' }}
+    </p>
+  </div>
+</div>
 
-  <mat-card-content>
-    <form [formGroup]="formulario" (ngSubmit)="guardar()">
-      <mat-form-field appearance="outline" class="campo">
-        <mat-label>Nombre</mat-label>
-        <input matInput formControlName="nombre" />
-      </mat-form-field>
+<form [formGroup]="formulario" (ngSubmit)="guardar()" novalidate>
 
-      <mat-form-field appearance="outline" class="campo">
-        <mat-label>Apellido</mat-label>
-        <input matInput formControlName="apellido" />
-      </mat-form-field>
+  <!-- ══ SECCIÓN 1: DATOS DEL EMPLEADO ════════════════════════ -->
+  <div class="pf-section">
 
-      <mat-form-field appearance="outline" class="campo">
-        <mat-label>Puesto</mat-label>
-        <mat-select formControlName="idPuestoEmpleado">
-          @for (puesto of puestos(); track puesto.idPuestoEmpleado) {
-            <mat-option [value]="puesto.idPuestoEmpleado">{{ puesto.nombreRol }}</mat-option>
-          }
-        </mat-select>
-      </mat-form-field>
+    <div class="pf-section-header">
+      <div class="pf-section-title">
+        <mat-icon>person</mat-icon>
+        <span>Datos del Empleado</span>
+      </div>
+    </div>
 
-      <mat-form-field appearance="outline" class="campo">
-        <mat-label>Estado</mat-label>
-        <mat-select formControlName="idEstado">
-          @for (estado of estados(); track estado.idEstado) {
-            <mat-option [value]="estado.idEstado">{{ estado.nombre }}</mat-option>
-          }
-        </mat-select>
-      </mat-form-field>
+    <!-- ── Nombre + Apellido ── -->
+    <div class="pf-row-2col">
+      <div class="pf-field">
+        <label class="pf-label" for="nombre">
+          <span class="pf-label-num">1.</span>
+          <span class="pf-label-name">Nombres</span>
+          <span class="pf-required-mark">*</span>
+        </label>
+        <div class="pf-input-wrap" [class.pf-input-wrap--error]="formulario.controls.nombre.invalid && formulario.controls.nombre.touched">
+          <mat-icon class="pf-input-icon">person_outline</mat-icon>
+          <input id="nombre" class="pf-input" formControlName="nombre" placeholder="Ej. Ana Judith" autocomplete="off" />
+        </div>
+        @if (formulario.controls.nombre.invalid && formulario.controls.nombre.touched) {
+          <p class="pf-error">El nombre es obligatorio.</p>
+        }
+      </div>
 
-      <mat-form-field appearance="outline" class="campo">
-        <mat-label>Genero</mat-label>
-        <mat-select formControlName="idGenero">
-          @for (genero of generos(); track genero.idGenero) {
-            <mat-option [value]="genero.idGenero">{{ genero.nombreGenero }}</mat-option>
-          }
-        </mat-select>
-      </mat-form-field>
+      <div class="pf-field">
+        <label class="pf-label" for="apellido">
+          <span class="pf-label-num">2.</span>
+          <span class="pf-label-name">Apellidos</span>
+          <span class="pf-required-mark">*</span>
+        </label>
+        <div class="pf-input-wrap" [class.pf-input-wrap--error]="formulario.controls.apellido.invalid && formulario.controls.apellido.touched">
+          <mat-icon class="pf-input-icon">person_outline</mat-icon>
+          <input id="apellido" class="pf-input" formControlName="apellido" placeholder="Ej. López Cáceres" autocomplete="off" />
+        </div>
+        @if (formulario.controls.apellido.invalid && formulario.controls.apellido.touched) {
+          <p class="pf-error">El apellido es obligatorio.</p>
+        }
+      </div>
+    </div>
 
-      <mat-form-field appearance="outline" class="campo">
-        <mat-label>Correo</mat-label>
-        <input matInput formControlName="correo" />
-      </mat-form-field>
+    <!-- ── Puesto + Estado ── -->
+    <div class="pf-row-2col">
+      <div class="pf-field">
+        <label class="pf-label" for="puesto">
+          <span class="pf-label-num">3.</span>
+          <span class="pf-label-name">Puesto</span>
+          <span class="pf-required-mark">*</span>
+        </label>
+        <div class="pf-input-wrap pf-input-wrap--select" [class.pf-input-wrap--error]="formulario.controls.idPuestoEmpleado.invalid && formulario.controls.idPuestoEmpleado.touched">
+          <mat-icon class="pf-input-icon">work</mat-icon>
+          <mat-select id="puesto" class="pf-select" formControlName="idPuestoEmpleado" placeholder="Seleccionar puesto">
+            @for (puesto of puestos(); track puesto.idPuestoEmpleado) {
+              <mat-option [value]="puesto.idPuestoEmpleado">{{ puesto.nombreRol }}</mat-option>
+            }
+          </mat-select>
+        </div>
+        @if (formulario.controls.idPuestoEmpleado.invalid && formulario.controls.idPuestoEmpleado.touched) {
+          <p class="pf-error">El puesto es obligatorio.</p>
+        }
+      </div>
 
-      <mat-form-field appearance="outline" class="campo">
-        <mat-label>Telefono</mat-label>
-        <input matInput formControlName="telefono" />
-      </mat-form-field>
+      <div class="pf-field">
+        <label class="pf-label" for="estado">
+          <span class="pf-label-num">4.</span>
+          <span class="pf-label-name">Estado</span>
+          <span class="pf-required-mark">*</span>
+        </label>
+        <div class="pf-input-wrap pf-input-wrap--select" [class.pf-input-wrap--error]="formulario.controls.idEstado.invalid && formulario.controls.idEstado.touched">
+          <mat-icon class="pf-input-icon">toggle_on</mat-icon>
+          <mat-select id="estado" class="pf-select" formControlName="idEstado" placeholder="Seleccionar estado">
+            @for (estado of estados(); track estado.idEstado) {
+              <mat-option [value]="estado.idEstado">{{ estado.nombre }}</mat-option>
+            }
+          </mat-select>
+        </div>
+        @if (formulario.controls.idEstado.invalid && formulario.controls.idEstado.touched) {
+          <p class="pf-error">El estado es obligatorio.</p>
+        }
+      </div>
+    </div>
 
-      <mat-form-field appearance="outline" class="campo">
-        <mat-label>Fecha de contratacion</mat-label>
-        <input matInput [matDatepicker]="picker" formControlName="fechaContratacion" />
-        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-        <mat-datepicker #picker></mat-datepicker>
-      </mat-form-field>
+    <!-- ── Género + Fecha de contratación ── -->
+    <div class="pf-row-2col">
+      <div class="pf-field">
+        <label class="pf-label" for="genero">
+          <span class="pf-label-num">5.</span>
+          <span class="pf-label-name">Género</span>
+          <span class="pf-label-hint">(opcional)</span>
+        </label>
+        <div class="pf-input-wrap pf-input-wrap--select">
+          <mat-icon class="pf-input-icon">wc</mat-icon>
+          <mat-select id="genero" class="pf-select" formControlName="idGenero" placeholder="Seleccionar género">
+            @for (genero of generos(); track genero.idGenero) {
+              <mat-option [value]="genero.idGenero">{{ genero.nombreGenero }}</mat-option>
+            }
+          </mat-select>
+        </div>
+      </div>
 
-      <!-- ══ ACCESO AL SISTEMA ═══════════════════════════════════════════════
-           Al dar de alta se pregunta si la persona va a entrar al sistema. La
-           mayoria no: un mesero o un cocinero se asigna a eventos pero no usa la
-           aplicacion, y crearle credenciales que nadie usa seria un riesgo.
+      <div class="pf-field">
+        <label class="pf-label" for="fechaContratacion">
+          <span class="pf-label-num">6.</span>
+          <span class="pf-label-name">Fecha de contratación</span>
+          <span class="pf-label-hint">(opcional)</span>
+        </label>
+        <div class="pf-input-wrap pf-input-wrap--date">
+          <mat-icon class="pf-input-icon">event</mat-icon>
+          <input
+            id="fechaContratacion"
+            class="pf-input"
+            [matDatepicker]="picker"
+            formControlName="fechaContratacion"
+            placeholder="dd/mm/aaaa"
+          />
+          <mat-datepicker-toggle class="pf-date-toggle" [for]="picker" tabindex="-1"></mat-datepicker-toggle>
+          <mat-datepicker #picker></mat-datepicker>
+        </div>
+      </div>
+    </div>
 
-           Al editar no se pregunta, porque quizas ya tiene usuario: ahi se muestra
-           cual es, o un boton para crearselo. -->
-      @if (puedeCrearUsuarios) {
-        <div class="acceso-sistema">
-          <h2 class="acceso-titulo">
-            <mat-icon>badge</mat-icon>
-            Acceso al sistema
-          </h2>
+    <!-- ── Correo + Teléfono ── -->
+    <div class="pf-row-2col">
+      <div class="pf-field">
+        <label class="pf-label" for="correo">
+          <span class="pf-label-num">7.</span>
+          <span class="pf-label-name">Correo electrónico</span>
+          <span class="pf-label-hint">(opcional)</span>
+        </label>
+        <div class="pf-input-wrap" [class.pf-input-wrap--error]="formulario.controls.correo.invalid && formulario.controls.correo.touched">
+          <mat-icon class="pf-input-icon">alternate_email</mat-icon>
+          <input id="correo" class="pf-input" type="email" formControlName="correo" placeholder="Ej. ana.lopez@lacasadelchef.com" autocomplete="off" />
+        </div>
+        @if (formulario.controls.correo.invalid && formulario.controls.correo.touched) {
+          <p class="pf-error">El correo no tiene un formato válido.</p>
+        }
+      </div>
 
-          @if (!idEmpleado()) {
-            <p class="acceso-pregunta">¿Esta persona va a entrar al sistema?</p>
-            <mat-radio-group
-              class="acceso-opciones"
-              formControlName="daAcceso"
-              (change)="cambiarAcceso($event.value)"
-            >
-              <mat-radio-button [value]="false">
-                No, solo queda registrada como empleado
-              </mat-radio-button>
-              <mat-radio-button [value]="true">
-                Sí, crearle un usuario para entrar al sistema
-              </mat-radio-button>
-            </mat-radio-group>
+      <div class="pf-field">
+        <label class="pf-label" for="telefono">
+          <span class="pf-label-num">8.</span>
+          <span class="pf-label-name">Teléfono</span>
+          <span class="pf-label-hint">(opcional)</span>
+        </label>
+        <div class="pf-input-wrap" [class.pf-input-wrap--error]="formulario.controls.telefono.invalid && formulario.controls.telefono.touched">
+          <mat-icon class="pf-input-icon">phone</mat-icon>
+          <input id="telefono" class="pf-input" formControlName="telefono" placeholder="Ej. 5498-2302" autocomplete="off" />
+        </div>
+        @if (formulario.controls.telefono.invalid && formulario.controls.telefono.touched) {
+          <p class="pf-error">Formato inválido. Ej: 5498-2302 o +502 5498 2302.</p>
+        }
+      </div>
+    </div>
 
-            @if (creaAcceso) {
-              <div class="acceso-campos">
-                <p class="usuario-previsto">
-                  Entrará al sistema como
-                  <strong>{{ usuarioPrevisto || 'nombre.apellido' }}</strong>: primer nombre y primer
-                  apellido, sin tildes. Si ya existe, se le agrega un número.
-                </p>
+  </div><!-- /pf-section datos -->
 
-                <mat-form-field appearance="outline" class="campo">
-                  <mat-label>Contraseña (mínimo 8 caracteres)</mat-label>
-                  <input matInput type="password" formControlName="password" autocomplete="new-password" />
-                  @if (formulario.controls.password.hasError('minlength') && formulario.controls.password.touched) {
-                    <mat-error>La contraseña debe tener al menos 8 caracteres.</mat-error>
-                  }
-                </mat-form-field>
+  <!-- ══ SECCIÓN 2: ACCESO AL SISTEMA ═════════════════════════
+       Tarjeta aparte porque no son datos de la persona sino sus credenciales, que es
+       otra cosa: igual que en la base, donde empleado y usuario son dos tablas.
 
-                <mat-form-field appearance="outline" class="campo">
-                  <mat-label>Rol en el sistema</mat-label>
-                  <mat-select formControlName="idRolUsuario">
+       Al dar de alta se pregunta si la persona va a entrar al sistema. La mayoria no:
+       un mesero o un cocinero se asigna a eventos pero no usa la aplicacion, y crearle
+       credenciales que nadie usa seria un riesgo. Al editar no se pregunta, porque
+       quizas ya tiene usuario: se muestra cual es, o un boton para crearselo. -->
+  @if (puedeCrearUsuarios) {
+    <div class="pf-section">
+
+      <div class="pf-section-header">
+        <div class="pf-section-title">
+          <mat-icon>badge</mat-icon>
+          <span>Acceso al Sistema</span>
+        </div>
+      </div>
+
+      @if (!idEmpleado()) {
+        <div class="pf-field">
+          <span class="pf-label">
+            <span class="pf-label-name">¿Esta persona va a entrar al sistema?</span>
+          </span>
+          <mat-radio-group
+            class="acceso-opciones"
+            formControlName="daAcceso"
+            (change)="cambiarAcceso($event.value)"
+          >
+            <mat-radio-button [value]="false">No, solo queda registrada como empleado</mat-radio-button>
+            <mat-radio-button [value]="true">Sí, crearle un usuario para entrar al sistema</mat-radio-button>
+          </mat-radio-group>
+        </div>
+
+        @if (creaAcceso) {
+          <div class="acceso-campos">
+            <p class="usuario-previsto">
+              <mat-icon>alternate_email</mat-icon>
+              <span>
+                Entrará al sistema como <strong>{{ usuarioPrevisto || 'nombre.apellido' }}</strong>:
+                primer nombre y primer apellido, sin tildes. Si ya existe, se le agrega un número.
+              </span>
+            </p>
+
+            <div class="pf-row-2col">
+              <div class="pf-field">
+                <label class="pf-label" for="password">
+                  <span class="pf-label-name">Contraseña</span>
+                  <span class="pf-required-mark">*</span>
+                  <span class="pf-label-hint">(mínimo 8 caracteres)</span>
+                </label>
+                <div class="pf-input-wrap" [class.pf-input-wrap--error]="formulario.controls.password.invalid && formulario.controls.password.touched">
+                  <mat-icon class="pf-input-icon">lock</mat-icon>
+                  <input id="password" class="pf-input" type="password" formControlName="password" autocomplete="new-password" />
+                </div>
+                @if (formulario.controls.password.hasError('required') && formulario.controls.password.touched) {
+                  <p class="pf-error">La contraseña es obligatoria.</p>
+                } @else if (formulario.controls.password.hasError('minlength') && formulario.controls.password.touched) {
+                  <p class="pf-error">La contraseña debe tener al menos 8 caracteres.</p>
+                }
+              </div>
+
+              <div class="pf-field">
+                <label class="pf-label" for="rolUsuario">
+                  <span class="pf-label-name">Rol en el sistema</span>
+                  <span class="pf-required-mark">*</span>
+                </label>
+                <div class="pf-input-wrap pf-input-wrap--select" [class.pf-input-wrap--error]="formulario.controls.idRolUsuario.invalid && formulario.controls.idRolUsuario.touched">
+                  <mat-icon class="pf-input-icon">admin_panel_settings</mat-icon>
+                  <mat-select id="rolUsuario" class="pf-select" formControlName="idRolUsuario" placeholder="Seleccionar rol">
                     @for (rol of roles(); track rol.idRol) {
                       <mat-option [value]="rol.idRol">{{ rol.nombreRol }}</mat-option>
                     }
                   </mat-select>
-                  <mat-hint>El rol define qué puede hacer dentro del sistema. No tiene relación con el puesto.</mat-hint>
-                </mat-form-field>
+                </div>
+                @if (formulario.controls.idRolUsuario.invalid && formulario.controls.idRolUsuario.touched) {
+                  <p class="pf-error">El rol es obligatorio.</p>
+                } @else {
+                  <p class="pf-ayuda">Define qué puede hacer dentro del sistema. No tiene relación con el puesto.</p>
+                }
               </div>
-            }
-          } @else if (usuarioActual(); as u) {
-            <p class="acceso-actual">
-              <mat-icon>check_circle</mat-icon>
-              Entra al sistema como <strong>{{ u.username }}</strong>, con rol <strong>{{ u.rol }}</strong>.
-            </p>
-            <a mat-stroked-button [routerLink]="['/admin/usuarios', u.idUsuario, 'editar']">
+            </div>
+          </div>
+        }
+      } @else if (usuarioActual(); as u) {
+        <div class="pf-field">
+          <p class="acceso-actual">
+            <mat-icon>check_circle</mat-icon>
+            Entra al sistema como <strong>{{ u.username }}</strong>, con rol <strong>{{ u.rol }}</strong>.
+          </p>
+          <div>
+            <a mat-stroked-button class="pf-btn-cancel" [routerLink]="['/admin/usuarios', u.idUsuario, 'editar']">
+              <mat-icon>manage_accounts</mat-icon>
               Administrar su acceso
             </a>
-          } @else {
-            <p class="acceso-actual acceso-actual--sin">
-              Esta persona no entra al sistema.
-            </p>
-            <a mat-stroked-button [routerLink]="['/admin/usuarios/nuevo']" [queryParams]="{ empleado: idEmpleado() }">
+          </div>
+        </div>
+      } @else {
+        <div class="pf-field">
+          <p class="acceso-actual acceso-actual--sin">Esta persona no entra al sistema.</p>
+          <div>
+            <a mat-stroked-button class="pf-btn-cancel" [routerLink]="['/admin/usuarios/nuevo']" [queryParams]="{ empleado: idEmpleado() }">
               <mat-icon>person_add</mat-icon>
               Crear acceso al sistema
             </a>
-          }
+          </div>
         </div>
       }
 
-      <div class="acciones">
-        <button mat-button type="button" routerLink="/empleados">Cancelar</button>
-        <button mat-flat-button color="primary" type="submit" [disabled]="guardando()">Guardar</button>
-      </div>
-    </form>
-  </mat-card-content>
-</mat-card>
+    </div><!-- /pf-section acceso -->
+  }
+
+  <!-- ══ ACCIONES ABAJO ══════════════════════════════════════ -->
+  <div class="pf-footer-actions">
+    <button mat-stroked-button type="button" routerLink="/empleados" class="pf-btn-cancel">
+      Cancelar
+    </button>
+    <button mat-flat-button type="submit" class="pf-btn-save" [disabled]="guardando()">
+      <mat-icon>save</mat-icon>
+      {{ idEmpleado() ? 'Guardar cambios' : 'Guardar empleado' }}
+    </button>
+  </div>
+</form>

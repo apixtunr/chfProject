@@ -1,51 +1,6 @@
-.tarjeta {
-  max-width: 480px;
-}
-
-.campo {
-  width: 100%;
-  margin-top: 8px;
-}
-
-.acciones {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-  margin-top: 16px;
-}
-
-// ── Acceso al sistema ────────────────────────────────────────────────────────
-// Va separado del resto del formulario con una linea y un titulo propio, porque no
-// son datos de la persona: son sus credenciales, que es otra cosa. Esa separacion
-// visual es la misma que hay en el modelo, donde empleado y usuario son dos tablas.
-.acceso-sistema {
-  margin-top: 8px;
-  padding-top: 20px;
-  border-top: 1px solid var(--chf-borde-suave);
-}
-
-.acceso-titulo {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 0 0 4px;
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--chf-texto-fuerte);
-
-  mat-icon {
-    font-size: 20px;
-    width: 20px;
-    height: 20px;
-    color: var(--chf-campo-acento);
-  }
-}
-
-.acceso-pregunta {
-  margin: 0 0 10px;
-  font-size: 0.9rem;
-  color: var(--chf-texto-medio);
-}
+// Los estilos pf-* de este formulario viven en src/styles.scss, compartidos con las
+// demas pantallas que usan el mismo patron. Aqui solo queda lo propio de esta pantalla:
+// la tarjeta de acceso al sistema, que no existe en ningun otro formulario.
 
 // Las dos opciones en columna y no en fila: la primera ("no entra al sistema") es la
 // habitual y conviene que se lea completa antes de pasar a la otra.
@@ -53,20 +8,40 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
-  margin-bottom: 12px;
 }
 
-// Sangrados respecto de la pregunta, para que se lea que dependen de haber dicho que si.
+// Sangrado respecto de la pregunta, para que se lea que depende de haber dicho que si.
+// No es un .pf-field, asi que el margen lateral de la tarjeta se pone aca; los campos de
+// adentro traen el suyo y quedan un paso mas adentro, bajo la linea.
 .acceso-campos {
-  padding-left: 32px;
+  margin: 12px 20px 20px 32px;
   border-left: 2px solid var(--chf-borde-suave);
+}
+
+// Usuario que el sistema le va a asignar: se muestra, no se escribe.
+.usuario-previsto {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0;
+  padding: 4px 20px 0;
+  font-size: 0.875rem;
+  color: var(--chf-texto-medio);
+
+  mat-icon {
+    flex-shrink: 0;
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    color: var(--chf-campo-acento);
+  }
 }
 
 .acceso-actual {
   display: flex;
   align-items: center;
   gap: 6px;
-  margin: 0 0 12px;
+  margin: 0 0 6px;
   font-size: 0.9rem;
   color: var(--chf-estado-exito);
 
@@ -80,11 +55,4 @@
   &--sin {
     color: var(--chf-texto-medio);
   }
-}
-
-// Usuario que el sistema le va a asignar: se muestra, no se escribe.
-.usuario-previsto {
-  margin: 0 0 12px;
-  font-size: 0.9rem;
-  color: var(--chf-texto-medio);
 }

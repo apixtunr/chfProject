@@ -2,10 +2,8 @@ import { DecimalPipe } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -25,14 +23,11 @@ interface ResumenEvento {
 
 @Component({
   selector: 'app-pago-form',
-  imports: [
+  imports: [MatIconModule, 
     ReactiveFormsModule,
     RouterLink,
     DecimalPipe,
-    MatCardModule,
     MatDatepickerModule,
-    MatFormFieldModule,
-    MatInputModule,
     MatSelectModule,
     MatButtonModule,
   ],

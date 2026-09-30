@@ -1,62 +1,159 @@
-<mat-card class="tarjeta">
-  <mat-card-header>
-    <mat-card-title>{{ idUsuario() ? 'Editar usuario' : 'Nuevo usuario' }}</mat-card-title>
-  </mat-card-header>
+<!-- ══ CABECERA DE PÁGINA ══════════════════════════════════════ -->
+<div class="pf-page-header">
+  <div class="pf-header-left">
+    <nav class="pf-breadcrumb" aria-label="Ruta de navegación">
+      <a routerLink="/admin/usuarios" class="pf-breadcrumb-link">Usuarios</a>
+      <mat-icon class="pf-breadcrumb-sep">chevron_right</mat-icon>
+      <span class="pf-breadcrumb-current">{{ idUsuario() ? 'Editar usuario' : 'Nuevo usuario' }}</span>
+    </nav>
+    <div class="pf-title-row">
+      <h1 class="pf-title">{{ idUsuario() ? 'Editar Usuario' : 'Nuevo Usuario' }}</h1>
+      <span class="pf-badge">{{ idUsuario() ? 'EDITANDO' : 'ALTA EN SISTEMA' }}</span>
+    </div>
+    <p class="pf-subtitle">
+      {{ idUsuario()
+        ? 'Cambia el rol o el estado del acceso. El nombre de usuario no se modifica.'
+        : 'Elige a la persona que va a entrar al sistema; su nombre de usuario se genera solo.' }}
+    </p>
+  </div>
+</div>
 
-  <mat-card-content>
-    <form [formGroup]="formulario" (ngSubmit)="guardar()">
-      <mat-form-field appearance="outline" class="campo">
-        <mat-label>Usuario</mat-label>
-        <input matInput formControlName="username" placeholder="Se genera al elegir el empleado" />
-        @if (!idUsuario()) {
-          <mat-hint>Primer nombre y primer apellido del empleado. Si ya existe, se le agrega un número.</mat-hint>
-        }
-      </mat-form-field>
+<!-- ══ SECCIÓN: ACCESO AL SISTEMA ═════════════════════════════ -->
+<form [formGroup]="formulario" (ngSubmit)="guardar()" novalidate>
+  <div class="pf-section">
 
-      @if (!idUsuario()) {
-        <mat-form-field appearance="outline" class="campo">
-          <mat-label>Contrasena (min. 8 caracteres)</mat-label>
-          <input matInput type="password" formControlName="password" autocomplete="new-password" />
-        </mat-form-field>
-      }
+    <div class="pf-section-header">
+      <div class="pf-section-title">
+        <mat-icon>badge</mat-icon>
+        <span>Acceso al Sistema</span>
+      </div>
+    </div>
 
-      <mat-form-field appearance="outline" class="campo">
-        <mat-label>Rol</mat-label>
-        <mat-select formControlName="idRol">
-          @for (rol of roles(); track rol.idRol) {
-            <mat-option [value]="rol.idRol">{{ rol.nombreRol }}</mat-option>
-          }
-        </mat-select>
-      </mat-form-field>
-
-      <mat-form-field appearance="outline" class="campo">
-        <mat-label>Estado</mat-label>
-        <mat-select formControlName="idEstado">
-          @for (estado of estados(); track estado.idEstado) {
-            <mat-option [value]="estado.idEstado">{{ estado.nombre }}</mat-option>
-          }
-        </mat-select>
-      </mat-form-field>
-
-      <!-- Sin opcion "Ninguno": un usuario sin persona detras es el que dejaba a la
-           bitacora diciendo "admin" en vez de nombrar a alguien. -->
-      <mat-form-field appearance="outline" class="campo">
-        <mat-label>Empleado</mat-label>
-        <mat-select formControlName="idEmpleado">
+    <!-- ── Campo 1: Empleado ──
+         Va primero porque de el sale el nombre de usuario. Sin opcion "Ninguno": un
+         usuario sin persona detras es el que dejaba a la bitacora diciendo "admin". -->
+    <div class="pf-field">
+      <label class="pf-label" for="empleado">
+        <span class="pf-label-num">1.</span>
+        <span class="pf-label-name">Empleado</span>
+        <span class="pf-required-mark">*</span>
+      </label>
+      <div class="pf-input-wrap pf-input-wrap--select" [class.pf-input-wrap--error]="formulario.controls.idEmpleado.invalid && formulario.controls.idEmpleado.touched">
+        <mat-icon class="pf-input-icon">person</mat-icon>
+        <mat-select id="empleado" class="pf-select" formControlName="idEmpleado" placeholder="Seleccionar empleado">
           @for (empleado of empleados(); track empleado.idEmpleado) {
             <mat-option [value]="empleado.idEmpleado">{{ empleado.nombre }} {{ empleado.apellido }}</mat-option>
           }
         </mat-select>
-        <mat-hint>El usuario pertenece a esta persona; de aqui sale su nombre completo.</mat-hint>
-        @if (formulario.controls.idEmpleado.hasError('required') && formulario.controls.idEmpleado.touched) {
-          <mat-error>El empleado es obligatorio.</mat-error>
-        }
-      </mat-form-field>
-
-      <div class="acciones">
-        <button mat-button type="button" routerLink="/admin/usuarios">Cancelar</button>
-        <button mat-flat-button color="primary" type="submit" [disabled]="guardando()">Guardar</button>
       </div>
-    </form>
-  </mat-card-content>
-</mat-card>
+      @if (formulario.controls.idEmpleado.invalid && formulario.controls.idEmpleado.touched) {
+        <p class="pf-error">El empleado es obligatorio.</p>
+      } @else {
+        <p class="pf-ayuda">El usuario pertenece a esta persona; de aquí sale su nombre completo.</p>
+      }
+    </div>
+
+    <!-- ── Campo 2: Usuario (se genera, no se escribe) ── -->
+    <div class="pf-field">
+      <label class="pf-label" for="username">
+        <span class="pf-label-num">2.</span>
+        <span class="pf-label-name">Usuario</span>
+        <span class="pf-label-hint">(se genera automáticamente)</span>
+      </label>
+      <div class="pf-input-wrap pf-input-wrap--disabled">
+        <mat-icon class="pf-input-icon">alternate_email</mat-icon>
+        <input
+          id="username"
+          class="pf-input"
+          formControlName="username"
+          placeholder="Se genera al elegir el empleado"
+        />
+      </div>
+      @if (!idUsuario()) {
+        <p class="pf-ayuda">Primer nombre y primer apellido del empleado. Si ya existe, se le agrega un número.</p>
+      }
+    </div>
+
+    <!-- ── Campo 3: Contraseña (solo al crear; en edición tiene su propio botón) ── -->
+    @if (!idUsuario()) {
+      <div class="pf-field">
+        <label class="pf-label" for="password">
+          <span class="pf-label-num">3.</span>
+          <span class="pf-label-name">Contraseña</span>
+          <span class="pf-required-mark">*</span>
+          <span class="pf-label-hint">(mínimo 8 caracteres)</span>
+        </label>
+        <div class="pf-input-wrap" [class.pf-input-wrap--error]="formulario.controls.password.invalid && formulario.controls.password.touched">
+          <mat-icon class="pf-input-icon">lock</mat-icon>
+          <input
+            id="password"
+            class="pf-input"
+            type="password"
+            formControlName="password"
+            autocomplete="new-password"
+          />
+        </div>
+        @if (formulario.controls.password.hasError('required') && formulario.controls.password.touched) {
+          <p class="pf-error">La contraseña es obligatoria.</p>
+        } @else if (formulario.controls.password.hasError('minlength') && formulario.controls.password.touched) {
+          <p class="pf-error">La contraseña debe tener al menos 8 caracteres.</p>
+        }
+      </div>
+    }
+
+    <!-- ── Fila 2 columnas: Rol + Estado ── -->
+    <div class="pf-row-2col">
+
+      <div class="pf-field">
+        <label class="pf-label" for="rol">
+          <span class="pf-label-num">{{ idUsuario() ? 3 : 4 }}.</span>
+          <span class="pf-label-name">Rol</span>
+          <span class="pf-required-mark">*</span>
+        </label>
+        <div class="pf-input-wrap pf-input-wrap--select" [class.pf-input-wrap--error]="formulario.controls.idRol.invalid && formulario.controls.idRol.touched">
+          <mat-icon class="pf-input-icon">admin_panel_settings</mat-icon>
+          <mat-select id="rol" class="pf-select" formControlName="idRol" placeholder="Seleccionar rol">
+            @for (rol of roles(); track rol.idRol) {
+              <mat-option [value]="rol.idRol">{{ rol.nombreRol }}</mat-option>
+            }
+          </mat-select>
+        </div>
+        @if (formulario.controls.idRol.invalid && formulario.controls.idRol.touched) {
+          <p class="pf-error">El rol es obligatorio.</p>
+        }
+      </div>
+
+      <div class="pf-field">
+        <label class="pf-label" for="estado">
+          <span class="pf-label-num">{{ idUsuario() ? 4 : 5 }}.</span>
+          <span class="pf-label-name">Estado</span>
+          <span class="pf-required-mark">*</span>
+        </label>
+        <div class="pf-input-wrap pf-input-wrap--select" [class.pf-input-wrap--error]="formulario.controls.idEstado.invalid && formulario.controls.idEstado.touched">
+          <mat-icon class="pf-input-icon">toggle_on</mat-icon>
+          <mat-select id="estado" class="pf-select" formControlName="idEstado" placeholder="Seleccionar estado">
+            @for (estado of estados(); track estado.idEstado) {
+              <mat-option [value]="estado.idEstado">{{ estado.nombre }}</mat-option>
+            }
+          </mat-select>
+        </div>
+        @if (formulario.controls.idEstado.invalid && formulario.controls.idEstado.touched) {
+          <p class="pf-error">El estado es obligatorio.</p>
+        }
+      </div>
+
+    </div>
+
+  </div><!-- /pf-section -->
+
+  <!-- ══ ACCIONES ABAJO ══════════════════════════════════════ -->
+  <div class="pf-footer-actions">
+    <button mat-stroked-button type="button" routerLink="/admin/usuarios" class="pf-btn-cancel">
+      Cancelar
+    </button>
+    <button mat-flat-button type="submit" class="pf-btn-save" [disabled]="guardando()">
+      <mat-icon>save</mat-icon>
+      {{ idUsuario() ? 'Guardar cambios' : 'Crear usuario' }}
+    </button>
+  </div>
+</form>
