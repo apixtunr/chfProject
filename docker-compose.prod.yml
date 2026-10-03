@@ -1,0 +1,37 @@
+# ===========================================================================
+# Capa de produccion: agrega Caddy delante para servir por HTTPS.
+#
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+#
+# Requiere en el .env del servidor:
+#   DOMAIN=erp.midominio.com
+#   ACME_EMAIL=tucorreo@ejemplo.com
+#   HTTP_PORT=127.0.0.1:8090   <- nginx solo accesible desde la propia maquina
+#
+# Y en Lightsail: puertos 80 y 443 abiertos, y el dominio apuntando a la IP
+# estatica de la instancia.
+# ===========================================================================
+
+services:
+  caddy:
+    image: caddy:alpine
+    restart: unless-stopped
+    depends_on:
+      - web
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      DOMAIN: ${DOMAIN:?falta DOMAIN en .env}
+      ACME_EMAIL: ${ACME_EMAIL:?falta ACME_EMAIL en .env}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      # Los certificados persisten entre reinicios: sin esto Caddy los vuelve
+      # a pedir cada vez y Let's Encrypt aplica limites de frecuencia.
+      - caddy-data:/data
+      - caddy-config:/config
+
+volumes:
+  caddy-data:
+  caddy-config:

@@ -1,0 +1,65 @@
+# ===========================================================================
+# Toda la aplicacion en una sola maquina: base de datos, backend y el nginx que
+# sirve el frontend y hace de proxy hacia la API.
+#
+#   docker compose up -d --build     levantar
+#   docker compose logs -f backend   ver el arranque de Spring
+#   docker compose down              detener (los datos quedan en el volumen)
+#
+# Los valores sensibles salen de un archivo .env junto a este (ver .env.example).
+# ===========================================================================
+
+services:
+  db:
+    image: postgres:18
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-lacasadelchef}
+      POSTGRES_USER: ${POSTGRES_USER:-chfadmin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?falta POSTGRES_PASSWORD en .env}
+    volumes:
+      # Postgres 18 guarda los datos en un subdirectorio por version mayor, asi
+      # que el volumen se monta en /var/lib/postgresql y no en .../data como en
+      # las versiones anteriores. Con el montaje antiguo la imagen no arranca.
+      - db-data:/var/lib/postgresql
+    # Solo accesible desde dentro de la red de Docker. Para conectarse con
+    # DBeaver desde la maquina anfitriona, descomentar:
+    # ports:
+    #   - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-chfadmin} -d ${POSTGRES_DB:-lacasadelchef}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: ./erp-backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        # Espera a que Postgres acepte conexiones: si arranca antes, Flyway
+        # falla y Spring se cae.
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      DB_URL: jdbc:postgresql://db:5432/${POSTGRES_DB:-lacasadelchef}
+      DB_USERNAME: ${POSTGRES_USER:-chfadmin}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:?falta POSTGRES_PASSWORD en .env}
+      JWT_SECRET: ${JWT_SECRET:?falta JWT_SECRET en .env}
+      # Por defecto la JVM toma un porcentaje de la memoria visible, que en una
+      # maquina de desarrollo son varios GB. En el servidor hay que acotarlo
+      # para dejarle sitio a Postgres: ver JAVA_OPTS en .env.example.
+      JAVA_OPTS: ${JAVA_OPTS:--XX:MaxRAMPercentage=70}
+    # Sin ports: el backend no se expone a internet, solo nginx lo alcanza por
+    # la red interna.
+
+  web:
+    build: ./erp-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "${HTTP_PORT:-8090}:80"
+
+volumes:
+  db-data:

@@ -1,0 +1,26 @@
+# Caddy termina HTTPS delante de nginx. Pide y renueva el certificado de
+# Let's Encrypt sin intervencion: basta que el dominio apunte a esta maquina y
+# que los puertos 80 y 443 esten abiertos.
+#
+# DOMAIN y ACME_EMAIL salen del .env (ver .env.example).
+
+{
+	email {$ACME_EMAIL}
+}
+
+{$DOMAIN} {
+	encode zstd gzip
+
+	# Todo va a nginx, que ya sabe servir el frontend y reenviar /api al
+	# backend. Caddy solo agrega el cifrado.
+	reverse_proxy web:80
+
+	# Cabeceras de seguridad basicas.
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options    "nosniff"
+		X-Frame-Options           "DENY"
+		Referrer-Policy           "strict-origin-when-cross-origin"
+		-Server
+	}
+}

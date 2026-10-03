@@ -1,5 +1,8 @@
-// El backend corre en la misma maquina que sirve el frontend, en el puerto 8080. Se toma
-// el nombre del equipo desde la barra de direcciones en vez de fijar "localhost": asi el
-// sistema funciona igual en la computadora (localhost) y desde un celular de la misma red
-// (192.168.x.x), donde "localhost" seria el propio celular.
-export const API_URL = `${location.protocol}//${location.hostname}:8080/api`;
+// Ruta relativa a proposito: el frontend y la API se publican bajo el mismo
+// origen, porque nginx sirve esta aplicacion y reenvia /api al backend (ver
+// erp-frontend/nginx.conf). Al compartir origen, el navegador no hace
+// peticiones cross-origin y CORS no interviene.
+//
+// En desarrollo con "ng serve" el proxy de proxy.conf.json cumple el mismo
+// papel: manda /api al backend que corre en el puerto 8080.
+export const API_URL = '/api';
