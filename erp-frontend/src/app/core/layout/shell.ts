@@ -1,10 +1,11 @@
-import { Component, computed, effect, inject, signal } from '@angular/core';
+import { BreakpointObserver } from '@angular/cdk/layout';
+import { Component, computed, effect, inject, signal, viewChild } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
-import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { filter, map, startWith } from 'rxjs';
@@ -30,6 +31,15 @@ import { NAV_GROUPS, NavItem } from './nav-items';
 export class Shell {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly breakpoints = inject(BreakpointObserver);
+
+  /** Debajo de 1024px (celulares y tabletas) el menu deja de estar fijo y se abre encima. */
+  readonly esCompacto = toSignal(
+    this.breakpoints.observe('(max-width: 1023.98px)').pipe(map((estado) => estado.matches)),
+    { initialValue: false },
+  );
+
+  private readonly sidenav = viewChild.required<MatSidenav>('sidenav');
 
   /** Modulos con sus pantallas visibles segun permisos; modulos vacios se ocultan. */
   readonly gruposMenu = computed(() =>
@@ -67,6 +77,15 @@ export class Shell {
   private readonly modulosExpandidos = signal<ReadonlySet<string>>(new Set());
 
   constructor() {
+    // En pantalla chica el menu tapa el contenido: al elegir una pantalla se cierra solo.
+    this.router.events
+      .pipe(filter((e) => e instanceof NavigationEnd))
+      .subscribe(() => {
+        if (this.esCompacto()) {
+          this.sidenav().close();
+        }
+      });
+
     // Al navegar, deja abierto unicamente el modulo de la pantalla activa (no se van
     // acumulando los anteriores). Un clic manual en otro modulo si puede abrir varios
     // a la vez, hasta la siguiente navegacion.

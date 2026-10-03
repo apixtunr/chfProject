@@ -1,15 +1,31 @@
 <div class="shell">
   <mat-toolbar class="toolbar-oscura">
-    <span>La Casa del Chef</span>
+    <!-- En celular y tableta el menu vive escondido; este boton lo abre. -->
+    @if (esCompacto()) {
+      <button mat-icon-button class="boton-menu" (click)="sidenav.toggle()" aria-label="Abrir menu">
+        <mat-icon>menu</mat-icon>
+      </button>
+    }
+    <span class="marca">La Casa del Chef</span>
     <span class="spacer"></span>
-    <span class="usuario">{{ usuario()?.nombreCompleto }} ({{ usuario()?.rol }})</span>
+    <span class="usuario">
+      <span class="usuario-nombre">{{ usuario()?.nombreCompleto }}</span>
+      <span class="usuario-rol">({{ usuario()?.rol }})</span>
+    </span>
     <button mat-icon-button (click)="cerrarSesion()" aria-label="Cerrar sesion">
       <mat-icon>logout</mat-icon>
     </button>
   </mat-toolbar>
 
   <mat-sidenav-container class="shell-body">
-    <mat-sidenav mode="side" opened class="sidenav">
+    <mat-sidenav
+      #sidenav
+      class="sidenav"
+      [mode]="esCompacto() ? 'over' : 'side'"
+      [opened]="!esCompacto()"
+      [fixedInViewport]="esCompacto()"
+      fixedTopGap="0"
+    >
       <mat-nav-list dense class="lista-inicio">
         <a mat-list-item routerLink="/" routerLinkActive="activo" [routerLinkActiveOptions]="{ exact: true }">
           <mat-icon matListItemIcon>home</mat-icon>

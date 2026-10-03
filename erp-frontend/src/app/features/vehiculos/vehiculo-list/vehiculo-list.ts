@@ -11,12 +11,13 @@ import { AuthService } from '../../../core/auth/auth.service';
 import { ConfirmDialog } from '../../../shared/confirm-dialog/confirm-dialog';
 import { VehiculoService } from '../vehiculo.service';
 import { VehiculoResponse } from '../dto/vehiculo';
+import { TablaResponsiva } from '../../../shared/tabla-responsiva';
 
 const PAGINA_URL = '/api/vehiculos';
 
 @Component({
   selector: 'app-vehiculo-list',
-  imports: [
+  imports: [TablaResponsiva, 
     RouterLink,
     MatTableModule,
     MatPaginatorModule,

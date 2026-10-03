@@ -16,12 +16,13 @@ import { PRECIO_POR, UnidadVenta } from '../../../core/catalogos/menu';
 import { ConfirmDialog } from '../../../shared/confirm-dialog/confirm-dialog';
 import { MenuPlatoService } from '../menu-plato.service';
 import { PlatoResponse } from '../dto/menu';
+import { TablaResponsiva } from '../../../shared/tabla-responsiva';
 
 const PAGINA_URL = '/api/platos';
 
 @Component({
   selector: 'app-plato-list',
-  imports: [
+  imports: [TablaResponsiva, 
     RouterLink,
     FormsModule,
     MatTableModule,

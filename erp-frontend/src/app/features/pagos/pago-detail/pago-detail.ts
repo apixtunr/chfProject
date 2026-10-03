@@ -18,13 +18,14 @@ import { EstadoService } from '../../../core/catalogos/estado.service';
 import { ConfirmDialog } from '../../../shared/confirm-dialog/confirm-dialog';
 import { PagoService } from '../pago.service';
 import { ComprobantePagoResponse, PagoResponse } from '../dto/pago';
+import { TablaResponsiva } from '../../../shared/tabla-responsiva';
 
 const PAGINA_URL = '/api/pagos';
 const TIPO_ESTADO_PAGO = 'PAGO';
 
 @Component({
   selector: 'app-pago-detail',
-  imports: [
+  imports: [TablaResponsiva, 
     RouterLink,
     DatePipe,
     ReactiveFormsModule,

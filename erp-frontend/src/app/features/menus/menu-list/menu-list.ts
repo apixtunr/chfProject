@@ -14,12 +14,13 @@ import { AuthService } from '../../../core/auth/auth.service';
 import { ConfirmDialog } from '../../../shared/confirm-dialog/confirm-dialog';
 import { MenuPlatoService } from '../menu-plato.service';
 import { MenuResponse } from '../dto/menu';
+import { TablaResponsiva } from '../../../shared/tabla-responsiva';
 
 const PAGINA_URL = '/api/menus';
 
 @Component({
   selector: 'app-menu-list',
-  imports: [
+  imports: [TablaResponsiva, 
     RouterLink,
     FormsModule,
     MatTableModule,

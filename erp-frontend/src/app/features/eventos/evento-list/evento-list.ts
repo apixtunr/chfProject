@@ -10,13 +10,14 @@ import { RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/auth/auth.service';
 import { EventoService } from '../evento.service';
 import { ColorEstado, COLOR_ESTADO_EVENTO_DEFECTO, COLOR_POR_ESTADO_EVENTO, EventoResponse } from '../dto/evento';
+import { TablaResponsiva } from '../../../shared/tabla-responsiva';
 
 const PAGINA_URL = '/api/eventos';
 const SIN_FILTROS = { fechaDesde: null, fechaHasta: null, idCliente: null, idTipoEvento: null, idEstado: null };
 
 @Component({
   selector: 'app-evento-list',
-  imports: [
+  imports: [TablaResponsiva, 
     CommonModule,
     RouterLink,
     MatTableModule,

@@ -75,7 +75,9 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(appProperties.cors().allowedOrigins());
+        // Patrones y no origenes exactos: en desarrollo se acepta la red local completa
+        // (192.168.*.*) para abrir el sistema desde un celular o tableta de la misma red.
+        config.setAllowedOriginPatterns(appProperties.cors().allowedOrigins());
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);

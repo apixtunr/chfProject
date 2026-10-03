@@ -19,12 +19,13 @@ import {
   horarioServicio,
   textoVigencia,
 } from '../dto/cotizacion';
+import { TablaResponsiva } from '../../../shared/tabla-responsiva';
 
 const PAGINA_URL = '/api/cotizaciones';
 
 @Component({
   selector: 'app-cotizacion-detail',
-  imports: [
+  imports: [TablaResponsiva, 
     CommonModule,
     RouterLink,
     MatCardModule,

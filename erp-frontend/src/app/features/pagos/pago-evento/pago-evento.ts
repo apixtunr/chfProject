@@ -18,6 +18,7 @@ import { EventoService } from '../../eventos/evento.service';
 import { EventoResponse } from '../../eventos/dto/evento';
 import { PagoService } from '../pago.service';
 import { PagoResponse } from '../dto/pago';
+import { TablaResponsiva } from '../../../shared/tabla-responsiva';
 
 const PAGINA_URL = '/api/pagos';
 
@@ -29,7 +30,7 @@ interface ResumenEvento {
 
 @Component({
   selector: 'app-pago-evento',
-  imports: [
+  imports: [TablaResponsiva, 
     RouterLink,
     DatePipe,
     DecimalPipe,

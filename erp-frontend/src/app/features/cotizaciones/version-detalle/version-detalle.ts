@@ -39,13 +39,14 @@ import {
   TRANSICIONES_VALIDAS,
   textoVigencia,
 } from '../dto/cotizacion';
+import { TablaResponsiva } from '../../../shared/tabla-responsiva';
 
 const PAGINA_URL = '/api/cotizaciones';
 const TIPO_ESTADO_COTIZACION = 'COTIZACION';
 
 @Component({
   selector: 'app-version-detalle',
-  imports: [
+  imports: [TablaResponsiva, 
     CommonModule,
     ReactiveFormsModule,
     RouterLink,

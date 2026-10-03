@@ -14,12 +14,13 @@ import { AuthService } from '../../../core/auth/auth.service';
 import { ConfirmDialog } from '../../../shared/confirm-dialog/confirm-dialog';
 import { AdminService } from '../admin.service';
 import { RolResponse } from '../dto/admin';
+import { TablaResponsiva } from '../../../shared/tabla-responsiva';
 
 const PAGINA_URL = '/api/roles';
 
 @Component({
   selector: 'app-rol-list',
-  imports: [
+  imports: [TablaResponsiva, 
     RouterLink,
     ReactiveFormsModule,
     MatTableModule,

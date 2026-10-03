@@ -12,13 +12,14 @@ import { InventarioService } from '../inventario.service';
 import { InventarioResponse } from '../dto/inventario';
 import { MinimoDialog } from './minimo-dialog';
 import { AgregarStockDialog } from './agregar-stock-dialog';
+import { TablaResponsiva } from '../../../shared/tabla-responsiva';
 
 const PAGINA_URL = '/api/inventarios';
 const PAGINA_URL_MOVIMIENTOS = '/api/movimientos-inventario';
 
 @Component({
   selector: 'app-stock-list',
-  imports: [
+  imports: [TablaResponsiva, 
     RouterLink,
     MatTableModule,
     MatPaginatorModule,

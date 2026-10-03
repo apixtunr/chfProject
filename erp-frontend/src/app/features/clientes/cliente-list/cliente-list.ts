@@ -13,12 +13,13 @@ import { AuthService } from '../../../core/auth/auth.service';
 import { ConfirmDialog } from '../../../shared/confirm-dialog/confirm-dialog';
 import { ClienteService } from '../cliente.service';
 import { ClienteResponse, EstadoClienteFiltro } from '../dto/cliente';
+import { TablaResponsiva } from '../../../shared/tabla-responsiva';
 
 const PAGINA_URL = '/api/clientes';
 
 @Component({
   selector: 'app-cliente-list',
-  imports: [
+  imports: [TablaResponsiva, 
     ReactiveFormsModule,
     RouterLink,
     MatTableModule,

@@ -146,6 +146,44 @@ mat-sidenav-content {
 .usuario {
   margin-right: 8px;
   font-size: 0.875rem;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.usuario-rol {
+  margin-left: 4px;
+}
+
+.boton-menu {
+  margin-right: 4px;
+}
+
+// Los iconos de la barra (menu y cerrar sesion) en blanco, igual que el texto.
+.toolbar-oscura .mat-mdc-icon-button {
+  color: var(--chf-marca-contraste);
+}
+
+// Celular: el nombre completo y el rol no caben junto a la marca; queda solo el rol,
+// que es lo que distingue una sesion de otra, y el titulo se achica.
+@media (max-width: 599.98px) {
+  .toolbar-oscura {
+    padding-inline: 4px 0;
+  }
+
+  .marca {
+    font-size: 1.05rem;
+  }
+
+  .usuario {
+    font-size: 0.75rem;
+    margin-right: 0;
+  }
+
+  .usuario-nombre {
+    display: none;
+  }
 }
 
 .contenido {
@@ -165,6 +203,21 @@ mat-sidenav-content {
 // misma fila quedaban separadas por huecos enormes y costaba seguir la linea con la
 // vista. El tope va en este envoltorio y no en .contenido para que el fondo gris siga
 // cubriendo todo el ancho de la ventana.
+@media (max-width: 599.98px) {
+  .contenido {
+    padding: 16px 12px;
+  }
+
+  .sidenav {
+    width: min(288px, 85vw);
+  }
+
+  .logo-sidebar {
+    width: 140px;
+    height: 140px;
+  }
+}
+
 .contenido-centrado {
   max-width: 1500px;
   margin-inline: auto;

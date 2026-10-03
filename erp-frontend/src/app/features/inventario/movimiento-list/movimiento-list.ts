@@ -13,12 +13,13 @@ import { RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/auth/auth.service';
 import { InventarioService } from '../inventario.service';
 import { MovimientoInventarioResponse, ProductoResponse } from '../dto/inventario';
+import { TablaResponsiva } from '../../../shared/tabla-responsiva';
 
 const PAGINA_URL = '/api/movimientos-inventario';
 
 @Component({
   selector: 'app-movimiento-list',
-  imports: [
+  imports: [TablaResponsiva, 
     RouterLink,
     DatePipe,
     FormsModule,

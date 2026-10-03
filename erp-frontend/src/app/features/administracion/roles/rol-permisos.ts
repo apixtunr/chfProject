@@ -10,6 +10,7 @@ import { forkJoin, Observable } from 'rxjs';
 import { AuthService } from '../../../core/auth/auth.service';
 import { AdminService } from '../admin.service';
 import { RolOpcionResponse } from '../dto/admin';
+import { TablaResponsiva } from '../../../shared/tabla-responsiva';
 
 const PAGINA_URL = '/api/roles';
 
@@ -32,7 +33,7 @@ interface FilaPermiso {
 
 @Component({
   selector: 'app-rol-permisos',
-  imports: [RouterLink, FormsModule, MatTableModule, MatCheckboxModule, MatButtonModule, MatIconModule],
+  imports: [TablaResponsiva, RouterLink, FormsModule, MatTableModule, MatCheckboxModule, MatButtonModule, MatIconModule],
   templateUrl: './rol-permisos.html',
   styleUrl: './rol-permisos.scss',
 })

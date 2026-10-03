@@ -12,12 +12,13 @@ import { RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/auth/auth.service';
 import { CotizacionService } from '../cotizacion.service';
 import { CotizacionResponse, diasDeVigencia, textoVigencia } from '../dto/cotizacion';
+import { TablaResponsiva } from '../../../shared/tabla-responsiva';
 
 const PAGINA_URL = '/api/cotizaciones';
 
 @Component({
   selector: 'app-cotizacion-list',
-  imports: [
+  imports: [TablaResponsiva, 
     CommonModule,
     LowerCasePipe,
     FormsModule,

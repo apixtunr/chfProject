@@ -14,12 +14,13 @@ import { AuthService } from '../../../core/auth/auth.service';
 import { ConfirmDialog } from '../../../shared/confirm-dialog/confirm-dialog';
 import { InventarioService } from '../inventario.service';
 import { ProductoResponse } from '../dto/inventario';
+import { TablaResponsiva } from '../../../shared/tabla-responsiva';
 
 const PAGINA_URL = '/api/productos';
 
 @Component({
   selector: 'app-producto-list',
-  imports: [
+  imports: [TablaResponsiva, 
     RouterLink,
     FormsModule,
     MatTableModule,

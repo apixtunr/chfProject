@@ -12,11 +12,12 @@ import { RouterLink } from '@angular/router';
 import { ColorEstado, COLOR_ESTADO_EVENTO_DEFECTO, COLOR_POR_ESTADO_EVENTO } from '../../eventos/dto/evento';
 import { EventoPagoResponse } from '../dto/pago';
 import { PagoService } from '../pago.service';
+import { TablaResponsiva } from '../../../shared/tabla-responsiva';
 
 
 @Component({
   selector: 'app-pago-list',
-  imports: [
+  imports: [TablaResponsiva, 
     RouterLink,
     DatePipe,
     DecimalPipe,

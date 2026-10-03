@@ -16,12 +16,13 @@ import { ConfirmDialog } from '../../../shared/confirm-dialog/confirm-dialog';
 import { AdminService } from '../admin.service';
 import { UsuarioResponse } from '../dto/admin';
 import { PasswordDialog } from './password-dialog';
+import { TablaResponsiva } from '../../../shared/tabla-responsiva';
 
 const PAGINA_URL = '/api/usuarios';
 
 @Component({
   selector: 'app-usuario-list',
-  imports: [
+  imports: [TablaResponsiva, 
     RouterLink,
     FormsModule,
     DatePipe,

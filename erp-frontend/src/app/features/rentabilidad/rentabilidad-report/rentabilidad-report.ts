@@ -16,12 +16,13 @@ import { EventoService } from '../../eventos/evento.service';
 import { TipoEventoResponse } from '../../eventos/dto/evento';
 import { RentabilidadService } from '../rentabilidad.service';
 import { FiltrosRentabilidad, RentabilidadEventoResponse, RentabilidadResumenResponse } from '../dto/rentabilidad';
+import { TablaResponsiva } from '../../../shared/tabla-responsiva';
 
 const PAGINA_URL = '/api/rentabilidad';
 
 @Component({
   selector: 'app-rentabilidad-report',
-  imports: [
+  imports: [TablaResponsiva, 
     ReactiveFormsModule,
     DatePipe,
     DecimalPipe,

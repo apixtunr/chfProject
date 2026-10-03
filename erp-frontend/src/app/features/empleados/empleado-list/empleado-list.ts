@@ -14,12 +14,13 @@ import { AuthService } from '../../../core/auth/auth.service';
 import { ConfirmDialog } from '../../../shared/confirm-dialog/confirm-dialog';
 import { EmpleadoService } from '../empleado.service';
 import { EmpleadoResponse } from '../dto/empleado';
+import { TablaResponsiva } from '../../../shared/tabla-responsiva';
 
 const PAGINA_URL = '/api/empleados';
 
 @Component({
   selector: 'app-empleado-list',
-  imports: [
+  imports: [TablaResponsiva, 
     FormsModule,
     RouterLink,
     MatTableModule,

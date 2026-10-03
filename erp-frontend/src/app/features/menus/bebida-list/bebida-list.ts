@@ -14,12 +14,13 @@ import { AuthService } from '../../../core/auth/auth.service';
 import { BebidaResponse } from '../../../core/catalogos/bebida';
 import { BebidaService } from '../../../core/catalogos/bebida.service';
 import { ConfirmDialog } from '../../../shared/confirm-dialog/confirm-dialog';
+import { TablaResponsiva } from '../../../shared/tabla-responsiva';
 
 const PAGINA_URL = '/api/bebidas';
 
 @Component({
   selector: 'app-bebida-list',
-  imports: [
+  imports: [TablaResponsiva, 
     RouterLink,
     FormsModule,
     MatTableModule,
