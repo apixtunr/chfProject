@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -57,12 +57,13 @@ import {
   EventoVehiculoResponse,
 } from '../dto/evento';
 import { EventoService } from '../evento.service';
+import { TablaResponsiva } from '../../../shared/tabla-responsiva';
 
 const PAGINA_URL = '/api/eventos';
 
 @Component({
   selector: 'app-evento-detail',
-  imports: [
+  imports: [TablaResponsiva, 
     CommonModule,
     RouterLink,
     MatCardModule,
@@ -112,6 +113,20 @@ export class EventoDetail implements OnInit {
 
   readonly empleadosDisponibles = signal<EmpleadoResponse[]>([]);
   readonly vehiculosDisponibles = signal<VehiculoResponse[]>([]);
+
+  /** Empleados que aun se pueden asignar: activos y que no esten ya en el personal del evento. */
+  readonly empleadosParaAsignar = computed(() => {
+    const asignados = new Set(this.personal().map((p) => p.idEmpleado));
+    return this.empleadosDisponibles().filter(
+      (e) => e.estadoNombre === 'ACTIVO' && !asignados.has(e.idEmpleado),
+    );
+  });
+
+  /** Vehiculos que aun no estan asignados a este evento. */
+  readonly vehiculosParaAsignar = computed(() => {
+    const asignados = new Set(this.vehiculos().map((v) => v.idVehiculo));
+    return this.vehiculosDisponibles().filter((v) => !asignados.has(v.idVehiculo));
+  });
   readonly productosDisponibles = signal<ProductoResponse[]>([]);
   readonly tiposCosto = signal<TipoCostoResponse[]>([]);
   readonly metodosPago = signal<MetodoPagoResponse[]>([]);

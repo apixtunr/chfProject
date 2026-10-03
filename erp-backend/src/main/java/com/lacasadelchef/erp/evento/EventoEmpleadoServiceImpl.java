@@ -13,6 +13,7 @@ import com.lacasadelchef.erp.repository.EmpleadoRepository;
 import com.lacasadelchef.erp.repository.EstadoRepository;
 import com.lacasadelchef.erp.repository.EventoEmpleadoRepository;
 import com.lacasadelchef.erp.repository.EventoRepository;
+import com.lacasadelchef.erp.repository.EventoVehiculoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,6 +32,7 @@ public class EventoEmpleadoServiceImpl implements EventoEmpleadoService {
     private final EventoRepository eventoRepository;
     private final EmpleadoRepository empleadoRepository;
     private final EstadoRepository estadoRepository;
+    private final EventoVehiculoRepository eventoVehiculoRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -84,6 +86,15 @@ public class EventoEmpleadoServiceImpl implements EventoEmpleadoService {
     public void quitar(Integer idEvento, Integer idEmpleado) {
         EventoEmpleado eventoEmpleado = buscar(idEvento, idEmpleado);
         EventoReglas.validarModificable(eventoEmpleado.getEvento(), "quitar personal de");
+        // Si conduce un vehiculo del evento, quitarlo dejaria al vehiculo con un conductor
+        // que ya no forma parte del personal.
+        eventoVehiculoRepository.findByEventoIdEvento(idEvento).stream()
+                .filter(ev -> ev.getEmpleado() != null && ev.getEmpleado().getIdEmpleado().equals(idEmpleado))
+                .findFirst()
+                .ifPresent(ev -> {
+                    throw new BusinessException("%s conduce el vehículo %s en este evento: cambie el conductor o quite el vehículo primero"
+                            .formatted(ev.getEmpleado().getNombreCompleto(), ev.getVehiculo().getPlaca()));
+                });
         eventoEmpleadoRepository.delete(eventoEmpleado);
     }
 

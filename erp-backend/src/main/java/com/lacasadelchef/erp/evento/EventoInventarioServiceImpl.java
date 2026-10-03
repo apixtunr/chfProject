@@ -55,11 +55,22 @@ public class EventoInventarioServiceImpl implements EventoInventarioService {
                 .orElseThrow(() -> new ResourceNotFoundException("Producto", idProducto));
         validarNoCancelado(evento);
 
+        // Si el producto ya esta en el evento, guardar una linea nueva con la misma llave la
+        // sobrescribia: volvia a "planificado" sin devolver al stock lo ya descontado, y al
+        // confirmarla otra vez se descontaba dos veces. Ahora se respeta lo que ya existe.
+        var existente = eventoInventarioRepository.findById(new EventoInventarioId(idEvento, idProducto));
+        if (existente.isPresent()) {
+            EventoInventario linea = existente.get();
+            validarNoConsumido(linea, "volver a agregarlo");
+            linea.setCantidad(request.cantidad());
+            return EventoInventarioResponse.desde(eventoInventarioRepository.save(linea));
+        }
+
         EventoInventario eventoInventario = new EventoInventario();
         eventoInventario.setId(new EventoInventarioId(idEvento, idProducto));
         eventoInventario.setEvento(evento);
         eventoInventario.setProducto(producto);
-        aplicar(request, eventoInventario);
+        eventoInventario.setCantidad(request.cantidad());
         eventoInventario = eventoInventarioRepository.save(eventoInventario);
         return EventoInventarioResponse.desde(eventoInventario);
     }
@@ -68,7 +79,8 @@ public class EventoInventarioServiceImpl implements EventoInventarioService {
     @Transactional
     public EventoInventarioResponse actualizar(Integer idEvento, Integer idProducto, EventoInventarioRequest request) {
         EventoInventario eventoInventario = buscar(idEvento, idProducto);
-        aplicar(request, eventoInventario);
+        validarNoConsumido(eventoInventario, "cambiar la cantidad");
+        eventoInventario.setCantidad(request.cantidad());
         eventoInventario = eventoInventarioRepository.save(eventoInventario);
         return EventoInventarioResponse.desde(eventoInventario);
     }
@@ -77,6 +89,7 @@ public class EventoInventarioServiceImpl implements EventoInventarioService {
     @Transactional
     public void quitar(Integer idEvento, Integer idProducto) {
         EventoInventario eventoInventario = buscar(idEvento, idProducto);
+        validarNoConsumido(eventoInventario, "quitarlo");
         eventoInventarioRepository.delete(eventoInventario);
     }
 
@@ -161,9 +174,17 @@ public class EventoInventarioServiceImpl implements EventoInventarioService {
                         "El producto %d no esta asociado al evento %d".formatted(idProducto, idEvento)));
     }
 
-    private void aplicar(EventoInventarioRequest request, EventoInventario eventoInventario) {
-        eventoInventario.setCantidad(request.cantidad());
-        eventoInventario.setFechaConsumo(request.fechaConsumo());
+    /**
+     * Una linea ya descontada del stock solo se cambia con "Corregir consumo", que ajusta el
+     * stock por la diferencia. La fecha de consumo nunca la manda el cliente: la pone el
+     * sistema al confirmar.
+     */
+    private static void validarNoConsumido(EventoInventario linea, String accion) {
+        if (linea.getFechaConsumo() != null) {
+            throw new BusinessException(("%s ya se descontó del stock (%s): para %s use \"Corregir consumo\","
+                    + " que ajusta el stock por la diferencia").formatted(linea.getProducto().getNombreProducto(),
+                    linea.getCantidad().stripTrailingZeros().toPlainString(), accion));
+        }
     }
 
     /** Un evento cancelado ya no usa inventario: no se planifica ni se descuenta nada mas. */

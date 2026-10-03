@@ -356,8 +356,10 @@
             <mat-form-field appearance="outline" class="campo-chico">
               <mat-label>Empleado</mat-label>
               <mat-select formControlName="idEmpleado">
-                @for (emp of empleadosDisponibles(); track emp.idEmpleado) {
-                  <mat-option [value]="emp.idEmpleado">{{ emp.nombre }} {{ emp.apellido }}</mat-option>
+                @for (emp of empleadosParaAsignar(); track emp.idEmpleado) {
+                  <mat-option [value]="emp.idEmpleado">{{ emp.nombre }} {{ emp.apellido }} · {{ emp.puestoNombre }}</mat-option>
+                } @empty {
+                  <mat-option disabled>No quedan empleados activos por asignar</mat-option>
                 }
               </mat-select>
             </mat-form-field>
@@ -410,19 +412,24 @@
             <mat-form-field appearance="outline" class="campo-chico">
               <mat-label>Vehiculo</mat-label>
               <mat-select formControlName="idVehiculo">
-                @for (v of vehiculosDisponibles(); track v.idVehiculo) {
+                @for (v of vehiculosParaAsignar(); track v.idVehiculo) {
                   <mat-option [value]="v.idVehiculo">{{ v.placa }} - {{ v.nombreMarca }}</mat-option>
                 }
               </mat-select>
             </mat-form-field>
             <mat-form-field appearance="outline" class="campo-chico">
               <mat-label>Conductor (opcional)</mat-label>
+              <!-- El conductor sale del personal del evento: asi su pago y su horario ya quedan
+                   registrados (el backend tambien lo valida). -->
               <mat-select formControlName="idEmpleadoConductor">
                 <mat-option [value]="null">Sin conductor asignado</mat-option>
-                @for (emp of empleadosDisponibles(); track emp.idEmpleado) {
-                  <mat-option [value]="emp.idEmpleado">{{ emp.nombre }} {{ emp.apellido }}</mat-option>
+                @for (p of personal(); track p.idEmpleado) {
+                  <mat-option [value]="p.idEmpleado">{{ p.nombreEmpleado }}</mat-option>
                 }
               </mat-select>
+              @if (personal().length === 0) {
+                <mat-hint>Asigne primero el personal del evento para elegir conductor</mat-hint>
+              }
             </mat-form-field>
             <button mat-flat-button color="primary" type="submit">Asignar</button>
           </form>

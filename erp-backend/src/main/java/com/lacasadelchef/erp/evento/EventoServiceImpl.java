@@ -393,6 +393,14 @@ public class EventoServiceImpl implements EventoService {
                     .formatted(CondicionesComerciales.DIAS_ANTICIPACION)
                     + " próxima es el %s".formatted(minima.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))));
         }
+        // Un evento para hoy no puede empezar a una hora que ya paso: nunca se llegaria a
+        // planificar y el proceso automatico lo cancelaria en minutos. Solo ocurre con el
+        // modo pruebas (sin anticipacion), pero la regla vale siempre.
+        if (evento.getFechaEvento().equals(LocalDate.now()) && evento.getHoraInicio() != null
+                && !evento.getHoraInicio().isAfter(LocalTime.now())) {
+            throw new BusinessException("La hora de inicio (%s) ya pasó: elija una hora posterior a la actual"
+                    .formatted(evento.getHoraInicio()));
+        }
     }
 
     private String rolUsuarioActual() {

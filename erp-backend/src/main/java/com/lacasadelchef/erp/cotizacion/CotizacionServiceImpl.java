@@ -30,8 +30,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -195,6 +197,15 @@ public class CotizacionServiceImpl implements CotizacionService {
             throw new BusinessException(
                     "El servicio empieza en punto, entre las 11:00 y las 19:00 (dura 4 horas y termina a mas tardar a"
                             + " las 21:00, o 22:00 si inicia a las 18:00 o 19:00)");
+        }
+        // Un evento para hoy no puede empezar a una hora que ya paso (solo posible con el modo
+        // pruebas, que permite cotizar para el mismo dia).
+        if (cambiaLaFecha || !Objects.equals(request.horaInicio(), cotizacion.getHoraInicio())) {
+            if (LocalDate.now().equals(request.fechaEvento()) && request.horaInicio() != null
+                    && !request.horaInicio().isAfter(LocalTime.now())) {
+                throw new BusinessException("La hora de inicio (%s) ya pasó: elija una hora posterior a la actual"
+                        .formatted(request.horaInicio()));
+            }
         }
         cotizacion.setHoraInicio(request.horaInicio());
     }

@@ -7,6 +7,7 @@ import com.lacasadelchef.erp.entity.Evento;
 import com.lacasadelchef.erp.entity.EventoEmpleado;
 import com.lacasadelchef.erp.entity.EventoVehiculo;
 import com.lacasadelchef.erp.entity.Vehiculo;
+import com.lacasadelchef.erp.entity.id.EventoEmpleadoId;
 import com.lacasadelchef.erp.evento.dto.EventoEmpleadoRequest;
 import com.lacasadelchef.erp.evento.dto.EventoVehiculoRequest;
 import com.lacasadelchef.erp.repository.EmpleadoRepository;
@@ -82,6 +83,7 @@ class EventoAsignacionesTest {
         @Mock private EventoRepository eventoRepository;
         @Mock private EmpleadoRepository empleadoRepository;
         @Mock private EstadoRepository estadoRepository;
+        @Mock private EventoVehiculoRepository eventoVehiculoRepository;
         @InjectMocks private EventoEmpleadoServiceImpl service;
 
         private final EventoEmpleadoRequest request =
@@ -141,6 +143,28 @@ class EventoAsignacionesTest {
                     .isInstanceOf(BusinessException.class)
                     .hasMessage("No se puede asignar personal a un evento FINALIZADO");
         }
+
+        @Test
+        @DisplayName("No se quita del personal a quien conduce un vehículo del evento")
+        void quitarConductor() {
+            Evento evento = evento(1, "CREADO", 11, 15);
+            Empleado lucia = empleado("ACTIVO");
+            EventoEmpleado asignado = new EventoEmpleado();
+            asignado.setEvento(evento);
+            asignado.setEmpleado(lucia);
+            when(eventoEmpleadoRepository.findById(new EventoEmpleadoId(1, 5))).thenReturn(Optional.of(asignado));
+            Vehiculo hiace = new Vehiculo();
+            hiace.setPlaca("P-123ABC");
+            EventoVehiculo conduce = new EventoVehiculo();
+            conduce.setVehiculo(hiace);
+            conduce.setEmpleado(lucia);
+            when(eventoVehiculoRepository.findByEventoIdEvento(1)).thenReturn(List.of(conduce));
+
+            assertThatThrownBy(() -> service.quitar(1, 5))
+                    .isInstanceOf(BusinessException.class)
+                    .hasMessageContaining("conduce el vehículo P-123ABC");
+            verify(eventoEmpleadoRepository, never()).delete(any());
+        }
     }
 
     @Nested
@@ -151,6 +175,7 @@ class EventoAsignacionesTest {
         @Mock private EventoRepository eventoRepository;
         @Mock private VehiculoRepository vehiculoRepository;
         @Mock private EmpleadoRepository empleadoRepository;
+        @Mock private EventoEmpleadoRepository eventoEmpleadoRepository;
         @InjectMocks private EventoVehiculoServiceImpl service;
 
         private Vehiculo vehiculo(String estado) {
@@ -184,6 +209,34 @@ class EventoAsignacionesTest {
             assertThatThrownBy(() -> service.asignar(1, 3, new EventoVehiculoRequest(null)))
                     .isInstanceOf(BusinessException.class)
                     .hasMessage("El vehículo P-123ABC ya está asignado al evento #2 del mismo día");
+        }
+
+        @Test
+        @DisplayName("El conductor tiene que estar en el personal del evento")
+        void conductorFueraDelPersonal() {
+            when(eventoRepository.findById(1)).thenReturn(Optional.of(evento(1, "CREADO", 11, 15)));
+            when(vehiculoRepository.findById(3)).thenReturn(Optional.of(vehiculo("DISPONIBLE")));
+            when(empleadoRepository.findById(5)).thenReturn(Optional.of(empleado("ACTIVO")));
+            when(eventoEmpleadoRepository.existsById(new EventoEmpleadoId(1, 5))).thenReturn(false);
+
+            assertThatThrownBy(() -> service.asignar(1, 3, new EventoVehiculoRequest(5)))
+                    .isInstanceOf(BusinessException.class)
+                    .hasMessageContaining("no está en el personal del evento");
+            verify(eventoVehiculoRepository, never()).save(any());
+        }
+
+        @Test
+        @DisplayName("Un conductor del personal del evento sí se asigna")
+        void conductorDelPersonal() {
+            when(eventoRepository.findById(1)).thenReturn(Optional.of(evento(1, "CREADO", 11, 15)));
+            when(vehiculoRepository.findById(3)).thenReturn(Optional.of(vehiculo("DISPONIBLE")));
+            when(empleadoRepository.findById(5)).thenReturn(Optional.of(empleado("ACTIVO")));
+            when(eventoEmpleadoRepository.existsById(new EventoEmpleadoId(1, 5))).thenReturn(true);
+            when(eventoVehiculoRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+            var respuesta = service.asignar(1, 3, new EventoVehiculoRequest(5));
+
+            assertThat(respuesta.idVehiculo()).isEqualTo(3);
         }
     }
 }

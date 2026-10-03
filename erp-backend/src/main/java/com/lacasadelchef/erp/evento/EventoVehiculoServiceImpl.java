@@ -6,10 +6,12 @@ import com.lacasadelchef.erp.entity.Empleado;
 import com.lacasadelchef.erp.entity.Evento;
 import com.lacasadelchef.erp.entity.EventoVehiculo;
 import com.lacasadelchef.erp.entity.Vehiculo;
+import com.lacasadelchef.erp.entity.id.EventoEmpleadoId;
 import com.lacasadelchef.erp.entity.id.EventoVehiculoId;
 import com.lacasadelchef.erp.evento.dto.EventoVehiculoRequest;
 import com.lacasadelchef.erp.evento.dto.EventoVehiculoResponse;
 import com.lacasadelchef.erp.repository.EmpleadoRepository;
+import com.lacasadelchef.erp.repository.EventoEmpleadoRepository;
 import com.lacasadelchef.erp.repository.EventoRepository;
 import com.lacasadelchef.erp.repository.EventoVehiculoRepository;
 import com.lacasadelchef.erp.repository.VehiculoRepository;
@@ -30,6 +32,7 @@ public class EventoVehiculoServiceImpl implements EventoVehiculoService {
     private final EventoRepository eventoRepository;
     private final VehiculoRepository vehiculoRepository;
     private final EmpleadoRepository empleadoRepository;
+    private final EventoEmpleadoRepository eventoEmpleadoRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -102,6 +105,13 @@ public class EventoVehiculoServiceImpl implements EventoVehiculoService {
                     .orElseThrow(() -> new ResourceNotFoundException("Empleado", request.idEmpleadoConductor()));
             if (!ESTADO_ACTIVO.equalsIgnoreCase(conductor.getEstado().getNombre())) {
                 throw new BusinessException("%s está inactivo y no puede conducir".formatted(conductor.getNombreCompleto()));
+            }
+            // El conductor va con el equipo del evento: tiene que estar en su personal, asi su
+            // pago y su horario quedan registrados y no se compromete en otro evento.
+            Integer idEvento = eventoVehiculo.getEvento().getIdEvento();
+            if (!eventoEmpleadoRepository.existsById(new EventoEmpleadoId(idEvento, conductor.getIdEmpleado()))) {
+                throw new BusinessException("%s no está en el personal del evento: asígnelo primero en Personal para que pueda conducir"
+                        .formatted(conductor.getNombreCompleto()));
             }
         }
         eventoVehiculo.setEmpleado(conductor);
