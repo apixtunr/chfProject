@@ -58,12 +58,13 @@ import {
 } from '../dto/evento';
 import { EventoService } from '../evento.service';
 import { TablaResponsiva } from '../../../shared/tabla-responsiva';
+import { SelectBuscable } from '../../../shared/select-buscable';
 
 const PAGINA_URL = '/api/eventos';
 
 @Component({
   selector: 'app-evento-detail',
-  imports: [TablaResponsiva, 
+  imports: [SelectBuscable, TablaResponsiva, 
     CommonModule,
     RouterLink,
     MatCardModule,
@@ -352,7 +353,7 @@ export class EventoDetail implements OnInit {
    * costos. Espeja la regla del backend (RecursosApi.MODULO_FINANCIERO): los ve quien
    * carga los eventos, porque es quien fija esos montos, o quien lleva las finanzas.
    *
-   * Ver la agenda no alcanza: Cocina y Bodega la necesitan para trabajar, pero no tienen
+   * Ver la agenda no alcanza: Cocina y Almacén la necesitan para trabajar, pero no tienen
    * por que saber cuanto gana cada companero.
    */
   get puedeVerMontosDelEvento(): boolean {

@@ -8,12 +8,13 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { BebidaService } from '../../../core/catalogos/bebida.service';
 import { EstadoResponse } from '../../../core/catalogos/estado';
 import { EstadoService } from '../../../core/catalogos/estado.service';
+import { SelectBuscable } from '../../../shared/select-buscable';
 
 const TIPO_ESTADO_GENERAL = 'GENERAL';
 
 @Component({
   selector: 'app-bebida-form',
-  imports: [ReactiveFormsModule, RouterLink, MatSelectModule, MatButtonModule, MatIconModule],
+  imports: [SelectBuscable, ReactiveFormsModule, RouterLink, MatSelectModule, MatButtonModule, MatIconModule],
   templateUrl: './bebida-form.html',
   styleUrl: './bebida-form.scss',
 })

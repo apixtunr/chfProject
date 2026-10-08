@@ -13,13 +13,14 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { BitacoraService } from './bitacora.service';
 import { BitacoraAccesoResponse, BitacoraMovimientoResponse } from './dto/bitacora';
 import { TablaResponsiva } from '../../shared/tabla-responsiva';
+import { SelectBuscable } from '../../shared/select-buscable';
 
 /** Valores reales que registra AuthService en bitacora_acceso.resultado. */
 const RESULTADOS_ACCESO = ['EXITOSO', 'PASSWORD_INCORRECTA', 'USUARIO_INACTIVO', 'USUARIO_BLOQUEADO'];
 
 @Component({
   selector: 'app-bitacora',
-  imports: [TablaResponsiva, 
+  imports: [SelectBuscable, TablaResponsiva, 
     ReactiveFormsModule,
     DatePipe,
     MatTabsModule,

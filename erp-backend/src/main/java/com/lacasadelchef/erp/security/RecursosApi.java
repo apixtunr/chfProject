@@ -41,7 +41,7 @@ import java.util.Optional;
  *   MODULO       Datos del negocio y de administracion. Exigen que el rol tenga su fila
  *                en rol_opcion para la pagina indicada. La fila puede tener alta, baja y
  *                modificacion en falso: eso significa "puede mirar, no puede tocar", que
- *                es como ya estan configurados COCINA sobre /api/eventos y BODEGA sobre
+ *                es como ya estan configurados COCINA sobre /api/eventos y ALMACÉN sobre
  *                /api/tipos-inventario. Dicho de otro modo: que la fila exista ES el
  *                permiso de consulta. No hizo falta inventar un permiso nuevo ni agregar
  *                una columna; el modelo ya lo decia, solo que nadie lo verificaba.
@@ -112,7 +112,7 @@ public final class RecursosApi {
 
             // Subrutas de un evento que NO son "cuando y donde" sino cuanto cuesta.
             //
-            // Heredaban el permiso de Eventos, y eso alcanzaba para que Cocina y Bodega
+            // Heredaban el permiso de Eventos, y eso alcanzaba para que Cocina y Almacén
             // —que ven la agenda para saber que se cocina y que hay que despachar— leyeran
             // el salario de cada persona asignada y los costos del evento. Se comprobo
             // contra el sistema: un usuario de Cocina recibia "Lesbia Anabella Coy Tuy,

@@ -30,7 +30,7 @@ interface Indicador {
 
 /**
  * Acciones rapidas en orden de prioridad. Se muestran las tres primeras que el rol puede
- * usar: asi Ventas ve "Nueva cotizacion", Bodega "Movimiento de inventario", Cocina
+ * usar: asi Ventas ve "Nueva cotizacion", Almacén "Movimiento de inventario", Cocina
  * "Nuevo plato", sin tener que configurar nada por rol.
  */
 const ACCIONES: AccionRapida[] = [

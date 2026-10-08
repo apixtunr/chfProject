@@ -10,7 +10,7 @@
 
 <mat-form-field appearance="outline" class="buscador">
   <mat-label>Buscar por nombre</mat-label>
-  <input matInput [(ngModel)]="filtroNombre" (keyup.enter)="buscar()" />
+  <input matInput [(ngModel)]="filtroNombre" (ngModelChange)="buscarAlEscribir()" (keyup.enter)="buscar()" />
   <button matSuffix mat-icon-button (click)="buscar()" matTooltip="Buscar" aria-label="Buscar">
     <mat-icon>search</mat-icon>
   </button>

@@ -10,6 +10,8 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Subject, debounceTime } from 'rxjs';
 import { AuthService } from '../../../core/auth/auth.service';
 import { BebidaResponse } from '../../../core/catalogos/bebida';
 import { BebidaService } from '../../../core/catalogos/bebida.service';
@@ -71,6 +73,16 @@ export class BebidaList implements OnInit {
       this.bebidas.set(page.content);
       this.totalElements.set(page.totalElements);
     });
+  }
+
+  /** Mientras se escribe, la tabla se actualiza sola al dejar de teclear (como en Clientes). */
+  private readonly escritura = new Subject<void>();
+  private readonly busquedaAlEscribir = this.escritura
+    .pipe(debounceTime(300), takeUntilDestroyed())
+    .subscribe(() => this.buscar());
+
+  buscarAlEscribir(): void {
+    this.escritura.next();
   }
 
   buscar(): void {

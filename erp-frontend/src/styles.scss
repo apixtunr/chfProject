@@ -1388,3 +1388,39 @@ mat-paginator {
     padding: 4px !important;
   }
 }
+
+// ---------------------------------------------------------------------------
+// Buscador dentro de los desplegables largos (directiva SelectBuscable). El panel de
+// un mat-select vive en el overlay, fuera de cada componente, por eso el estilo es global.
+// Queda fijo arriba mientras la lista se desplaza.
+// ---------------------------------------------------------------------------
+.mat-mdc-select-panel .select-buscador {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding: 8px 10px;
+  background: var(--chf-fondo-seccion);
+  border-bottom: 1px solid var(--chf-borde-suave);
+
+  input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 8px 10px;
+    border: 1.5px solid var(--chf-borde-control);
+    border-radius: 6px;
+    font: inherit;
+    font-size: 0.9rem;
+    color: var(--chf-texto-fuerte);
+    background: var(--chf-fondo-seccion);
+    outline: none;
+
+    &:focus {
+      border-color: var(--chf-campo-acento);
+    }
+  }
+}
+
+// El panel trae padding arriba; con el buscador fijo dejaria una franja vacia encima.
+.mat-mdc-select-panel:has(> .select-buscador) {
+  padding-top: 0 !important;
+}

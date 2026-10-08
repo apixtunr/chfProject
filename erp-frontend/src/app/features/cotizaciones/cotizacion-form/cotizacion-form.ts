@@ -20,10 +20,11 @@ import { ClienteResponse } from '../../clientes/dto/cliente';
 import { ClienteService } from '../../clientes/cliente.service';
 import { CotizacionService } from '../cotizacion.service';
 import { HORAS_DE_INICIO, fechaMinimaEvento, horarioServicio } from '../dto/cotizacion';
+import { SelectBuscable } from '../../../shared/select-buscable';
 
 @Component({
   selector: 'app-cotizacion-form',
-  imports: [
+  imports: [SelectBuscable, 
     ReactiveFormsModule,
     RouterLink,
     MatIconModule,

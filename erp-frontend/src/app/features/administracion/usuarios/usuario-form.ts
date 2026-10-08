@@ -12,12 +12,13 @@ import { EmpleadoResponse } from '../../empleados/dto/empleado';
 import { AdminService } from '../admin.service';
 import { RolResponse } from '../dto/admin';
 import { usuarioSegunPolitica } from './politica-usuario';
+import { SelectBuscable } from '../../../shared/select-buscable';
 
 const TIPO_ESTADO_GENERAL = 'GENERAL';
 
 @Component({
   selector: 'app-usuario-form',
-  imports: [MatIconModule, ReactiveFormsModule, RouterLink, MatSelectModule, MatButtonModule],
+  imports: [SelectBuscable, MatIconModule, ReactiveFormsModule, RouterLink, MatSelectModule, MatButtonModule],
   templateUrl: './usuario-form.html',
   styleUrl: './usuario-form.scss',
 })

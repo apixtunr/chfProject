@@ -30,13 +30,14 @@ import {
   TipoEventoResponse,
 } from '../dto/evento';
 import { TablaResponsiva } from '../../../shared/tabla-responsiva';
+import { SelectBuscable } from '../../../shared/select-buscable';
 
 const TIPO_ESTADO_EVENTO = 'EVENTO';
 const PALETA_TIPOS = ['#5c6bc0', '#26a69a', '#fb8c00', '#8d6e63', '#7e57c2', '#26c6da', '#ec407a', '#9ccc65', '#5d4037', '#78909c'];
 
 @Component({
   selector: 'app-evento-reporte',
-  imports: [TablaResponsiva, 
+  imports: [SelectBuscable, TablaResponsiva, 
     CommonModule,
     ReactiveFormsModule,
     MatTableModule,

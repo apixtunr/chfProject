@@ -44,7 +44,7 @@ public class PermisoService {
      * No mira ninguna bandera: le alcanza con que exista la fila en rol_opcion. Esa es la
      * semantica que el modelo ya tenia y que nadie verificaba: una fila con alta, baja y
      * modificacion en falso significa "puede mirar, no puede tocar". Asi estan hoy COCINA
-     * sobre /api/eventos y BODEGA sobre /api/tipos-inventario, y asi lo interpreta el
+     * sobre /api/eventos y ALMACÉN sobre /api/tipos-inventario, y asi lo interpreta el
      * frontend desde siempre en su metodo puedeVer(). Por eso no hizo falta agregar un
      * permiso CONSULTA ni una columna a la tabla.
      *

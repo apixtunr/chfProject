@@ -9,12 +9,13 @@ import { EstadoResponse } from '../../../core/catalogos/estado';
 import { EstadoService } from '../../../core/catalogos/estado.service';
 import { LineaVehiculoResponse, TipoPlacaResponse } from '../dto/vehiculo';
 import { VehiculoService } from '../vehiculo.service';
+import { SelectBuscable } from '../../../shared/select-buscable';
 
 const TIPO_ESTADO_VEHICULO = 'VEHICULO';
 
 @Component({
   selector: 'app-vehiculo-form',
-  imports: [MatIconModule, ReactiveFormsModule, RouterLink, MatSelectModule, MatButtonModule],
+  imports: [SelectBuscable, MatIconModule, ReactiveFormsModule, RouterLink, MatSelectModule, MatButtonModule],
   templateUrl: './vehiculo-form.html',
   styleUrl: './vehiculo-form.scss',
 })

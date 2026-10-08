@@ -11,12 +11,13 @@ import { BebidaResumen } from '../../../core/catalogos/bebida';
 import { BebidaService } from '../../../core/catalogos/bebida.service';
 import { UnidadVenta } from '../../../core/catalogos/menu';
 import { MenuPlatoService } from '../menu-plato.service';
+import { SelectBuscable } from '../../../shared/select-buscable';
 
 const TIPO_ESTADO_GENERAL = 'GENERAL';
 
 @Component({
   selector: 'app-plato-form',
-  imports: [ReactiveFormsModule, RouterLink, MatSelectModule, MatButtonModule, MatIconModule],
+  imports: [SelectBuscable, ReactiveFormsModule, RouterLink, MatSelectModule, MatButtonModule, MatIconModule],
   templateUrl: './plato-form.html',
   styleUrl: './plato-form.scss',
 })

@@ -14,6 +14,7 @@ import { ConfirmDialog } from '../../../shared/confirm-dialog/confirm-dialog';
 import { ClienteService } from '../cliente.service';
 import { PosibleDuplicado } from '../dto/cliente';
 import { alMenosUnoValidator, nitValidator, normalizarNit } from '../nit-guatemala';
+import { SelectBuscable } from '../../../shared/select-buscable';
 
 /**
  * Datos que se revisan contra otros clientes. Solo el NIT bloquea: telefono y correo se
@@ -26,7 +27,7 @@ const ETIQUETA_CAMPO: Record<CampoRevisado, string> = { nit: 'NIT', telefono: 't
 
 @Component({
   selector: 'app-cliente-form',
-  imports: [
+  imports: [SelectBuscable, 
     ReactiveFormsModule,
     RouterLink,
     MatIconModule,

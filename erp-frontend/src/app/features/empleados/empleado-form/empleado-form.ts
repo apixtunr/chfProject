@@ -15,13 +15,14 @@ import { usuarioSegunPolitica } from '../../administracion/usuarios/politica-usu
 import { RolResponse } from '../../administracion/dto/admin';
 import { AccesoSistemaRequest, GeneroResponse, PuestoEmpleadoResponse } from '../dto/empleado';
 import { EmpleadoService } from '../empleado.service';
+import { SelectBuscable } from '../../../shared/select-buscable';
 
 const TIPO_ESTADO_GENERAL = 'GENERAL';
 const PAGINA_USUARIOS = '/api/usuarios';
 
 @Component({
   selector: 'app-empleado-form',
-  imports: [
+  imports: [SelectBuscable, 
     ReactiveFormsModule,
     RouterLink,
     MatSelectModule,
