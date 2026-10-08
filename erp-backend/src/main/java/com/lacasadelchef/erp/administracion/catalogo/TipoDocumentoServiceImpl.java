@@ -2,6 +2,8 @@ package com.lacasadelchef.erp.administracion.catalogo;
 
 import com.lacasadelchef.erp.administracion.catalogo.dto.TipoDocumentoRequest;
 import com.lacasadelchef.erp.administracion.catalogo.dto.TipoDocumentoResponse;
+import com.lacasadelchef.erp.administracion.rrhh.DocumentosEmpleado;
+import com.lacasadelchef.erp.common.exception.BusinessException;
 import com.lacasadelchef.erp.common.exception.ResourceNotFoundException;
 import com.lacasadelchef.erp.entity.TipoDocumento;
 import com.lacasadelchef.erp.repository.TipoDocumentoRepository;
@@ -42,6 +44,11 @@ public class TipoDocumentoServiceImpl implements TipoDocumentoService {
     @Transactional
     public TipoDocumentoResponse actualizar(Integer id, TipoDocumentoRequest request) {
         TipoDocumento tipoDocumento = buscar(id);
+        if (DocumentosEmpleado.esDelSistema(tipoDocumento.getNombreTipo())
+                && !tipoDocumento.getNombreTipo().equals(request.nombreTipo().trim())) {
+            throw new BusinessException("El tipo %s lo usan reglas del sistema y no se puede renombrar"
+                    .formatted(tipoDocumento.getNombreTipo()));
+        }
         aplicar(request, tipoDocumento);
         tipoDocumento = tipoDocumentoRepository.save(tipoDocumento);
         return TipoDocumentoResponse.desde(tipoDocumento);
@@ -51,6 +58,10 @@ public class TipoDocumentoServiceImpl implements TipoDocumentoService {
     @Transactional
     public void eliminar(Integer id) {
         TipoDocumento tipoDocumento = buscar(id);
+        if (DocumentosEmpleado.esDelSistema(tipoDocumento.getNombreTipo())) {
+            throw new BusinessException("El tipo %s lo usan reglas del sistema y no se puede eliminar"
+                    .formatted(tipoDocumento.getNombreTipo()));
+        }
         tipoDocumentoRepository.delete(tipoDocumento);
     }
 

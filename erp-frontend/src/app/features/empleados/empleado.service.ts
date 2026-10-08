@@ -3,7 +3,13 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { API_URL } from '../../core/api-config';
 import { Page } from '../../core/models/page';
-import { EmpleadoRequest, EmpleadoResponse, GeneroResponse, PuestoEmpleadoResponse } from './dto/empleado';
+import {
+  EmpleadoRequest,
+  EmpleadoResponse,
+  GeneroResponse,
+  PuestoEmpleadoResponse,
+  TipoDocumentoResponse,
+} from './dto/empleado';
 
 const BASE_URL = `${API_URL}/empleados`;
 
@@ -41,5 +47,9 @@ export class EmpleadoService {
 
   listarGeneros(): Observable<GeneroResponse[]> {
     return this.http.get<GeneroResponse[]>(`${API_URL}/generos`);
+  }
+
+  listarTiposDocumento(): Observable<TipoDocumentoResponse[]> {
+    return this.http.get<TipoDocumentoResponse[]>(`${API_URL}/tipos-documento`);
   }
 }

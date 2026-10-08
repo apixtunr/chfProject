@@ -1,5 +1,6 @@
 package com.lacasadelchef.erp.evento;
 
+import com.lacasadelchef.erp.administracion.rrhh.DocumentosEmpleado;
 import com.lacasadelchef.erp.common.exception.BusinessException;
 import com.lacasadelchef.erp.common.exception.ResourceNotFoundException;
 import com.lacasadelchef.erp.entity.Empleado;
@@ -9,6 +10,7 @@ import com.lacasadelchef.erp.entity.EventoEmpleado;
 import com.lacasadelchef.erp.entity.id.EventoEmpleadoId;
 import com.lacasadelchef.erp.evento.dto.EventoEmpleadoRequest;
 import com.lacasadelchef.erp.evento.dto.EventoEmpleadoResponse;
+import com.lacasadelchef.erp.repository.DocumentoEmpleadoRepository;
 import com.lacasadelchef.erp.repository.EmpleadoRepository;
 import com.lacasadelchef.erp.repository.EstadoRepository;
 import com.lacasadelchef.erp.repository.EventoEmpleadoRepository;
@@ -20,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -33,12 +36,21 @@ public class EventoEmpleadoServiceImpl implements EventoEmpleadoService {
     private final EmpleadoRepository empleadoRepository;
     private final EstadoRepository estadoRepository;
     private final EventoVehiculoRepository eventoVehiculoRepository;
+    private final DocumentoEmpleadoRepository documentoEmpleadoRepository;
 
     @Override
     @Transactional(readOnly = true)
     public List<EventoEmpleadoResponse> listar(Integer idEvento) {
-        return eventoEmpleadoRepository.findByEventoIdEvento(idEvento).stream()
-                .map(EventoEmpleadoResponse::desde)
+        List<EventoEmpleado> personal = eventoEmpleadoRepository.findByEventoIdEvento(idEvento);
+        if (personal.isEmpty()) {
+            return List.of();
+        }
+        // Quien puede conducir: lo usa la pantalla para ofrecer solo a ellos como conductores.
+        Set<Integer> conLicencia = Set.copyOf(documentoEmpleadoRepository.idsEmpleadoConDocumento(
+                personal.stream().map(ee -> ee.getEmpleado().getIdEmpleado()).toList(),
+                DocumentosEmpleado.TIPO_LICENCIA));
+        return personal.stream()
+                .map(ee -> EventoEmpleadoResponse.desde(ee, conLicencia.contains(ee.getEmpleado().getIdEmpleado())))
                 .toList();
     }
 

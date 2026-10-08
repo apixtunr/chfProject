@@ -1,10 +1,11 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormArray, FormBuilder, FormGroup, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/auth/auth.service';
@@ -13,12 +14,27 @@ import { EstadoService } from '../../../core/catalogos/estado.service';
 import { AdminService } from '../../administracion/admin.service';
 import { usuarioSegunPolitica } from '../../administracion/usuarios/politica-usuario';
 import { RolResponse } from '../../administracion/dto/admin';
-import { AccesoSistemaRequest, GeneroResponse, PuestoEmpleadoResponse } from '../dto/empleado';
+import {
+  AccesoSistemaRequest,
+  GeneroResponse,
+  PuestoEmpleadoResponse,
+  TIPO_DPI,
+  TipoDocumentoResponse,
+  formatoDpi,
+} from '../dto/empleado';
 import { EmpleadoService } from '../empleado.service';
 import { SelectBuscable } from '../../../shared/select-buscable';
 
 const TIPO_ESTADO_GENERAL = 'GENERAL';
 const PAGINA_USUARIOS = '/api/usuarios';
+
+/** 13 digitos, con los espacios o guiones opcionales del documento fisico. */
+const PATRON_DPI = /^\d{4}[ -]?\d{5}[ -]?\d{4}$/;
+
+type FilaDocumento = FormGroup<{
+  idTipoDocumento: FormControl<number | null>;
+  numeroDocumento: FormControl<string>;
+}>;
 
 @Component({
   selector: 'app-empleado-form',
@@ -30,6 +46,7 @@ const PAGINA_USUARIOS = '/api/usuarios';
     MatButtonModule,
     MatRadioModule,
     MatIconModule,
+    MatTooltipModule,
   ],
   templateUrl: './empleado-form.html',
   styleUrl: './empleado-form.scss',
@@ -50,6 +67,12 @@ export class EmpleadoForm implements OnInit {
   readonly generos = signal<GeneroResponse[]>([]);
   readonly estados = signal<EstadoResponse[]>([]);
   readonly roles = signal<RolResponse[]>([]);
+
+  /** Tipos de documento que van en la seccion Documentos: todos menos el DPI, que va en los datos. */
+  readonly tiposDocumento = signal<TipoDocumentoResponse[]>([]);
+
+  /** Filas de la seccion Documentos (licencia de conducir, etc.). */
+  readonly documentos = new FormArray<FilaDocumento>([]);
 
   /** Usuario de esta persona, al editar a alguien que ya lo tiene. */
   readonly usuarioActual = signal<{ idUsuario: number; username: string; rol: string } | null>(null);
@@ -74,6 +97,7 @@ export class EmpleadoForm implements OnInit {
       correo: ['', [Validators.email]],
       telefono: ['', [Validators.pattern(/^[0-9+\- ]{8,20}$/)]],
       fechaContratacion: this.fb.control<Date | null>(null),
+      dpi: ['', [Validators.required, Validators.pattern(PATRON_DPI)]],
 
       // Acceso al sistema. Solo se usa al dar de alta: el acceso de alguien que ya
       // existe se administra desde la pantalla de Usuarios.
@@ -111,7 +135,36 @@ export class EmpleadoForm implements OnInit {
     c.idRolUsuario.updateValueAndValidity();
   }
 
+  agregarDocumento(idTipoDocumento: number | null = null, numeroDocumento = ''): void {
+    this.documentos.push(
+      this.fb.group({
+        idTipoDocumento: this.fb.control<number | null>(idTipoDocumento, Validators.required),
+        numeroDocumento: this.fb.nonNullable.control(numeroDocumento, [Validators.required, Validators.maxLength(50)]),
+      }),
+    );
+  }
+
+  quitarDocumento(indice: number): void {
+    this.documentos.removeAt(indice);
+  }
+
+  /** En cada fila se ofrecen los tipos que no estan elegidos en otra: cada tipo va una sola vez. */
+  tiposDisponibles(indice: number): TipoDocumentoResponse[] {
+    const usados = this.documentos.controls
+      .filter((_, i) => i !== indice)
+      .map((fila) => fila.controls.idTipoDocumento.value);
+    return this.tiposDocumento().filter((t) => !usados.includes(t.idTipoDocumento));
+  }
+
+  /** Ya se eligieron todos los tipos: no hay que ofrecer otra fila. */
+  get todosLosTiposUsados(): boolean {
+    return this.documentos.length >= this.tiposDocumento().length;
+  }
+
   ngOnInit(): void {
+    this.empleadoService
+      .listarTiposDocumento()
+      .subscribe((tipos) => this.tiposDocumento.set(tipos.filter((t) => t.nombreTipo !== TIPO_DPI)));
     this.empleadoService.listarPuestos().subscribe((p) => this.puestos.set(p));
     this.empleadoService.listarGeneros().subscribe((g) => this.generos.set(g));
     this.estadoService.listarPorTipo(TIPO_ESTADO_GENERAL).subscribe((e) => this.estados.set(e));
@@ -135,7 +188,11 @@ export class EmpleadoForm implements OnInit {
         correo: empleado.correo ?? '',
         telefono: empleado.telefono ?? '',
         fechaContratacion: empleado.fechaContratacion ? new Date(empleado.fechaContratacion) : null,
+        dpi: formatoDpi(empleado.dpi),
       });
+      for (const d of empleado.documentos ?? []) {
+        this.agregarDocumento(d.idTipoDocumento, d.numeroDocumento);
+      }
       if (empleado.idUsuario && empleado.username) {
         this.usuarioActual.set({
           idUsuario: empleado.idUsuario,
@@ -147,8 +204,9 @@ export class EmpleadoForm implements OnInit {
   }
 
   guardar(): void {
-    if (this.formulario.invalid) {
+    if (this.formulario.invalid || this.documentos.invalid) {
       this.formulario.markAllAsTouched();
+      this.documentos.markAllAsTouched();
       return;
     }
 
@@ -167,6 +225,11 @@ export class EmpleadoForm implements OnInit {
       correo: v.correo || null,
       telefono: v.telefono || null,
       fechaContratacion: v.fechaContratacion ? this.aFechaIso(v.fechaContratacion) : null,
+      dpi: v.dpi,
+      documentos: this.documentos.getRawValue().map((d) => ({
+        idTipoDocumento: d.idTipoDocumento!,
+        numeroDocumento: d.numeroDocumento.trim(),
+      })),
       // Solo viaja en el alta y solo si se pidio. El backend graba empleado y usuario
       // juntos, y le pone al usuario el nombre segun la politica de la empresa.
       acceso: acceso,

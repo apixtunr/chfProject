@@ -56,3 +56,26 @@
     color: var(--chf-texto-medio);
   }
 }
+
+// Seccion Documentos: el boton de quitar va al lado del numero, en la misma linea.
+.documento-numero {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+
+  .pf-input-wrap {
+    flex: 1;
+  }
+}
+
+.documentos-vacio {
+  margin: 0;
+  padding: 4px 20px 12px;
+  font-size: 0.875rem;
+  color: var(--chf-texto-medio);
+}
+
+// El boton de agregar con el mismo margen lateral que los campos de la tarjeta.
+.documentos-agregar {
+  padding: 0 20px 20px;
+}

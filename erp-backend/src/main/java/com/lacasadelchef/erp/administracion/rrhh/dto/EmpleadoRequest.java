@@ -8,6 +8,7 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public record EmpleadoRequest(
 
@@ -35,6 +36,18 @@ public record EmpleadoRequest(
         String telefono,
 
         LocalDate fechaContratacion,
+
+        /** Obligatorio. Se aceptan los espacios del documento fisico ("2547 12345 0101"). */
+        @NotBlank(message = "El DPI es obligatorio")
+        @Pattern(regexp = "^[0-9][0-9 \\-]{11,16}[0-9]$", message = "El DPI debe tener 13 dígitos")
+        String dpi,
+
+        /**
+         * Los demas documentos (licencia de conducir, etc.). La lista reemplaza a los que
+         * tenga registrados: los que no vengan se quitan. Si viene null no se tocan.
+         */
+        @Valid
+        List<DocumentoItemRequest> documentos,
 
         /**
          * Acceso al sistema para esta persona. Opcional y solo se toma en cuenta al dar

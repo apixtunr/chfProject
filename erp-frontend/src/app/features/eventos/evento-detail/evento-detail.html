@@ -420,15 +420,20 @@
             <mat-form-field appearance="outline" class="campo-chico">
               <mat-label>Conductor (opcional)</mat-label>
               <!-- El conductor sale del personal del evento: asi su pago y su horario ya quedan
-                   registrados (el backend tambien lo valida). -->
+                   registrados. Y tiene que tener licencia de conducir registrada en sus
+                   documentos (Empleados). El backend valida las dos cosas. -->
               <mat-select formControlName="idEmpleadoConductor">
                 <mat-option [value]="null">Sin conductor asignado</mat-option>
                 @for (p of personal(); track p.idEmpleado) {
-                  <mat-option [value]="p.idEmpleado">{{ p.nombreEmpleado }}</mat-option>
+                  <mat-option [value]="p.idEmpleado" [disabled]="!p.tieneLicencia">
+                    {{ p.nombreEmpleado }}{{ p.tieneLicencia ? '' : ' (sin licencia)' }}
+                  </mat-option>
                 }
               </mat-select>
               @if (personal().length === 0) {
                 <mat-hint>Asigne primero el personal del evento para elegir conductor</mat-hint>
+              } @else if (!hayConductores()) {
+                <mat-hint>Nadie del personal tiene licencia registrada (se agrega en Empleados)</mat-hint>
               }
             </mat-form-field>
             <button mat-flat-button color="primary" type="submit">Asignar</button>

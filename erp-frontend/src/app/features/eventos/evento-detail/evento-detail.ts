@@ -105,6 +105,9 @@ export class EventoDetail implements OnInit {
   readonly evento = signal<EventoResponse | null>(null);
   readonly costos = signal<CostoEventoResponse[]>([]);
   readonly personal = signal<EventoEmpleadoResponse[]>([]);
+
+  /** Alguien del personal puede conducir (tiene licencia registrada). */
+  readonly hayConductores = computed(() => this.personal().some((p) => p.tieneLicencia));
   readonly vehiculos = signal<EventoVehiculoResponse[]>([]);
   readonly inventario = signal<EventoInventarioResponse[]>([]);
   readonly detalleMenu = signal<DetalleEventoResponse[]>([]);

@@ -15,7 +15,7 @@ import { Subject, debounceTime } from 'rxjs';
 import { AuthService } from '../../../core/auth/auth.service';
 import { ConfirmDialog } from '../../../shared/confirm-dialog/confirm-dialog';
 import { EmpleadoService } from '../empleado.service';
-import { EmpleadoResponse } from '../dto/empleado';
+import { EmpleadoResponse, formatoDpi } from '../dto/empleado';
 import { TablaResponsiva } from '../../../shared/tabla-responsiva';
 
 const PAGINA_URL = '/api/empleados';
@@ -49,6 +49,8 @@ export class EmpleadoList implements OnInit {
   readonly pageSize = signal(20);
   readonly filtroNombre = signal('');
 
+  readonly formatoDpi = formatoDpi;
+
   readonly puedeCrear: boolean;
   readonly puedeEditar: boolean;
   readonly puedeEliminar: boolean;
@@ -60,7 +62,7 @@ export class EmpleadoList implements OnInit {
   }
 
   get columnas(): string[] {
-    const base = ['nombre', 'puesto', 'estado', 'telefono', 'acceso'];
+    const base = ['nombre', 'dpi', 'puesto', 'estado', 'telefono', 'acceso'];
     return this.puedeEditar || this.puedeEliminar ? [...base, 'acciones'] : base;
   }
 

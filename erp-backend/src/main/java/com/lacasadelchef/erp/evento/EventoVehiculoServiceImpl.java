@@ -1,5 +1,6 @@
 package com.lacasadelchef.erp.evento;
 
+import com.lacasadelchef.erp.administracion.rrhh.DocumentosEmpleado;
 import com.lacasadelchef.erp.common.exception.BusinessException;
 import com.lacasadelchef.erp.common.exception.ResourceNotFoundException;
 import com.lacasadelchef.erp.entity.Empleado;
@@ -10,6 +11,7 @@ import com.lacasadelchef.erp.entity.id.EventoEmpleadoId;
 import com.lacasadelchef.erp.entity.id.EventoVehiculoId;
 import com.lacasadelchef.erp.evento.dto.EventoVehiculoRequest;
 import com.lacasadelchef.erp.evento.dto.EventoVehiculoResponse;
+import com.lacasadelchef.erp.repository.DocumentoEmpleadoRepository;
 import com.lacasadelchef.erp.repository.EmpleadoRepository;
 import com.lacasadelchef.erp.repository.EventoEmpleadoRepository;
 import com.lacasadelchef.erp.repository.EventoRepository;
@@ -33,6 +35,7 @@ public class EventoVehiculoServiceImpl implements EventoVehiculoService {
     private final VehiculoRepository vehiculoRepository;
     private final EmpleadoRepository empleadoRepository;
     private final EventoEmpleadoRepository eventoEmpleadoRepository;
+    private final DocumentoEmpleadoRepository documentoEmpleadoRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -112,6 +115,11 @@ public class EventoVehiculoServiceImpl implements EventoVehiculoService {
             if (!eventoEmpleadoRepository.existsById(new EventoEmpleadoId(idEvento, conductor.getIdEmpleado()))) {
                 throw new BusinessException("%s no está en el personal del evento: asígnelo primero en Personal para que pueda conducir"
                         .formatted(conductor.getNombreCompleto()));
+            }
+            if (!documentoEmpleadoRepository.existsByEmpleadoIdEmpleadoAndTipoDocumentoNombreTipo(
+                    conductor.getIdEmpleado(), DocumentosEmpleado.TIPO_LICENCIA)) {
+                throw new BusinessException(("%s no tiene licencia de conducir registrada: agréguela en sus documentos"
+                        + " (Empleados) para que pueda conducir").formatted(conductor.getNombreCompleto()));
             }
         }
         eventoVehiculo.setEmpleado(conductor);

@@ -153,6 +153,8 @@ export interface EventoEmpleadoResponse {
   fechaAsignacion: string;
   horaInicio: string | null;
   horaFin: string | null;
+  /** Si tiene licencia de conducir registrada: solo ellos pueden ser conductores. */
+  tieneLicencia: boolean | null;
 }
 
 export interface EventoVehiculoRequest {

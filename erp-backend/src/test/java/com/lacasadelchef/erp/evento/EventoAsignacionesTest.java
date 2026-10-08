@@ -10,6 +10,7 @@ import com.lacasadelchef.erp.entity.Vehiculo;
 import com.lacasadelchef.erp.entity.id.EventoEmpleadoId;
 import com.lacasadelchef.erp.evento.dto.EventoEmpleadoRequest;
 import com.lacasadelchef.erp.evento.dto.EventoVehiculoRequest;
+import com.lacasadelchef.erp.repository.DocumentoEmpleadoRepository;
 import com.lacasadelchef.erp.repository.EmpleadoRepository;
 import com.lacasadelchef.erp.repository.EstadoRepository;
 import com.lacasadelchef.erp.repository.EventoEmpleadoRepository;
@@ -176,6 +177,7 @@ class EventoAsignacionesTest {
         @Mock private VehiculoRepository vehiculoRepository;
         @Mock private EmpleadoRepository empleadoRepository;
         @Mock private EventoEmpleadoRepository eventoEmpleadoRepository;
+        @Mock private DocumentoEmpleadoRepository documentoEmpleadoRepository;
         @InjectMocks private EventoVehiculoServiceImpl service;
 
         private Vehiculo vehiculo(String estado) {
@@ -232,11 +234,30 @@ class EventoAsignacionesTest {
             when(vehiculoRepository.findById(3)).thenReturn(Optional.of(vehiculo("DISPONIBLE")));
             when(empleadoRepository.findById(5)).thenReturn(Optional.of(empleado("ACTIVO")));
             when(eventoEmpleadoRepository.existsById(new EventoEmpleadoId(1, 5))).thenReturn(true);
+            when(documentoEmpleadoRepository.existsByEmpleadoIdEmpleadoAndTipoDocumentoNombreTipo(5, "Licencia de conducir"))
+                    .thenReturn(true);
             when(eventoVehiculoRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
             var respuesta = service.asignar(1, 3, new EventoVehiculoRequest(5));
 
             assertThat(respuesta.idVehiculo()).isEqualTo(3);
+        }
+
+        @Test
+        @DisplayName("Sin licencia de conducir registrada no se puede asignar como conductor")
+        void conductorSinLicencia() {
+            when(eventoRepository.findById(1)).thenReturn(Optional.of(evento(1, "CREADO", 11, 15)));
+            when(vehiculoRepository.findById(3)).thenReturn(Optional.of(vehiculo("DISPONIBLE")));
+            when(empleadoRepository.findById(5)).thenReturn(Optional.of(empleado("ACTIVO")));
+            when(eventoEmpleadoRepository.existsById(new EventoEmpleadoId(1, 5))).thenReturn(true);
+            when(documentoEmpleadoRepository.existsByEmpleadoIdEmpleadoAndTipoDocumentoNombreTipo(5, "Licencia de conducir"))
+                    .thenReturn(false);
+
+            assertThatThrownBy(() -> service.asignar(1, 3, new EventoVehiculoRequest(5)))
+                    .isInstanceOf(BusinessException.class)
+                    .hasMessage("Lucía Ramírez no tiene licencia de conducir registrada: agréguela en sus documentos"
+                            + " (Empleados) para que pueda conducir");
+            verify(eventoVehiculoRepository, never()).save(any());
         }
     }
 }

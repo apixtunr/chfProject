@@ -9,7 +9,7 @@
 </div>
 
 <mat-form-field appearance="outline" class="buscador">
-  <mat-label>Buscar por nombre</mat-label>
+  <mat-label>Buscar por nombre o DPI</mat-label>
   <input matInput [(ngModel)]="filtroNombre" (ngModelChange)="buscarAlEscribir()" (keyup.enter)="buscar()" />
   <button matSuffix mat-icon-button (click)="buscar()">
     <mat-icon>search</mat-icon>
@@ -21,6 +21,17 @@
     <ng-container matColumnDef="nombre">
       <th mat-header-cell *matHeaderCellDef>Nombre</th>
       <td mat-cell *matCellDef="let e">{{ e.nombre }} {{ e.apellido }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="dpi">
+      <th mat-header-cell *matHeaderCellDef>DPI</th>
+      <td mat-cell *matCellDef="let e">
+        @if (e.dpi) {
+          {{ formatoDpi(e.dpi) }}
+        } @else {
+          <span class="sin-dpi" matTooltip="El DPI es obligatorio: complételo al editar a este empleado">Falta DPI</span>
+        }
+      </td>
     </ng-container>
 
     <ng-container matColumnDef="puesto">

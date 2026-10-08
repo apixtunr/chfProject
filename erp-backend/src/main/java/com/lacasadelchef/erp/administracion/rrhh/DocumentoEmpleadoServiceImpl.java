@@ -2,6 +2,7 @@ package com.lacasadelchef.erp.administracion.rrhh;
 
 import com.lacasadelchef.erp.administracion.rrhh.dto.DocumentoEmpleadoRequest;
 import com.lacasadelchef.erp.administracion.rrhh.dto.DocumentoEmpleadoResponse;
+import com.lacasadelchef.erp.common.exception.BusinessException;
 import com.lacasadelchef.erp.common.exception.ResourceNotFoundException;
 import com.lacasadelchef.erp.entity.DocumentoEmpleado;
 import com.lacasadelchef.erp.entity.Empleado;
@@ -23,6 +24,7 @@ public class DocumentoEmpleadoServiceImpl implements DocumentoEmpleadoService {
     private final DocumentoEmpleadoRepository documentoEmpleadoRepository;
     private final EmpleadoRepository empleadoRepository;
     private final TipoDocumentoRepository tipoDocumentoRepository;
+    private final DocumentosEmpleado documentosEmpleado;
 
     @Override
     @Transactional(readOnly = true)
@@ -39,29 +41,29 @@ public class DocumentoEmpleadoServiceImpl implements DocumentoEmpleadoService {
                 .orElseThrow(() -> new ResourceNotFoundException("Empleado", idEmpleado));
         TipoDocumento tipoDocumento = tipoDocumentoRepository.findById(idTipoDocumento)
                 .orElseThrow(() -> new ResourceNotFoundException("TipoDocumento", idTipoDocumento));
-
-        DocumentoEmpleado documento = new DocumentoEmpleado();
-        documento.setId(new DocumentoEmpleadoId(idEmpleado, idTipoDocumento));
-        documento.setEmpleado(empleado);
-        documento.setTipoDocumento(tipoDocumento);
-        documento.setNumeroDocumento(request.numeroDocumento().trim());
-        documento = documentoEmpleadoRepository.save(documento);
-        return DocumentoEmpleadoResponse.desde(documento);
+        // Sin esto, guardar con la misma llave reemplazaba en silencio el documento anterior.
+        if (documentoEmpleadoRepository.existsById(new DocumentoEmpleadoId(idEmpleado, idTipoDocumento))) {
+            throw new BusinessException("%s ya tiene registrado su %s; modifíquelo en lugar de agregarlo otra vez"
+                    .formatted(empleado.getNombreCompleto(), tipoDocumento.getNombreTipo()));
+        }
+        return DocumentoEmpleadoResponse.desde(documentosEmpleado.guardar(empleado, tipoDocumento, request.numeroDocumento()));
     }
 
     @Override
     @Transactional
     public DocumentoEmpleadoResponse actualizar(Integer idEmpleado, Integer idTipoDocumento, DocumentoEmpleadoRequest request) {
         DocumentoEmpleado documento = buscar(idEmpleado, idTipoDocumento);
-        documento.setNumeroDocumento(request.numeroDocumento().trim());
-        documento = documentoEmpleadoRepository.save(documento);
-        return DocumentoEmpleadoResponse.desde(documento);
+        return DocumentoEmpleadoResponse.desde(documentosEmpleado.guardar(
+                documento.getEmpleado(), documento.getTipoDocumento(), request.numeroDocumento()));
     }
 
     @Override
     @Transactional
     public void eliminar(Integer idEmpleado, Integer idTipoDocumento) {
         DocumentoEmpleado documento = buscar(idEmpleado, idTipoDocumento);
+        if (DocumentosEmpleado.esDpi(documento.getTipoDocumento())) {
+            throw new BusinessException("El DPI es obligatorio: se puede corregir, pero no quitar");
+        }
         documentoEmpleadoRepository.delete(documento);
     }
 

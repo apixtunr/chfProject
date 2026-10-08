@@ -6,6 +6,7 @@ import lombok.Builder;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Builder
 public record EmpleadoResponse(
@@ -22,6 +23,12 @@ public record EmpleadoResponse(
         String telefono,
         LocalDate fechaContratacion,
 
+        /** Sin espacios; null en los empleados registrados antes de que fuera obligatorio. */
+        String dpi,
+
+        /** Los demas documentos. Solo viene al consultar un empleado, no en el listado. */
+        List<DocumentoEmpleadoResponse> documentos,
+
         /**
          * Acceso al sistema de esta persona. Los tres van juntos: o tiene usuario y los
          * tres traen valor, o no tiene y los tres vienen vacios.
@@ -37,12 +44,17 @@ public record EmpleadoResponse(
         LocalDateTime fechaModificacion
 ) {
 
-    /** Sin datos de acceso; para cuando no hace falta consultarlos. */
+    /** Sin datos de acceso ni documentos; para cuando no hace falta consultarlos. */
     public static EmpleadoResponse desde(Empleado empleado) {
-        return desde(empleado, null);
+        return desde(empleado, null, null, null);
     }
 
-    public static EmpleadoResponse desde(Empleado empleado, Usuario usuario) {
+    /**
+     * @param dpi        su numero de DPI, o null si no lo tiene registrado
+     * @param documentos los demas documentos, o null si no se consultaron (listado)
+     */
+    public static EmpleadoResponse desde(Empleado empleado, Usuario usuario, String dpi,
+                                         List<DocumentoEmpleadoResponse> documentos) {
         return EmpleadoResponse.builder()
                 .idEmpleado(empleado.getIdEmpleado())
                 .idPuestoEmpleado(empleado.getPuestoEmpleado().getIdPuestoEmpleado())
@@ -56,6 +68,8 @@ public record EmpleadoResponse(
                 .correo(empleado.getCorreo())
                 .telefono(empleado.getTelefono())
                 .fechaContratacion(empleado.getFechaContratacion())
+                .dpi(dpi)
+                .documentos(documentos)
                 .idUsuario(usuario != null ? usuario.getIdUsuario() : null)
                 .username(usuario != null ? usuario.getUsername() : null)
                 .rolUsuario(usuario != null ? usuario.getRol().getNombreRol() : null)

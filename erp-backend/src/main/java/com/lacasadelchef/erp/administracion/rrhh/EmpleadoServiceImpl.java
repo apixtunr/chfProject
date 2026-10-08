@@ -3,25 +3,34 @@ package com.lacasadelchef.erp.administracion.rrhh;
 import com.lacasadelchef.erp.administracion.rrhh.dto.EmpleadoRequest;
 import com.lacasadelchef.erp.administracion.rrhh.dto.EmpleadoResponse;
 import com.lacasadelchef.erp.administracion.rrhh.dto.AccesoSistemaRequest;
+import com.lacasadelchef.erp.administracion.rrhh.dto.DocumentoEmpleadoResponse;
+import com.lacasadelchef.erp.administracion.rrhh.dto.DocumentoItemRequest;
 import com.lacasadelchef.erp.administracion.usuario.PoliticaUsuario;
 import com.lacasadelchef.erp.common.exception.BusinessException;
 import com.lacasadelchef.erp.common.exception.ResourceNotFoundException;
+import com.lacasadelchef.erp.entity.DocumentoEmpleado;
 import com.lacasadelchef.erp.entity.Empleado;
 import com.lacasadelchef.erp.entity.Estado;
 import com.lacasadelchef.erp.entity.Genero;
 import com.lacasadelchef.erp.entity.PuestoEmpleado;
 import com.lacasadelchef.erp.entity.Rol;
+import com.lacasadelchef.erp.entity.TipoDocumento;
 import com.lacasadelchef.erp.entity.Usuario;
+import com.lacasadelchef.erp.repository.DocumentoEmpleadoRepository;
 import com.lacasadelchef.erp.repository.EmpleadoRepository;
 import com.lacasadelchef.erp.repository.EstadoRepository;
 import com.lacasadelchef.erp.repository.GeneroRepository;
 import com.lacasadelchef.erp.repository.PuestoEmpleadoRepository;
 import com.lacasadelchef.erp.repository.RolRepository;
+import com.lacasadelchef.erp.repository.TipoDocumentoRepository;
 import com.lacasadelchef.erp.repository.UsuarioRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -43,24 +52,30 @@ public class EmpleadoServiceImpl implements EmpleadoService {
     private final RolRepository rolRepository;
     private final PasswordEncoder passwordEncoder;
     private final PoliticaUsuario politicaUsuario;
+    private final DocumentoEmpleadoRepository documentoEmpleadoRepository;
+    private final TipoDocumentoRepository tipoDocumentoRepository;
+    private final DocumentosEmpleado documentosEmpleado;
 
     @Override
     @Transactional(readOnly = true)
     public Page<EmpleadoResponse> listar(String nombre, Pageable pageable) {
         Page<Empleado> page = (nombre == null || nombre.isBlank())
                 ? empleadoRepository.findAll(pageable)
-                : empleadoRepository.findByNombreContainingIgnoreCaseOrApellidoContainingIgnoreCase(
-                        nombre.trim(), nombre.trim(), pageable);
+                : empleadoRepository.buscar(nombre.trim(), nombre.replaceAll("[\\s-]", ""),
+                        DocumentosEmpleado.TIPO_DPI, pageable);
         Set<Integer> conUsuario = idsConUsuario(page.getContent());
-        return page.map(e -> conUsuario.contains(e.getIdEmpleado())
-                ? EmpleadoResponse.desde(e, usuarioRepository.findByEmpleadoIdEmpleado(e.getIdEmpleado()).orElse(null))
-                : EmpleadoResponse.desde(e));
+        Map<Integer, String> dpis = dpisDe(page.getContent());
+        return page.map(e -> EmpleadoResponse.desde(e,
+                conUsuario.contains(e.getIdEmpleado())
+                        ? usuarioRepository.findByEmpleadoIdEmpleado(e.getIdEmpleado()).orElse(null)
+                        : null,
+                dpis.get(e.getIdEmpleado()), null));
     }
 
     @Override
     @Transactional(readOnly = true)
     public EmpleadoResponse obtenerPorId(Integer id) {
-        return EmpleadoResponse.desde(buscar(id), usuarioRepository.findByEmpleadoIdEmpleado(id).orElse(null));
+        return respuestaCompleta(buscar(id));
     }
 
     /**
@@ -80,11 +95,12 @@ public class EmpleadoServiceImpl implements EmpleadoService {
         Empleado empleado = new Empleado();
         aplicar(request, empleado);
         empleado = empleadoRepository.save(empleado);
+        guardarDocumentos(empleado, request);
 
-        if (acceso == null) {
-            return EmpleadoResponse.desde(empleado);
+        if (acceso != null) {
+            crearUsuario(empleado, acceso);
         }
-        return EmpleadoResponse.desde(empleado, crearUsuario(empleado, acceso));
+        return respuestaCompleta(empleado);
     }
 
     private Usuario crearUsuario(Empleado empleado, AccesoSistemaRequest acceso) {
@@ -122,7 +138,64 @@ public class EmpleadoServiceImpl implements EmpleadoService {
         Empleado empleado = buscar(id);
         aplicar(request, empleado);
         empleado = empleadoRepository.save(empleado);
-        return EmpleadoResponse.desde(empleado, usuarioRepository.findByEmpleadoIdEmpleado(id).orElse(null));
+        guardarDocumentos(empleado, request);
+        return respuestaCompleta(empleado);
+    }
+
+    /**
+     * Guarda el DPI y los demas documentos junto con los datos del empleado, en la misma
+     * transaccion: si un documento esta repetido o mal escrito, no queda nada a medias.
+     */
+    private void guardarDocumentos(Empleado empleado, EmpleadoRequest request) {
+        TipoDocumento tipoDpi = documentosEmpleado.tipoDpi();
+        documentosEmpleado.guardar(empleado, tipoDpi, request.dpi());
+        if (request.documentos() == null) {
+            return;
+        }
+
+        Set<Integer> enviados = new HashSet<>();
+        for (DocumentoItemRequest item : request.documentos()) {
+            TipoDocumento tipo = tipoDocumentoRepository.findById(item.idTipoDocumento())
+                    .orElseThrow(() -> new ResourceNotFoundException("TipoDocumento", item.idTipoDocumento()));
+            if (DocumentosEmpleado.esDpi(tipo)) {
+                throw new BusinessException("El DPI se registra en los datos del empleado, no en sus documentos");
+            }
+            if (!enviados.add(tipo.getIdTipoDocumento())) {
+                throw new BusinessException("El documento %s viene repetido".formatted(tipo.getNombreTipo()));
+            }
+            documentosEmpleado.guardar(empleado, tipo, item.numeroDocumento());
+        }
+        // La lista reemplaza a lo registrado: lo que ya no viene se quita (el DPI nunca).
+        documentoEmpleadoRepository.findByEmpleadoIdEmpleado(empleado.getIdEmpleado()).stream()
+                .filter(d -> !DocumentosEmpleado.esDpi(d.getTipoDocumento()))
+                .filter(d -> !enviados.contains(d.getTipoDocumento().getIdTipoDocumento()))
+                .forEach(documentoEmpleadoRepository::delete);
+    }
+
+    private EmpleadoResponse respuestaCompleta(Empleado empleado) {
+        List<DocumentoEmpleado> documentos =
+                documentoEmpleadoRepository.findByEmpleadoIdEmpleado(empleado.getIdEmpleado());
+        String dpi = documentos.stream()
+                .filter(d -> DocumentosEmpleado.esDpi(d.getTipoDocumento()))
+                .map(DocumentoEmpleado::getNumeroDocumento)
+                .findFirst().orElse(null);
+        List<DocumentoEmpleadoResponse> otros = documentos.stream()
+                .filter(d -> !DocumentosEmpleado.esDpi(d.getTipoDocumento()))
+                .map(DocumentoEmpleadoResponse::desde)
+                .toList();
+        return EmpleadoResponse.desde(empleado,
+                usuarioRepository.findByEmpleadoIdEmpleado(empleado.getIdEmpleado()).orElse(null), dpi, otros);
+    }
+
+    /** El DPI de los empleados de esta pagina, en una sola consulta. */
+    private Map<Integer, String> dpisDe(List<Empleado> empleados) {
+        if (empleados.isEmpty()) {
+            return Map.of();
+        }
+        return documentoEmpleadoRepository.findByEmpleadoIdEmpleadoInAndTipoDocumentoNombreTipo(
+                        empleados.stream().map(Empleado::getIdEmpleado).toList(), DocumentosEmpleado.TIPO_DPI)
+                .stream()
+                .collect(Collectors.toMap(d -> d.getEmpleado().getIdEmpleado(), DocumentoEmpleado::getNumeroDocumento));
     }
 
     @Override

@@ -63,11 +63,27 @@
       </div>
     </div>
 
-    <!-- ── Puesto + Estado ── -->
+    <!-- ── DPI + Puesto ── -->
     <div class="pf-row-2col">
       <div class="pf-field">
-        <label class="pf-label" for="puesto">
+        <label class="pf-label" for="dpi">
           <span class="pf-label-num">3.</span>
+          <span class="pf-label-name">DPI</span>
+          <span class="pf-required-mark">*</span>
+        </label>
+        <div class="pf-input-wrap" [class.pf-input-wrap--error]="formulario.controls.dpi.invalid && formulario.controls.dpi.touched">
+          <mat-icon class="pf-input-icon">badge</mat-icon>
+          <input id="dpi" class="pf-input" formControlName="dpi" placeholder="Ej. 2547 12345 0101" inputmode="numeric" autocomplete="off" />
+        </div>
+        @if (formulario.controls.dpi.hasError('required') && formulario.controls.dpi.touched) {
+          <p class="pf-error">El DPI es obligatorio.</p>
+        } @else if (formulario.controls.dpi.invalid && formulario.controls.dpi.touched) {
+          <p class="pf-error">El DPI debe tener 13 dígitos. Ej: 2547 12345 0101.</p>
+        }
+      </div>
+      <div class="pf-field">
+        <label class="pf-label" for="puesto">
+          <span class="pf-label-num">4.</span>
           <span class="pf-label-name">Puesto</span>
           <span class="pf-required-mark">*</span>
         </label>
@@ -83,10 +99,13 @@
           <p class="pf-error">El puesto es obligatorio.</p>
         }
       </div>
+    </div>
 
+    <!-- ── Estado + Género ── -->
+    <div class="pf-row-2col">
       <div class="pf-field">
         <label class="pf-label" for="estado">
-          <span class="pf-label-num">4.</span>
+          <span class="pf-label-num">5.</span>
           <span class="pf-label-name">Estado</span>
           <span class="pf-required-mark">*</span>
         </label>
@@ -102,13 +121,9 @@
           <p class="pf-error">El estado es obligatorio.</p>
         }
       </div>
-    </div>
-
-    <!-- ── Género + Fecha de contratación ── -->
-    <div class="pf-row-2col">
       <div class="pf-field">
         <label class="pf-label" for="genero">
-          <span class="pf-label-num">5.</span>
+          <span class="pf-label-num">6.</span>
           <span class="pf-label-name">Género</span>
           <span class="pf-label-hint">(opcional)</span>
         </label>
@@ -121,10 +136,13 @@
           </mat-select>
         </div>
       </div>
+    </div>
 
+    <!-- ── Fecha de contratación + Correo ── -->
+    <div class="pf-row-2col">
       <div class="pf-field">
         <label class="pf-label" for="fechaContratacion">
-          <span class="pf-label-num">6.</span>
+          <span class="pf-label-num">7.</span>
           <span class="pf-label-name">Fecha de contratación</span>
           <span class="pf-label-hint">(opcional)</span>
         </label>
@@ -141,13 +159,9 @@
           <mat-datepicker #picker></mat-datepicker>
         </div>
       </div>
-    </div>
-
-    <!-- ── Correo + Teléfono ── -->
-    <div class="pf-row-2col">
       <div class="pf-field">
         <label class="pf-label" for="correo">
-          <span class="pf-label-num">7.</span>
+          <span class="pf-label-num">8.</span>
           <span class="pf-label-name">Correo electrónico</span>
           <span class="pf-label-hint">(opcional)</span>
         </label>
@@ -159,10 +173,13 @@
           <p class="pf-error">El correo no tiene un formato válido.</p>
         }
       </div>
+    </div>
 
+    <!-- ── Teléfono ── -->
+    <div class="pf-row-2col">
       <div class="pf-field">
         <label class="pf-label" for="telefono">
-          <span class="pf-label-num">8.</span>
+          <span class="pf-label-num">9.</span>
           <span class="pf-label-name">Teléfono</span>
           <span class="pf-label-hint">(opcional)</span>
         </label>
@@ -178,7 +195,74 @@
 
   </div><!-- /pf-section datos -->
 
-  <!-- ══ SECCIÓN 2: ACCESO AL SISTEMA ═════════════════════════
+  <!-- ══ SECCIÓN 2: DOCUMENTOS ═════════════════════════════════
+       El DPI va en los datos porque es obligatorio. Aquí van los demás: la licencia de
+       conducir es la que pide el sistema para asignar a alguien como conductor de un
+       vehículo en un evento. Cada tipo se registra una sola vez por empleado. -->
+  <div class="pf-section">
+
+    <div class="pf-section-header">
+      <div class="pf-section-title">
+        <mat-icon>folder_shared</mat-icon>
+        <span>Documentos</span>
+      </div>
+    </div>
+
+    @for (fila of documentos.controls; track fila; let i = $index) {
+      <div class="pf-row-2col documento-fila" [formGroup]="fila">
+        <div class="pf-field">
+          <label class="pf-label" [for]="'tipoDocumento' + i">
+            <span class="pf-label-name">Tipo de documento</span>
+            <span class="pf-required-mark">*</span>
+          </label>
+          <div class="pf-input-wrap pf-input-wrap--select" [class.pf-input-wrap--error]="fila.controls.idTipoDocumento.invalid && fila.controls.idTipoDocumento.touched">
+            <mat-icon class="pf-input-icon">description</mat-icon>
+            <mat-select [id]="'tipoDocumento' + i" class="pf-select" formControlName="idTipoDocumento" placeholder="Seleccionar tipo">
+              @for (tipo of tiposDisponibles(i); track tipo.idTipoDocumento) {
+                <mat-option [value]="tipo.idTipoDocumento">{{ tipo.nombreTipo }}</mat-option>
+              }
+            </mat-select>
+          </div>
+          @if (fila.controls.idTipoDocumento.invalid && fila.controls.idTipoDocumento.touched) {
+            <p class="pf-error">Elija el tipo de documento.</p>
+          }
+        </div>
+
+        <div class="pf-field">
+          <label class="pf-label" [for]="'numeroDocumento' + i">
+            <span class="pf-label-name">Número</span>
+            <span class="pf-required-mark">*</span>
+          </label>
+          <div class="documento-numero">
+            <div class="pf-input-wrap" [class.pf-input-wrap--error]="fila.controls.numeroDocumento.invalid && fila.controls.numeroDocumento.touched">
+              <mat-icon class="pf-input-icon">pin</mat-icon>
+              <input [id]="'numeroDocumento' + i" class="pf-input" formControlName="numeroDocumento" autocomplete="off" />
+            </div>
+            <button mat-icon-button type="button" class="tbl-btn-eliminar" (click)="quitarDocumento(i)" matTooltip="Quitar documento" aria-label="Quitar documento">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+          @if (fila.controls.numeroDocumento.invalid && fila.controls.numeroDocumento.touched) {
+            <p class="pf-error">El número es obligatorio.</p>
+          }
+        </div>
+      </div>
+    } @empty {
+      <p class="documentos-vacio">Sin otros documentos registrados. Para que pueda conducir un vehículo en un evento, agréguele su licencia de conducir.</p>
+    }
+
+    @if (!todosLosTiposUsados) {
+      <div class="documentos-agregar">
+        <button mat-stroked-button type="button" class="pf-btn-cancel" (click)="agregarDocumento()">
+          <mat-icon>add</mat-icon>
+          Agregar documento
+        </button>
+      </div>
+    }
+
+  </div><!-- /pf-section documentos -->
+
+  <!-- ══ SECCIÓN 3: ACCESO AL SISTEMA ═════════════════════════
        Tarjeta aparte porque no son datos de la persona sino sus credenciales, que es
        otra cosa: igual que en la base, donde empleado y usuario son dos tablas.
 
@@ -276,7 +360,7 @@
         </div>
       } @else {
         <div class="pf-field">
-          <p class="acceso-actual acceso-actual--sin">Esta persona no entra al sistema.</p>
+          <p class="acceso-actual acceso-actual--sin">Esta persona no cuenta con acceso al sistema.</p>
           <div>
             <a mat-stroked-button class="pf-btn-cancel" [routerLink]="['/admin/usuarios/nuevo']" [queryParams]="{ empleado: idEmpleado() }">
               <mat-icon>person_add</mat-icon>

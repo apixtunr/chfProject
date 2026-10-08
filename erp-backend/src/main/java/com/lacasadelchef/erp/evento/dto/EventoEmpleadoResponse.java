@@ -17,10 +17,17 @@ public record EventoEmpleadoResponse(
         BigDecimal salarioEvento,
         LocalDateTime fechaAsignacion,
         LocalTime horaInicio,
-        LocalTime horaFin
+        LocalTime horaFin,
+
+        /** Si tiene licencia de conducir registrada. Solo viene en el listado del personal. */
+        Boolean tieneLicencia
 ) {
 
     public static EventoEmpleadoResponse desde(EventoEmpleado eventoEmpleado) {
+        return desde(eventoEmpleado, null);
+    }
+
+    public static EventoEmpleadoResponse desde(EventoEmpleado eventoEmpleado, Boolean tieneLicencia) {
         return EventoEmpleadoResponse.builder()
                 .idEvento(eventoEmpleado.getEvento().getIdEvento())
                 .idEmpleado(eventoEmpleado.getEmpleado().getIdEmpleado())
@@ -31,6 +38,7 @@ public record EventoEmpleadoResponse(
                 .fechaAsignacion(eventoEmpleado.getFechaAsignacion())
                 .horaInicio(eventoEmpleado.getHoraInicio())
                 .horaFin(eventoEmpleado.getHoraFin())
+                .tieneLicencia(tieneLicencia)
                 .build();
     }
 }
