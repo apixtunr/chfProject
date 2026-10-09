@@ -13,7 +13,13 @@ services:
   db:
     image: postgres:18
     restart: unless-stopped
+    # Hora de Guatemala. Sin esto el contenedor trabaja en UTC (6 horas adelante): NOW()
+    # guardaba las fechas de creacion y la bitacora con 6 horas de mas. La zona del servidor
+    # de Postgres queda fijada en su configuracion al crear la base, por eso se pasa aqui y
+    # no basta con TZ.
+    command: postgres -c timezone=America/Guatemala
     environment:
+      TZ: America/Guatemala
       POSTGRES_DB: ${POSTGRES_DB:-lacasadelchef}
       POSTGRES_USER: ${POSTGRES_USER:-chfadmin}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?falta POSTGRES_PASSWORD en .env}
@@ -41,6 +47,10 @@ services:
         # falla y Spring se cae.
         condition: service_healthy
     environment:
+      # Hora de Guatemala. En UTC, los cambios automaticos de estado de los eventos se
+      # disparaban 6 horas antes (un evento de las 12:00 pasaba a EN CURSO a las 6:00) y
+      # despues de las 18:00 el sistema ya tomaba la fecha del dia siguiente.
+      TZ: America/Guatemala
       SPRING_PROFILES_ACTIVE: prod
       DB_URL: jdbc:postgresql://db:5432/${POSTGRES_DB:-lacasadelchef}
       DB_USERNAME: ${POSTGRES_USER:-chfadmin}
