@@ -47,7 +47,7 @@ export const REPORTE_COTIZACIONES: ConfigReporte = {
 };
 
 export const REPORTE_EVENTOS: ConfigReporte = {
-  titulo: 'Eventos por periodo',
+  titulo: 'Reporte de eventos',
   subtitulo: 'Eventos con su fecha, cliente, tipo, personas y estado.',
   icono: 'event_note',
   paginaUrl: '/api/eventos',

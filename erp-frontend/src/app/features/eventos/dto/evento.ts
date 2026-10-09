@@ -209,7 +209,7 @@ export interface ColorEstado {
   text: string;
 }
 
-/** Colores fijos por estado de evento (fondo suave + texto), compartidos entre los chips y la grafica de Reporte de eventos. */
+/** Colores fijos por estado de evento (fondo suave + texto), compartidos entre los chips y la grafica de Estadisticas de eventos. */
 export const COLOR_POR_ESTADO_EVENTO: Record<string, ColorEstado> = {
   CREADO: { bg: '#F3F4F6', text: '#374151' },
   FINALIZADO: { bg: '#ECFDF5', text: '#047857' },

@@ -46,8 +46,8 @@ export const NAV_GROUPS: NavGroup[] = [
     icon: 'event',
     items: [
       { label: 'Gestión Eventos', route: '/eventos', paginaUrl: '/api/eventos', icon: 'event' },
-      { label: 'Reporte Eventos', route: '/eventos/reporte', paginaUrl: '/api/eventos', icon: 'insights' },
-      { label: 'Eventos por periodo', route: '/eventos/periodo', paginaUrl: '/api/eventos', icon: 'event_note' },
+      { label: 'Estadísticas de eventos', route: '/eventos/estadisticas', paginaUrl: '/api/eventos', icon: 'insights' },
+      { label: 'Reporte de eventos', route: '/eventos/reporte', paginaUrl: '/api/eventos', icon: 'event_note' },
     ],
   },
   {

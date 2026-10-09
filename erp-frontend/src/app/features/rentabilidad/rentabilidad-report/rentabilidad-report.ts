@@ -72,7 +72,7 @@ export class RentabilidadReport implements OnInit {
   readonly pageIndex = signal(0);
   readonly pageSize = signal(20);
 
-  /** Autocomplete de cliente, igual que en el Reporte de eventos. */
+  /** Autocomplete de cliente, igual que en Estadisticas de eventos. */
   readonly busquedaCliente = new FormControl('', { nonNullable: true });
   readonly clientesFiltrados = signal<ClienteResponse[]>([]);
 

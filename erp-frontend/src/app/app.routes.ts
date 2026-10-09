@@ -100,13 +100,13 @@ export const routes: Routes = [
         loadComponent: () => import('./features/eventos/evento-form/evento-form').then((m) => m.EventoForm),
       },
       {
-        path: 'eventos/periodo',
+        path: 'eventos/reporte',
         canActivate: [permisoGuard('/api/eventos')],
         data: { reporte: REPORTE_EVENTOS },
         loadComponent: () => import('./shared/reporte/reporte-tabla/reporte-tabla').then((m) => m.ReporteTablaPage),
       },
       {
-        path: 'eventos/reporte',
+        path: 'eventos/estadisticas',
         canActivate: [permisoGuard('/api/eventos', '/api/rentabilidad', '/api/clientes')],
         loadComponent: () => import('./features/eventos/evento-reporte/evento-reporte').then((m) => m.EventoReporte),
       },
