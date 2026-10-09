@@ -1,4 +1,4 @@
-import { AfterContentInit, DestroyRef, Directive, Renderer2, inject } from '@angular/core';
+import { AfterContentInit, DestroyRef, Directive, Renderer2, booleanAttribute, inject, input } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatOption } from '@angular/material/core';
 import { MatSelect } from '@angular/material/select';
@@ -19,6 +19,9 @@ function normalizar(texto: string): string {
  * Se escribe una vez y aplica a todos los mat-select de las pantallas que lo importan,
  * sin tocar sus plantillas. Las opciones que no coinciden solo se ocultan: el valor y
  * el formulario no cambian. Enter elige la primera coincidencia y Esc cierra la lista.
+ *
+ * Una lista que se recorre de un vistazo aunque pase de 8 (los tipos de evento) lo
+ * apaga con el atributo sinBuscador: <mat-select sinBuscador>.
  */
 @Directive({ selector: 'mat-select' })
 export class SelectBuscable implements AfterContentInit {
@@ -26,6 +29,8 @@ export class SelectBuscable implements AfterContentInit {
   private readonly renderer = inject(Renderer2);
 
   private readonly destroyRef = inject(DestroyRef);
+
+  readonly sinBuscador = input(false, { transform: booleanAttribute });
 
   constructor() {
     this.select.openedChange
@@ -47,7 +52,8 @@ export class SelectBuscable implements AfterContentInit {
 
   private alAbrir(): void {
     const panel: HTMLElement | undefined = this.select.panel?.nativeElement;
-    if (!panel || this.select.options.length <= OPCIONES_PARA_BUSCAR || panel.querySelector('.select-buscador')) {
+    if (!panel || this.sinBuscador() || this.select.options.length <= OPCIONES_PARA_BUSCAR
+        || panel.querySelector('.select-buscador')) {
       return;
     }
 

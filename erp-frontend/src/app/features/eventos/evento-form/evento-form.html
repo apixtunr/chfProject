@@ -158,7 +158,7 @@
               [class.pf-input-wrap--error]="formulario.controls.idTipoEvento.invalid && formulario.controls.idTipoEvento.touched"
             >
               <mat-icon class="pf-input-icon">celebration</mat-icon>
-              <mat-select id="tipoEvento" class="pf-select" formControlName="idTipoEvento" placeholder="Selecciona el tipo">
+              <mat-select sinBuscador id="tipoEvento" class="pf-select" formControlName="idTipoEvento" placeholder="Selecciona el tipo">
                 @for (tipo of tiposEvento(); track tipo.idTipoEvento) {
                   <mat-option [value]="tipo.idTipoEvento">{{ tipo.nombreTipo }}</mat-option>
                 }

@@ -52,6 +52,33 @@ mat-sidenav-content {
     display: flex;
     flex-direction: column;
     height: 100%;
+
+    // Con varios modulos abiertos el menu no cabe y aparece el scroll. La barra del
+    // navegador (gruesa y gris claro) desentonaba con el fondo oscuro: queda delgada,
+    // sin carril, y solo se nota al pasar el mouse por el menu.
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+
+    &:hover {
+      scrollbar-color: rgba(255, 255, 255, 0.28) transparent;
+    }
+
+    &::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: transparent;
+      border-radius: 3px;
+    }
+
+    &:hover::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.28);
+    }
   }
 }
 
