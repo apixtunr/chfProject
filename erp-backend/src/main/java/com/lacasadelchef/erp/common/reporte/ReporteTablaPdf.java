@@ -69,10 +69,9 @@ public final class ReporteTablaPdf {
             pdf.tabla(columnasPdf, List.of(), null, "No hay registros con estos filtros");
         }
         for (Grupo grupo : reporte.grupos()) {
-            if (variosGrupos) {
-                pdf.seccion("%s  ·  %d %s".formatted(grupo.etiqueta(), grupo.cantidad(),
-                        grupo.cantidad() == 1 ? "registro" : "registros"));
-            }
+            String titulo = variosGrupos
+                    ? "%s  ·  %d %s".formatted(grupo.etiqueta(), grupo.cantidad(), grupo.cantidad() == 1 ? "registro" : "registros")
+                    : null;
             List<List<String>> filas = new ArrayList<>();
             Set<Integer> atenuadas = new HashSet<>();
             for (int i = 0; i < grupo.filas().size(); i++) {
@@ -82,7 +81,7 @@ public final class ReporteTablaPdf {
                     atenuadas.add(i);
                 }
             }
-            pdf.tabla(columnasPdf, filas, atenuadas,
+            pdf.tabla(titulo, columnasPdf, filas, atenuadas,
                     filaDeTotales(columnas, grupo.subtotales(), variosGrupos ? "Subtotal" : "Total"),
                     "No hay registros con estos filtros");
         }

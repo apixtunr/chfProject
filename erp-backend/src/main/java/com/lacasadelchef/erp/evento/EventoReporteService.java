@@ -34,7 +34,7 @@ public class EventoReporteService {
                 ? e -> e.getFechaRegistro().toLocalDate()
                 : EventoReporteFila::getFechaEvento;
         return ReporteTablaBuilder.de("Eventos por periodo", eventos)
-                .texto("evento", "Evento", 0.7f, e -> "#" + e.getIdEvento())
+                .texto("evento", "Evento", 0.9f, e -> "#" + e.getIdEvento())
                 .fecha("registro", "Registrado", 1.1f, e -> e.getFechaRegistro().toLocalDate())
                 .fecha("fechaEvento", "Fecha del evento", 1.2f, EventoReporteFila::getFechaEvento)
                 .texto("horario", "Horario", 1.1f, EventoReporteService::horario)

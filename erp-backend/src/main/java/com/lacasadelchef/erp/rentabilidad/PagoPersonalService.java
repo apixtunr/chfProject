@@ -31,7 +31,7 @@ public class PagoPersonalService {
                 .texto("nombre", "Nombre", 2.4f, ee -> ee.getEmpleado().getNombreCompleto())
                 .texto("puesto", "Puesto", 1.4f, ee -> ee.getEmpleado().getPuestoEmpleado() != null
                         ? ee.getEmpleado().getPuestoEmpleado().getNombreRol() : "")
-                .texto("evento", "Evento", 0.7f, ee -> "#" + ee.getEvento().getIdEvento())
+                .texto("evento", "Evento", 0.9f, ee -> "#" + ee.getEvento().getIdEvento())
                 .fecha("fecha", "Fecha", 1f, ee -> ee.getEvento().getFechaEvento())
                 .texto("tipo", "Tipo", 1.3f, ee -> ee.getEvento().getTipoEvento().getNombreTipo())
                 .texto("cliente", "Cliente", 2.2f, ee -> nombreCliente(ee.getEvento()))

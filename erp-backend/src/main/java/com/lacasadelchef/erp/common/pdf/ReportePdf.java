@@ -194,13 +194,33 @@ public class ReportePdf {
     /** Igual que la otra, con filas atenuadas en gris (las que no suman, como un recibo anulado). */
     public ReportePdf tabla(List<Columna> columnas, List<List<String>> filas, Set<Integer> atenuadas,
                             List<String> totales, String sinDatos) {
+        return tabla(null, columnas, filas, atenuadas, totales, sinDatos);
+    }
+
+    /**
+     * Con titulo: el titulo del grupo va dentro de la tabla, como parte de su encabezado,
+     * para que nunca quede solo al pie de una hoja con la tabla en la siguiente (y se
+     * repita si la tabla sigue en otra hoja).
+     */
+    public ReportePdf tabla(String titulo, List<Columna> columnas, List<List<String>> filas, Set<Integer> atenuadas,
+                            List<String> totales, String sinDatos) {
         float[] anchos = new float[columnas.size()];
         for (int i = 0; i < columnas.size(); i++) {
             anchos[i] = columnas.get(i).ancho();
         }
         PdfPTable tabla = new PdfPTable(anchos);
         tabla.setWidthPercentage(100);
-        tabla.setHeaderRows(1);
+        tabla.setHeaderRows(titulo == null ? 1 : 2);
+        if (titulo != null) {
+            PdfPCell celdaTitulo = new PdfPCell(new Phrase(titulo, FUENTE_SECCION));
+            celdaTitulo.setColspan(columnas.size());
+            celdaTitulo.setBorder(Rectangle.BOTTOM);
+            celdaTitulo.setBorderColor(MembretePdf.NAVY);
+            celdaTitulo.setPaddingLeft(0);
+            celdaTitulo.setPaddingTop(8);
+            celdaTitulo.setPaddingBottom(5);
+            tabla.addCell(celdaTitulo);
+        }
         for (Columna c : columnas) {
             PdfPCell celda = new PdfPCell(new Phrase(c.titulo(), FUENTE_ENCABEZADO));
             celda.setBackgroundColor(MembretePdf.NAVY);

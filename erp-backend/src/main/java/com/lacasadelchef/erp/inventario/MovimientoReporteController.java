@@ -50,7 +50,7 @@ public class MovimientoReporteController {
                 .texto("tipo", "Tipo", 1f, MovimientoInventario::getTipoMovimiento)
                 .numero("cantidad", "Cantidad", 0.9f, false, MovimientoInventario::getCantidad)
                 .texto("unidad", "Unidad", 0.9f, m -> m.getProducto().getUnidadMedida())
-                .texto("evento", "Evento", 0.7f, m -> m.getEvento() != null ? "#" + m.getEvento().getIdEvento() : "")
+                .texto("evento", "Evento", 0.9f, m -> m.getEvento() != null ? "#" + m.getEvento().getIdEvento() : "")
                 .texto("descripcion", "Descripción", 2.2f, MovimientoInventario::getDescripcion)
                 .texto("usuario", "Registrado por", 1.6f, m -> nombreDe(m.getUsuario()))
                 .fechaDeAgrupacion(m -> m.getFechaMovimiento().toLocalDate())
