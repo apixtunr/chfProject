@@ -4,7 +4,7 @@
     <div class="rpt-header-icono"><mat-icon>insights</mat-icon></div>
     <div>
       <h1 class="rpt-titulo">Estadísticas de eventos</h1>
-      <p class="rpt-subtitulo">Métricas de ejecución y desglose de estados.</p>
+      <p class="rpt-subtitulo">Resumen de eventos realizados y su estado actual.</p>
     </div>
   </div>
 </div>
@@ -237,7 +237,7 @@
             <span class="rpt-avatar">{{ e.clienteNombre.charAt(0) }}</span>
             <div>
               <p class="rpt-cliente-nombre">{{ e.clienteNombre }}</p>
-              <p class="rpt-cliente-id">ID: EVT-{{ e.idEvento }}-{{ e.fechaEvento | date:'yyyy' }}</p>
+              <p class="rpt-cliente-id">Evento #{{ e.idEvento }}</p>
             </div>
           </div>
         </td>
