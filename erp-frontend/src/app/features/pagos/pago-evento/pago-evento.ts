@@ -17,6 +17,7 @@ import { CotizacionService } from '../../cotizaciones/cotizacion.service';
 import { EventoService } from '../../eventos/evento.service';
 import { EventoResponse } from '../../eventos/dto/evento';
 import { PagoService } from '../pago.service';
+import { ReciboPago } from '../recibo-pago';
 import { PagoResponse } from '../dto/pago';
 import { TablaResponsiva } from '../../../shared/tabla-responsiva';
 
@@ -52,6 +53,7 @@ export class PagoEvento implements OnInit {
   private readonly pagoService = inject(PagoService);
   private readonly authService = inject(AuthService);
   private readonly dialog = inject(MatDialog);
+  readonly reciboPago = inject(ReciboPago);
   private readonly snackBar = inject(MatSnackBar);
 
   readonly idEvento: number;

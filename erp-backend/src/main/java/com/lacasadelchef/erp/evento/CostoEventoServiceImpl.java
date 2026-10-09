@@ -89,8 +89,6 @@ public class CostoEventoServiceImpl implements CostoEventoService {
         costoEvento.setTipoCosto(tipoCosto);
         costoEvento.setDescripcion(request.descripcion());
         costoEvento.setMonto(request.monto());
-        if (request.fechaCosto() != null) {
-            costoEvento.setFechaCosto(request.fechaCosto());
-        }
+        costoEvento.setFechaCosto(request.fechaCosto());
     }
 }

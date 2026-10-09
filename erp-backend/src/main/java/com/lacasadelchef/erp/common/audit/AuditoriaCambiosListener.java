@@ -58,8 +58,12 @@ public class AuditoriaCambiosListener
     private static final Set<String> PROPIEDADES_IGNORADAS = Set.of(
             "fechaCreacion", "fechaModificacion", "fechaUltimoAcceso", "tokensValidosDesde");
 
-    /** Se registra que cambio, nunca el valor. */
-    private static final Set<String> PROPIEDADES_ENMASCARADAS = Set.of("passwordHash");
+    /**
+     * Se registra que cambio, nunca el valor: la contrasena por seguridad, y el archivo de un
+     * comprobante porque son cientos de KB que no se leen en una bitacora (su nombre y
+     * tamano si quedan registrados).
+     */
+    private static final Set<String> PROPIEDADES_ENMASCARADAS = Set.of("passwordHash", "contenido");
     private static final String VALOR_ENMASCARADO = "********";
 
     /** Separa los campos en el resumen de un INSERT o DELETE. */

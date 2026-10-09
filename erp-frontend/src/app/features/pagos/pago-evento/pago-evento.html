@@ -20,9 +20,13 @@
     </mat-card>
   }
 
+  @if (e.estadoNombre === 'CANCELADO') {
+    <p class="aviso-cancelado">Este evento está cancelado: ya no se le registran pagos. Lo pagado se resolvió en el acuerdo de cancelación.</p>
+  }
+
   <div class="encabezado seccion">
     <h2>Abonos registrados</h2>
-    @if (puedeCrear) {
+    @if (puedeCrear && e.estadoNombre !== 'CANCELADO') {
       <button mat-flat-button color="primary" [routerLink]="['/pagos/evento', idEvento, 'nuevo']">
         <mat-icon>add</mat-icon>
         Registrar abono
@@ -65,10 +69,13 @@
       </ng-container>
 
       <ng-container matColumnDef="acciones">
-        <th mat-header-cell *matHeaderCellDef></th>
+        <th mat-header-cell *matHeaderCellDef>Acciones</th>
         <td mat-cell *matCellDef="let p">
           <button mat-icon-button class="tbl-btn-editar" [routerLink]="['/pagos', p.idPago]" matTooltip="Ver detalle" aria-label="Ver detalle">
             <mat-icon>visibility</mat-icon>
+          </button>
+          <button mat-icon-button class="tbl-btn-editar" (click)="reciboPago.ver(p.idPago)" matTooltip="Recibo" aria-label="Recibo">
+            <mat-icon>receipt_long</mat-icon>
           </button>
           @if (puedeEditar) {
             <button mat-icon-button class="tbl-btn-editar" [routerLink]="['/pagos', p.idPago, 'editar']" matTooltip="Editar" aria-label="Editar">

@@ -19,6 +19,7 @@ public record CostoEventoRequest(
         @DecimalMin(value = "0.01", message = "El monto debe ser mayor a Q 0.00")
         BigDecimal monto,
 
+        @NotNull(message = "La fecha del costo es obligatoria")
         LocalDate fechaCosto
 ) {
 }

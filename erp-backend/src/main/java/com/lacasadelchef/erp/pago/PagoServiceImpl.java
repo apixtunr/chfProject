@@ -39,6 +39,7 @@ public class PagoServiceImpl implements PagoService {
     // negocio); nace CONFIRMADO. ANULADO sigue existiendo para cuando un pago valido se
     // invalida despues (cheque rebotado, transferencia reversada), sin borrar el registro.
     private static final String ESTADO_CONFIRMADO = "CONFIRMADO";
+    private static final String ESTADO_EVENTO_CANCELADO = "CANCELADO";
 
     private final PagoRepository pagoRepository;
     private final EventoRepository eventoRepository;
@@ -133,6 +134,12 @@ public class PagoServiceImpl implements PagoService {
     private void aplicar(PagoRequest request, Pago pago) {
         Evento evento = eventoRepository.findById(request.idEvento())
                 .orElseThrow(() -> new ResourceNotFoundException("Evento", request.idEvento()));
+        // Al cancelar se pacta con el cliente que pasa con lo pagado (se devuelve, se retiene...):
+        // un abono despues de eso descuadraria el acuerdo.
+        if (ESTADO_EVENTO_CANCELADO.equalsIgnoreCase(evento.getEstado().getNombre())) {
+            throw new BusinessException("El evento #%d está cancelado: ya no se le registran pagos"
+                    .formatted(evento.getIdEvento()));
+        }
         MetodoPago metodoPago = metodoPagoRepository.findById(request.idMetodoPago())
                 .orElseThrow(() -> new ResourceNotFoundException("MetodoPago", request.idMetodoPago()));
         if (metodoPago.isRequiereReferencia()
@@ -159,9 +166,7 @@ public class PagoServiceImpl implements PagoService {
         pago.setMonto(request.monto());
         pago.setReferenciaTransaccion(request.referenciaTransaccion());
         pago.setObservaciones(request.observaciones());
-        if (request.fechaPago() != null) {
-            pago.setFechaPago(request.fechaPago());
-        }
+        pago.setFechaPago(request.fechaPago());
     }
 
     private void validarNoExcedePendiente(Evento evento, BigDecimal monto, Integer idPagoActual) {

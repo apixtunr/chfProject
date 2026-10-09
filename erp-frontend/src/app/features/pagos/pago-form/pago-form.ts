@@ -13,6 +13,7 @@ import { CotizacionService } from '../../cotizaciones/cotizacion.service';
 import { EventoService } from '../../eventos/evento.service';
 import { EventoResponse } from '../../eventos/dto/evento';
 import { PagoService } from '../pago.service';
+import { ReciboPago } from '../recibo-pago';
 import { MetodoPagoResponse } from '../dto/pago';
 import { SelectBuscable } from '../../../shared/select-buscable';
 
@@ -43,6 +44,7 @@ export class PagoForm implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly reciboPago = inject(ReciboPago);
 
   readonly idPago = signal<number | null>(null);
   readonly idEvento = signal<number | null>(null);
@@ -54,10 +56,11 @@ export class PagoForm implements OnInit {
   readonly formulario = this.fb.nonNullable.group({
     idMetodoPago: this.fb.control<number | null>(null, Validators.required),
     monto: this.fb.control<number | null>(null, [Validators.required, Validators.min(0.01)]),
-    referenciaTransaccion: this.fb.nonNullable.control('', Validators.maxLength(100)),
+    // Arranca bloqueada: se habilita al elegir un metodo que pide referencia (transferencia, tarjeta).
+    referenciaTransaccion: this.fb.nonNullable.control({ value: '', disabled: true }, Validators.maxLength(100)),
     observaciones: this.fb.nonNullable.control('', Validators.maxLength(255)),
     /** Si se deja vacio, el backend usa la fecha/hora actual. */
-    fechaPago: this.fb.control<Date | null>(null),
+    fechaPago: this.fb.control<Date | null>(null, Validators.required),
   });
 
   /** El pago puede ser el reembolso de un costo extra; este formulario no lo cambia, solo
@@ -65,7 +68,11 @@ export class PagoForm implements OnInit {
   private idCostoEventoActual: number | null = null;
 
   ngOnInit(): void {
-    this.pagoService.listarMetodos().subscribe((m) => this.metodos.set(m));
+    this.pagoService.listarMetodos().subscribe((m) => {
+      this.metodos.set(m);
+      // Al editar, el metodo puede llegar antes que la lista: con ella ya se sabe si lleva referencia.
+      this.ajustarValidacionReferencia();
+    });
 
     // La referencia es obligatoria solo si el metodo la requiere
     this.formulario.controls.idMetodoPago.valueChanges.subscribe(() => this.ajustarValidacionReferencia());
@@ -102,14 +109,24 @@ export class PagoForm implements OnInit {
     return this.metodos().find((m) => m.idMetodoPago === idMetodo)?.requiereReferencia ?? false;
   }
 
+  /** Un pago no puede ser de una fecha futura. */
+  readonly hoy = new Date();
+
+  /**
+   * Transferencia o tarjeta: la referencia (No. de boleta o transferencia) es obligatoria.
+   * Efectivo: no existe, asi que el campo se bloquea y se vacia.
+   */
   private ajustarValidacionReferencia(): void {
     const control = this.formulario.controls.referenciaTransaccion;
-    control.setValidators(
-      this.metodoRequiereReferencia
-        ? [Validators.required, Validators.maxLength(100)]
-        : [Validators.maxLength(100)],
-    );
-    control.updateValueAndValidity();
+    if (this.metodoRequiereReferencia) {
+      control.setValidators([Validators.required, Validators.maxLength(100)]);
+      control.enable({ emitEvent: false });
+    } else {
+      control.setValidators([Validators.maxLength(100)]);
+      control.setValue('', { emitEvent: false });
+      control.disable({ emitEvent: false });
+    }
+    control.updateValueAndValidity({ emitEvent: false });
   }
 
   /**
@@ -159,9 +176,15 @@ export class PagoForm implements OnInit {
     const operacion = id ? this.pagoService.actualizar(id, request) : this.pagoService.crear(request);
 
     operacion.subscribe({
-      next: () => {
+      next: (pago) => {
         this.snackBar.open(id ? 'Pago actualizado' : 'Pago registrado', 'Cerrar', { duration: 3000 });
-        this.router.navigate(['/pagos/evento', this.idEvento()]);
+        // Al registrar un abono se muestra su recibo, listo para entregarlo al cliente. Se
+        // abre despues de volver a la lista: las ventanas se cierran al cambiar de pantalla.
+        this.router.navigate(['/pagos/evento', this.idEvento()]).then(() => {
+          if (!id) {
+            this.reciboPago.ver(pago.idPago);
+          }
+        });
       },
       error: () => this.guardando.set(false),
     });

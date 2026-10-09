@@ -150,12 +150,12 @@ export class EventoDetail implements OnInit {
     idTipoCosto: this.fb.control<number | null>(null, Validators.required),
     descripcion: [''],
     monto: this.fb.control<number | null>(null, Validators.required),
-    /** Si se deja vacio, el backend usa la fecha de hoy. */
-    fechaCosto: this.fb.control<Date | null>(null),
+    fechaCosto: this.fb.control<Date | null>(null, Validators.required),
     /** Si el cliente cubre este costo, se crea de una vez el pago correspondiente. */
     recargarCliente: false,
     idMetodoPago: this.fb.control<number | null>(null),
-    referenciaTransaccion: [''],
+    // Bloqueada hasta elegir un metodo que pida referencia (efectivo no lleva).
+    referenciaTransaccion: [{ value: '', disabled: true }],
   });
 
   readonly formularioPersonal = this.fb.nonNullable.group({
@@ -447,7 +447,8 @@ export class EventoDetail implements OnInit {
       .pipe(
         switchMap((costoCreado) =>
           v.recargarCliente
-            ? this.crearPagoDeRecargo(costoCreado.idCostoEvento, v.monto!, v.idMetodoPago!, v.referenciaTransaccion, v.descripcion)
+            ? this.crearPagoDeRecargo(costoCreado.idCostoEvento, v.monto!, v.idMetodoPago!, v.referenciaTransaccion,
+                v.descripcion, this.aFechaIso(v.fechaCosto)!)
             : of(null),
         ),
       )
@@ -469,6 +470,7 @@ export class EventoDetail implements OnInit {
     idMetodoPago: number,
     referencia: string,
     descripcionCosto: string,
+    fecha: string,
   ) {
     return this.pagoService.crear({
       idEvento: this.idEvento,
@@ -476,7 +478,8 @@ export class EventoDetail implements OnInit {
       monto,
       referenciaTransaccion: referencia || null,
       observaciones: descripcionCosto ? `Recargo por: ${descripcionCosto}` : 'Recargo por costo extra del evento',
-      fechaPago: null,
+      // El cliente paga el costo el mismo dia en que se registra.
+      fechaPago: `${fecha}T00:00:00`,
       idCostoEvento,
     });
   }

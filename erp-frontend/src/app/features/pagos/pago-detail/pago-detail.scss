@@ -44,3 +44,48 @@
 .tabla {
   width: 100%;
 }
+
+// --- Comprobantes ---------------------------------------------------------
+
+.aviso-anulado {
+  margin: 0 0 12px;
+  color: var(--chf-estado-aviso);
+}
+
+// Tomar foto / Elegir archivo, y lo que se eligio.
+.archivo-elegir {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.archivo-info {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.875rem;
+
+  &--vacio {
+    color: var(--chf-texto-suave);
+  }
+}
+
+.sin-archivo {
+  color: var(--chf-texto-suave);
+  font-size: 0.85rem;
+}
+
+.validez--no {
+  color: var(--chf-estado-aviso);
+  font-weight: 500;
+}
+
+// Un comprobante invalido queda registrado pero no cuenta: se ve tachado.
+.comprobante-invalido td.mat-column-numeroComprobante,
+.comprobante-invalido td.mat-column-tipoComprobante,
+.comprobante-invalido td.mat-column-fechaEmision {
+  text-decoration: line-through;
+  color: var(--chf-texto-suave);
+}

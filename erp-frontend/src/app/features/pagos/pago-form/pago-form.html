@@ -105,8 +105,6 @@
           <span class="pf-label-name">Referencia de transacción</span>
           @if (metodoRequiereReferencia) {
             <span class="pf-required-mark">*</span>
-          } @else {
-            <span class="pf-label-hint">(opcional)</span>
           }
         </label>
         <div class="pf-input-wrap" [class.pf-input-wrap--error]="formulario.controls.referenciaTransaccion.invalid && formulario.controls.referenciaTransaccion.touched">
@@ -130,21 +128,24 @@
         <label class="pf-label" for="fechaPago">
           <span class="pf-label-num">4.</span>
           <span class="pf-label-name">Fecha del pago</span>
-          <span class="pf-label-hint">(opcional)</span>
+          <span class="pf-required-mark">*</span>
         </label>
-        <div class="pf-input-wrap pf-input-wrap--date">
+        <div class="pf-input-wrap pf-input-wrap--date" [class.pf-input-wrap--error]="formulario.controls.fechaPago.invalid && formulario.controls.fechaPago.touched">
           <mat-icon class="pf-input-icon">event</mat-icon>
           <input
             id="fechaPago"
             class="pf-input"
             [matDatepicker]="pickerFechaPago"
             formControlName="fechaPago"
+            [max]="hoy"
             placeholder="dd/mm/aaaa"
           />
           <mat-datepicker-toggle class="pf-date-toggle" [for]="pickerFechaPago" tabindex="-1"></mat-datepicker-toggle>
           <mat-datepicker #pickerFechaPago></mat-datepicker>
         </div>
-        <p class="pf-ayuda">Si no eliges una fecha, se usará la fecha y hora actual.</p>
+        @if (formulario.controls.fechaPago.invalid && formulario.controls.fechaPago.touched) {
+          <p class="pf-error">La fecha del pago es obligatoria.</p>
+        }
       </div>
 
     </div>

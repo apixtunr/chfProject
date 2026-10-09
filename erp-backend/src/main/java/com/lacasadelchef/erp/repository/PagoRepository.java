@@ -26,4 +26,17 @@ public interface PagoRepository extends JpaRepository<Pago, Integer> {
               AND (CAST(:idPagoExcluir AS integer) IS NULL OR p.idPago <> :idPagoExcluir)
             """)
     BigDecimal sumarAbonado(@Param("idEvento") Integer idEvento, @Param("idPagoExcluir") Integer idPagoExcluir);
+
+    /**
+     * Lo abonado al precio del evento hasta ese pago inclusive (sin reembolsos ni anulados):
+     * el saldo que se imprime en su recibo es el de ese momento, no el de hoy.
+     */
+    @Query("""
+            SELECT COALESCE(SUM(p.monto), 0) FROM Pago p
+            WHERE p.evento.idEvento = :idEvento
+              AND p.costoEvento IS NULL
+              AND p.estado.nombre <> 'ANULADO'
+              AND p.idPago <= :idPago
+            """)
+    BigDecimal sumarAbonadoHasta(@Param("idEvento") Integer idEvento, @Param("idPago") Integer idPago);
 }

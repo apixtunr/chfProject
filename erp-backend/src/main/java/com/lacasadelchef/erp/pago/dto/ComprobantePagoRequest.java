@@ -11,9 +11,12 @@ public record ComprobantePagoRequest(
         @Size(max = 50, message = "El numero de comprobante no puede exceder 50 caracteres")
         String numeroComprobante,
 
+        /** Se ignora: la llena el sistema al guardar el archivo. Se conserva por compatibilidad. */
         @Size(max = 500)
         String archivoUrl,
 
+        /** Uno de ComprobantePagoServiceImpl.TIPOS_COMPROBANTE. */
+        @NotBlank(message = "El tipo de comprobante es obligatorio")
         @Size(max = 50)
         String tipoComprobante,
 

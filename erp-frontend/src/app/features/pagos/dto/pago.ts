@@ -51,10 +51,24 @@ export interface EventoPagoResponse {
   pendiente: number;
 }
 
+/** Los mismos que acepta el backend (ComprobantePagoServiceImpl.TIPOS_COMPROBANTE). */
+export const TIPOS_COMPROBANTE = [
+  'Boleta de depósito',
+  'Voucher de tarjeta',
+  'Comprobante de transferencia',
+  'Factura',
+  'Recibo',
+] as const;
+
+/** Lo que se acepta como archivo del comprobante (el backend lo vuelve a revisar). */
+export const ARCHIVOS_COMPROBANTE = '.pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png';
+export const TAMANO_MAXIMO_COMPROBANTE = 5 * 1024 * 1024;
+
 export interface ComprobantePagoRequest {
   numeroComprobante: string;
+  /** La llena el sistema al guardar el archivo; se manda null. */
   archivoUrl: string | null;
-  tipoComprobante: string | null;
+  tipoComprobante: string;
   fechaEmision: string | null;
   esValido: boolean;
 }
@@ -67,4 +81,8 @@ export interface ComprobantePagoResponse {
   tipoComprobante: string | null;
   fechaEmision: string | null;
   esValido: boolean;
+  /** Datos del archivo adjunto; los tres en null si no tiene. */
+  nombreArchivo: string | null;
+  tipoContenido: string | null;
+  tamanoBytes: number | null;
 }

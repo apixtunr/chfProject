@@ -59,14 +59,49 @@ export class PagoService {
     return this.http.get<MetodoPagoResponse[]>(`${API_URL}/metodos-pago`);
   }
 
+  /** Recibo del pago en PDF (se pide con el token, como cualquier llamada). */
+  recibo(idPago: number): Observable<Blob> {
+    return this.http.get(`${BASE_URL}/${idPago}/recibo`, { responseType: 'blob' });
+  }
+
   // --- Comprobantes ---
 
   listarComprobantes(idPago: number): Observable<ComprobantePagoResponse[]> {
     return this.http.get<ComprobantePagoResponse[]>(`${BASE_URL}/${idPago}/comprobantes`);
   }
 
-  agregarComprobante(idPago: number, request: ComprobantePagoRequest): Observable<ComprobantePagoResponse> {
-    return this.http.post<ComprobantePagoResponse>(`${BASE_URL}/${idPago}/comprobantes`, request);
+  /** Datos y archivo en una sola peticion: si el archivo no sirve, no queda el comprobante a medias. */
+  agregarComprobante(
+    idPago: number,
+    request: ComprobantePagoRequest,
+    archivo: File | null,
+  ): Observable<ComprobantePagoResponse> {
+    const datos = new FormData();
+    datos.append('datos', new Blob([JSON.stringify(request)], { type: 'application/json' }));
+    if (archivo) {
+      datos.append('archivo', archivo, archivo.name);
+    }
+    return this.http.post<ComprobantePagoResponse>(`${BASE_URL}/${idPago}/comprobantes`, datos);
+  }
+
+  actualizarComprobante(
+    idPago: number,
+    idComprobante: number,
+    request: ComprobantePagoRequest,
+  ): Observable<ComprobantePagoResponse> {
+    return this.http.put<ComprobantePagoResponse>(`${BASE_URL}/${idPago}/comprobantes/${idComprobante}`, request);
+  }
+
+  /** Adjunta el archivo a un comprobante que no lo tenia, o lo reemplaza. */
+  guardarArchivoComprobante(idPago: number, idComprobante: number, archivo: File): Observable<ComprobantePagoResponse> {
+    const datos = new FormData();
+    datos.append('archivo', archivo, archivo.name);
+    return this.http.put<ComprobantePagoResponse>(`${BASE_URL}/${idPago}/comprobantes/${idComprobante}/archivo`, datos);
+  }
+
+  /** El archivo se pide con el token como cualquier llamada: no hay enlace publico. */
+  archivoComprobante(idPago: number, idComprobante: number): Observable<Blob> {
+    return this.http.get(`${BASE_URL}/${idPago}/comprobantes/${idComprobante}/archivo`, { responseType: 'blob' });
   }
 
   eliminarComprobante(idPago: number, idComprobante: number): Observable<void> {

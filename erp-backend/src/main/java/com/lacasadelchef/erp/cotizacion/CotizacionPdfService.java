@@ -1,6 +1,7 @@
 package com.lacasadelchef.erp.cotizacion;
 
 import com.lacasadelchef.erp.common.exception.ResourceNotFoundException;
+import com.lacasadelchef.erp.common.pdf.MembretePdf;
 import com.lacasadelchef.erp.entity.Cliente;
 import com.lacasadelchef.erp.entity.Cotizacion;
 import com.lacasadelchef.erp.entity.CotizacionVersion;
@@ -17,11 +18,8 @@ import com.lowagie.text.FontFactory;
 import com.lowagie.text.PageSize;
 import com.lowagie.text.Paragraph;
 import com.lowagie.text.Phrase;
-import com.lowagie.text.pdf.ColumnText;
-import com.lowagie.text.pdf.PdfContentByte;
 import com.lowagie.text.pdf.PdfPCell;
 import com.lowagie.text.pdf.PdfPTable;
-import com.lowagie.text.pdf.PdfPageEventHelper;
 import com.lowagie.text.pdf.PdfWriter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -45,10 +43,6 @@ public class CotizacionPdfService {
 
     private static final DateTimeFormatter FORMATO_FECHA_CORTA = DateTimeFormatter.ofPattern("d/M/yyyy");
     private static final Locale LOCALE_ES = Locale.of("es", "GT");
-    /** Contacto que se imprime en el encabezado de cada pagina. */
-    private static final String TELEFONO_EMPRESA = "5173-0435";
-
-    private static final Color NAVY = new Color(0x2c, 0x3e, 0x50);
     private static final Color VERDE = new Color(0x27, 0xae, 0x60);
     private static final Color GRIS_ENCABEZADO = new Color(0xe9, 0xed, 0xf1);
     private static final Color GRIS_ZEBRA = new Color(0xf7, 0xf9, 0xfa);
@@ -81,7 +75,7 @@ public class CotizacionPdfService {
             ByteArrayOutputStream salida = new ByteArrayOutputStream();
             Document documento = new Document(PageSize.LETTER, 40, 40, 115, 65);
             PdfWriter writer = PdfWriter.getInstance(documento, salida);
-            writer.setPageEvent(new EncabezadoPiePagina());
+            writer.setPageEvent(new MembretePdf());
             documento.open();
 
             Paragraph tituloCotizacion = new Paragraph("COTIZACIÓN", fuenteTituloGrande);
@@ -285,42 +279,5 @@ public class CotizacionPdfService {
     private String formatearMoneda(BigDecimal monto) {
         BigDecimal valor = (monto == null ? BigDecimal.ZERO : monto).setScale(2, RoundingMode.HALF_UP);
         return String.format(Locale.US, "Q%,.2f", valor);
-    }
-
-    /** Dibuja la franja navy con el letterhead arriba y la franja de agradecimiento abajo, en cada pagina. */
-    private static final class EncabezadoPiePagina extends PdfPageEventHelper {
-        private static final float ALTURA_HEADER = 95f;
-        private static final float ALTURA_FOOTER = 45f;
-
-        private final Font fuenteTitulo = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 22, Color.WHITE);
-        private final Font fuenteSubtitulo = FontFactory.getFont(FontFactory.HELVETICA, 12, Color.WHITE);
-        private final Font fuenteContacto = FontFactory.getFont(FontFactory.HELVETICA, 9, Color.WHITE);
-        private final Font fuentePie = FontFactory.getFont(FontFactory.HELVETICA, 10, Color.WHITE);
-
-        @Override
-        public void onEndPage(PdfWriter writer, Document document) {
-            PdfContentByte cb = writer.getDirectContent();
-            float anchoPagina = document.getPageSize().getWidth();
-            float altoPagina = document.getPageSize().getHeight();
-
-            cb.saveState();
-            cb.setColorFill(NAVY);
-            cb.rectangle(0, altoPagina - ALTURA_HEADER, anchoPagina, ALTURA_HEADER);
-            cb.fill();
-            cb.rectangle(0, 0, anchoPagina, ALTURA_FOOTER);
-            cb.fill();
-            cb.restoreState();
-
-            ColumnText.showTextAligned(cb, Element.ALIGN_CENTER,
-                    new Phrase("LA CASA DEL CHEF", fuenteTitulo), anchoPagina / 2, altoPagina - 35, 0);
-            ColumnText.showTextAligned(cb, Element.ALIGN_CENTER,
-                    new Phrase("Servicios de Banquetes y Eventos", fuenteSubtitulo), anchoPagina / 2, altoPagina - 55, 0);
-            ColumnText.showTextAligned(cb, Element.ALIGN_CENTER,
-                    new Phrase("Tel: " + TELEFONO_EMPRESA, fuenteContacto), anchoPagina / 2, altoPagina - 72, 0);
-
-            ColumnText.showTextAligned(cb, Element.ALIGN_CENTER,
-                    new Phrase("Gracias por su preferencia | La Casa del Chef", fuentePie),
-                    anchoPagina / 2, ALTURA_FOOTER / 2f - 3, 0);
-        }
     }
 }
