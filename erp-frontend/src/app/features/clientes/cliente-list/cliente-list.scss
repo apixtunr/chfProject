@@ -1,89 +1,3 @@
-.encabezado {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 12px;
-
-  h1 {
-    margin: 0;
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--chf-texto-fuerte);
-  }
-}
-
-// Botón "Nuevo cliente" — mismo estilo que pf-btn-save del formulario
-.list-btn-nuevo.mat-mdc-unelevated-button {
-  // Azul de la marca, igual que el resto de los botones primarios del sistema.
-  background: var(--chf-marca);
-  color: var(--chf-marca-contraste);
-  font-weight: 500;
-  border-radius: 8px;
-  height: 40px;
-  gap: 6px;
-
-  mat-icon {
-    font-size: 18px;
-    width: 18px;
-    height: 18px;
-  }
-
-  // Sin regla de hover propia: se deja la capa de estado de Material, que es la que usan
-  // el resto de los botones primarios de la app. Mezclar el azul de marca con blanco
-  // para aclararlo lo dejaba grisaceo, porque es un azul casi negro y poco saturado.
-}
-
-// Buscador y boton, juntos, al final de la fila del titulo.
-.encabezado-acciones {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-// Replica el aspecto de .pf-input-wrap del formulario de cliente: fondo blanco sobre el
-// gris de la pagina, borde visible y relieve minimo.
-.buscador {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  width: 340px;
-  background: var(--chf-fondo-seccion);
-  border: 1.5px solid var(--chf-borde-control);
-  border-radius: 8px;
-  padding: 10px 14px;
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
-
-  &:focus-within {
-    border-color: var(--chf-campo-acento);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--chf-campo-acento) 14%, transparent);
-  }
-}
-
-.buscador-icono {
-  flex: 0 0 auto;
-  font-size: 18px;
-  width: 18px;
-  height: 18px;
-  color: var(--chf-texto-ejemplo);
-}
-
-.buscador-input {
-  flex: 1 1 auto;
-  min-width: 0;
-  border: none;
-  outline: none;
-  background: transparent;
-  font: inherit;
-  font-size: 0.9rem;
-  color: var(--chf-texto-fuerte);
-
-  &::placeholder {
-    color: var(--chf-texto-ejemplo);
-  }
-}
-
 .tabla {
   width: 100%;
   min-width: 820px;
@@ -95,16 +9,6 @@
   .mat-column-correo    { width: 22%; }
   .mat-column-direccion { width: 23%; }
   .mat-column-acciones  { width: 4%; white-space: nowrap; text-align: right; }
-}
-
-// 1. Contenedor de la tabla (Controla el desborde si la pantalla es pequeña)
-.tabla-contenedor {
-  width: 100%;
-  overflow-x: auto;
-  background: var(--chf-fondo-seccion);
-  border-radius: 8px;
-  border: 1.5px solid var(--chf-borde-control);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 // 2. Estilos principales de la tabla Angular Material
@@ -149,45 +53,6 @@
     border-radius: 4px;
   }
 
-}
-
-// 4. Estilos para el paginador de Angular Material (Fuera de la tabla)
-mat-paginator {
-  background: transparent;
-  border-top: 1.5px solid var(--chf-borde-control);
-}
-
-
-// Filtro Activos / Inactivos / Todos. Por defecto se ven solo los activos: un cliente
-// inactivo no se borra, pero tampoco estorba en el dia a dia.
-.filtro-estado {
-  display: inline-flex;
-  padding: 3px;
-  border-radius: 10px;
-  background: var(--chf-fondo-campo);
-  border: 1px solid var(--chf-borde-control);
-}
-
-.filtro-opcion {
-  border: 0;
-  background: transparent;
-  padding: 6px 12px;
-  border-radius: 7px;
-  font: inherit;
-  font-size: 0.85rem;
-  font-weight: 500;
-  color: var(--chf-texto-medio);
-  cursor: pointer;
-
-  &:hover {
-    color: var(--chf-texto-fuerte);
-  }
-}
-
-.filtro-opcion--activa {
-  background: var(--chf-fondo-seccion);
-  color: var(--chf-texto-fuerte);
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
 }
 
 .celda-inactiva {

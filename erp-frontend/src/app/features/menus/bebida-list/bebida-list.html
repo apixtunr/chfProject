@@ -1,20 +1,18 @@
 <div class="encabezado">
   <h1>Bebidas</h1>
-  @if (puedeCrear) {
-    <button mat-flat-button color="primary" routerLink="/menus/bebidas/nueva">
-      <mat-icon>add</mat-icon>
-      Nueva bebida
-    </button>
-  }
+  <div class="encabezado-acciones">
+    <div class="buscador">
+      <mat-icon class="buscador-icono">search</mat-icon>
+      <input class="buscador-input" type="text" [(ngModel)]="filtroNombre" (ngModelChange)="buscarAlEscribir()" (keyup.enter)="buscar()" placeholder="Buscar por nombre..." aria-label="Buscar por nombre" />
+    </div>
+    @if (puedeCrear) {
+      <button mat-flat-button class="list-btn-nuevo" routerLink="/menus/bebidas/nueva">
+        <mat-icon>add</mat-icon>
+        Nueva bebida
+      </button>
+    }
+  </div>
 </div>
-
-<mat-form-field appearance="outline" class="buscador">
-  <mat-label>Buscar por nombre</mat-label>
-  <input matInput [(ngModel)]="filtroNombre" (ngModelChange)="buscarAlEscribir()" (keyup.enter)="buscar()" />
-  <button matSuffix mat-icon-button (click)="buscar()" matTooltip="Buscar" aria-label="Buscar">
-    <mat-icon>search</mat-icon>
-  </button>
-</mat-form-field>
 
 <div class="tabla-contenedor">
 <table mat-table [dataSource]="bebidas()" class="tabla">

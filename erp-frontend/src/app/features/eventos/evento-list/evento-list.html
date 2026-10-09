@@ -1,11 +1,13 @@
 <div class="encabezado">
   <h1>Gestión de eventos</h1>
-  @if (puedeCrear) {
-    <button mat-flat-button color="primary" routerLink="/eventos/nuevo">
-      <mat-icon>add</mat-icon>
-      Nuevo evento
-    </button>
-  }
+  <div class="encabezado-acciones">
+    @if (puedeCrear) {
+      <button mat-flat-button class="list-btn-nuevo" routerLink="/eventos/nuevo">
+        <mat-icon>add</mat-icon>
+        Nuevo evento
+      </button>
+    }
+  </div>
 </div>
 
 <div class="tabla-contenedor">

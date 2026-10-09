@@ -58,13 +58,12 @@ import {
 } from '../dto/evento';
 import { EventoService } from '../evento.service';
 import { TablaResponsiva } from '../../../shared/tabla-responsiva';
-import { SelectBuscable } from '../../../shared/select-buscable';
 
 const PAGINA_URL = '/api/eventos';
 
 @Component({
   selector: 'app-evento-detail',
-  imports: [SelectBuscable, TablaResponsiva, 
+  imports: [TablaResponsiva, 
     CommonModule,
     RouterLink,
     MatCardModule,

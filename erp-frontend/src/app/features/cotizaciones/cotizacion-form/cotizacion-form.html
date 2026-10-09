@@ -7,11 +7,11 @@
       <span class="pf-breadcrumb-current">{{ idCotizacion() ? 'Editar cotización' : 'Nueva cotización' }}</span>
     </nav>
     <div class="pf-title-row">
+      <span class="pf-foco" [class.pf-foco--modificacion]="idCotizacion()" [class.pf-foco--alta]="!idCotizacion()" role="img" [attr.aria-label]="idCotizacion() ? 'Modificación' : 'Alta'"></span>
       <h1 class="pf-title">{{ idCotizacion() ? 'Editar Cotización' : 'Nueva Cotización' }}</h1>
-      <span class="pf-badge">{{ idCotizacion() ? 'BORRADOR' : 'ALTA EN SISTEMA' }}</span>
     </div>
     <p class="pf-subtitle">
-      {{ idCotizacion() ? 'Corrige los datos del evento antes de enviar la cotización.' : 'Ingresa los datos solicitados para crear una nueva cotización.' }}
+      {{ idCotizacion() ? 'Corrija los datos del evento antes de enviar la cotización.' : 'Ingrese los datos solicitados para crear una nueva cotización.' }}
     </p>
   </div>
 </div>
@@ -75,7 +75,7 @@
         </label>
         <div class="pf-input-wrap pf-input-wrap--select" [class.pf-input-wrap--error]="formulario.controls.idTipoEvento.invalid && formulario.controls.idTipoEvento.touched">
           <mat-icon class="pf-input-icon">celebration</mat-icon>
-          <mat-select sinBuscador id="tipoEvento" class="pf-select" formControlName="idTipoEvento" placeholder="Selecciona el tipo">
+          <mat-select id="tipoEvento" class="pf-select" formControlName="idTipoEvento" placeholder="Seleccione el tipo">
             @for (tipo of tiposEvento(); track tipo.idTipoEvento) {
               <mat-option [value]="tipo.idTipoEvento">{{ tipo.nombreTipo }}</mat-option>
             }
@@ -100,7 +100,7 @@
           <input id="cantidadPersonas" class="pf-input" type="number" formControlName="cantidadPersonas" placeholder="Ej. 150" min="1" />
         </div>
         @if (formulario.controls.cantidadPersonas.invalid && formulario.controls.cantidadPersonas.touched) {
-          <p class="pf-error">Ingresá un número válido mayor a 0.</p>
+          <p class="pf-error">Ingrese un número válido mayor a 0.</p>
         } @else if (debajoDelMinimo()) {
           <p class="pf-aviso">Los menús se ofrecen desde {{ minimoPersonas }} personas. Puede cotizarlo igual.</p>
         }
@@ -135,7 +135,7 @@
             [matDatepicker]="picker"
             [min]="fechaMinima()"
             formControlName="fechaEvento"
-            placeholder="dd/mm/aaaa"
+            placeholder="Seleccione una fecha"
             readonly
           />
           <mat-datepicker-toggle class="pf-date-toggle" [for]="picker" tabindex="-1"></mat-datepicker-toggle>
@@ -154,7 +154,7 @@
         </label>
         <div class="pf-input-wrap pf-input-wrap--select" [class.pf-input-wrap--error]="formulario.controls.horaInicio.invalid && formulario.controls.horaInicio.touched">
           <mat-icon class="pf-input-icon">schedule</mat-icon>
-          <mat-select id="horaInicio" class="pf-select" formControlName="horaInicio" placeholder="Seleccioná el horario">
+          <mat-select id="horaInicio" class="pf-select" formControlName="horaInicio" placeholder="Seleccione el horario">
             @for (hora of horasDeInicio; track hora) {
               <mat-option [value]="hora">{{ horarioServicio(hora) }}</mat-option>
             }
@@ -186,7 +186,7 @@
         </label>
         <div class="pf-input-wrap pf-input-wrap--select" [class.pf-input-wrap--error]="formulario.controls.idDepartamento.invalid && formulario.controls.idDepartamento.touched">
           <mat-icon class="pf-input-icon">map</mat-icon>
-          <mat-select id="departamento" class="pf-select" formControlName="idDepartamento" placeholder="Seleccioná un departamento">
+          <mat-select id="departamento" class="pf-select" formControlName="idDepartamento" placeholder="Seleccione un departamento">
             @for (d of departamentos(); track d.idDepartamento) {
               <mat-option [value]="d.idDepartamento">{{ d.nombreDepartamento }}</mat-option>
             }
@@ -208,7 +208,7 @@
           [class.pf-input-wrap--error]="formulario.controls.idMunicipio.invalid && formulario.controls.idMunicipio.touched"
         >
           <mat-icon class="pf-input-icon">location_city</mat-icon>
-          <mat-select id="municipio" class="pf-select" formControlName="idMunicipio" placeholder="Seleccioná un municipio">
+          <mat-select id="municipio" class="pf-select" formControlName="idMunicipio" placeholder="Seleccione un municipio">
             @for (m of municipios(); track m.idMunicipio) {
               <mat-option [value]="m.idMunicipio">{{ m.nombreMunicipio }}</mat-option>
             }
@@ -243,7 +243,7 @@
       mat-stroked-button
       type="button"
       [routerLink]="idCotizacion() ? ['/cotizaciones', idCotizacion()] : ['/cotizaciones']"
-      class="pf-btn-cancel"
+      class="pf-btn-cancel pf-btn-cancelar"
     >
       Cancelar
     </button>

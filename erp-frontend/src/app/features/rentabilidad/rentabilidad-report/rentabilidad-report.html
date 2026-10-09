@@ -1,8 +1,11 @@
 <!-- ══ CABECERA ════════════════════════════════════════════════ -->
 <div class="rpt-header">
   <div class="rpt-header-left">
-    <h1 class="rpt-titulo">Rentabilidad</h1>
-    <p class="rpt-subtitulo">Ganancia de los eventos finalizados.</p>
+    <div class="rpt-header-icono"><mat-icon>trending_up</mat-icon></div>
+    <div>
+      <h1 class="rpt-titulo">Rentabilidad</h1>
+      <p class="rpt-subtitulo">Ganancia de los eventos finalizados.</p>
+    </div>
   </div>
   @if (puedeExportar) {
     <button mat-stroked-button class="rpt-btn-limpiar" (click)="exportarCsv()" [disabled]="filas().length === 0">
@@ -18,12 +21,22 @@
 
     <div class="rpt-filtro-campo">
       <label class="rpt-filtro-label"><mat-icon>calendar_today</mat-icon>Desde</label>
-      <input class="rpt-filtro-input" type="date" formControlName="fechaDesde" />
+      <div class="pf-input-wrap pf-input-wrap--date">
+        <mat-icon class="pf-input-icon">event</mat-icon>
+        <input class="pf-input" [matDatepicker]="pickerDesde" formControlName="fechaDesde" placeholder="Seleccione una fecha" />
+        <mat-datepicker-toggle class="pf-date-toggle" [for]="pickerDesde" tabindex="-1"></mat-datepicker-toggle>
+        <mat-datepicker #pickerDesde></mat-datepicker>
+      </div>
     </div>
 
     <div class="rpt-filtro-campo">
       <label class="rpt-filtro-label"><mat-icon>calendar_today</mat-icon>Hasta</label>
-      <input class="rpt-filtro-input" type="date" formControlName="fechaHasta" />
+      <div class="pf-input-wrap pf-input-wrap--date">
+        <mat-icon class="pf-input-icon">event</mat-icon>
+        <input class="pf-input" [matDatepicker]="pickerHasta" formControlName="fechaHasta" placeholder="Seleccione una fecha" />
+        <mat-datepicker-toggle class="pf-date-toggle" [for]="pickerHasta" tabindex="-1"></mat-datepicker-toggle>
+        <mat-datepicker #pickerHasta></mat-datepicker>
+      </div>
     </div>
 
     <div class="rpt-filtro-campo rpt-filtro-campo--wide">
@@ -38,7 +51,6 @@
           autocomplete="off"
         />
         <mat-autocomplete #autoCliente="matAutocomplete" [displayWith]="mostrarCliente" (optionSelected)="seleccionarCliente($event)">
-          <mat-option [value]="null">Todos los clientes</mat-option>
           @for (c of clientesFiltrados(); track c.idCliente) {
             <mat-option [value]="c">{{ c.nombre }}</mat-option>
           }
@@ -49,7 +61,7 @@
     <div class="rpt-filtro-campo rpt-filtro-campo--lista">
       <label class="rpt-filtro-label"><mat-icon>event</mat-icon>Tipo de evento</label>
       <div class="pf-input-wrap pf-input-wrap--select">
-        <mat-select sinBuscador class="pf-select" formControlName="idTipoEvento">
+        <mat-select class="pf-select" formControlName="idTipoEvento">
           <mat-option [value]="null">Todos los tipos</mat-option>
           @for (t of tiposEvento(); track t.idTipoEvento) {
             <mat-option [value]="t.idTipoEvento">{{ t.nombreTipo }}</mat-option>
@@ -72,54 +84,56 @@
 
 <!-- ══ KPIs ═══════════════════════════════════════════════════ -->
 @if (resumen(); as r) {
-  <div class="rpt-kpis">
+  <div class="rpt-card rpt-panel">
+    <div class="rpt-kpis">
 
-    <div class="rpt-kpi">
-      <div class="rpt-kpi-top">
-        <span class="rpt-kpi-label">INGRESOS ACORDADOS</span>
+      <div class="rpt-kpi">
         <span class="rpt-kpi-icon rpt-kpi-icon--blue"><mat-icon>request_quote</mat-icon></span>
+        <div class="rpt-kpi-texto">
+          <span class="rpt-kpi-label">Ingresos proyectados</span>
+          <p class="rpt-kpi-valor">Q{{ r.ingresosAcordados | number: '1.2-2' }}</p>
+          <p class="rpt-kpi-sub">{{ r.cantidadEventos }} evento{{ r.cantidadEventos === 1 ? '' : 's' }} finalizado{{ r.cantidadEventos === 1 ? '' : 's' }}</p>
+        </div>
       </div>
-      <p class="rpt-kpi-valor">Q{{ r.ingresosAcordados | number: '1.2-2' }}</p>
-      <p class="rpt-kpi-sub">{{ r.cantidadEventos }} evento{{ r.cantidadEventos === 1 ? '' : 's' }} finalizado{{ r.cantidadEventos === 1 ? '' : 's' }}</p>
-    </div>
 
-    <div class="rpt-kpi">
-      <div class="rpt-kpi-top">
-        <span class="rpt-kpi-label">COBRADO</span>
+      <div class="rpt-kpi">
         <span class="rpt-kpi-icon rpt-kpi-icon--green"><mat-icon>payments</mat-icon></span>
+        <div class="rpt-kpi-texto">
+          <span class="rpt-kpi-label">Cobrado</span>
+          <p class="rpt-kpi-valor">Q{{ r.cobrado | number: '1.2-2' }}</p>
+          <p class="rpt-kpi-sub" [class.rpt-por-cobrar]="r.porCobrar > 0">Por cobrar: Q{{ r.porCobrar | number: '1.2-2' }}</p>
+        </div>
       </div>
-      <p class="rpt-kpi-valor">Q{{ r.cobrado | number: '1.2-2' }}</p>
-      <p class="rpt-kpi-sub" [class.rpt-por-cobrar]="r.porCobrar > 0">Por cobrar: Q{{ r.porCobrar | number: '1.2-2' }}</p>
-    </div>
 
-    <div class="rpt-kpi">
-      <div class="rpt-kpi-top">
-        <span class="rpt-kpi-label">COSTOS</span>
+      <div class="rpt-kpi">
         <span class="rpt-kpi-icon rpt-kpi-icon--red"><mat-icon>shopping_cart</mat-icon></span>
+        <div class="rpt-kpi-texto">
+          <span class="rpt-kpi-label">Costos</span>
+          <p class="rpt-kpi-valor">Q{{ r.totalCostos | number: '1.2-2' }}</p>
+          <p class="rpt-kpi-sub">Personal, inventario y extras</p>
+        </div>
       </div>
-      <p class="rpt-kpi-valor">Q{{ r.totalCostos | number: '1.2-2' }}</p>
-      <p class="rpt-kpi-sub">Personal, inventario y extras</p>
-    </div>
 
-    <div class="rpt-kpi rpt-kpi--dark">
-      <div class="rpt-kpi-top">
-        <span class="rpt-kpi-label rpt-kpi-label--light">GANANCIA ACORDADA</span>
+      <div class="rpt-kpi">
         <span class="rpt-kpi-icon rpt-kpi-icon--green"><mat-icon>trending_up</mat-icon></span>
+        <div class="rpt-kpi-texto">
+          <span class="rpt-kpi-label">Ganancia proyectada</span>
+          <p class="rpt-kpi-valor rpt-kpi-valor--green">Q{{ r.gananciaAcordada | number: '1.2-2' }}</p>
+          <div class="rpt-margen-bar"><div class="rpt-margen-bar-fill" [style.width.%]="anchoBarraMargen(r.margen)"></div></div>
+          <p class="rpt-kpi-sub">Margen: {{ r.margen | number: '1.1-1' }}%</p>
+        </div>
       </div>
-      <p class="rpt-kpi-valor rpt-kpi-valor--white">Q{{ r.gananciaAcordada | number: '1.2-2' }}</p>
-      <div class="rpt-margen-bar"><div class="rpt-margen-bar-fill" [style.width.%]="anchoBarraMargen(r.margen)"></div></div>
-      <p class="rpt-kpi-sub rpt-kpi-sub--light">Margen: {{ r.margen | number: '1.1-1' }}%</p>
-    </div>
 
-    <div class="rpt-kpi">
-      <div class="rpt-kpi-top">
-        <span class="rpt-kpi-label">GANANCIA COBRADA</span>
+      <div class="rpt-kpi">
         <span class="rpt-kpi-icon rpt-kpi-icon--purple"><mat-icon>savings</mat-icon></span>
+        <div class="rpt-kpi-texto">
+          <span class="rpt-kpi-label">Ganancia cobrada</span>
+          <p class="rpt-kpi-valor" [class.rpt-kpi-valor--red]="r.gananciaCobrada < 0">Q{{ r.gananciaCobrada | number: '1.2-2' }}</p>
+          <p class="rpt-kpi-sub">Rentabilidad real</p>
+        </div>
       </div>
-      <p class="rpt-kpi-valor" [class.rpt-kpi-valor--red]="r.gananciaCobrada < 0">Q{{ r.gananciaCobrada | number: '1.2-2' }}</p>
-      <p class="rpt-kpi-sub">Lo que realmente quedó</p>
-    </div>
 
+    </div>
   </div>
 
   <!-- ══ GRÁFICAS ════════════════════════════════════════════════ -->
@@ -129,8 +143,8 @@
     <div class="rpt-card">
       <div class="rpt-card-header">
         <div>
-          <p class="rpt-card-titulo">Desglose de costos</p>
-          <p class="rpt-card-sub">En qué se fue el dinero de los eventos</p>
+          <p class="rpt-card-titulo"><mat-icon>pie_chart</mat-icon>Desglose de costos</p>
+          <p class="rpt-card-sub">Gastos que generaron los eventos</p>
         </div>
         @if (r.totalCostos > 0) {
           <span class="rpt-badge-total">Total: Q{{ r.totalCostos | number: '1.2-2' }}</span>
@@ -162,8 +176,8 @@
     <div class="rpt-card">
       <div class="rpt-card-header">
         <div>
-          <p class="rpt-card-titulo">Ganancia por tipo de evento</p>
-          <p class="rpt-card-sub">Qué tipo de evento deja más</p>
+          <p class="rpt-card-titulo"><mat-icon>bar_chart</mat-icon>Ganancia por tipo de evento</p>
+          <p class="rpt-card-sub">Tipo de evento que genera más rentabilidad</p>
         </div>
       </div>
       <div class="rpt-grafica-body rpt-grafica-body--bar">
@@ -188,8 +202,7 @@
 <div class="rpt-card rpt-card--tabla">
   <div class="rpt-card-header">
     <div>
-      <p class="rpt-card-titulo">Rentabilidad por evento</p>
-      <p class="rpt-card-sub">Lo acordado, lo cobrado, lo que costó y lo que dejó cada evento</p>
+      <p class="rpt-card-titulo"><mat-icon>table_rows</mat-icon>Rentabilidad por evento</p>
     </div>
     @if (totalElements() > 0) {
       <span class="rpt-badge-total">Mostrando {{ filas().length }} de {{ totalElements() }}</span>
@@ -223,7 +236,7 @@
       </ng-container>
 
       <ng-container matColumnDef="acordado">
-        <th mat-header-cell *matHeaderCellDef class="rpt-num">Acordado</th>
+        <th mat-header-cell *matHeaderCellDef class="rpt-num">Proyectado</th>
         <td mat-cell *matCellDef="let f" class="rpt-num">Q{{ f.ingresosAcordados | number: '1.2-2' }}</td>
       </ng-container>
 

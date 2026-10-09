@@ -9,8 +9,8 @@
       <span class="pf-breadcrumb-current">{{ idPago() ? 'Editar pago' : 'Registrar pago' }}</span>
     </nav>
     <div class="pf-title-row">
+      <span class="pf-foco" [class.pf-foco--modificacion]="idPago()" [class.pf-foco--alta]="!idPago()" role="img" [attr.aria-label]="idPago() ? 'Modificación' : 'Alta'"></span>
       <h1 class="pf-title">{{ idPago() ? 'Editar Pago' : 'Registrar Pago' }}</h1>
-      <span class="pf-badge">{{ idPago() ? 'EDITANDO' : 'NUEVO PAGO' }}</span>
     </div>
     @if (evento(); as e) {
       <p class="pf-subtitle">Evento #{{ e.idEvento }} · {{ e.clienteNombre }} · {{ e.fechaEvento }}</p>
@@ -138,7 +138,7 @@
             [matDatepicker]="pickerFechaPago"
             formControlName="fechaPago"
             [max]="hoy"
-            placeholder="dd/mm/aaaa"
+            placeholder="Seleccione una fecha"
           />
           <mat-datepicker-toggle class="pf-date-toggle" [for]="pickerFechaPago" tabindex="-1"></mat-datepicker-toggle>
           <mat-datepicker #pickerFechaPago></mat-datepicker>
@@ -176,7 +176,7 @@
 
   <!-- ══ ACCIONES ABAJO ══════════════════════════════════════ -->
   <div class="pf-footer-actions">
-    <button mat-stroked-button type="button" [routerLink]="['/pagos/evento', idEvento()]" class="pf-btn-cancel">
+    <button mat-stroked-button type="button" [routerLink]="['/pagos/evento', idEvento()]" class="pf-btn-cancel pf-btn-cancelar">
       Cancelar
     </button>
     <button mat-flat-button type="submit" class="pf-btn-save" [disabled]="guardando()">

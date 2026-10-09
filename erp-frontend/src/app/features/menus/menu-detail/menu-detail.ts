@@ -18,13 +18,12 @@ import { MenuPlatoService } from '../menu-plato.service';
 import { PRECIO_POR, UnidadVenta } from '../../../core/catalogos/menu';
 import { MenuPlatoResponse, MenuResponse, PlatoResponse } from '../dto/menu';
 import { TablaResponsiva } from '../../../shared/tabla-responsiva';
-import { SelectBuscable } from '../../../shared/select-buscable';
 
 const PAGINA_URL = '/api/menus';
 
 @Component({
   selector: 'app-menu-detail',
-  imports: [SelectBuscable, TablaResponsiva, 
+  imports: [TablaResponsiva, 
     RouterLink,
     DecimalPipe,
     ReactiveFormsModule,

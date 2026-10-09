@@ -7,13 +7,13 @@
       <span class="pf-breadcrumb-current">{{ idEmpleado() ? 'Editar empleado' : 'Nuevo empleado' }}</span>
     </nav>
     <div class="pf-title-row">
+      <span class="pf-foco" [class.pf-foco--modificacion]="idEmpleado()" [class.pf-foco--alta]="!idEmpleado()" role="img" [attr.aria-label]="idEmpleado() ? 'Modificación' : 'Alta'"></span>
       <h1 class="pf-title">{{ idEmpleado() ? 'Editar Empleado' : 'Nuevo Empleado' }}</h1>
-      <span class="pf-badge">{{ idEmpleado() ? 'EDITANDO' : 'ALTA EN SISTEMA' }}</span>
     </div>
     <p class="pf-subtitle">
       {{ idEmpleado()
-        ? 'Modifica los datos del empleado y guarda los cambios.'
-        : 'Ingresa los datos de la persona y, si va a usar el sistema, créale su acceso.' }}
+        ? 'Modifique los datos del empleado y guarde los cambios.'
+        : 'Ingrese los datos de la persona y, si va a usar el sistema, créele su acceso.' }}
     </p>
   </div>
 </div>
@@ -153,7 +153,7 @@
             class="pf-input"
             [matDatepicker]="picker"
             formControlName="fechaContratacion"
-            placeholder="dd/mm/aaaa"
+            placeholder="Seleccione una fecha"
           />
           <mat-datepicker-toggle class="pf-date-toggle" [for]="picker" tabindex="-1"></mat-datepicker-toggle>
           <mat-datepicker #picker></mat-datepicker>
@@ -375,7 +375,7 @@
 
   <!-- ══ ACCIONES ABAJO ══════════════════════════════════════ -->
   <div class="pf-footer-actions">
-    <button mat-stroked-button type="button" routerLink="/empleados" class="pf-btn-cancel">
+    <button mat-stroked-button type="button" routerLink="/empleados" class="pf-btn-cancel pf-btn-cancelar">
       Cancelar
     </button>
     <button mat-flat-button type="submit" class="pf-btn-save" [disabled]="guardando()">

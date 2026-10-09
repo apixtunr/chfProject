@@ -20,12 +20,10 @@ import { ClienteService } from '../../clientes/cliente.service';
 import { CotizacionResponse, HORAS_DE_INICIO, fechaMinimaEvento, horarioServicio } from '../../cotizaciones/dto/cotizacion';
 import { TipoEventoResponse } from '../dto/evento';
 import { EventoService } from '../evento.service';
-import { SelectBuscable } from '../../../shared/select-buscable';
 
 @Component({
   selector: 'app-evento-form',
-  imports: [SelectBuscable, 
-    DatePipe,
+  imports: [DatePipe,
     DecimalPipe,
     ReactiveFormsModule,
     RouterLink,

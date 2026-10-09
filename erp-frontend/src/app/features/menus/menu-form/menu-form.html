@@ -7,10 +7,10 @@
       <span class="pf-breadcrumb-current">{{ idMenu() ? 'Editar menú' : 'Nuevo menú' }}</span>
     </nav>
     <div class="pf-title-row">
+      <span class="pf-foco" [class.pf-foco--modificacion]="idMenu()" [class.pf-foco--alta]="!idMenu()" role="img" [attr.aria-label]="idMenu() ? 'Modificación' : 'Alta'"></span>
       <h1 class="pf-title">{{ idMenu() ? 'Editar Menú' : 'Nuevo Menú' }}</h1>
-      <span class="pf-badge">{{ idMenu() ? 'EDITANDO' : 'ALTA EN SISTEMA' }}</span>
     </div>
-    <p class="pf-subtitle">Crea el menú a partir de una cotización aceptada o ingresa sus datos directamente.</p>
+    <p class="pf-subtitle">Cree el menú a partir de una cotización aceptada o ingrese sus datos directamente.</p>
   </div>
 </div>
 
@@ -78,7 +78,7 @@
 
   <!-- ══ ACCIONES ABAJO ══════════════════════════════════════ -->
   <div class="pf-footer-actions">
-    <button mat-stroked-button type="button" routerLink="/menus" class="pf-btn-cancel">
+    <button mat-stroked-button type="button" routerLink="/menus" class="pf-btn-cancel pf-btn-cancelar">
       Cancelar
     </button>
     <button mat-flat-button type="submit" class="pf-btn-save" [disabled]="guardando()">

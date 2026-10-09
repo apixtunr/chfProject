@@ -1,11 +1,13 @@
 <div class="encabezado">
   <h1>Vehículos</h1>
-  @if (puedeCrear) {
-    <button mat-flat-button color="primary" routerLink="/vehiculos/nuevo">
-      <mat-icon>add</mat-icon>
-      Nuevo vehículo
-    </button>
-  }
+  <div class="encabezado-acciones">
+    @if (puedeCrear) {
+      <button mat-flat-button class="list-btn-nuevo" routerLink="/vehiculos/nuevo">
+        <mat-icon>add</mat-icon>
+        Nuevo vehículo
+      </button>
+    }
+  </div>
 </div>
 
 <div class="tabla-contenedor">

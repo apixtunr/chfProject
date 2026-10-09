@@ -40,14 +40,13 @@ import {
   textoVigencia,
 } from '../dto/cotizacion';
 import { TablaResponsiva } from '../../../shared/tabla-responsiva';
-import { SelectBuscable } from '../../../shared/select-buscable';
 
 const PAGINA_URL = '/api/cotizaciones';
 const TIPO_ESTADO_COTIZACION = 'COTIZACION';
 
 @Component({
   selector: 'app-version-detalle',
-  imports: [SelectBuscable, TablaResponsiva, 
+  imports: [TablaResponsiva, 
     CommonModule,
     ReactiveFormsModule,
     RouterLink,

@@ -1,0 +1,366 @@
+// Detalle del evento: encabezado, pestanas, formularios y tablas (clases evt-*).
+// Va global para no pasar el limite de estilos por pantalla de Angular.
+
+// ===========================================================================
+// Encabezado del evento: tarjeta blanca grande con el titulo, el estado y las
+// acciones, y abajo los datos del evento en recuadros.
+// ===========================================================================
+.evt-cabecera {
+  background: #fff;
+  border: 1px solid #eef0f4;
+  border-radius: 16px;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 24px rgba(15, 23, 42, 0.04);
+  padding: 28px 32px;
+  margin-bottom: 24px;
+}
+
+.evt-cabecera-fila {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding-bottom: 24px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid #eef0f4;
+}
+
+.evt-cabecera-titulo {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.evt-icono {
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+  border-radius: 14px;
+  background: #eef2ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  mat-icon {
+    font-size: 28px;
+    width: 28px;
+    height: 28px;
+    color: #4f46e5;
+  }
+}
+
+.evt-titulo {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--chf-texto-fuerte);
+  line-height: 1.15;
+}
+
+.evt-guion {
+  color: #cbd5e1;
+  font-weight: 400;
+}
+
+// Estado como pildora con punto, en el color de su estado.
+.evt-estado {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--evt-estado-color);
+  background: var(--evt-estado-fondo);
+  border: 1px solid color-mix(in srgb, var(--evt-estado-color) 25%, transparent);
+
+  &::before {
+    content: '';
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+}
+
+.evt-acciones {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+// Cancelar el evento: el mismo rojo de los demas botones Cancelar (pf-btn-cancelar);
+// aqui solo el tamano, igual al de Planificar.
+// Mas especifico que .pf-btn-cancel (que fija 40px de alto) para que gane esta medida.
+.evt-acciones .evt-btn-cancelar.pf-btn-cancel.mat-mdc-outlined-button {
+  height: 48px;
+  min-width: 200px;
+  padding: 0 24px;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  gap: 6px;
+}
+
+// Accion principal (Planificar evento y los botones de los formularios): azul de marca.
+.evt-btn-planificar.mat-mdc-unelevated-button,
+.evt-btn-enviar.mat-mdc-unelevated-button {
+  background: var(--chf-marca);
+  color: var(--chf-marca-contraste);
+  border-radius: 10px;
+  font-weight: 600;
+  gap: 6px;
+}
+
+.evt-btn-planificar.mat-mdc-unelevated-button {
+  height: 48px;
+  min-width: 200px;
+  padding: 0 24px;
+  font-size: 0.95rem;
+}
+
+.evt-btn-enviar.mat-mdc-unelevated-button {
+  height: 44px;
+  padding: 0 22px;
+}
+
+// Datos del evento: un recuadro por dato, etiqueta chica en mayusculas con icono.
+.evt-datos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.evt-dato {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  padding: 18px 20px;
+  border: 1px solid #eef0f4;
+  border-radius: 12px;
+  background: #fcfcfd;
+}
+
+.evt-dato-etiqueta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #94a3b8;
+
+  mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+  }
+}
+
+.evt-dato-valor {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--chf-texto-fuerte);
+
+  small {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--chf-texto-medio);
+  }
+
+  // La direccion puede ser larga: dos lineas y el resto en el tooltip.
+  &--largo {
+    font-size: 1rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    cursor: default;
+  }
+}
+
+.evt-dato-sub {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  color: var(--chf-texto-medio);
+}
+
+.evt-punto {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #f59e0b;
+}
+
+// ===========================================================================
+// Pestanas: sobre el fondo de la pagina, con icono; la activa en negrita oscura
+// con una linea debajo.
+// ===========================================================================
+.evt-pestanas {
+  margin-bottom: 24px;
+
+  --mat-tab-header-label-text-size: 0.95rem;
+  --mat-tab-header-label-text-weight: 500;
+  --mat-tab-header-inactive-label-text-color: #64748b;
+  --mat-tab-header-inactive-hover-label-text-color: var(--chf-texto-fuerte);
+  --mat-tab-header-active-label-text-color: var(--chf-texto-fuerte);
+  --mat-tab-header-active-hover-label-text-color: var(--chf-texto-fuerte);
+  --mat-tab-header-active-focus-label-text-color: var(--chf-texto-fuerte);
+  --mat-tab-header-active-indicator-color: var(--chf-texto-fuerte);
+  --mat-tab-header-active-hover-indicator-color: var(--chf-texto-fuerte);
+  --mat-tab-header-active-focus-indicator-color: var(--chf-texto-fuerte);
+  --mat-tab-header-active-indicator-height: 2.5px;
+  --mat-tab-header-divider-color: #e2e8f0;
+  --mat-tab-header-divider-height: 1px;
+
+  .mdc-tab--active .mdc-tab__text-label {
+    font-weight: 700;
+  }
+}
+
+.evt-tab-icono {
+  margin-right: 8px;
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+.contenido-tab {
+  padding: 24px 0 8px;
+}
+
+// Formulario de cada pestana: tarjeta blanca, etiqueta arriba de cada campo y el boton
+// al final de la fila.
+.evt-tarjeta {
+  background: #fff;
+  border: 1px solid #eef0f4;
+  border-radius: 16px;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 24px rgba(15, 23, 42, 0.04);
+  padding: 24px 28px;
+  margin-bottom: 24px;
+}
+
+.contenido-tab .formulario-linea {
+  display: flex;
+  // Arriba y no abajo: si un campo muestra una ayuda o un error debajo, se hace mas alto
+  // y con la alineacion de abajo bajaba a los demas campos y al boton.
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+
+  // Los botones van a la altura de las cajas: se saltan el alto de la etiqueta.
+  > button {
+    margin-top: 26px;
+  }
+}
+
+// Los campos pf- traen margenes pensados para las secciones de los formularios grandes.
+.evt-campo.pf-field {
+  padding: 0;
+  gap: 6px;
+}
+
+.evt-campo-chico {
+  flex: 1 1 180px;
+}
+
+.evt-campo-menu {
+  flex: 2 1 260px;
+}
+
+// ===========================================================================
+// Tablas del evento: tarjeta blanca como la del formulario, encabezado oscuro alto,
+// filas espaciadas y montos alineados a la derecha.
+// ===========================================================================
+.contenido-tab .tabla-contenedor {
+  border: 1px solid #eef0f4;
+  border-radius: 16px;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 24px rgba(15, 23, 42, 0.04);
+  margin-bottom: 24px;
+}
+
+.contenido-tab .mat-mdc-table {
+  .mat-mdc-header-row {
+    background-color: var(--chf-marca) !important;
+    height: 56px !important;
+  }
+
+  .mat-mdc-header-cell {
+    color: #fff !important;
+    font-size: 0.72rem !important;
+    letter-spacing: 0.1em !important;
+    padding: 0 24px !important;
+  }
+
+  .mat-mdc-row {
+    height: 64px;
+  }
+
+  .mat-mdc-cell {
+    padding: 12px 24px;
+    border-bottom-color: #eef0f4;
+    font-size: 0.92rem;
+  }
+
+  // Montos: a la derecha y con cifras de ancho fijo, para comparar de un vistazo.
+  .mat-column-precio,
+  .mat-column-subtotal,
+  .mat-column-monto,
+  .mat-column-salario {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .mat-column-acciones {
+    text-align: right;
+    white-space: nowrap;
+  }
+}
+
+// Cantidad en un recuadro gris; bebida como pildora con icono.
+.evt-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 8px;
+  background: #f1f5f9;
+  color: var(--chf-texto-fuerte);
+}
+
+.evt-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  font-size: 0.85rem;
+  color: var(--chf-texto-fuerte);
+
+  mat-icon {
+    font-size: 15px;
+    width: 15px;
+    height: 15px;
+    color: var(--chf-texto-medio);
+  }
+}
+
+// Material pone scroll propio en el cuerpo de cada pestana; el contenido ya crece con
+// la pagina, asi que se quita para que no aparezca una barra innecesaria.
+.evt-pestanas .mat-mdc-tab-body-content {
+  overflow: visible;
+}
+
+.evt-pestanas .mat-mdc-tab-body-wrapper,
+.evt-pestanas .mat-mdc-tab-body.mat-mdc-tab-body-active {
+  overflow: visible;
+}

@@ -29,7 +29,6 @@ import {
   TIPOS_COMPROBANTE,
 } from '../dto/pago';
 import { TablaResponsiva } from '../../../shared/tabla-responsiva';
-import { SelectBuscable } from '../../../shared/select-buscable';
 
 const PAGINA_URL = '/api/pagos';
 const TIPO_ESTADO_PAGO = 'PAGO';
@@ -37,7 +36,7 @@ const ESTADO_ANULADO = 'ANULADO';
 
 @Component({
   selector: 'app-pago-detail',
-  imports: [SelectBuscable, TablaResponsiva,
+  imports: [TablaResponsiva,
     RouterLink,
     DatePipe,
     ReactiveFormsModule,

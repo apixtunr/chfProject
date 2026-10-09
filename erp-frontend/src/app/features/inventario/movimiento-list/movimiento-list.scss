@@ -1,22 +1,12 @@
-.encabezado {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 16px;
+// El ID de evento es un buscador mas corto, con su boton de buscar / quitar al final.
+.filtro-evento {
+  width: 220px;
+  padding-top: 4px;
+  padding-bottom: 4px;
 }
 
-.fila-filtros {
-  display: flex;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-
-.filtro-tipo {
-  width: 200px;
-}
-
-.filtro {
-  width: 320px;
+.buscador-boton {
+  margin-right: -8px;
 }
 
 .tabla {

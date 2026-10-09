@@ -1,25 +1,5 @@
-.encabezado {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 16px;
-}
-
-.filtros {
-  display: flex;
-  align-items: baseline;
-  gap: 12px;
-  flex-wrap: wrap;
+.bit-filtros {
   margin: 16px 0;
-}
-
-.campo {
-  width: 220px;
-}
-
-.acciones-filtro {
-  display: flex;
-  gap: 8px;
 }
 
 .tabla {

@@ -10,16 +10,14 @@
 
     <!-- Título + badge -->
     <div class="pf-title-row">
+      <span class="pf-foco" [class.pf-foco--modificacion]="idCliente()" [class.pf-foco--alta]="!idCliente()" role="img" [attr.aria-label]="idCliente() ? 'Modificación' : 'Alta'"></span>
       <h1 class="pf-title">
         {{ idCliente() ? 'Editar Cliente' : 'Registro de Clientes' }}
       </h1>
-      <span class="pf-badge">
-        {{ idCliente() ? 'EDITANDO' : 'ALTA EN SISTEMA' }}
-      </span>
     </div>
     <p class="pf-subtitle">
       {{ idCliente()
-        ? 'Modificá los datos del cliente y guardá los cambios.'
+        ? 'Modifique los datos del cliente y guarde los cambios.'
         : 'Ingrese los datos del cliente para registrarlo en el sistema' }}
     </p>
   </div>
@@ -224,7 +222,7 @@
 
   <!-- ══ ACCIONES ABAJO ══════════════════════════════════════ -->
   <div class="pf-footer-actions">
-    <button mat-stroked-button type="button" routerLink="/clientes" class="pf-btn-cancel">
+    <button mat-stroked-button type="button" routerLink="/clientes" class="pf-btn-cancel pf-btn-cancelar">
       Cancelar
     </button>
     <button mat-flat-button type="submit" class="pf-btn-save" [disabled]="guardando()">

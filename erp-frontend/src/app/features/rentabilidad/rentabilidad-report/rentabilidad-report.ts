@@ -3,6 +3,7 @@ import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormBuilder, FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatIconModule } from '@angular/material/icon';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSelectModule } from '@angular/material/select';
@@ -18,7 +19,6 @@ import { TipoEventoResponse } from '../../eventos/dto/evento';
 import { RentabilidadService } from '../rentabilidad.service';
 import { FiltrosRentabilidad, RentabilidadEventoResponse, RentabilidadResumenResponse } from '../dto/rentabilidad';
 import { TablaResponsiva } from '../../../shared/tabla-responsiva';
-import { SelectBuscable } from '../../../shared/select-buscable';
 
 const PAGINA_URL = '/api/rentabilidad';
 
@@ -31,9 +31,19 @@ const COLOR_EXTRA = '#8b5cf6';
 const MARGEN_BUENO = 30;
 const MARGEN_REGULAR = 15;
 
+/** Date del calendario -> "2026-10-08", como lo espera la API (null si no se eligio). */
+function aFechaIso(fecha: Date | null): string | null {
+  if (!fecha) {
+    return null;
+  }
+  const mes = String(fecha.getMonth() + 1).padStart(2, '0');
+  const dia = String(fecha.getDate()).padStart(2, '0');
+  return `${fecha.getFullYear()}-${mes}-${dia}`;
+}
+
 @Component({
   selector: 'app-rentabilidad-report',
-  imports: [SelectBuscable, TablaResponsiva,
+  imports: [TablaResponsiva,
     CommonModule,
     ReactiveFormsModule,
     MatTableModule,
@@ -43,6 +53,7 @@ const MARGEN_REGULAR = 15;
     MatSelectModule,
     MatAutocompleteModule,
     ChartComponent,
+    MatDatepickerModule,
   ],
   templateUrl: './rentabilidad-report.html',
   styleUrl: './rentabilidad-report.scss',
@@ -70,8 +81,8 @@ export class RentabilidadReport implements OnInit {
   readonly columnas = ['cliente', 'tipo', 'fecha', 'acordado', 'cobrado', 'costos', 'ganancia', 'margen'];
 
   readonly formulario = this.fb.group({
-    fechaDesde: this.fb.control<string | null>(null),
-    fechaHasta: this.fb.control<string | null>(null),
+    fechaDesde: this.fb.control<Date | null>(null),
+    fechaHasta: this.fb.control<Date | null>(null),
     idCliente: this.fb.control<number | null>(null),
     idTipoEvento: this.fb.control<number | null>(null),
   });
@@ -161,8 +172,8 @@ export class RentabilidadReport implements OnInit {
   private get filtros(): FiltrosRentabilidad {
     const v = this.formulario.getRawValue();
     return {
-      fechaDesde: v.fechaDesde,
-      fechaHasta: v.fechaHasta,
+      fechaDesde: aFechaIso(v.fechaDesde),
+      fechaHasta: aFechaIso(v.fechaHasta),
       idCliente: v.idCliente,
       idTipoEvento: v.idTipoEvento,
     };
@@ -211,7 +222,7 @@ export class RentabilidadReport implements OnInit {
   /** Exporta la pagina actual a CSV (abre en Excel). */
   exportarCsv(): void {
     const encabezado =
-      'Evento,Fecha,Cliente,Tipo,Acordado,Cobrado,Por cobrar,Personal,Inventario,Costos extra,Costos,Ganancia acordada,Ganancia cobrada,Margen';
+      'Evento,Fecha,Cliente,Tipo,Proyectado,Cobrado,Por cobrar,Personal,Inventario,Costos extra,Costos,Ganancia proyectada,Ganancia cobrada,Margen';
     const texto = (valor: string) => `"${valor.replaceAll('"', '""')}"`;
     const lineas = this.filas().map((f) =>
       [

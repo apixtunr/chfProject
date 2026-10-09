@@ -1,20 +1,18 @@
 <div class="encabezado">
   <h1>Empleados</h1>
-  @if (puedeCrear) {
-    <button mat-flat-button color="primary" routerLink="/empleados/nuevo">
-      <mat-icon>add</mat-icon>
-      Nuevo empleado
-    </button>
-  }
+  <div class="encabezado-acciones">
+    <div class="buscador">
+      <mat-icon class="buscador-icono">search</mat-icon>
+      <input class="buscador-input" type="text" [(ngModel)]="filtroNombre" (ngModelChange)="buscarAlEscribir()" (keyup.enter)="buscar()" placeholder="Buscar por nombre o DPI..." aria-label="Buscar por nombre o DPI" />
+    </div>
+    @if (puedeCrear) {
+      <button mat-flat-button class="list-btn-nuevo" routerLink="/empleados/nuevo">
+        <mat-icon>add</mat-icon>
+        Nuevo empleado
+      </button>
+    }
+  </div>
 </div>
-
-<mat-form-field appearance="outline" class="buscador">
-  <mat-label>Buscar por nombre o DPI</mat-label>
-  <input matInput [(ngModel)]="filtroNombre" (ngModelChange)="buscarAlEscribir()" (keyup.enter)="buscar()" />
-  <button matSuffix mat-icon-button (click)="buscar()">
-    <mat-icon>search</mat-icon>
-  </button>
-</mat-form-field>
 
 <div class="tabla-contenedor">
   <table mat-table [dataSource]="empleados()" class="tabla">

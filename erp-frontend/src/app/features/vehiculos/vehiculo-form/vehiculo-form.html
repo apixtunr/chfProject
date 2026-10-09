@@ -7,13 +7,13 @@
       <span class="pf-breadcrumb-current">{{ idVehiculo() ? 'Editar vehículo' : 'Nuevo vehículo' }}</span>
     </nav>
     <div class="pf-title-row">
+      <span class="pf-foco" [class.pf-foco--modificacion]="idVehiculo()" [class.pf-foco--alta]="!idVehiculo()" role="img" [attr.aria-label]="idVehiculo() ? 'Modificación' : 'Alta'"></span>
       <h1 class="pf-title">{{ idVehiculo() ? 'Editar Vehículo' : 'Nuevo Vehículo' }}</h1>
-      <span class="pf-badge">{{ idVehiculo() ? 'EDITANDO' : 'ALTA EN SISTEMA' }}</span>
     </div>
     <p class="pf-subtitle">
       {{ idVehiculo()
-        ? 'Modifica los datos del vehículo y guarda los cambios.'
-        : 'Ingresa el vehículo para poder asignarlo a los eventos.' }}
+        ? 'Modifique los datos del vehículo y guarde los cambios.'
+        : 'Ingrese el vehículo para poder asignarlo a los eventos.' }}
     </p>
   </div>
 </div>
@@ -143,7 +143,7 @@
 
   <!-- ══ ACCIONES ABAJO ══════════════════════════════════════ -->
   <div class="pf-footer-actions">
-    <button mat-stroked-button type="button" routerLink="/vehiculos" class="pf-btn-cancel">
+    <button mat-stroked-button type="button" routerLink="/vehiculos" class="pf-btn-cancel pf-btn-cancelar">
       Cancelar
     </button>
     <button mat-flat-button type="submit" class="pf-btn-save" [disabled]="guardando()">

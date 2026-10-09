@@ -18,7 +18,6 @@ import { AuthService } from '../../../core/auth/auth.service';
 import { ConfirmDialog } from '../../../shared/confirm-dialog/confirm-dialog';
 import { CATALOGOS, CampoCatalogo, CatalogoConfig } from './catalogos-config';
 import { TablaResponsiva } from '../../../shared/tabla-responsiva';
-import { SelectBuscable } from '../../../shared/select-buscable';
 
 /** Fila generica: los catalogos tienen formas distintas, se manejan como objetos planos. */
 type Fila = Record<string, unknown>;
@@ -30,7 +29,7 @@ type Fila = Record<string, unknown>;
  */
 @Component({
   selector: 'app-catalogo-generico',
-  imports: [SelectBuscable, TablaResponsiva, 
+  imports: [TablaResponsiva, 
     RouterLink,
     ReactiveFormsModule,
     MatTableModule,

@@ -7,13 +7,13 @@
       <span class="pf-breadcrumb-current">{{ idUsuario() ? 'Editar usuario' : 'Nuevo usuario' }}</span>
     </nav>
     <div class="pf-title-row">
+      <span class="pf-foco" [class.pf-foco--modificacion]="idUsuario()" [class.pf-foco--alta]="!idUsuario()" role="img" [attr.aria-label]="idUsuario() ? 'Modificación' : 'Alta'"></span>
       <h1 class="pf-title">{{ idUsuario() ? 'Editar Usuario' : 'Nuevo Usuario' }}</h1>
-      <span class="pf-badge">{{ idUsuario() ? 'EDITANDO' : 'ALTA EN SISTEMA' }}</span>
     </div>
     <p class="pf-subtitle">
       {{ idUsuario()
-        ? 'Cambia el rol o el estado del acceso. El nombre de usuario no se modifica.'
-        : 'Elige a la persona que va a entrar al sistema; su nombre de usuario se genera solo.' }}
+        ? 'Cambie el rol o el estado del acceso. El nombre de usuario no se modifica.'
+        : 'Elija a la persona que va a entrar al sistema; su nombre de usuario se genera solo.' }}
     </p>
   </div>
 </div>
@@ -148,7 +148,7 @@
 
   <!-- ══ ACCIONES ABAJO ══════════════════════════════════════ -->
   <div class="pf-footer-actions">
-    <button mat-stroked-button type="button" routerLink="/admin/usuarios" class="pf-btn-cancel">
+    <button mat-stroked-button type="button" routerLink="/admin/usuarios" class="pf-btn-cancel pf-btn-cancelar">
       Cancelar
     </button>
     <button mat-flat-button type="submit" class="pf-btn-save" [disabled]="guardando()">

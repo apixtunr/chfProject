@@ -1,35 +1,31 @@
 @if (evento(); as e) {
-  <mat-card class="tarjeta-encabezado">
-    <div class="fila-titulo">
-      <h1>
-        Evento #{{ e.idEvento }} — {{ e.tipoEventoNombre }}
-        <mat-chip
-          highlighted
-          [style.--mat-chip-elevated-container-color]="colorEstado(e.estadoNombre).bg"
-          [style.--mat-chip-label-text-color]="colorEstado(e.estadoNombre).text"
-          [style.--mat-chip-outline-color]="colorEstado(e.estadoNombre).text"
-        >{{ e.estadoNombre }}</mat-chip>
-      </h1>
+  <!-- Encabezado del evento: titulo, estado y acciones arriba; sus datos en recuadros abajo. -->
+  <section class="evt-cabecera">
+    <div class="evt-cabecera-fila">
+      <div class="evt-cabecera-titulo">
+        <div class="evt-icono"><mat-icon>event_available</mat-icon></div>
+        <h1 class="evt-titulo">Evento #{{ e.idEvento }} <span class="evt-guion">—</span> {{ e.tipoEventoNombre }}</h1>
+        <span class="evt-estado" [style.--evt-estado-color]="colorEstado(e.estadoNombre).text"
+              [style.--evt-estado-fondo]="colorEstado(e.estadoNombre).bg">{{ e.estadoNombre }}</span>
+      </div>
 
       @if (puedeModificar) {
-        <div class="acciones-encabezado">
+        <div class="evt-acciones">
           @if (puedePlanificar) {
-            <button mat-flat-button color="primary" (click)="planificarEvento()">
+            <button mat-flat-button class="evt-btn-planificar" (click)="planificarEvento()">
               <mat-icon>event_available</mat-icon>
-              PLANIFICAR EVENTO
+              Planificar evento
             </button>
           }
           @if (puedeCancelarEvento) {
-            <button mat-flat-button class="btn-danger-soft" (click)="cancelarEvento()">
+            <button mat-stroked-button class="pf-btn-cancel pf-btn-cancelar evt-btn-cancelar" (click)="cancelarEvento()">
               <mat-icon>close</mat-icon>
-              CANCELAR EVENTO
+              Cancelar evento
             </button>
           }
         </div>
       }
     </div>
-
-    <hr class="separador-encabezado" />
 
     @if (e.estadoNombre === 'CANCELADO' && e.motivoCancelacion) {
       <div class="aviso-evento aviso-evento--cancelado">
@@ -51,35 +47,37 @@
       </div>
     }
 
-    <div class="grid-info">
-      <div class="campo-info">
-        <span class="etiqueta-info">Cliente</span>
-        <span class="valor-info">{{ e.clienteNombre }}</span>
+    <div class="evt-datos">
+      <div class="evt-dato">
+        <span class="evt-dato-etiqueta"><mat-icon>person_outline</mat-icon>Cliente</span>
+        <span class="evt-dato-valor">{{ e.clienteNombre }}</span>
       </div>
-      <div class="campo-info">
-        <span class="etiqueta-info">Ubicación</span>
-        <span class="valor-info valor-truncado" [matTooltip]="e.direccionUbicacion">{{ e.direccionUbicacion }}</span>
+      <div class="evt-dato">
+        <span class="evt-dato-etiqueta"><mat-icon>location_on</mat-icon>Ubicación</span>
+        <span class="evt-dato-valor evt-dato-valor--largo" [matTooltip]="e.direccionUbicacion">{{ e.direccionUbicacion }}</span>
       </div>
-      <div class="campo-info">
-        <span class="etiqueta-info">Fecha y horario</span>
-        <span class="valor-info">{{ e.fechaEvento | date: 'dd/MM/yyyy' }} • {{ e.horaInicio?.slice(0, 5) }} a {{ e.horaFin?.slice(0, 5) }}</span>
+      <div class="evt-dato">
+        <span class="evt-dato-etiqueta"><mat-icon>schedule</mat-icon>Fecha y horario</span>
+        <span class="evt-dato-valor">{{ e.fechaEvento | date: 'dd/MM/yyyy' }}</span>
+        <span class="evt-dato-sub"><span class="evt-punto"></span>{{ e.horaInicio?.slice(0, 5) }} a {{ e.horaFin?.slice(0, 5) }} hrs</span>
       </div>
       @if (e.cantidadPersonas) {
-        <div class="campo-info">
-          <span class="etiqueta-info">Invitados</span>
-          <span class="valor-info valor-con-icono"><mat-icon>group</mat-icon> {{ e.cantidadPersonas }} personas</span>
+        <div class="evt-dato">
+          <span class="evt-dato-etiqueta"><mat-icon>groups</mat-icon>Invitados</span>
+          <span class="evt-dato-valor">{{ e.cantidadPersonas }} <small>personas</small></span>
         </div>
       }
     </div>
-  </mat-card>
+  </section>
 
-  <mat-tab-group>
-    <mat-tab label="Menú">
+  <mat-tab-group class="evt-pestanas" animationDuration="150ms">
+    <mat-tab>
+      <ng-template mat-tab-label><mat-icon class="evt-tab-icono">dinner_dining</mat-icon>Menú</ng-template>
       <div class="contenido-tab">
         @if (e.idCotizacionVersion !== null) {
           <h3 class="subtitulo-tab">Menú de la cotización</h3>
 
-          <div class="tabla-scroll tabla-contenedor">
+          <div class="tabla-contenedor">
             <table mat-table [dataSource]="detalleCotizacionOrigen()" class="tabla">
               <ng-container matColumnDef="menu">
                 <th mat-header-cell *matHeaderCellDef>Menú / Plato</th>
@@ -87,11 +85,15 @@
               </ng-container>
               <ng-container matColumnDef="bebida">
                 <th mat-header-cell *matHeaderCellDef>Bebida</th>
-                <td mat-cell *matCellDef="let d">{{ d.nombreBebida ?? '-' }}</td>
+                <td mat-cell *matCellDef="let d">
+                  @if (d.nombreBebida) {
+                    <span class="evt-chip"><mat-icon>local_drink</mat-icon>{{ d.nombreBebida }}</span>
+                  } @else { - }
+                </td>
               </ng-container>
               <ng-container matColumnDef="cantidad">
                 <th mat-header-cell *matHeaderCellDef>Cantidad</th>
-                <td mat-cell *matCellDef="let d">{{ d.cantidadPlatos }}</td>
+                <td mat-cell *matCellDef="let d"><span class="evt-badge">{{ d.cantidadPlatos }}</span></td>
               </ng-container>
               <ng-container matColumnDef="precio">
                 <th mat-header-cell *matHeaderCellDef>Precio unit.</th>
@@ -113,7 +115,7 @@
 
           @if (serviciosCotizacionOrigen().length) {
             <h3 class="subtitulo-tab">Servicios extra</h3>
-            <div class="tabla-scroll tabla-contenedor">
+            <div class="tabla-contenedor">
               <table mat-table [dataSource]="serviciosCotizacionOrigen()" class="tabla">
                 <ng-container matColumnDef="tipo">
                   <th mat-header-cell *matHeaderCellDef>Tipo</th>
@@ -145,56 +147,68 @@
           }
 
           @if (puedeEditarMenu) {
-          <form [formGroup]="formularioMenu" (ngSubmit)="agregarLineaMenu()" class="formulario-linea">
-            <mat-form-field appearance="outline" class="campo-menu">
-              <mat-label>Menú</mat-label>
-              <mat-select formControlName="idMenu">
+          <form [formGroup]="formularioMenu" (ngSubmit)="agregarLineaMenu()" class="formulario-linea evt-tarjeta">
+            <div class="pf-field evt-campo evt-campo-menu">
+              <label class="pf-label"><span class="pf-label-name">Menú</span></label>
+              <div class="pf-input-wrap pf-input-wrap--select">
+                <mat-select class="pf-select" formControlName="idMenu">
                 @for (menu of menusDisponibles(); track menu.idMenu) {
-                  <mat-option [value]="menu.idMenu">{{ menu.nombreMenu }}</mat-option>
+                <mat-option [value]="menu.idMenu">{{ menu.nombreMenu }}</mat-option>
                 }
-              </mat-select>
-            </mat-form-field>
-            <mat-form-field appearance="outline" class="campo-menu">
-              <mat-label>Plato</mat-label>
-              <mat-select formControlName="idPlato">
+                </mat-select>
+              </div>
+            </div>
+            <div class="pf-field evt-campo evt-campo-menu">
+              <label class="pf-label"><span class="pf-label-name">Plato</span></label>
+              <div class="pf-input-wrap pf-input-wrap--select">
+                <mat-select class="pf-select" formControlName="idPlato">
                 @for (plato of platosDelMenu(); track plato.idPlato) {
-                  <mat-option [value]="plato.idPlato">
-                    {{ plato.nombrePlato }} ({{ etiquetaPrecio(plato) }})
-                  </mat-option>
+                <mat-option [value]="plato.idPlato">
+                {{ plato.nombrePlato }} ({{ etiquetaPrecio(plato) }})
+                </mat-option>
                 }
-              </mat-select>
+                </mat-select>
+              </div>
               @if (formularioMenu.controls.idMenu.value && !platosDelMenu().length) {
-                <mat-hint>Ese menú no tiene platos configurados</mat-hint>
+              <p class="pf-ayuda">Ese menú no tiene platos configurados</p>
               }
-            </mat-form-field>
-            <mat-form-field appearance="outline" class="campo-chico">
-              <mat-label>{{ esPorPersona() ? 'Personas' : 'Unidades' }}</mat-label>
-              <input matInput type="number" formControlName="cantidadPlatos" min="1" />
-            </mat-form-field>
-            <mat-form-field appearance="outline" class="campo-chico">
-              <mat-label>Precio unit. (Q)</mat-label>
-              <input matInput type="text" [value]="precioSeleccionado() ?? ''" readonly />
-            </mat-form-field>
+            </div>
+            <div class="pf-field evt-campo evt-campo-chico">
+              <label class="pf-label"><span class="pf-label-name">{{ esPorPersona() ? 'Personas' : 'Unidades' }}</span></label>
+              <div class="pf-input-wrap">
+                <input class="pf-input" type="number" formControlName="cantidadPlatos" min="1" />
+              </div>
+            </div>
+            <div class="pf-field evt-campo evt-campo-chico">
+              <label class="pf-label"><span class="pf-label-name">Precio unit. (Q)</span></label>
+              <div class="pf-input-wrap">
+                <input class="pf-input" type="text" [value]="precioSeleccionado() ?? ''" readonly />
+              </div>
+            </div>
             @if (bebidasDelPlato().length) {
-              <mat-form-field appearance="outline" class="campo-chico">
-                <mat-label>Bebida</mat-label>
-                <mat-select formControlName="idBebida">
+              <div class="pf-field evt-campo evt-campo-chico">
+                <label class="pf-label"><span class="pf-label-name">Bebida</span></label>
+                <div class="pf-input-wrap pf-input-wrap--select">
+                  <mat-select class="pf-select" formControlName="idBebida">
                   <mat-option [value]="null">Por definir</mat-option>
                   @for (bebida of bebidasDelPlato(); track bebida.idBebida) {
-                    <mat-option [value]="bebida.idBebida">{{ bebida.nombreBebida }}</mat-option>
+                  <mat-option [value]="bebida.idBebida">{{ bebida.nombreBebida }}</mat-option>
                   }
-                </mat-select>
-              </mat-form-field>
+                  </mat-select>
+                </div>
+              </div>
             }
-            <mat-form-field appearance="outline" class="campo-chico">
-              <mat-label>Observaciones</mat-label>
-              <input matInput formControlName="observaciones" />
-            </mat-form-field>
-            <button mat-flat-button color="primary" type="submit">Agregar</button>
+            <div class="pf-field evt-campo evt-campo-chico">
+              <label class="pf-label"><span class="pf-label-name">Observaciones</span></label>
+              <div class="pf-input-wrap">
+                <input class="pf-input" formControlName="observaciones" />
+              </div>
+            </div>
+            <button mat-flat-button class="evt-btn-enviar" type="submit">Agregar</button>
           </form>
         }
 
-        <div class="tabla-scroll tabla-contenedor">
+        <div class="tabla-contenedor">
           <table mat-table [dataSource]="detalleMenu()" class="tabla">
             <ng-container matColumnDef="menu">
               <th mat-header-cell *matHeaderCellDef>Menú / Plato</th>
@@ -202,11 +216,15 @@
             </ng-container>
             <ng-container matColumnDef="bebida">
               <th mat-header-cell *matHeaderCellDef>Bebida</th>
-              <td mat-cell *matCellDef="let d">{{ d.nombreBebida ?? '-' }}</td>
+              <td mat-cell *matCellDef="let d">
+                  @if (d.nombreBebida) {
+                    <span class="evt-chip"><mat-icon>local_drink</mat-icon>{{ d.nombreBebida }}</span>
+                  } @else { - }
+                </td>
             </ng-container>
             <ng-container matColumnDef="cantidad">
               <th mat-header-cell *matHeaderCellDef>Cantidad</th>
-              <td mat-cell *matCellDef="let d">{{ d.cantidadPlatos }}</td>
+              <td mat-cell *matCellDef="let d"><span class="evt-badge">{{ d.cantidadPlatos }}</span></td>
             </ng-container>
             <ng-container matColumnDef="precio">
               <th mat-header-cell *matHeaderCellDef>Precio unit.</th>
@@ -238,7 +256,175 @@
     </mat-tab>
 
     <mat-tab>
+      <ng-template mat-tab-label><mat-icon class="evt-tab-icono">badge</mat-icon>Asignar personal</ng-template>
+      <div class="contenido-tab">
+        @if (puedeAsignarRecursos || personalEnEdicion()) {
+          <form [formGroup]="formularioPersonal" (ngSubmit)="guardarEmpleado()" class="formulario-linea evt-tarjeta">
+            @if (personalEnEdicion(); as p) {
+              <div class="pf-field evt-campo evt-campo-chico">
+                <label class="pf-label"><span class="pf-label-name">Empleado</span></label>
+                <div class="pf-input-wrap">
+                  <input class="pf-input" [value]="p.nombreEmpleado" disabled />
+                </div>
+              </div>
+            } @else {
+            <div class="pf-field evt-campo evt-campo-chico">
+              <label class="pf-label"><span class="pf-label-name">Empleado</span></label>
+              <div class="pf-input-wrap pf-input-wrap--select">
+                <mat-select class="pf-select" formControlName="idEmpleado">
+                @for (emp of empleadosParaAsignar(); track emp.idEmpleado) {
+                <mat-option [value]="emp.idEmpleado">{{ emp.nombre }} {{ emp.apellido }} · {{ emp.puestoNombre }}</mat-option>
+                } @empty {
+                <mat-option disabled>No quedan empleados activos por asignar</mat-option>
+                }
+                </mat-select>
+              </div>
+            </div>
+            }
+            <div class="pf-field evt-campo evt-campo-chico">
+              <label class="pf-label"><span class="pf-label-name">Pago por evento (Q)</span></label>
+              <div class="pf-input-wrap">
+                <input class="pf-input" type="number" formControlName="salarioEvento" />
+              </div>
+            </div>
+            @if (personalEnEdicion()) {
+              <button mat-stroked-button class="pf-btn-cancel pf-btn-cancelar" type="button" (click)="cancelarEdicionEmpleado()">Cancelar</button>
+              <button mat-flat-button class="evt-btn-enviar" type="submit">Guardar</button>
+            } @else {
+              <button mat-flat-button class="evt-btn-enviar" type="submit">Asignar</button>
+            }
+          </form>
+        }
+
+        <div class="tabla-contenedor">
+          <table mat-table [dataSource]="personal()" class="tabla">
+            <ng-container matColumnDef="empleado">
+              <th mat-header-cell *matHeaderCellDef>Empleado</th>
+              <td mat-cell *matCellDef="let p">{{ p.nombreEmpleado }}</td>
+            </ng-container>
+            <ng-container matColumnDef="salario">
+              <th mat-header-cell *matHeaderCellDef>Pago por evento</th>
+              <td mat-cell *matCellDef="let p">Q{{ p.salarioEvento | number: '1.2-2' }}</td>
+            </ng-container>
+            <ng-container matColumnDef="horario">
+              <th mat-header-cell *matHeaderCellDef>Horario</th>
+              <td mat-cell *matCellDef="let p">{{ p.horaInicio }} - {{ p.horaFin }}</td>
+            </ng-container>
+            <ng-container matColumnDef="acciones">
+              <th mat-header-cell *matHeaderCellDef>Acciones</th>
+              <td mat-cell *matCellDef="let p">
+                @if (puedeModificar) {
+                  <button mat-icon-button class="tbl-btn-editar" (click)="editarEmpleado(p)" matTooltip="Editar pago" aria-label="Editar pago">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                }
+                @if (puedeAsignarRecursos) {
+                  <button mat-icon-button class="tbl-btn-eliminar" (click)="quitarEmpleado(p)" matTooltip="Eliminar empleado" aria-label="Quitar empleado">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                }
+              </td>
+            </ng-container>
+            <tr mat-header-row *matHeaderRowDef="columnasPersonal"></tr>
+            <tr mat-row *matRowDef="let row; columns: columnasPersonal"></tr>
+            <tr *matNoDataRow>
+              <td class="mensaje-vacio" [attr.colspan]="columnasPersonal.length">No hay personal asignado todavía.</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </mat-tab>
+
+    <mat-tab>
+      <ng-template mat-tab-label><mat-icon class="evt-tab-icono">local_shipping</mat-icon>Asignar vehículos</ng-template>
+      <div class="contenido-tab">
+        @if (puedeAsignarRecursos) {
+          <form [formGroup]="formularioVehiculo" (ngSubmit)="guardarVehiculo()" class="formulario-linea evt-tarjeta">
+            @if (vehiculoEnEdicion(); as v) {
+              <div class="pf-field evt-campo evt-campo-chico">
+                <label class="pf-label"><span class="pf-label-name">Vehiculo</span></label>
+                <div class="pf-input-wrap">
+                  <input class="pf-input" [value]="v.placaVehiculo" disabled />
+                </div>
+              </div>
+            } @else {
+            <div class="pf-field evt-campo evt-campo-chico">
+              <label class="pf-label"><span class="pf-label-name">Vehiculo</span></label>
+              <div class="pf-input-wrap pf-input-wrap--select">
+                <mat-select class="pf-select" formControlName="idVehiculo">
+                @for (v of vehiculosParaAsignar(); track v.idVehiculo) {
+                <mat-option [value]="v.idVehiculo">{{ v.placa }} - {{ v.nombreMarca }}</mat-option>
+                }
+                </mat-select>
+              </div>
+            </div>
+            }
+            <div class="pf-field evt-campo evt-campo-chico">
+              <label class="pf-label"><span class="pf-label-name">Conductor (opcional)</span></label>
+              <div class="pf-input-wrap pf-input-wrap--select">
+                <mat-select class="pf-select" formControlName="idEmpleadoConductor">
+                <mat-option [value]="null">Sin conductor asignado</mat-option>
+                @for (p of personal(); track p.idEmpleado) {
+                <mat-option [value]="p.idEmpleado" [disabled]="!p.tieneLicencia">
+                {{ p.nombreEmpleado }}{{ p.tieneLicencia ? '' : ' (sin licencia)' }}
+                </mat-option>
+                }
+                </mat-select>
+              </div>
+              <!-- El conductor sale del personal del evento: asi su pago y su horario ya quedan
+              registrados. Y tiene que tener licencia de conducir registrada en sus
+              documentos (Empleados). El backend valida las dos cosas. -->
+              @if (personal().length === 0) {
+              <p class="pf-ayuda">Asigne primero el personal del evento para elegir conductor</p>
+              } @else if (!hayConductores()) {
+              <p class="pf-ayuda">Nadie del personal tiene licencia registrada (se agrega en Empleados)</p>
+              }
+            </div>
+            @if (vehiculoEnEdicion()) {
+              <button mat-stroked-button class="pf-btn-cancel pf-btn-cancelar" type="button" (click)="cancelarEdicionVehiculo()">Cancelar</button>
+              <button mat-flat-button class="evt-btn-enviar" type="submit">Guardar</button>
+            } @else {
+              <button mat-flat-button class="evt-btn-enviar" type="submit">Asignar</button>
+            }
+          </form>
+        }
+
+        <div class="tabla-contenedor">
+          <table mat-table [dataSource]="vehiculos()" class="tabla">
+            <ng-container matColumnDef="placa">
+              <th mat-header-cell *matHeaderCellDef>Placa</th>
+              <td mat-cell *matCellDef="let v">{{ v.placaVehiculo }}</td>
+            </ng-container>
+            <ng-container matColumnDef="conductor">
+              <th mat-header-cell *matHeaderCellDef>Conductor</th>
+              <td mat-cell *matCellDef="let v">{{ v.nombreConductor ?? '-' }}</td>
+            </ng-container>
+            <ng-container matColumnDef="acciones">
+              <th mat-header-cell *matHeaderCellDef>Acciones</th>
+              <td mat-cell *matCellDef="let v">
+                @if (puedeAsignarRecursos) {
+                  <button mat-icon-button class="tbl-btn-editar" (click)="editarVehiculo(v)" matTooltip="Editar conductor" aria-label="Editar conductor">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                  <button mat-icon-button class="tbl-btn-eliminar" (click)="quitarVehiculo(v)" matTooltip="Eliminar vehículo" aria-label="Quitar vehículo">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                }
+              </td>
+            </ng-container>
+            <tr mat-header-row *matHeaderRowDef="columnasVehiculos"></tr>
+            <tr mat-row *matRowDef="let row; columns: columnasVehiculos"></tr>
+            <tr *matNoDataRow>
+              <td class="mensaje-vacio" [attr.colspan]="columnasVehiculos.length">No hay vehículos asignados.</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </mat-tab>
+
+    <mat-tab>
       <ng-template mat-tab-label>
+        <mat-icon class="evt-tab-icono">receipt_long</mat-icon>
         <span
           matTooltip="Aquí puede registrar un costo extra que pudo haber sido pagado el día del evento o en otra fecha"
           matTooltipClass="tooltip-justificado"
@@ -248,32 +434,40 @@
       </ng-template>
       <div class="contenido-tab">
         @if (puedeModificar) {
-          <form [formGroup]="formularioCosto" (ngSubmit)="guardarCosto()" class="formulario-linea">
-            <mat-form-field appearance="outline" class="campo-chico">
-              <mat-label>Tipo</mat-label>
-              <mat-select formControlName="idTipoCosto">
+          <form [formGroup]="formularioCosto" (ngSubmit)="guardarCosto()" class="formulario-linea evt-tarjeta">
+            <div class="pf-field evt-campo evt-campo-chico">
+              <label class="pf-label"><span class="pf-label-name">Tipo</span></label>
+              <div class="pf-input-wrap pf-input-wrap--select">
+                <mat-select class="pf-select" formControlName="idTipoCosto">
                 @for (t of tiposCosto(); track t.idTipoCosto) {
-                  <mat-option [value]="t.idTipoCosto">{{ t.nombreTipo }}</mat-option>
+                <mat-option [value]="t.idTipoCosto">{{ t.nombreTipo }}</mat-option>
                 }
-              </mat-select>
-            </mat-form-field>
-            <mat-form-field appearance="outline" class="campo-chico">
-              <mat-label>Descripción</mat-label>
-              <input matInput formControlName="descripcion" />
-            </mat-form-field>
-            <mat-form-field appearance="outline" class="campo-chico">
-              <mat-label>Monto (Q)</mat-label>
-              <input matInput type="number" formControlName="monto" />
-            </mat-form-field>
-            <mat-form-field appearance="outline" class="campo-chico">
-              <mat-label>Fecha del costo extra</mat-label>
-              <input matInput [matDatepicker]="pickerCosto" formControlName="fechaCosto" required />
+                </mat-select>
+              </div>
+            </div>
+            <div class="pf-field evt-campo evt-campo-chico">
+              <label class="pf-label"><span class="pf-label-name">Monto (Q)</span></label>
+              <div class="pf-input-wrap">
+                <input class="pf-input" type="number" formControlName="monto" />
+              </div>
+            </div>
+            <div class="pf-field evt-campo evt-campo-chico">
+              <label class="pf-label"><span class="pf-label-name">Fecha del costo extra</span></label>
+              <div class="pf-input-wrap pf-input-wrap--date">
+                <input class="pf-input" [matDatepicker]="pickerCosto" formControlName="fechaCosto" placeholder="Seleccione una fecha" required />
+                <mat-datepicker-toggle class="pf-date-toggle" tabindex="-1" [for]="pickerCosto"></mat-datepicker-toggle>
+                <mat-datepicker #pickerCosto></mat-datepicker>
+              </div>
               @if (formularioCosto.controls.fechaCosto.invalid && formularioCosto.controls.fechaCosto.touched) {
-                <mat-error>La fecha es obligatoria</mat-error>
+              <p class="pf-error">La fecha es obligatoria</p>
               }
-              <mat-datepicker-toggle matSuffix [for]="pickerCosto"></mat-datepicker-toggle>
-              <mat-datepicker #pickerCosto></mat-datepicker>
-            </mat-form-field>
+            </div>
+            <div class="pf-field evt-campo evt-campo-chico">
+              <label class="pf-label"><span class="pf-label-name">Descripción</span></label>
+              <div class="pf-input-wrap">
+                <input class="pf-input" formControlName="descripcion" />
+              </div>
+            </div>
 
             @if (!costoEnEdicion()) {
             <div class="fila-recargo">
@@ -281,38 +475,42 @@
 
               @if (formularioCosto.controls.recargarCliente.value) {
                 <div class="campos-recargo">
-                  <mat-form-field appearance="outline" class="campo-chico">
-                    <mat-label>Método de pago</mat-label>
-                    <mat-select formControlName="idMetodoPago">
+                  <div class="pf-field evt-campo evt-campo-chico">
+                    <label class="pf-label"><span class="pf-label-name">Método de pago</span></label>
+                    <div class="pf-input-wrap pf-input-wrap--select">
+                      <mat-select class="pf-select" formControlName="idMetodoPago">
                       @for (m of metodosPago(); track m.idMetodoPago) {
-                        <mat-option [value]="m.idMetodoPago">{{ m.nombreMetodo }}</mat-option>
+                      <mat-option [value]="m.idMetodoPago">{{ m.nombreMetodo }}</mat-option>
                       }
-                    </mat-select>
-                  </mat-form-field>
-                  <mat-form-field appearance="outline" class="campo-chico">
-                    <mat-label>Referencia</mat-label>
-                    <input matInput formControlName="referenciaTransaccion" />
+                      </mat-select>
+                    </div>
+                  </div>
+                  <div class="pf-field evt-campo evt-campo-chico">
+                    <label class="pf-label"><span class="pf-label-name">Referencia</span></label>
+                    <div class="pf-input-wrap">
+                      <input class="pf-input" formControlName="referenciaTransaccion" />
+                    </div>
                     @if (metodoRequiereReferencia(formularioCosto.controls.idMetodoPago.value)) {
-                      <mat-hint>Este método exige número de referencia</mat-hint>
+                    <p class="pf-ayuda">Este método exige número de referencia</p>
                     } @else if (formularioCosto.controls.idMetodoPago.value) {
-                      <mat-hint>Este método no usa referencia</mat-hint>
+                    <p class="pf-ayuda">Este método no usa referencia</p>
                     }
-                  </mat-form-field>
+                  </div>
                 </div>
               }
             </div>
             }
 
             @if (costoEnEdicion()) {
-              <button mat-button type="button" (click)="cancelarEdicionCosto()">Cancelar</button>
-              <button mat-flat-button color="primary" type="submit">Guardar</button>
+              <button mat-stroked-button class="pf-btn-cancel pf-btn-cancelar" type="button" (click)="cancelarEdicionCosto()">Cancelar</button>
+              <button mat-flat-button class="evt-btn-enviar" type="submit">Guardar</button>
             } @else {
-              <button mat-flat-button color="primary" type="submit">Agregar</button>
+              <button mat-flat-button class="evt-btn-enviar" type="submit">Agregar</button>
             }
           </form>
         }
 
-        <div class="tabla-scroll tabla-contenedor">
+        <div class="tabla-contenedor">
           <table mat-table [dataSource]="costos()" class="tabla">
             <ng-container matColumnDef="tipo">
               <th mat-header-cell *matHeaderCellDef>Tipo</th>
@@ -361,176 +559,28 @@
       </div>
     </mat-tab>
 
-    <mat-tab label="Asignación de personal">
-      <div class="contenido-tab">
-        @if (puedeAsignarRecursos || personalEnEdicion()) {
-          <form [formGroup]="formularioPersonal" (ngSubmit)="guardarEmpleado()" class="formulario-linea">
-            @if (personalEnEdicion(); as p) {
-              <mat-form-field appearance="outline" class="campo-chico">
-                <mat-label>Empleado</mat-label>
-                <input matInput [value]="p.nombreEmpleado" disabled />
-              </mat-form-field>
-            } @else {
-            <mat-form-field appearance="outline" class="campo-chico">
-              <mat-label>Empleado</mat-label>
-              <mat-select formControlName="idEmpleado">
-                @for (emp of empleadosParaAsignar(); track emp.idEmpleado) {
-                  <mat-option [value]="emp.idEmpleado">{{ emp.nombre }} {{ emp.apellido }} · {{ emp.puestoNombre }}</mat-option>
-                } @empty {
-                  <mat-option disabled>No quedan empleados activos por asignar</mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
-            }
-            <mat-form-field appearance="outline" class="campo-chico">
-              <mat-label>Pago por evento (Q)</mat-label>
-              <input matInput type="number" formControlName="salarioEvento" />
-            </mat-form-field>
-            @if (personalEnEdicion()) {
-              <button mat-button type="button" (click)="cancelarEdicionEmpleado()">Cancelar</button>
-              <button mat-flat-button color="primary" type="submit">Guardar</button>
-            } @else {
-              <button mat-flat-button color="primary" type="submit">Asignar</button>
-            }
-          </form>
-        }
-
-        <div class="tabla-scroll tabla-contenedor">
-          <table mat-table [dataSource]="personal()" class="tabla">
-            <ng-container matColumnDef="empleado">
-              <th mat-header-cell *matHeaderCellDef>Empleado</th>
-              <td mat-cell *matCellDef="let p">{{ p.nombreEmpleado }}</td>
-            </ng-container>
-            <ng-container matColumnDef="salario">
-              <th mat-header-cell *matHeaderCellDef>Pago por evento</th>
-              <td mat-cell *matCellDef="let p">Q{{ p.salarioEvento | number: '1.2-2' }}</td>
-            </ng-container>
-            <ng-container matColumnDef="horario">
-              <th mat-header-cell *matHeaderCellDef>Horario</th>
-              <td mat-cell *matCellDef="let p">{{ p.horaInicio }} - {{ p.horaFin }}</td>
-            </ng-container>
-            <ng-container matColumnDef="acciones">
-              <th mat-header-cell *matHeaderCellDef>Acciones</th>
-              <td mat-cell *matCellDef="let p">
-                @if (puedeModificar) {
-                  <button mat-icon-button class="tbl-btn-editar" (click)="editarEmpleado(p)" matTooltip="Editar pago" aria-label="Editar pago">
-                    <mat-icon>edit</mat-icon>
-                  </button>
-                }
-                @if (puedeAsignarRecursos) {
-                  <button mat-icon-button class="tbl-btn-eliminar" (click)="quitarEmpleado(p)" matTooltip="Eliminar empleado" aria-label="Quitar empleado">
-                    <mat-icon>delete</mat-icon>
-                  </button>
-                }
-              </td>
-            </ng-container>
-            <tr mat-header-row *matHeaderRowDef="columnasPersonal"></tr>
-            <tr mat-row *matRowDef="let row; columns: columnasPersonal"></tr>
-            <tr *matNoDataRow>
-              <td class="mensaje-vacio" [attr.colspan]="columnasPersonal.length">No hay personal asignado todavía.</td>
-            </tr>
-          </table>
-        </div>
-      </div>
-    </mat-tab>
-
-    <mat-tab label="Asignación de vehículos">
+    <mat-tab>
+      <ng-template mat-tab-label><mat-icon class="evt-tab-icono">inventory_2</mat-icon>Registro de inventario</ng-template>
       <div class="contenido-tab">
         @if (puedeAsignarRecursos) {
-          <form [formGroup]="formularioVehiculo" (ngSubmit)="guardarVehiculo()" class="formulario-linea">
-            @if (vehiculoEnEdicion(); as v) {
-              <mat-form-field appearance="outline" class="campo-chico">
-                <mat-label>Vehiculo</mat-label>
-                <input matInput [value]="v.placaVehiculo" disabled />
-              </mat-form-field>
-            } @else {
-            <mat-form-field appearance="outline" class="campo-chico">
-              <mat-label>Vehiculo</mat-label>
-              <mat-select formControlName="idVehiculo">
-                @for (v of vehiculosParaAsignar(); track v.idVehiculo) {
-                  <mat-option [value]="v.idVehiculo">{{ v.placa }} - {{ v.nombreMarca }}</mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
-            }
-            <mat-form-field appearance="outline" class="campo-chico">
-              <mat-label>Conductor (opcional)</mat-label>
-              <!-- El conductor sale del personal del evento: asi su pago y su horario ya quedan
-                   registrados. Y tiene que tener licencia de conducir registrada en sus
-                   documentos (Empleados). El backend valida las dos cosas. -->
-              <mat-select formControlName="idEmpleadoConductor">
-                <mat-option [value]="null">Sin conductor asignado</mat-option>
-                @for (p of personal(); track p.idEmpleado) {
-                  <mat-option [value]="p.idEmpleado" [disabled]="!p.tieneLicencia">
-                    {{ p.nombreEmpleado }}{{ p.tieneLicencia ? '' : ' (sin licencia)' }}
-                  </mat-option>
-                }
-              </mat-select>
-              @if (personal().length === 0) {
-                <mat-hint>Asigne primero el personal del evento para elegir conductor</mat-hint>
-              } @else if (!hayConductores()) {
-                <mat-hint>Nadie del personal tiene licencia registrada (se agrega en Empleados)</mat-hint>
-              }
-            </mat-form-field>
-            @if (vehiculoEnEdicion()) {
-              <button mat-button type="button" (click)="cancelarEdicionVehiculo()">Cancelar</button>
-              <button mat-flat-button color="primary" type="submit">Guardar</button>
-            } @else {
-              <button mat-flat-button color="primary" type="submit">Asignar</button>
-            }
-          </form>
-        }
-
-        <div class="tabla-scroll tabla-contenedor">
-          <table mat-table [dataSource]="vehiculos()" class="tabla">
-            <ng-container matColumnDef="placa">
-              <th mat-header-cell *matHeaderCellDef>Placa</th>
-              <td mat-cell *matCellDef="let v">{{ v.placaVehiculo }}</td>
-            </ng-container>
-            <ng-container matColumnDef="conductor">
-              <th mat-header-cell *matHeaderCellDef>Conductor</th>
-              <td mat-cell *matCellDef="let v">{{ v.nombreConductor ?? '-' }}</td>
-            </ng-container>
-            <ng-container matColumnDef="acciones">
-              <th mat-header-cell *matHeaderCellDef>Acciones</th>
-              <td mat-cell *matCellDef="let v">
-                @if (puedeAsignarRecursos) {
-                  <button mat-icon-button class="tbl-btn-editar" (click)="editarVehiculo(v)" matTooltip="Editar conductor" aria-label="Editar conductor">
-                    <mat-icon>edit</mat-icon>
-                  </button>
-                  <button mat-icon-button class="tbl-btn-eliminar" (click)="quitarVehiculo(v)" matTooltip="Eliminar vehículo" aria-label="Quitar vehículo">
-                    <mat-icon>delete</mat-icon>
-                  </button>
-                }
-              </td>
-            </ng-container>
-            <tr mat-header-row *matHeaderRowDef="columnasVehiculos"></tr>
-            <tr mat-row *matRowDef="let row; columns: columnasVehiculos"></tr>
-            <tr *matNoDataRow>
-              <td class="mensaje-vacio" [attr.colspan]="columnasVehiculos.length">No hay vehículos asignados todavía.</td>
-            </tr>
-          </table>
-        </div>
-      </div>
-    </mat-tab>
-
-    <mat-tab label="Registro de inventario">
-      <div class="contenido-tab">
-        @if (puedeAsignarRecursos) {
-          <form [formGroup]="formularioInventario" (ngSubmit)="planificarProducto()" class="formulario-linea">
-            <mat-form-field appearance="outline" class="campo-chico">
-              <mat-label>Producto</mat-label>
-              <mat-select formControlName="idProducto">
+          <form [formGroup]="formularioInventario" (ngSubmit)="planificarProducto()" class="formulario-linea evt-tarjeta">
+            <div class="pf-field evt-campo evt-campo-chico">
+              <label class="pf-label"><span class="pf-label-name">Producto</span></label>
+              <div class="pf-input-wrap pf-input-wrap--select">
+                <mat-select class="pf-select" formControlName="idProducto">
                 @for (p of productosDisponibles(); track p.idProducto) {
-                  <mat-option [value]="p.idProducto">{{ p.nombreProducto }} ({{ p.unidadMedida }})</mat-option>
+                <mat-option [value]="p.idProducto">{{ p.nombreProducto }} ({{ p.unidadMedida }})</mat-option>
                 }
-              </mat-select>
-            </mat-form-field>
-            <mat-form-field appearance="outline" class="campo-chico">
-              <mat-label>Cantidad</mat-label>
-              <input matInput type="number" formControlName="cantidad" />
-            </mat-form-field>
-            <button mat-flat-button color="primary" type="submit">Registrar Producto</button>
+                </mat-select>
+              </div>
+            </div>
+            <div class="pf-field evt-campo evt-campo-chico">
+              <label class="pf-label"><span class="pf-label-name">Cantidad</span></label>
+              <div class="pf-input-wrap">
+                <input class="pf-input" type="number" formControlName="cantidad" />
+              </div>
+            </div>
+            <button mat-flat-button class="evt-btn-enviar" type="submit">Registrar Producto</button>
           </form>
         }
 
@@ -540,7 +590,7 @@
           </button>
         }
 
-        <div class="tabla-scroll tabla-contenedor">
+        <div class="tabla-contenedor">
           <table mat-table [dataSource]="inventario()" class="tabla">
             <ng-container matColumnDef="producto">
               <th mat-header-cell *matHeaderCellDef>Producto</th>
@@ -577,7 +627,7 @@
               <td mat-cell *matCellDef="let i">
                 @if (idProductoCorrigiendo() === i.idProducto) {
                   <button mat-button color="primary" (click)="guardarCorreccionInventario(i)">Guardar</button>
-                  <button mat-button (click)="cancelarCorreccionInventario()">Cancelar</button>
+                  <button mat-stroked-button class="pf-btn-cancel pf-btn-cancelar" (click)="cancelarCorreccionInventario()">Cancelar</button>
                 } @else {
                   @if (!i.fechaConsumo && puedeAsignarRecursos) {
                     <button mat-icon-button class="tbl-btn-eliminar" (click)="quitarProducto(i)" matTooltip="Quitar producto" aria-label="Quitar producto">
@@ -593,14 +643,15 @@
             <tr mat-header-row *matHeaderRowDef="columnasInventario"></tr>
             <tr mat-row *matRowDef="let row; columns: columnasInventario"></tr>
             <tr *matNoDataRow>
-              <td class="mensaje-vacio" [attr.colspan]="columnasInventario.length">No hay ningún producto registrado todavía.</td>
+              <td class="mensaje-vacio" [attr.colspan]="columnasInventario.length">No hay ningún producto registrado.</td>
             </tr>
           </table>
         </div>
       </div>
     </mat-tab>
 
-    <mat-tab label="Detalle">
+    <mat-tab>
+      <ng-template mat-tab-label><mat-icon class="evt-tab-icono">summarize</mat-icon>Detalle</ng-template>
       <div class="contenido-tab">
         <div class="encabezado-detalle">
           <p class="aviso-menu">Resumen de lo agregado al evento.</p>

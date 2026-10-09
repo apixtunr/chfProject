@@ -14,13 +14,12 @@ import { AuthService } from '../../../core/auth/auth.service';
 import { InventarioService } from '../inventario.service';
 import { MovimientoInventarioResponse, ProductoResponse } from '../dto/inventario';
 import { TablaResponsiva } from '../../../shared/tabla-responsiva';
-import { SelectBuscable } from '../../../shared/select-buscable';
 
 const PAGINA_URL = '/api/movimientos-inventario';
 
 @Component({
   selector: 'app-movimiento-list',
-  imports: [SelectBuscable, TablaResponsiva, 
+  imports: [TablaResponsiva, 
     RouterLink,
     DatePipe,
     FormsModule,

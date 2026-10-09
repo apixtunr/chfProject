@@ -26,14 +26,14 @@
         </label>
         <div class="pf-input-wrap pf-input-wrap--select" [class.pf-input-wrap--error]="formulario.controls.acuerdoAnticipo.invalid && formulario.controls.acuerdoAnticipo.touched">
           <mat-icon class="pf-input-icon">handshake</mat-icon>
-          <mat-select id="acuerdo" class="pf-select" formControlName="acuerdoAnticipo" placeholder="Selecciona el acuerdo">
+          <mat-select id="acuerdo" class="pf-select" formControlName="acuerdoAnticipo" placeholder="Seleccione el acuerdo">
             @for (acuerdo of acuerdos; track acuerdo) {
               <mat-option [value]="acuerdo">{{ etiquetaAcuerdo[acuerdo] }}</mat-option>
             }
           </mat-select>
         </div>
         @if (formulario.controls.acuerdoAnticipo.invalid && formulario.controls.acuerdoAnticipo.touched) {
-          <p class="pf-error">Indica en qué quedó lo pagado.</p>
+          <p class="pf-error">Indique en qué quedó lo pagado.</p>
         }
       </div>
 

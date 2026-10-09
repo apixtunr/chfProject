@@ -18,7 +18,7 @@ import { CATALOGOS, CatalogoConfig } from './catalogos-config';
           <span>{{ catalogo.titulo }}</span>
         </mat-card>
       } @empty {
-        <p>No tienes acceso a ningun catalogo.</p>
+        <p>No tiene acceso a ningún catálogo.</p>
       }
     </div>
   `,

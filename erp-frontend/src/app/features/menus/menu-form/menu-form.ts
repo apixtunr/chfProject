@@ -8,13 +8,12 @@ import { EstadoResponse } from '../../../core/catalogos/estado';
 import { EstadoService } from '../../../core/catalogos/estado.service';
 import { MenuPlatoService } from '../menu-plato.service';
 import { MatIconModule } from '@angular/material/icon';
-import { SelectBuscable } from '../../../shared/select-buscable';
 
 const TIPO_ESTADO_GENERAL = 'GENERAL';
 
 @Component({
   selector: 'app-menu-form',
-  imports: [SelectBuscable, ReactiveFormsModule, RouterLink, MatSelectModule, MatButtonModule, MatIconModule],
+  imports: [ReactiveFormsModule, RouterLink, MatSelectModule, MatButtonModule, MatIconModule],
   templateUrl: './menu-form.html',
   styleUrl: './menu-form.scss',
 })

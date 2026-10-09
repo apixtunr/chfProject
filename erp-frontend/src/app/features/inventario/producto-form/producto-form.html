@@ -7,13 +7,13 @@
       <span class="pf-breadcrumb-current">{{ idProducto() ? 'Editar producto' : 'Nuevo producto' }}</span>
     </nav>
     <div class="pf-title-row">
+      <span class="pf-foco" [class.pf-foco--modificacion]="idProducto()" [class.pf-foco--alta]="!idProducto()" role="img" [attr.aria-label]="idProducto() ? 'Modificación' : 'Alta'"></span>
       <h1 class="pf-title">{{ idProducto() ? 'Editar Producto' : 'Nuevo Producto' }}</h1>
-      <span class="pf-badge">{{ idProducto() ? 'EDITANDO' : 'ALTA EN SISTEMA' }}</span>
     </div>
     <p class="pf-subtitle">
       {{ idProducto()
-        ? 'Modifica los datos del producto y guarda los cambios.'
-        : 'Ingresa el producto para poder llevar su existencia en el inventario.' }}
+        ? 'Modifique los datos del producto y guarde los cambios.'
+        : 'Ingrese el producto para poder llevar su existencia en el inventario.' }}
     </p>
   </div>
 </div>
@@ -133,7 +133,7 @@
 
   <!-- ══ ACCIONES ABAJO ══════════════════════════════════════ -->
   <div class="pf-footer-actions">
-    <button mat-stroked-button type="button" routerLink="/inventario/productos" class="pf-btn-cancel">
+    <button mat-stroked-button type="button" routerLink="/inventario/productos" class="pf-btn-cancel pf-btn-cancelar">
       Cancelar
     </button>
     <button mat-flat-button type="submit" class="pf-btn-save" [disabled]="guardando()">

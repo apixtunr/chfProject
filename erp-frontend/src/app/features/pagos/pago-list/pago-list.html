@@ -1,14 +1,14 @@
 <div class="encabezado">
   <h1>Pagos</h1>
+  <div class="encabezado-acciones">
+    <div class="filtro-estado" role="group" aria-label="Mostrar">
+      <button type="button" class="filtro-opcion" [class.filtro-opcion--activa]="filtro() === 'PENDIENTE'"
+              [attr.aria-pressed]="filtro() === 'PENDIENTE'" (click)="filtrar('PENDIENTE')">Pendientes</button>
+      <button type="button" class="filtro-opcion" [class.filtro-opcion--activa]="filtro() === 'PAGADO'"
+              [attr.aria-pressed]="filtro() === 'PAGADO'" (click)="filtrar('PAGADO')">Pagados</button>
+    </div>
+  </div>
 </div>
-
-<mat-form-field appearance="outline" class="filtro">
-  <mat-label>Mostrar</mat-label>
-  <mat-select [value]="filtro()" (selectionChange)="filtrar($event.value)">
-    <mat-option value="PENDIENTE">Pendientes</mat-option>
-    <mat-option value="PAGADO">Pagados</mat-option>
-  </mat-select>
-</mat-form-field>
 
 <div class="tabla-contenedor">
   <table mat-table [dataSource]="eventos()" class="tabla">

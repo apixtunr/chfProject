@@ -3,6 +3,7 @@ import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormBuilder, FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -28,14 +29,23 @@ import {
   TipoEventoResponse,
 } from '../dto/evento';
 import { TablaResponsiva } from '../../../shared/tabla-responsiva';
-import { SelectBuscable } from '../../../shared/select-buscable';
 
 const TIPO_ESTADO_EVENTO = 'EVENTO';
 const PALETA_TIPOS = ['#5c6bc0', '#26a69a', '#fb8c00', '#8d6e63', '#7e57c2', '#26c6da', '#ec407a', '#9ccc65', '#5d4037', '#78909c'];
 
+/** Date del calendario -> "2026-10-08", como lo espera la API (null si no se eligio). */
+function aFechaIso(fecha: Date | null): string | null {
+  if (!fecha) {
+    return null;
+  }
+  const mes = String(fecha.getMonth() + 1).padStart(2, '0');
+  const dia = String(fecha.getDate()).padStart(2, '0');
+  return `${fecha.getFullYear()}-${mes}-${dia}`;
+}
+
 @Component({
   selector: 'app-evento-reporte',
-  imports: [SelectBuscable, TablaResponsiva, 
+  imports: [TablaResponsiva, 
     CommonModule,
     ReactiveFormsModule,
     MatTableModule,
@@ -48,6 +58,7 @@ const PALETA_TIPOS = ['#5c6bc0', '#26a69a', '#fb8c00', '#8d6e63', '#7e57c2', '#2
     MatSelectModule,
     MatAutocompleteModule,
     ChartComponent,
+    MatDatepickerModule,
   ],
   templateUrl: './evento-reporte.html',
   styleUrl: './evento-reporte.scss',
@@ -83,8 +94,8 @@ export class EventoReporte implements OnInit {
   readonly columnas = ['cliente', 'tipo', 'fecha', 'estado'];
 
   readonly formulario = this.fb.group({
-    fechaDesde: this.fb.control<string | null>(null),
-    fechaHasta: this.fb.control<string | null>(null),
+    fechaDesde: this.fb.control<Date | null>(null),
+    fechaHasta: this.fb.control<Date | null>(null),
     idCliente: this.fb.control<number | null>(null),
     idTipoEvento: this.fb.control<number | null>(null),
     idEstado: this.fb.control<number | null>(null),
@@ -202,8 +213,8 @@ export class EventoReporte implements OnInit {
   private get filtros(): FiltrosEvento {
     const v = this.formulario.getRawValue();
     return {
-      fechaDesde: v.fechaDesde,
-      fechaHasta: v.fechaHasta,
+      fechaDesde: aFechaIso(v.fechaDesde),
+      fechaHasta: aFechaIso(v.fechaHasta),
       idCliente: v.idCliente,
       idTipoEvento: v.idTipoEvento,
       idEstado: v.idEstado,

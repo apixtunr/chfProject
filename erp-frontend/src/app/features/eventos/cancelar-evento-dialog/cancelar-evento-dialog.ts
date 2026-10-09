@@ -6,7 +6,6 @@ import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/materia
 import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
 import { ACUERDOS_ANTICIPO, AcuerdoAnticipo, CancelarEventoRequest } from '../dto/evento';
-import { SelectBuscable } from '../../../shared/select-buscable';
 
 export interface CancelarEventoDialogData {
   idEvento: number;
@@ -20,7 +19,7 @@ export interface CancelarEventoDialogData {
  */
 @Component({
   selector: 'app-cancelar-evento-dialog',
-  imports: [SelectBuscable, ReactiveFormsModule, DecimalPipe, MatDialogModule, MatButtonModule, MatIconModule, MatSelectModule],
+  imports: [ReactiveFormsModule, DecimalPipe, MatDialogModule, MatButtonModule, MatIconModule, MatSelectModule],
   templateUrl: './cancelar-evento-dialog.html',
   styleUrl: './cancelar-evento-dialog.scss',
 })

@@ -1,12 +1,12 @@
 <div class="encabezado">
   <h1>{{ config.titulo }}</h1>
-  <div class="acciones-encabezado">
-    <button mat-button routerLink="/admin/catalogos">
+  <div class="encabezado-acciones">
+    <button mat-stroked-button class="pf-btn-cancel" routerLink="/admin/catalogos">
       <mat-icon>arrow_back</mat-icon>
       Catalogos
     </button>
     @if (puedeCrear && !mostrandoForm()) {
-      <button mat-flat-button color="primary" (click)="iniciarCreacion()">
+      <button mat-flat-button class="list-btn-nuevo" (click)="iniciarCreacion()">
         <mat-icon>add</mat-icon>
         Nuevo
       </button>
@@ -48,7 +48,7 @@
           }
         }
         <div class="acciones">
-          <button mat-button type="button" (click)="mostrandoForm.set(false)">Cancelar</button>
+          <button mat-stroked-button class="pf-btn-cancel pf-btn-cancelar" type="button" (click)="mostrandoForm.set(false)">Cancelar</button>
           <button mat-flat-button color="primary" type="submit">
             {{ editandoId() ? 'Actualizar' : 'Crear' }}
           </button>

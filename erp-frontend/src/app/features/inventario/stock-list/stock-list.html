@@ -1,9 +1,11 @@
 <div class="encabezado">
   <h1>Stock de inventario</h1>
-  <button mat-stroked-button routerLink="/inventario/movimientos">
-    <mat-icon>swap_vert</mat-icon>
-    Ver movimientos
-  </button>
+  <div class="encabezado-acciones">
+    <button mat-stroked-button class="pf-btn-cancel" routerLink="/inventario/movimientos">
+      <mat-icon>swap_vert</mat-icon>
+      Ver movimientos
+    </button>
+  </div>
 </div>
 
 @if (alertas().length > 0) {

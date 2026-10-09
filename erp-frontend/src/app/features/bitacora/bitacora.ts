@@ -3,6 +3,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
@@ -13,14 +14,13 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { BitacoraService } from './bitacora.service';
 import { BitacoraAccesoResponse, BitacoraMovimientoResponse } from './dto/bitacora';
 import { TablaResponsiva } from '../../shared/tabla-responsiva';
-import { SelectBuscable } from '../../shared/select-buscable';
 
 /** Valores reales que registra AuthService en bitacora_acceso.resultado. */
 const RESULTADOS_ACCESO = ['EXITOSO', 'PASSWORD_INCORRECTA', 'USUARIO_INACTIVO', 'USUARIO_BLOQUEADO'];
 
 @Component({
   selector: 'app-bitacora',
-  imports: [SelectBuscable, TablaResponsiva, 
+  imports: [TablaResponsiva, 
     ReactiveFormsModule,
     DatePipe,
     MatTabsModule,
@@ -28,6 +28,7 @@ const RESULTADOS_ACCESO = ['EXITOSO', 'PASSWORD_INCORRECTA', 'USUARIO_INACTIVO',
     MatPaginatorModule,
     MatButtonModule,
     MatDatepickerModule,
+    MatIconModule,
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,

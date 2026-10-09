@@ -1,11 +1,13 @@
 <div class="encabezado">
   <h1>Roles</h1>
-  @if (puedeCrear && !creando()) {
-    <button mat-flat-button color="primary" (click)="iniciarCreacion()">
-      <mat-icon>add</mat-icon>
-      Nuevo rol
-    </button>
-  }
+  <div class="encabezado-acciones">
+    @if (puedeCrear && !creando()) {
+      <button mat-flat-button class="list-btn-nuevo" (click)="iniciarCreacion()">
+        <mat-icon>add</mat-icon>
+        Nuevo rol
+      </button>
+    }
+  </div>
 </div>
 
 @if (creando()) {
@@ -17,7 +19,7 @@
           <input matInput formControlName="nombreRol" placeholder="SUPERVISOR, COCINA..." />
         </mat-form-field>
         <div class="acciones">
-          <button mat-button type="button" (click)="creando.set(false)">Cancelar</button>
+          <button mat-stroked-button class="pf-btn-cancel pf-btn-cancelar" type="button" (click)="creando.set(false)">Cancelar</button>
           <button mat-flat-button color="primary" type="submit">
             {{ editando() ? 'Actualizar' : 'Crear' }}
           </button>

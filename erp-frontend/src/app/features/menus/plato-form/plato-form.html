@@ -7,13 +7,13 @@
       <span class="pf-breadcrumb-current">{{ idPlato() ? 'Editar plato' : 'Nuevo plato' }}</span>
     </nav>
     <div class="pf-title-row">
+      <span class="pf-foco" [class.pf-foco--modificacion]="idPlato()" [class.pf-foco--alta]="!idPlato()" role="img" [attr.aria-label]="idPlato() ? 'Modificación' : 'Alta'"></span>
       <h1 class="pf-title">{{ idPlato() ? 'Editar Plato' : 'Nuevo Plato' }}</h1>
-      <span class="pf-badge">{{ idPlato() ? 'EDITANDO' : 'ALTA EN SISTEMA' }}</span>
     </div>
     <p class="pf-subtitle">
       {{ idPlato()
-        ? 'Modifica los datos del plato y guarda los cambios.'
-        : 'Ingresa los datos del plato para poder agregarlo a los menús.' }}
+        ? 'Modifique los datos del plato y guarde los cambios.'
+        : 'Ingrese los datos del plato para poder agregarlo a los menús.' }}
     </p>
   </div>
 </div>
@@ -118,7 +118,7 @@
 
   <!-- ══ ACCIONES ABAJO ══════════════════════════════════════ -->
   <div class="pf-footer-actions">
-    <button mat-stroked-button type="button" routerLink="/menus/platos" class="pf-btn-cancel">
+    <button mat-stroked-button type="button" routerLink="/menus/platos" class="pf-btn-cancel pf-btn-cancelar">
       Cancelar
     </button>
     <button mat-flat-button type="submit" class="pf-btn-save" [disabled]="guardando()">

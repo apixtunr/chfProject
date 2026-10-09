@@ -23,7 +23,6 @@ import {
   formatoDpi,
 } from '../dto/empleado';
 import { EmpleadoService } from '../empleado.service';
-import { SelectBuscable } from '../../../shared/select-buscable';
 
 const TIPO_ESTADO_GENERAL = 'GENERAL';
 const PAGINA_USUARIOS = '/api/usuarios';
@@ -38,8 +37,7 @@ type FilaDocumento = FormGroup<{
 
 @Component({
   selector: 'app-empleado-form',
-  imports: [SelectBuscable, 
-    ReactiveFormsModule,
+  imports: [ReactiveFormsModule,
     RouterLink,
     MatSelectModule,
     MatDatepickerModule,

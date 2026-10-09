@@ -1,6 +1,7 @@
 import { Component, Inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -14,25 +15,38 @@ export interface ResultadoAgregarStock {
 /** Atajo para cargar stock sin ir hasta Movimientos: por debajo registra una ENTRADA igual. */
 @Component({
   selector: 'app-agregar-stock-dialog',
-  imports: [FormsModule, MatDialogModule, MatButtonModule, MatFormFieldModule, MatInputModule],
+  imports: [MatIconModule, FormsModule, MatDialogModule, MatButtonModule, MatFormFieldModule, MatInputModule],
   template: `
     <h2 mat-dialog-title>Agregar stock</h2>
     <mat-dialog-content>
       <p>{{ data.nombreProducto }} <span class="disponible">(disponible: {{ data.cantidadTotal }})</span></p>
-      <mat-form-field appearance="outline" class="campo">
-        <mat-label>Cantidad a ingresar</mat-label>
-        <input matInput type="number" min="0.01" step="0.01" [(ngModel)]="cantidad" />
-      </mat-form-field>
-      <mat-form-field appearance="outline" class="campo">
-        <mat-label>Descripción (opcional)</mat-label>
-        <input matInput [(ngModel)]="descripcion"/>
-      </mat-form-field>
+      <div class="pf-field campo">
+        <label class="pf-label" for="cantidad">
+          <span class="pf-label-name">Cantidad a ingresar</span>
+          <span class="pf-required-mark">*</span>
+        </label>
+        <div class="pf-input-wrap">
+          <mat-icon class="pf-input-icon">add_box</mat-icon>
+          <input id="cantidad" class="pf-input" type="number" min="0.01" step="0.01" [(ngModel)]="cantidad" />
+        </div>
+      </div>
+      <div class="pf-field campo">
+        <label class="pf-label" for="descripcion">
+          <span class="pf-label-name">Descripción</span>
+          
+          <span class="pf-label-hint">(opcional)</span>
+        </label>
+        <div class="pf-input-wrap">
+          <mat-icon class="pf-input-icon">notes</mat-icon>
+          <input id="descripcion" class="pf-input" [(ngModel)]="descripcion" />
+        </div>
+      </div>
     </mat-dialog-content>
     <mat-dialog-actions align="end">
-      <button mat-button [mat-dialog-close]="null">Cancelar</button>
+      <button mat-stroked-button class="pf-btn-cancel pf-btn-cancelar" [mat-dialog-close]="null">Cancelar</button>
       <button
         mat-flat-button
-        color="primary"
+        class="pf-btn-save"
         [mat-dialog-close]="{ cantidad: cantidad!, descripcion: descripcion }"
         [disabled]="cantidad === null || cantidad <= 0"
       >

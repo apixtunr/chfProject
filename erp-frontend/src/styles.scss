@@ -12,6 +12,10 @@
 // lugar donde cada color de la identidad visual esta escrito.
 @use './styles/tokens' as chf;
 @use 'sass:map';
+// Diseno de reportes y paneles (rpt-*): Reporte de eventos, Rentabilidad, Bitacora y
+// detalle del evento. Global para no repetirlo dentro de cada pantalla.
+@use './app/shared/reporte/reporte';
+@use './styles/evento-detalle';
 
 // Todos los formularios de la app usan esta misma clase (mat-card con max-width);
 // sin margin:auto un bloque con ancho menor al de su contenedor queda pegado a la
@@ -187,20 +191,150 @@ mat-icon {
   overflow-y: hidden;
 }
 
-// Marco unico para todas las tablas del sistema: borde fino, esquinas redondeadas y
-// el paginador separado por una linea para que no parezca una fila mas. Antes solo 3
-// de las 24 pantallas con tabla lo tenian (Clientes, Cotizaciones y Platos) y las
-// otras 21 dejaban la tabla flotando sobre el fondo, sin marco ni separacion.
-.tabla-contenedor {
-  border: 1px solid var(--mat-sys-outline-variant);
+// ===========================================================================
+// Listados: el diseno de Clientes y Cotizaciones, comun a todas las pantallas
+// de listado (titulo, buscador y boton "Nuevo" en una fila, y la tabla en un
+// marco blanco). Antes cada pantalla lo copiaba en su .scss o no lo tenia.
+// ===========================================================================
+
+.encabezado {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+
+  h1 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--chf-texto-fuerte);
+  }
+}
+
+// Buscador, filtros y boton, juntos al final de la fila del titulo.
+.encabezado-acciones {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+// Boton "Nuevo ..." de los listados: azul de marca, igual que Guardar en los formularios.
+.list-btn-nuevo.mat-mdc-unelevated-button {
+  background: var(--chf-marca);
+  color: var(--chf-marca-contraste);
+  font-weight: 500;
   border-radius: 8px;
+  height: 40px;
+  gap: 6px;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+}
+
+// Buscador con lupa: mismo aspecto que .pf-input-wrap de los formularios (fondo blanco,
+// borde visible) en vez del campo de Material con etiqueta flotante.
+.buscador {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 340px;
+  max-width: 100%;
+  background: var(--chf-fondo-seccion);
+  border: 1.5px solid var(--chf-borde-control);
+  border-radius: 8px;
+  padding: 10px 14px;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+  &:focus-within {
+    border-color: var(--chf-campo-acento);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--chf-campo-acento) 14%, transparent);
+  }
+}
+
+.buscador-icono {
+  flex: 0 0 auto;
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: var(--chf-texto-ejemplo);
+}
+
+.buscador-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  font: inherit;
+  font-size: 0.9rem;
+  color: var(--chf-texto-fuerte);
+
+  &::placeholder {
+    color: var(--chf-texto-ejemplo);
+  }
+}
+
+// Selector de pocas opciones en la fila del titulo (Activos / Inactivos / Todos en
+// Clientes, Pendientes / Pagados en Pagos...): botones segmentados, la elegida resaltada.
+.filtro-estado {
+  display: inline-flex;
+  padding: 3px;
+  border-radius: 10px;
+  background: var(--chf-fondo-campo);
+  border: 1px solid var(--chf-borde-control);
+}
+
+.filtro-opcion {
+  border: 0;
+  background: transparent;
+  padding: 6px 12px;
+  border-radius: 7px;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--chf-texto-medio);
+  cursor: pointer;
+
+  &:hover {
+    color: var(--chf-texto-fuerte);
+  }
+}
+
+.filtro-opcion--activa {
+  background: var(--chf-fondo-seccion);
+  color: var(--chf-texto-fuerte);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+}
+
+// Lista desplegable como filtro en la fila del titulo (mismo campo que los formularios).
+.filtro-lista {
+  width: 240px;
+  max-width: 100%;
+}
+
+// Marco de todas las tablas del sistema: fondo blanco, borde visible, esquinas
+// redondeadas y el paginador separado por una linea para que no parezca una fila mas.
+.tabla-contenedor {
+  width: 100%;
+  background: var(--chf-fondo-seccion);
+  border: 1.5px solid var(--chf-borde-control);
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   // En horizontal se desplaza si el contenido no cabe; en vertical se recorta para que
   // el borde redondeado no se pierda detras de las esquinas de la tabla.
   overflow-x: auto;
   overflow-y: hidden;
 
   mat-paginator {
-    border-top: 1px solid var(--mat-sys-outline-variant);
+    background: transparent;
+    border-top: 1.5px solid var(--chf-borde-control);
   }
 }
 
@@ -847,6 +981,33 @@ mat-paginator {
   line-height: 1.2;
 }
 
+// Foco junto al titulo de un formulario: verde si es un alta, naranja si es una
+// modificacion (rojo queda reservado para una baja). Brilla y "respira" despacio,
+// como una luz de estado.
+.pf-foco {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--pf-foco-color);
+  box-shadow: 0 0 6px 2px color-mix(in srgb, var(--pf-foco-color) 60%, transparent);
+  animation: pf-foco-brillo 2.2s ease-in-out infinite;
+
+  &--alta         { --pf-foco-color: #22c55e; }
+  &--modificacion { --pf-foco-color: #f97316; }
+  &--baja         { --pf-foco-color: #ef4444; }
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+@keyframes pf-foco-brillo {
+  0%, 100% { box-shadow: 0 0 4px 1px color-mix(in srgb, var(--pf-foco-color) 45%, transparent); }
+  50%      { box-shadow: 0 0 10px 4px color-mix(in srgb, var(--pf-foco-color) 70%, transparent); }
+}
+
 .pf-badge {
   display: inline-flex;
   align-items: center;
@@ -883,15 +1044,28 @@ mat-paginator {
 // Clase repetida: la regla de Material para los botones outlined empata en
 // especificidad y se inyecta despues, asi que le imponia al boton Cancelar el azul de
 // marca del token global. Como estilo de componente esto no pasaba.
+// Cancelar y demas acciones secundarias: borde y texto en el color de marca, para que
+// se vean como boton (antes eran gris claro sobre blanco y casi no se distinguian).
 .pf-btn-cancel.pf-btn-cancel.mat-mdc-outlined-button {
-  border-color: var(--chf-borde-suave);
-  color: var(--chf-texto-medio);
-  font-weight: 500;
+  border: 1.5px solid var(--chf-marca);
+  color: var(--chf-marca);
+  font-weight: 600;
   border-radius: 8px;
   height: 40px;
 
   &:hover {
-    background: var(--chf-fondo-campo);
+    background: color-mix(in srgb, var(--chf-marca) 8%, white);
+  }
+}
+
+// Cancelar: borde y texto rojo, sin relleno. Se distingue de Guardar (relleno) y de
+// las acciones de eliminar, que si van rellenas o con icono de basurero.
+.pf-btn-cancel.pf-btn-cancelar.mat-mdc-outlined-button {
+  border-color: #dc2626;
+  color: #dc2626;
+
+  &:hover {
+    background: #fef2f2;
   }
 }
 
@@ -1389,38 +1563,3 @@ mat-paginator {
   }
 }
 
-// ---------------------------------------------------------------------------
-// Buscador dentro de los desplegables largos (directiva SelectBuscable). El panel de
-// un mat-select vive en el overlay, fuera de cada componente, por eso el estilo es global.
-// Queda fijo arriba mientras la lista se desplaza.
-// ---------------------------------------------------------------------------
-.mat-mdc-select-panel .select-buscador {
-  position: sticky;
-  top: 0;
-  z-index: 1;
-  padding: 8px 10px;
-  background: var(--chf-fondo-seccion);
-  border-bottom: 1px solid var(--chf-borde-suave);
-
-  input {
-    width: 100%;
-    box-sizing: border-box;
-    padding: 8px 10px;
-    border: 1.5px solid var(--chf-borde-control);
-    border-radius: 6px;
-    font: inherit;
-    font-size: 0.9rem;
-    color: var(--chf-texto-fuerte);
-    background: var(--chf-fondo-seccion);
-    outline: none;
-
-    &:focus {
-      border-color: var(--chf-campo-acento);
-    }
-  }
-}
-
-// El panel trae padding arriba; con el buscador fijo dejaria una franja vacia encima.
-.mat-mdc-select-panel:has(> .select-buscador) {
-  padding-top: 0 !important;
-}

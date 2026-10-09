@@ -7,112 +7,16 @@
   text-align: justify;
 }
 
-.tarjeta-encabezado {
-  padding: 20px 24px;
-  margin-bottom: 16px;
-}
-
-.fila-titulo {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 16px;
-}
-
-h1 {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin: 0;
-}
-
-.acciones-encabezado {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.separador-encabezado {
-  border: none;
-  border-top: 1px solid var(--mat-sys-outline-variant);
-  margin: 16px 0;
-}
-
-.grid-info {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 16px;
-}
-
-.campo-info {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  min-width: 0;
-}
-
-.etiqueta-info {
-  font-size: 0.7rem;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--mat-sys-on-surface-variant);
-}
-
-.valor-info {
-  font-weight: 500;
-}
-
-.valor-truncado {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  cursor: default;
-}
-
-.valor-con-icono {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-
-  mat-icon {
-    font-size: 18px;
-    width: 18px;
-    height: 18px;
-  }
-}
-
-.contenido-tab {
-  padding: 16px 0;
-}
-
-.formulario-linea {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  flex-wrap: wrap;
-  margin-bottom: 16px;
-}
-
-.campo-chico {
-  flex: 1 1 160px;
-}
-
-.campo-menu {
-  flex: 2 1 240px;
-}
-
 .fila-recargo {
   flex: 1 1 100%;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
 }
 
 .campos-recargo {
   display: flex;
-  gap: 12px;
+  gap: 16px;
   flex-wrap: wrap;
 }
 
@@ -276,15 +180,6 @@ h1 {
 // en un <table> rompe su algoritmo de layout y la encoge al ancho del contenido).
 // Asi, si una celda es mas ancha de lo esperado, scrollea aqui adentro en vez
 // de desbordar la pagina completa.
-.tabla-scroll {
-  overflow-x: auto;
-  // Sin esto, el navegador activa tambien un scroll vertical (regla CSS: si un eje
-  // tiene overflow distinto de "visible" y el otro queda en "visible", el otro pasa
-  // a "auto" solo). Esta tabla nunca deberia necesitar scroll vertical.
-  overflow-y: hidden;
-  max-width: 100%;
-}
-
 .boton-confirmar-todo {
   margin-bottom: 16px;
 }

@@ -1,47 +1,47 @@
 <div class="encabezado">
   <h1>Movimientos de inventario</h1>
-  @if (puedeRegistrar) {
-    <button mat-flat-button color="primary" routerLink="/inventario/movimientos/nuevo">
-      <mat-icon>add</mat-icon>
-      Registrar movimiento
-    </button>
-  }
-</div>
+  <div class="encabezado-acciones">
+    <div class="filtro-estado" role="group" aria-label="Filtrar por">
+      <button type="button" class="filtro-opcion" [class.filtro-opcion--activa]="tipoFiltro() === 'producto'"
+              [attr.aria-pressed]="tipoFiltro() === 'producto'" (click)="cambiarTipoFiltro('producto')">Producto</button>
+      <button type="button" class="filtro-opcion" [class.filtro-opcion--activa]="tipoFiltro() === 'evento'"
+              [attr.aria-pressed]="tipoFiltro() === 'evento'" (click)="cambiarTipoFiltro('evento')">ID de evento</button>
+    </div>
 
-<div class="fila-filtros">
-  <mat-form-field appearance="outline" class="filtro-tipo">
-    <mat-label>Filtrar por</mat-label>
-    <mat-select [value]="tipoFiltro()" (selectionChange)="cambiarTipoFiltro($event.value)">
-      <mat-option value="producto">Producto</mat-option>
-      <mat-option value="evento">ID de evento</mat-option>
-    </mat-select>
-  </mat-form-field>
-
-  @if (tipoFiltro() === 'producto') {
-    <mat-form-field appearance="outline" class="filtro">
-      <mat-label>Producto</mat-label>
-      <mat-select [value]="idProductoFiltro()" (selectionChange)="filtrarPorProducto($event.value)">
-        <mat-option [value]="null">Todos</mat-option>
-        @for (producto of productos(); track producto.idProducto) {
-          <mat-option [value]="producto.idProducto">{{ producto.nombreProducto }}</mat-option>
+    @if (tipoFiltro() === 'producto') {
+      <div class="pf-input-wrap pf-input-wrap--select filtro-lista">
+        <mat-icon class="pf-input-icon">inventory_2</mat-icon>
+        <mat-select class="pf-select" [value]="idProductoFiltro()" (selectionChange)="filtrarPorProducto($event.value)" aria-label="Producto">
+          <mat-option [value]="null">Todos</mat-option>
+          @for (producto of productos(); track producto.idProducto) {
+            <mat-option [value]="producto.idProducto">{{ producto.nombreProducto }}</mat-option>
+          }
+        </mat-select>
+      </div>
+    } @else {
+      <div class="buscador filtro-evento">
+        <mat-icon class="buscador-icono">tag</mat-icon>
+        <input class="buscador-input" type="number" [(ngModel)]="idEventoInput" (keyup.enter)="filtrarPorEvento()"
+               placeholder="ID de evento..." aria-label="ID de evento" />
+        @if (idEventoFiltro() !== null) {
+          <button mat-icon-button class="buscador-boton" (click)="limpiarFiltroEvento()" matTooltip="Quitar filtro" aria-label="Quitar filtro">
+            <mat-icon>close</mat-icon>
+          </button>
+        } @else {
+          <button mat-icon-button class="buscador-boton" (click)="filtrarPorEvento()" matTooltip="Buscar" aria-label="Buscar">
+            <mat-icon>search</mat-icon>
+          </button>
         }
-      </mat-select>
-    </mat-form-field>
-  } @else {
-    <mat-form-field appearance="outline" class="filtro">
-      <mat-label>ID de evento</mat-label>
-      <input matInput type="number" [(ngModel)]="idEventoInput" (keyup.enter)="filtrarPorEvento()" />
-      @if (idEventoFiltro() !== null) {
-        <button matSuffix mat-icon-button (click)="limpiarFiltroEvento()" matTooltip="Quitar filtro" aria-label="Quitar filtro">
-          <mat-icon>close</mat-icon>
-        </button>
-      } @else {
-        <button matSuffix mat-icon-button (click)="filtrarPorEvento()" matTooltip="Buscar" aria-label="Buscar">
-          <mat-icon>search</mat-icon>
-        </button>
-      }
-    </mat-form-field>
-  }
+      </div>
+    }
+
+    @if (puedeRegistrar) {
+      <button mat-flat-button class="list-btn-nuevo" routerLink="/inventario/movimientos/nuevo">
+        <mat-icon>add</mat-icon>
+        Registrar movimiento
+      </button>
+    }
+  </div>
 </div>
 
 <div class="tabla-contenedor">

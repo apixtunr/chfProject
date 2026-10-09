@@ -15,7 +15,6 @@ import { EventoResponse } from '../../eventos/dto/evento';
 import { PagoService } from '../pago.service';
 import { ReciboPago } from '../recibo-pago';
 import { MetodoPagoResponse } from '../dto/pago';
-import { SelectBuscable } from '../../../shared/select-buscable';
 
 interface ResumenEvento {
   total: number;
@@ -25,7 +24,7 @@ interface ResumenEvento {
 
 @Component({
   selector: 'app-pago-form',
-  imports: [SelectBuscable, MatIconModule, 
+  imports: [MatIconModule, 
     ReactiveFormsModule,
     RouterLink,
     DecimalPipe,

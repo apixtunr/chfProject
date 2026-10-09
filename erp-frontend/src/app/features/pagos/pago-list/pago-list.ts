@@ -13,12 +13,11 @@ import { ColorEstado, COLOR_ESTADO_EVENTO_DEFECTO, COLOR_POR_ESTADO_EVENTO } fro
 import { EventoPagoResponse } from '../dto/pago';
 import { PagoService } from '../pago.service';
 import { TablaResponsiva } from '../../../shared/tabla-responsiva';
-import { SelectBuscable } from '../../../shared/select-buscable';
 
 
 @Component({
   selector: 'app-pago-list',
-  imports: [SelectBuscable, TablaResponsiva, 
+  imports: [TablaResponsiva, 
     RouterLink,
     DatePipe,
     DecimalPipe,

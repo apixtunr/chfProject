@@ -147,7 +147,7 @@
               }
             </mat-select>
             @if (formulario.controls.idBebida.hasError('required') && formulario.controls.idBebida.touched) {
-              <mat-error>Elegí una bebida</mat-error>
+              <mat-error>Elija una bebida</mat-error>
             }
           </mat-form-field>
         }
@@ -162,7 +162,7 @@
             {{ idDetalleEditando() ? 'Guardar cambios' : 'Agregar' }}
           </button>
           @if (idDetalleEditando()) {
-            <button mat-stroked-button class="pf-btn-cancel" type="button" (click)="cancelarEdicion()">
+            <button mat-stroked-button class="pf-btn-cancel pf-btn-cancelar" type="button" (click)="cancelarEdicion()">
               Cancelar
             </button>
           }
@@ -266,7 +266,7 @@
             {{ idServicioEditando() ? 'Guardar cambios' : 'Agregar' }}
           </button>
           @if (idServicioEditando()) {
-            <button mat-stroked-button class="pf-btn-cancel" type="button" (click)="cancelarEdicionServicio()">
+            <button mat-stroked-button class="pf-btn-cancel pf-btn-cancelar" type="button" (click)="cancelarEdicionServicio()">
               Cancelar
             </button>
           }

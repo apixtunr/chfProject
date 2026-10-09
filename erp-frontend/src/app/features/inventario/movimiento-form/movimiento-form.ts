@@ -7,11 +7,10 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router, RouterLink } from '@angular/router';
 import { InventarioService } from '../inventario.service';
 import { ProductoResponse, TipoMovimiento } from '../dto/inventario';
-import { SelectBuscable } from '../../../shared/select-buscable';
 
 @Component({
   selector: 'app-movimiento-form',
-  imports: [SelectBuscable, MatIconModule, ReactiveFormsModule, RouterLink, MatSelectModule, MatButtonModule],
+  imports: [MatIconModule, ReactiveFormsModule, RouterLink, MatSelectModule, MatButtonModule],
   templateUrl: './movimiento-form.html',
   styleUrl: './movimiento-form.scss',
 })

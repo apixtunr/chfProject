@@ -7,13 +7,13 @@
       <span class="pf-breadcrumb-current">{{ idBebida() ? 'Editar bebida' : 'Nueva bebida' }}</span>
     </nav>
     <div class="pf-title-row">
+      <span class="pf-foco" [class.pf-foco--modificacion]="idBebida()" [class.pf-foco--alta]="!idBebida()" role="img" [attr.aria-label]="idBebida() ? 'Modificación' : 'Alta'"></span>
       <h1 class="pf-title">{{ idBebida() ? 'Editar Bebida' : 'Nueva Bebida' }}</h1>
-      <span class="pf-badge">{{ idBebida() ? 'EDITANDO' : 'ALTA EN SISTEMA' }}</span>
     </div>
     <p class="pf-subtitle">
       {{ idBebida()
-        ? 'Modifica los datos de la bebida y guarda los cambios.'
-        : 'Ingresa la bebida para poder incluirla en los platos.' }}
+        ? 'Modifique los datos de la bebida y guarde los cambios.'
+        : 'Ingrese la bebida para poder incluirla en los platos.' }}
     </p>
   </div>
 </div>
@@ -79,7 +79,7 @@
 
   <!-- ══ ACCIONES ABAJO ══════════════════════════════════════ -->
   <div class="pf-footer-actions">
-    <button mat-stroked-button type="button" routerLink="/menus/bebidas" class="pf-btn-cancel">
+    <button mat-stroked-button type="button" routerLink="/menus/bebidas" class="pf-btn-cancel pf-btn-cancelar">
       Cancelar
     </button>
     <button mat-flat-button type="submit" class="pf-btn-save" [disabled]="guardando()">
