@@ -20,10 +20,6 @@
     </mat-card>
   }
 
-  @if (e.estadoNombre === 'CANCELADO') {
-    <p class="aviso-cancelado">Este evento está cancelado: ya no se le registran pagos. Lo pagado se resolvió en el acuerdo de cancelación.</p>
-  }
-
   <div class="encabezado seccion">
     <h2>Abonos registrados</h2>
     @if (puedeCrear && e.estadoNombre !== 'CANCELADO') {
