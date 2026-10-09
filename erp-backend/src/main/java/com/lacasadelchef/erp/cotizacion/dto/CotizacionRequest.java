@@ -29,7 +29,7 @@ public record CotizacionRequest(
         @DecimalMin(value = "0.0", message = "El presupuesto no puede ser negativo")
         BigDecimal presupuestoCliente,
 
-        /** En punto, de 11:00 a 19:00. */
+        /** En punto, de 7:00 a 19:00. */
         @NotNull(message = "El horario del servicio es obligatorio")
         LocalTime horaInicio
 ) {

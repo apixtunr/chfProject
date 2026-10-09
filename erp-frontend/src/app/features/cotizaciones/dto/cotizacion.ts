@@ -7,7 +7,7 @@ export interface CotizacionRequest {
   cantidadPersonas: number;
   fechaEvento: string | null;
   presupuestoCliente: number | null;
-  /** "18:00": el servicio empieza en punto, de 11:00 a 19:00. */
+  /** "18:00": el servicio empieza en punto, de 7:00 a 19:00. */
   horaInicio: string | null;
 }
 
@@ -146,7 +146,7 @@ export function fechaMinimaEvento(): Date {
 }
 
 /** Horas en que puede empezar el servicio (CondicionesComerciales.HORAS_DE_INICIO). */
-export const HORAS_DE_INICIO = [11, 12, 13, 14, 15, 16, 17, 18, 19].map((h) => `${String(h).padStart(2, '0')}:00`);
+export const HORAS_DE_INICIO = [7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19].map((h) => `${String(h).padStart(2, '0')}:00`);
 
 /** "18:00" o "18:00:00" -> "6:00 p.m." */
 export function horaLegible(hora: string): string {
@@ -160,7 +160,8 @@ export function horaLegible(hora: string): string {
  */
 export function horaFinServicio(inicio: string): string {
   const h = Number(inicio.split(':')[0]);
-  const fin = Math.min(h + 4, h >= 18 ? 22 : 21);
+  // Un desayuno (7 a 10) termina a mas tardar a las 11:00.
+  const fin = Math.min(h + 4, h < 11 ? 11 : h >= 18 ? 22 : 21);
   return `${String(fin).padStart(2, '0')}:00`;
 }
 

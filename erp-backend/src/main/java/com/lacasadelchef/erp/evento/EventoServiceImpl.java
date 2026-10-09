@@ -364,8 +364,8 @@ public class EventoServiceImpl implements EventoService {
         }
 
         // El horario sigue las mismas reglas que la cotizacion, venga o no de una: empieza en
-        // punto entre las 11:00 y las 19:00 y el fin lo calcula el sistema (4 horas, hasta
-        // las 21:00 o las 22:00). Si viene de una cotizacion y no se indica otro, el acordado.
+        // punto entre las 7:00 y las 19:00 y el fin lo calcula el sistema (4 horas, hasta
+        // las 21:00 o las 22:00; un desayuno, hasta las 11:00). Si viene de una cotizacion y no se indica otro, el acordado.
         LocalTime inicio = request.horaInicio();
         var cotizacion = evento.getCotizacionVersion() == null ? null : evento.getCotizacionVersion().getCotizacion();
         if (inicio == null && cotizacion != null) {
@@ -376,7 +376,7 @@ public class EventoServiceImpl implements EventoService {
         }
         boolean cambiaElHorario = !inicio.equals(evento.getHoraInicio());
         if (cambiaElHorario && !CondicionesComerciales.esHoraDeInicioPermitida(inicio)) {
-            throw new BusinessException("El servicio empieza en punto entre las 11:00 y las 19:00");
+            throw new BusinessException("El servicio empieza en punto entre las 7:00 y las 19:00");
         }
         evento.setHoraInicio(inicio);
         evento.setHoraFin(CondicionesComerciales.horaFinServicio(inicio));

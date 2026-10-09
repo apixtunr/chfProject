@@ -190,7 +190,7 @@ class CotizacionServiceImplTest {
 
         assertThatThrownBy(() -> cotizacionService.crear(aLas1330))
                 .isInstanceOf(BusinessException.class)
-                .hasMessageContaining("entre las 11:00 y las 19:00");
+                .hasMessageContaining("entre las 7:00 y las 19:00");
         verify(cotizacionRepository, never()).save(any());
     }
 }

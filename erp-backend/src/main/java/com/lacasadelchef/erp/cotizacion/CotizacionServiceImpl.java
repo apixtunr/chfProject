@@ -195,8 +195,8 @@ public class CotizacionServiceImpl implements CotizacionService {
         cotizacion.setPresupuestoCliente(request.presupuestoCliente());
         if (request.horaInicio() != null && !CondicionesComerciales.esHoraDeInicioPermitida(request.horaInicio())) {
             throw new BusinessException(
-                    "El servicio empieza en punto, entre las 11:00 y las 19:00 (dura 4 horas y termina a mas tardar a"
-                            + " las 21:00, o 22:00 si inicia a las 18:00 o 19:00)");
+                    "El servicio empieza en punto, entre las 7:00 y las 19:00 (dura 4 horas y termina a mas tardar a"
+                            + " las 21:00, o 22:00 si inicia a las 18:00 o 19:00; un desayuno, a las 11:00)");
         }
         // Un evento para hoy no puede empezar a una hora que ya paso (solo posible con el modo
         // pruebas, que permite cotizar para el mismo dia).

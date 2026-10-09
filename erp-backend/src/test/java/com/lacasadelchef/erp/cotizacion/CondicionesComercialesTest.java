@@ -11,11 +11,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 class CondicionesComercialesTest {
 
     @Test
-    @DisplayName("El servicio empieza en punto entre las 11:00 y las 19:00")
+    @DisplayName("El servicio empieza en punto entre las 7:00 (desayunos) y las 19:00")
     void turnosDeInicio() {
         assertThat(CondicionesComerciales.esHoraDeInicioPermitida(LocalTime.of(11, 0))).isTrue();
         assertThat(CondicionesComerciales.esHoraDeInicioPermitida(LocalTime.of(19, 0))).isTrue();
-        assertThat(CondicionesComerciales.esHoraDeInicioPermitida(LocalTime.of(10, 0))).isFalse();
+        assertThat(CondicionesComerciales.esHoraDeInicioPermitida(LocalTime.of(7, 0))).isTrue();
+        assertThat(CondicionesComerciales.esHoraDeInicioPermitida(LocalTime.of(10, 0))).isTrue();
+        assertThat(CondicionesComerciales.esHoraDeInicioPermitida(LocalTime.of(6, 0))).isFalse();
         assertThat(CondicionesComerciales.esHoraDeInicioPermitida(LocalTime.of(20, 0))).isFalse();
         assertThat(CondicionesComerciales.esHoraDeInicioPermitida(LocalTime.of(13, 30))).isFalse();
     }
@@ -23,6 +25,10 @@ class CondicionesComercialesTest {
     @Test
     @DisplayName("Dura 4 horas y termina a las 21:00, o a las 22:00 si inicia a las 18 o 19")
     void horaDeFin() {
+        // Desayunos: terminan a mas tardar a las 11:00.
+        assertThat(CondicionesComerciales.horaFinServicio(LocalTime.of(7, 0))).isEqualTo(LocalTime.of(11, 0));
+        assertThat(CondicionesComerciales.horaFinServicio(LocalTime.of(9, 0))).isEqualTo(LocalTime.of(11, 0));
+        assertThat(CondicionesComerciales.horaFinServicio(LocalTime.of(10, 0))).isEqualTo(LocalTime.of(11, 0));
         assertThat(CondicionesComerciales.horaFinServicio(LocalTime.of(11, 0))).isEqualTo(LocalTime.of(15, 0));
         assertThat(CondicionesComerciales.horaFinServicio(LocalTime.of(17, 0))).isEqualTo(LocalTime.of(21, 0));
         assertThat(CondicionesComerciales.horaFinServicio(LocalTime.of(18, 0))).isEqualTo(LocalTime.of(22, 0));

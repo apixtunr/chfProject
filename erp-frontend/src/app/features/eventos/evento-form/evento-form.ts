@@ -68,7 +68,7 @@ export class EventoForm implements OnInit {
   /** Una semana de anticipacion; el backend igual lo valida, esto solo evita el viaje. */
   readonly fechaMinima = fechaMinimaEvento();
 
-  /** Mismos turnos que la cotizacion: empieza en punto de 11:00 a 19:00; el fin lo calcula el sistema. */
+  /** Mismos turnos que la cotizacion: empieza en punto de 7:00 a 19:00; el fin lo calcula el sistema. */
   readonly horasDeInicio = HORAS_DE_INICIO;
   readonly horarioServicio = horarioServicio;
   readonly minimoPersonas = MINIMO_PERSONAS;

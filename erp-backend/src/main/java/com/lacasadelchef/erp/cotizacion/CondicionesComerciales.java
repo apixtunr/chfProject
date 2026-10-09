@@ -30,7 +30,8 @@ public class CondicionesComerciales {
 
     public static final String HORARIO = "El servicio de alimentos es de 4 horas a partir de la hora solicitada y"
             + " concluye como máximo a las 9:00 p.m. (hasta las 10:00 p.m. para servicios que inician a las 6:00"
-            + " o 7:00 p.m.). Si necesita que el personal de cocina permanezca más tiempo, la hora extra tiene un"
+            + " o 7:00 p.m.). Los desayunos inician entre las 7:00 y las 10:00 a.m. y concluyen como máximo a las"
+            + " 11:00 a.m. Si necesita que el personal de cocina permanezca más tiempo, la hora extra tiene un"
             + " costo de Q25.00 por cocinero.";
 
     public static final List<String> OTRAS_CONDICIONES = List.of(
@@ -54,11 +55,16 @@ public class CondicionesComerciales {
     /** El servicio dura 4 horas desde la hora solicitada. */
     public static final int HORAS_DE_SERVICIO = 4;
 
-    /** Turnos del menu: el servicio empieza en punto entre las 11:00 y las 19:00. */
-    public static final List<LocalTime> HORAS_DE_INICIO = IntStream.rangeClosed(11, 19)
+    /**
+     * Turnos del menu: el servicio empieza en punto entre las 7:00 y las 19:00. De 7:00 a
+     * 10:00 son desayunos; de 11:00 en adelante, almuerzos y cenas.
+     */
+    public static final List<LocalTime> HORAS_DE_INICIO = IntStream.rangeClosed(7, 19)
             .mapToObj(hora -> LocalTime.of(hora, 0))
             .toList();
 
+    /** Un desayuno (inicio de 7:00 a 10:00) termina a mas tardar a las 11:00. */
+    private static final LocalTime CIERRE_DESAYUNO = LocalTime.of(11, 0);
     private static final LocalTime CIERRE = LocalTime.of(21, 0);
     /** Excepcion del menu: si empieza a las 18 o 19, se atiende hasta las 22:00. */
     private static final LocalTime CIERRE_NOCTURNO = LocalTime.of(22, 0);
@@ -81,10 +87,12 @@ public class CondicionesComerciales {
 
     /**
      * Fin del servicio: 4 horas despues del inicio, sin pasar de las 21:00 (22:00 si
-     * empieza a las 18 o 19). Un servicio de las 19:00 dura hasta las 22:00.
+     * empieza a las 18 o 19). Un desayuno termina a mas tardar a las 11:00: el de las 7:00
+     * dura sus 4 horas, el de las 9:00 hasta las 11:00.
      */
     public static LocalTime horaFinServicio(LocalTime inicio) {
-        LocalTime cierre = inicio.isBefore(INICIO_NOCTURNO) ? CIERRE : CIERRE_NOCTURNO;
+        LocalTime cierre = inicio.isBefore(CIERRE_DESAYUNO) ? CIERRE_DESAYUNO
+                : inicio.isBefore(INICIO_NOCTURNO) ? CIERRE : CIERRE_NOCTURNO;
         LocalTime fin = inicio.plusHours(HORAS_DE_SERVICIO);
         return fin.isAfter(cierre) ? cierre : fin;
     }
