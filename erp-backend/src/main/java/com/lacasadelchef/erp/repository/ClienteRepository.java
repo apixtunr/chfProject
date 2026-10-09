@@ -10,6 +10,8 @@ import org.springframework.data.repository.query.Param;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public interface ClienteRepository extends JpaRepository<Cliente, Integer> {
 
@@ -82,4 +84,40 @@ public interface ClienteRepository extends JpaRepository<Cliente, Integer> {
             WHERE v.idCliente = :idCliente AND v.pendiente > 0 AND v.estadoNombre <> 'CANCELADO'
             """)
     BigDecimal saldoPendiente(@Param("idCliente") Integer idCliente);
+
+    /** Reporte de clientes registrados en un periodo (por el dia en que se dieron de alta). */
+    @Query(nativeQuery = true, value = """
+            SELECT c.id_cliente AS "idCliente",
+                   c.nombre AS "nombre",
+                   c.nit AS "nit",
+                   c.telefono AS "telefono",
+                   c.correo AS "correo",
+                   m.nombre_municipio AS "municipio",
+                   d.nombre_departamento AS "departamento",
+                   es.nombre AS "estado",
+                   c.fecha_creacion AS "fechaRegistro"
+            FROM cliente c
+            LEFT JOIN estado es ON es.id_estado = c.id_estado
+            LEFT JOIN municipio m ON m.id_municipio = c.id_municipio
+            LEFT JOIN departamento d ON d.id_departamento = m.id_departamento
+            WHERE (CAST(:fechaDesde AS date) IS NULL OR CAST(c.fecha_creacion AS date) >= :fechaDesde)
+              AND (CAST(:fechaHasta AS date) IS NULL OR CAST(c.fecha_creacion AS date) <= :fechaHasta)
+              AND (CAST(:idEstado AS integer) IS NULL OR c.id_estado = :idEstado)
+            ORDER BY c.fecha_creacion, c.id_cliente
+            """)
+    List<ClienteReporteFila> reporteClientes(@Param("fechaDesde") LocalDate fechaDesde,
+                                             @Param("fechaHasta") LocalDate fechaHasta,
+                                             @Param("idEstado") Integer idEstado);
+
+    interface ClienteReporteFila {
+        Integer getIdCliente();
+        String getNombre();
+        String getNit();
+        String getTelefono();
+        String getCorreo();
+        String getMunicipio();
+        String getDepartamento();
+        String getEstado();
+        LocalDateTime getFechaRegistro();
+    }
 }

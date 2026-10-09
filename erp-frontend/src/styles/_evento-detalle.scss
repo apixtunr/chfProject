@@ -106,6 +106,18 @@
   gap: 6px;
 }
 
+// Hoja de servicio: mismo tamano que las otras dos acciones, con borde y texto de la marca.
+.evt-acciones .evt-btn-hoja.mat-mdc-outlined-button {
+  height: 48px;
+  padding: 0 22px;
+  border-radius: 10px;
+  border: 1.5px solid var(--chf-marca);
+  color: var(--chf-marca);
+  font-size: 0.95rem;
+  font-weight: 600;
+  gap: 6px;
+}
+
 // Accion principal (Planificar evento y los botones de los formularios): azul de marca.
 .evt-btn-planificar.mat-mdc-unelevated-button,
 .evt-btn-enviar.mat-mdc-unelevated-button {

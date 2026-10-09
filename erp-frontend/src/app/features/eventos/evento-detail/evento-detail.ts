@@ -7,6 +7,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDatepickerModule } from '@angular/material/datepicker';
+import { VerPdf } from '../../../shared/reporte/exportar';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -98,6 +99,7 @@ export class EventoDetail implements OnInit {
   private readonly pagoService = inject(PagoService);
   private readonly authService = inject(AuthService);
   private readonly dialog = inject(MatDialog);
+  private readonly verPdf = inject(VerPdf);
   private readonly snackBar = inject(MatSnackBar);
 
   readonly idEvento: number;
@@ -208,6 +210,19 @@ export class EventoDetail implements OnInit {
 
   get puedeCancelar(): boolean {
     return this.authService.esAdministrador();
+  }
+
+  /** La hoja de servicio la imprime quien prepara el evento; un evento cancelado ya no se prepara. */
+  get puedeImprimirHoja(): boolean {
+    const estado = this.evento()?.estadoNombre;
+    return this.authService.tienePermiso(PAGINA_URL, 'imprimir') && !!estado && estado !== 'CANCELADO';
+  }
+
+  verHojaServicio(): void {
+    const id = this.evento()?.idEvento;
+    if (id) {
+      this.verPdf.abrir(this.eventoService.hojaServicio(id), `Hoja de servicio — Evento #${id}`, `hoja-servicio-evento-${id}`);
+    }
   }
 
   get puedeVerRentabilidad(): boolean {

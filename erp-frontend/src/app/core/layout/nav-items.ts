@@ -26,13 +26,19 @@ export const NAV_GROUPS: NavGroup[] = [
     modulo: 'Clientes',
     color: '#3F51B5',
     icon: 'people',
-    items: [{ label: 'Clientes', route: '/clientes', paginaUrl: '/api/clientes', icon: 'people' }],
+    items: [
+      { label: 'Clientes', route: '/clientes', paginaUrl: '/api/clientes', icon: 'people' },
+      { label: 'Reporte de clientes', route: '/clientes/reporte', paginaUrl: '/api/clientes', icon: 'summarize' },
+    ],
   },
   {
     modulo: 'Cotizaciones',
     color: '#8E44AD',
     icon: 'request_quote',
-    items: [{ label: 'Cotizaciones', route: '/cotizaciones', paginaUrl: '/api/cotizaciones', icon: 'request_quote' }],
+    items: [
+      { label: 'Cotizaciones', route: '/cotizaciones', paginaUrl: '/api/cotizaciones', icon: 'request_quote' },
+      { label: 'Reporte de cotizaciones', route: '/cotizaciones/reporte', paginaUrl: '/api/cotizaciones', icon: 'summarize' },
+    ],
   },
   {
     modulo: 'Eventos',
@@ -41,6 +47,7 @@ export const NAV_GROUPS: NavGroup[] = [
     items: [
       { label: 'Gestión Eventos', route: '/eventos', paginaUrl: '/api/eventos', icon: 'event' },
       { label: 'Reporte Eventos', route: '/eventos/reporte', paginaUrl: '/api/eventos', icon: 'insights' },
+      { label: 'Eventos por periodo', route: '/eventos/periodo', paginaUrl: '/api/eventos', icon: 'event_note' },
     ],
   },
   {
@@ -51,6 +58,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { label: 'Stock', route: '/inventario', paginaUrl: '/api/inventarios', icon: 'inventory_2' },
       { label: 'Productos', route: '/inventario/productos', paginaUrl: '/api/productos', icon: 'category' },
       { label: 'Movimientos', route: '/inventario/movimientos', paginaUrl: '/api/movimientos-inventario', icon: 'swap_vert' },
+      { label: 'Reporte de movimientos', route: '/inventario/movimientos/reporte', paginaUrl: '/api/movimientos-inventario', icon: 'summarize' },
     ],
   },
   {
@@ -67,13 +75,20 @@ export const NAV_GROUPS: NavGroup[] = [
     modulo: 'Pagos',
     color: '#16A085',
     icon: 'payments',
-    items: [{ label: 'Pagos', route: '/pagos', paginaUrl: '/api/pagos', icon: 'payments' }],
+    items: [
+      { label: 'Pagos', route: '/pagos', paginaUrl: '/api/pagos', icon: 'payments' },
+      { label: 'Cuentas por cobrar', route: '/pagos/cuentas-por-cobrar', paginaUrl: '/api/pagos', icon: 'account_balance_wallet' },
+      { label: 'Recibos emitidos', route: '/pagos/recibos', paginaUrl: '/api/pagos', icon: 'receipt_long' },
+    ],
   },
   {
     modulo: 'Rentabilidad',
     color: '#D35400',
     icon: 'trending_up',
-    items: [{ label: 'Reporte', route: '/rentabilidad', paginaUrl: '/api/rentabilidad', icon: 'trending_up' }],
+    items: [
+      { label: 'Reporte', route: '/rentabilidad', paginaUrl: '/api/rentabilidad', icon: 'trending_up' },
+      { label: 'Pago al personal', route: '/rentabilidad/pago-personal', paginaUrl: '/api/rentabilidad', icon: 'badge' },
+    ],
   },
   {
     modulo: 'Administracion',

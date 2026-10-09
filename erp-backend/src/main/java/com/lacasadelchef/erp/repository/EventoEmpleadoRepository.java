@@ -26,4 +26,20 @@ public interface EventoEmpleadoRepository extends JpaRepository<EventoEmpleado, 
     List<EventoEmpleado> otrasAsignacionesDelDia(@Param("idEmpleado") Integer idEmpleado,
                                                  @Param("idEvento") Integer idEvento,
                                                  @Param("fecha") LocalDate fecha);
+
+    /** Lo que se le pago a cada persona en los eventos FINALIZADOS de un periodo, por persona y fecha. */
+    @Query("""
+            SELECT ee FROM EventoEmpleado ee
+            JOIN FETCH ee.evento e
+            JOIN FETCH ee.empleado emp
+            LEFT JOIN FETCH emp.puestoEmpleado
+            WHERE e.estado.nombre = 'FINALIZADO'
+              AND (CAST(:fechaDesde AS date) IS NULL OR e.fechaEvento >= :fechaDesde)
+              AND (CAST(:fechaHasta AS date) IS NULL OR e.fechaEvento <= :fechaHasta)
+              AND (CAST(:idEmpleado AS integer) IS NULL OR emp.idEmpleado = :idEmpleado)
+            ORDER BY emp.nombre, emp.apellido, e.fechaEvento, e.idEvento
+            """)
+    List<EventoEmpleado> pagosEnFinalizados(@Param("fechaDesde") LocalDate fechaDesde,
+                                            @Param("fechaHasta") LocalDate fechaHasta,
+                                            @Param("idEmpleado") Integer idEmpleado);
 }

@@ -88,6 +88,11 @@ export class EventoService {
     return this.http.put<EventoResponse>(`${BASE_URL}/${id}/planificar`, null, { params: { sinAnticipo } });
   }
 
+  /** Hoja de servicio del evento en PDF. */
+  hojaServicio(id: number): Observable<Blob> {
+    return this.http.get(`${BASE_URL}/${id}/hoja-servicio`, { responseType: 'blob' });
+  }
+
   anticipo(id: number): Observable<AnticipoResponse> {
     return this.http.get<AnticipoResponse>(`${BASE_URL}/${id}/anticipo`);
   }

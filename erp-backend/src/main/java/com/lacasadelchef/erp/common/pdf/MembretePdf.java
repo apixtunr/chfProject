@@ -95,8 +95,13 @@ public class MembretePdf extends PdfPageEventHelper {
                 new Phrase("Tel: " + TELEFONO_EMPRESA, fuenteContacto), anchoPagina / 2, altoPagina - posicionesTexto[2], 0);
 
         ColumnText.showTextAligned(cb, Element.ALIGN_CENTER,
-                new Phrase("Gracias por su preferencia | La Casa del Chef", fuentePie),
+                new Phrase(textoPie(writer), fuentePie),
                 anchoPagina / 2, alturaFooter / 2f - 3, 0);
+    }
+
+    /** Texto de la franja inferior. Los reportes internos lo cambian por el numero de pagina. */
+    protected String textoPie(PdfWriter writer) {
+        return "Gracias por su preferencia | La Casa del Chef";
     }
 
     private static byte[] leerLogo() {

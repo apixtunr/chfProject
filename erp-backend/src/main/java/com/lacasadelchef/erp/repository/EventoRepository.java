@@ -10,6 +10,8 @@ import org.springframework.data.repository.query.Param;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 public interface EventoRepository extends JpaRepository<Evento, Integer> {
 
@@ -164,5 +166,54 @@ public interface EventoRepository extends JpaRepository<Evento, Integer> {
     interface ConteoProjection {
         String getEtiqueta();
         Long getCantidad();
+    }
+
+    /**
+     * Reporte de eventos por periodo. fechaSegun = REGISTRO filtra por el dia en que se
+     * registro el evento en el sistema; cualquier otro valor, por la fecha del evento.
+     */
+    @Query(nativeQuery = true, value = """
+            SELECT e.id_evento AS "idEvento",
+                   e.fecha_creacion AS "fechaRegistro",
+                   e.fecha_evento AS "fechaEvento",
+                   e.hora_inicio AS "horaInicio",
+                   e.hora_fin AS "horaFin",
+                   cl.nombre AS "cliente",
+                   te.nombre_tipo AS "tipoEvento",
+                   e.cantidad_personas AS "personas",
+                   es.nombre AS "estado"
+            FROM evento e
+            JOIN estado es ON es.id_estado = e.id_estado
+            JOIN tipo_evento te ON te.id_tipo_evento = e.id_tipo_evento
+            LEFT JOIN cotizacion_version cv ON cv.id_cotizacion_version = e.id_cotizacion_version
+            LEFT JOIN cotizacion co ON co.id_cotizacion = cv.id_cotizacion
+            LEFT JOIN cliente cl ON cl.id_cliente = COALESCE(co.id_cliente, e.id_cliente)
+            WHERE (CAST(:fechaDesde AS date) IS NULL OR
+                   (CASE WHEN :fechaSegun = 'REGISTRO' THEN CAST(e.fecha_creacion AS date) ELSE e.fecha_evento END) >= :fechaDesde)
+              AND (CAST(:fechaHasta AS date) IS NULL OR
+                   (CASE WHEN :fechaSegun = 'REGISTRO' THEN CAST(e.fecha_creacion AS date) ELSE e.fecha_evento END) <= :fechaHasta)
+              AND (CAST(:idEstado AS integer) IS NULL OR e.id_estado = :idEstado)
+              AND (CAST(:idTipoEvento AS integer) IS NULL OR e.id_tipo_evento = :idTipoEvento)
+              AND (CAST(:idCliente AS integer) IS NULL OR cl.id_cliente = :idCliente)
+            ORDER BY CASE WHEN :fechaSegun = 'REGISTRO' THEN CAST(e.fecha_creacion AS date) ELSE e.fecha_evento END,
+                     e.hora_inicio, e.id_evento
+            """)
+    List<EventoReporteFila> reporteEventos(@Param("fechaSegun") String fechaSegun,
+                                           @Param("fechaDesde") LocalDate fechaDesde,
+                                           @Param("fechaHasta") LocalDate fechaHasta,
+                                           @Param("idEstado") Integer idEstado,
+                                           @Param("idTipoEvento") Integer idTipoEvento,
+                                           @Param("idCliente") Integer idCliente);
+
+    interface EventoReporteFila {
+        Integer getIdEvento();
+        LocalDateTime getFechaRegistro();
+        LocalDate getFechaEvento();
+        LocalTime getHoraInicio();
+        LocalTime getHoraFin();
+        String getCliente();
+        String getTipoEvento();
+        Integer getPersonas();
+        String getEstado();
     }
 }

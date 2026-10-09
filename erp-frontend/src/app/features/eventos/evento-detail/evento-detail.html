@@ -9,8 +9,14 @@
               [style.--evt-estado-fondo]="colorEstado(e.estadoNombre).bg">{{ e.estadoNombre }}</span>
       </div>
 
-      @if (puedeModificar) {
+      @if (puedeModificar || puedeImprimirHoja) {
         <div class="evt-acciones">
+          @if (puedeImprimirHoja) {
+            <button mat-stroked-button class="evt-btn-hoja" (click)="verHojaServicio()">
+              <mat-icon>print</mat-icon>
+              Hoja de servicio
+            </button>
+          }
           @if (puedePlanificar) {
             <button mat-flat-button class="evt-btn-planificar" (click)="planificarEvento()">
               <mat-icon>event_available</mat-icon>

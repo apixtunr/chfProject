@@ -1,6 +1,15 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/auth/auth.guard';
 import { permisoAccionGuard, permisoGuard } from './core/auth/permiso.guard';
+import {
+  REPORTE_CLIENTES,
+  REPORTE_COTIZACIONES,
+  REPORTE_CUENTAS_POR_COBRAR,
+  REPORTE_EVENTOS,
+  REPORTE_MOVIMIENTOS,
+  REPORTE_PAGO_PERSONAL,
+  REPORTE_RECIBOS,
+} from './shared/reporte/reporte-tabla/reportes';
 import { catalogoPermisoGuard } from './features/administracion/catalogos/catalogo-permiso.guard';
 import { Shell } from './core/layout/shell';
 
@@ -29,6 +38,12 @@ export const routes: Routes = [
         loadComponent: () => import('./features/clientes/cliente-list/cliente-list').then((m) => m.ClienteList),
       },
       {
+        path: 'clientes/reporte',
+        canActivate: [permisoGuard('/api/clientes')],
+        data: { reporte: REPORTE_CLIENTES },
+        loadComponent: () => import('./shared/reporte/reporte-tabla/reporte-tabla').then((m) => m.ReporteTablaPage),
+      },
+      {
         path: 'clientes/nuevo',
         canActivate: [permisoAccionGuard('/api/clientes', 'alta')],
         loadComponent: () => import('./features/clientes/cliente-form/cliente-form').then((m) => m.ClienteForm),
@@ -43,6 +58,12 @@ export const routes: Routes = [
         canActivate: [permisoGuard('/api/cotizaciones')],
         loadComponent: () =>
           import('./features/cotizaciones/cotizacion-list/cotizacion-list').then((m) => m.CotizacionList),
+      },
+      {
+        path: 'cotizaciones/reporte',
+        canActivate: [permisoGuard('/api/cotizaciones')],
+        data: { reporte: REPORTE_COTIZACIONES },
+        loadComponent: () => import('./shared/reporte/reporte-tabla/reporte-tabla').then((m) => m.ReporteTablaPage),
       },
       {
         path: 'cotizaciones/nueva',
@@ -77,6 +98,12 @@ export const routes: Routes = [
         path: 'eventos/nuevo',
         canActivate: [permisoAccionGuard('/api/eventos', 'alta')],
         loadComponent: () => import('./features/eventos/evento-form/evento-form').then((m) => m.EventoForm),
+      },
+      {
+        path: 'eventos/periodo',
+        canActivate: [permisoGuard('/api/eventos')],
+        data: { reporte: REPORTE_EVENTOS },
+        loadComponent: () => import('./shared/reporte/reporte-tabla/reporte-tabla').then((m) => m.ReporteTablaPage),
       },
       {
         path: 'eventos/reporte',
@@ -145,6 +172,12 @@ export const routes: Routes = [
           import('./features/inventario/movimiento-list/movimiento-list').then((m) => m.MovimientoList),
       },
       {
+        path: 'inventario/movimientos/reporte',
+        canActivate: [permisoGuard('/api/movimientos-inventario')],
+        data: { reporte: REPORTE_MOVIMIENTOS },
+        loadComponent: () => import('./shared/reporte/reporte-tabla/reporte-tabla').then((m) => m.ReporteTablaPage),
+      },
+      {
         path: 'inventario/movimientos/nuevo',
         canActivate: [permisoAccionGuard('/api/movimientos-inventario', 'alta')],
         loadComponent: () =>
@@ -154,6 +187,18 @@ export const routes: Routes = [
         path: 'pagos',
         canActivate: [permisoGuard('/api/pagos')],
         loadComponent: () => import('./features/pagos/pago-list/pago-list').then((m) => m.PagoList),
+      },
+      {
+        path: 'pagos/recibos',
+        canActivate: [permisoGuard('/api/pagos')],
+        data: { reporte: REPORTE_RECIBOS },
+        loadComponent: () => import('./shared/reporte/reporte-tabla/reporte-tabla').then((m) => m.ReporteTablaPage),
+      },
+      {
+        path: 'pagos/cuentas-por-cobrar',
+        canActivate: [permisoGuard('/api/pagos')],
+        data: { reporte: REPORTE_CUENTAS_POR_COBRAR },
+        loadComponent: () => import('./shared/reporte/reporte-tabla/reporte-tabla').then((m) => m.ReporteTablaPage),
       },
       {
         path: 'pagos/evento/:idEvento',
@@ -273,6 +318,12 @@ export const routes: Routes = [
         canActivate: [permisoGuard('/api/rentabilidad')],
         loadComponent: () =>
           import('./features/rentabilidad/rentabilidad-report/rentabilidad-report').then((m) => m.RentabilidadReport),
+      },
+      {
+        path: 'rentabilidad/pago-personal',
+        canActivate: [permisoGuard('/api/rentabilidad')],
+        data: { reporte: REPORTE_PAGO_PERSONAL },
+        loadComponent: () => import('./shared/reporte/reporte-tabla/reporte-tabla').then((m) => m.ReporteTablaPage),
       },
     ],
   },

@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public interface VPagoEventoRepository extends JpaRepository<VPagoEvento, Integer> {
 
@@ -28,4 +29,13 @@ public interface VPagoEventoRepository extends JpaRepository<VPagoEvento, Intege
                               @Param("fechaDesde") LocalDate fechaDesde,
                               @Param("fechaHasta") LocalDate fechaHasta,
                               Pageable pageable);
+
+    /** Cuentas por cobrar: los eventos con saldo, sin los cancelados, del mas proximo al mas lejano. */
+    @Query("""
+            SELECT v FROM VPagoEvento v
+            WHERE v.pendiente > 0 AND v.estadoNombre <> 'CANCELADO'
+              AND (CAST(:idCliente AS integer) IS NULL OR v.idCliente = :idCliente)
+            ORDER BY v.fechaEvento, v.idEvento
+            """)
+    List<VPagoEvento> conSaldo(@Param("idCliente") Integer idCliente);
 }
