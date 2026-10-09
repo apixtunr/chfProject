@@ -23,13 +23,13 @@ import java.time.LocalDate;
  * rechazaron o vencieron.
  */
 @RestController
-@RequestMapping("/api/cotizaciones/reportes")
+@RequestMapping("/api/cotizaciones/reportes/cotizaciones")
 @RequiredArgsConstructor
 public class CotizacionReporteController {
 
     private final CotizacionVersionRepository cotizacionVersionRepository;
 
-    @GetMapping("/cotizaciones")
+    @GetMapping
     @Transactional(readOnly = true)
     public ReporteTabla cotizaciones(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaDesde,
@@ -54,7 +54,7 @@ public class CotizacionReporteController {
                 .construir(agrupar);
     }
 
-    @GetMapping("/cotizaciones/pdf")
+    @GetMapping("/pdf")
     @Transactional(readOnly = true)
     @PreAuthorize("@permisoService.tienePermiso('/api/cotizaciones', T(com.lacasadelchef.erp.security.TipoPermiso).IMPRIMIR)")
     public ResponseEntity<byte[]> cotizacionesPdf(

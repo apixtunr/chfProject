@@ -24,13 +24,13 @@ import java.time.LocalDate;
  * agrupar por producto, cada grupo si muestra su cantidad.
  */
 @RestController
-@RequestMapping("/api/movimientos-inventario/reportes")
+@RequestMapping("/api/movimientos-inventario/reportes/movimientos")
 @RequiredArgsConstructor
 public class MovimientoReporteController {
 
     private final MovimientoInventarioRepository movimientoInventarioRepository;
 
-    @GetMapping("/movimientos")
+    @GetMapping
     @Transactional(readOnly = true)
     public ReporteTabla movimientos(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaDesde,
@@ -59,7 +59,7 @@ public class MovimientoReporteController {
                 .construir(agrupar);
     }
 
-    @GetMapping("/movimientos/pdf")
+    @GetMapping("/pdf")
     @Transactional(readOnly = true)
     @PreAuthorize("@permisoService.tienePermiso('/api/movimientos-inventario', T(com.lacasadelchef.erp.security.TipoPermiso).IMPRIMIR)")
     public ResponseEntity<byte[]> movimientosPdf(

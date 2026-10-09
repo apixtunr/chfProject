@@ -19,13 +19,13 @@ import java.time.LocalDate;
 
 /** Reporte de clientes registrados por periodo (por el dia en que se dieron de alta). */
 @RestController
-@RequestMapping("/api/clientes/reportes")
+@RequestMapping("/api/clientes/reportes/clientes")
 @RequiredArgsConstructor
 public class ClienteReporteController {
 
     private final ClienteRepository clienteRepository;
 
-    @GetMapping("/clientes")
+    @GetMapping
     @Transactional(readOnly = true)
     public ReporteTabla clientes(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaDesde,
@@ -47,7 +47,7 @@ public class ClienteReporteController {
                 .construir(agrupar);
     }
 
-    @GetMapping("/clientes/pdf")
+    @GetMapping("/pdf")
     @Transactional(readOnly = true)
     @PreAuthorize("@permisoService.tienePermiso('/api/clientes', T(com.lacasadelchef.erp.security.TipoPermiso).IMPRIMIR)")
     public ResponseEntity<byte[]> clientesPdf(
