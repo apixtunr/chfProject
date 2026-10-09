@@ -2,7 +2,7 @@
 <div class="rpt-header">
   <div class="rpt-header-left">
     <h1 class="rpt-titulo">Reporte de eventos</h1>
-    <p class="rpt-subtitulo">Métricas de ejecución, desglose de estados y resumen de rentabilidad.</p>
+    <p class="rpt-subtitulo">Métricas de ejecución y desglose de estados.</p>
   </div>
 </div>
 
@@ -40,10 +40,10 @@
       </div>
     </div>
 
-    <div class="rpt-filtro-campo">
+    <div class="rpt-filtro-campo rpt-filtro-campo--lista">
       <label class="rpt-filtro-label"><mat-icon>event</mat-icon>Tipo de evento</label>
       <div class="pf-input-wrap pf-input-wrap--select">
-        <mat-select class="pf-select" formControlName="idTipoEvento">
+        <mat-select sinBuscador class="pf-select" formControlName="idTipoEvento">
           <mat-option [value]="null">Todos los tipos</mat-option>
           @for (t of tiposEvento(); track t.idTipoEvento) {
             <mat-option [value]="t.idTipoEvento">{{ t.nombreTipo }}</mat-option>
@@ -52,7 +52,7 @@
       </div>
     </div>
 
-    <div class="rpt-filtro-campo">
+    <div class="rpt-filtro-campo rpt-filtro-campo--lista">
       <label class="rpt-filtro-label"><mat-icon>flag</mat-icon>Estado</label>
       <div class="pf-input-wrap pf-input-wrap--select">
         <mat-select class="pf-select" formControlName="idEstado">
@@ -89,54 +89,46 @@
     <p class="rpt-kpi-sub">Registrados en el periodo</p>
   </div>
 
-  @if (rentabilidadResumen(); as r) {
-    <!-- Ingresos -->
-    <div class="rpt-kpi">
-      <div class="rpt-kpi-top">
-        <span class="rpt-kpi-label">INGRESOS</span>
-        <span class="rpt-kpi-icon rpt-kpi-icon--green"><mat-icon>payments</mat-icon></span>
-      </div>
-      <p class="rpt-kpi-valor rpt-kpi-valor--green">Q{{ r.totalIngresos | number:'1.2-2' }}</p>
-      <p class="rpt-kpi-sub">Facturación total</p>
+  <!-- Finalizados -->
+  <div class="rpt-kpi">
+    <div class="rpt-kpi-top">
+      <span class="rpt-kpi-label">FINALIZADOS</span>
+      <span class="rpt-kpi-icon rpt-kpi-icon--green"><mat-icon>task_alt</mat-icon></span>
     </div>
+    <p class="rpt-kpi-valor">{{ cantidadEnEstado('FINALIZADO') }}</p>
+    <p class="rpt-kpi-sub">Realizados</p>
+  </div>
 
-    <!-- Costos -->
-    <div class="rpt-kpi">
-      <div class="rpt-kpi-top">
-        <span class="rpt-kpi-label">COSTOS</span>
-        <span class="rpt-kpi-icon rpt-kpi-icon--red"><mat-icon>attach_money</mat-icon></span>
-      </div>
-      <p class="rpt-kpi-valor rpt-kpi-valor--red">Q{{ r.totalCostos | number:'1.2-2' }}</p>
-      <p class="rpt-kpi-sub">Insumos y logística</p>
+  <!-- Por realizar -->
+  <div class="rpt-kpi">
+    <div class="rpt-kpi-top">
+      <span class="rpt-kpi-label">POR REALIZAR</span>
+      <span class="rpt-kpi-icon rpt-kpi-icon--yellow"><mat-icon>schedule</mat-icon></span>
     </div>
+    <p class="rpt-kpi-valor">{{ cantidadEnEstado('CREADO', 'PLANIFICADO', 'EN CURSO') }}</p>
+    <p class="rpt-kpi-sub">Creados, planificados o en curso</p>
+  </div>
 
-    <!-- Ganancia neta — destacada -->
-    <div class="rpt-kpi rpt-kpi--dark">
-      <div class="rpt-kpi-top">
-        <span class="rpt-kpi-label rpt-kpi-label--light">GANANCIA NETA</span>
-        <span class="rpt-kpi-icon rpt-kpi-icon--yellow"><mat-icon>trending_up</mat-icon></span>
-      </div>
-      <p class="rpt-kpi-valor rpt-kpi-valor--white">Q{{ r.gananciaTotal | number:'1.2-2' }}</p>
-      <p class="rpt-kpi-sub rpt-kpi-sub--light">Beneficio líquido obtenido</p>
+  <!-- Cancelados -->
+  <div class="rpt-kpi">
+    <div class="rpt-kpi-top">
+      <span class="rpt-kpi-label">CANCELADOS</span>
+      <span class="rpt-kpi-icon rpt-kpi-icon--red"><mat-icon>event_busy</mat-icon></span>
     </div>
+    <p class="rpt-kpi-valor">{{ cantidadEnEstado('CANCELADO') }}</p>
+    <p class="rpt-kpi-sub">No se realizaron</p>
+  </div>
 
-    <!-- Margen promedio -->
-    <div class="rpt-kpi">
-      <div class="rpt-kpi-top">
-        <span class="rpt-kpi-label">MARGEN PROMEDIO</span>
-        <span class="rpt-kpi-icon rpt-kpi-icon--purple"><mat-icon>percent</mat-icon></span>
-      </div>
-      <p class="rpt-kpi-valor" [class.rpt-kpi-valor--green]="r.margenPromedio >= 50">
-        {{ r.margenPromedio | number:'1.1-1' }}%
-      </p>
-      <div class="rpt-margen-bar">
-        <div class="rpt-margen-bar-fill" [style.width.%]="margenBarWidth(r.margenPromedio)"></div>
-      </div>
-      <p class="rpt-kpi-sub">
-        {{ r.margenPromedio >= 50 ? 'Óptimo' : r.margenPromedio >= 30 ? 'Aceptable' : 'Bajo' }}
-      </p>
+  <!-- Personas atendidas -->
+  <div class="rpt-kpi">
+    <div class="rpt-kpi-top">
+      <span class="rpt-kpi-label">PERSONAS ATENDIDAS</span>
+      <span class="rpt-kpi-icon rpt-kpi-icon--purple"><mat-icon>groups</mat-icon></span>
     </div>
-  }
+    <p class="rpt-kpi-valor">{{ resumen()?.personasAtendidas ?? 0 }}</p>
+    <p class="rpt-kpi-sub">En eventos finalizados</p>
+  </div>
+
 </div>
 
 <!-- ══ GRÁFICAS ════════════════════════════════════════════════ -->

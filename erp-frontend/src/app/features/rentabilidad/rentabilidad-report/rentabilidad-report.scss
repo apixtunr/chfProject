@@ -1,66 +1,44 @@
-.encabezado {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 16px;
+// Rentabilidad: el diseno es el compartido de los reportes; aqui solo lo propio.
+@use '../../../shared/reporte/reporte';
+
+.rpt-tabla--rentabilidad {
+  min-width: 900px;
+
+  .mat-column-cliente { width: auto; }
 }
 
-.tarjeta-filtros {
-  margin-bottom: 16px;
+// Montos alineados a la derecha, para comparar las cifras de una columna.
+.rpt-num {
+  text-align: right;
+  white-space: nowrap;
 }
 
-.filtros {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  align-items: center;
+// "Por cobrar" debajo de lo cobrado, en rojo: es lo que el cliente todavia debe.
+.rpt-num-sub {
+  display: block;
+  font-size: 0.72rem;
 }
 
-.filtro-ancho {
-  min-width: 240px;
-}
-
-.acciones-filtros {
-  display: flex;
-  gap: 8px;
-}
-
-.tarjetas-resumen {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: 12px;
-  margin-bottom: 16px;
-}
-
-.kpi {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 16px;
-}
-
-.kpi-valor {
-  font-size: 22px;
+.rpt-por-cobrar {
+  color: #e11d48;
   font-weight: 600;
 }
 
-.kpi-etiqueta {
-  font-size: 13px;
-  color: rgba(0, 0, 0, 0.6);
+.rpt-negativo {
+  color: #e11d48;
 }
 
-.kpi-negativo .kpi-valor {
-  color: var(--chf-estado-peligro);
-}
+// Semaforo del margen: verde desde 30%, amarillo desde 15%, rojo por debajo.
+.rpt-margen-chip {
+  display: inline-flex;
+  justify-content: center;
+  min-width: 64px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
 
-.tabla {
-  width: 100%;
-}
-
-.num {
-  text-align: right;
-}
-
-.negativo {
-  color: var(--chf-estado-peligro);
+  &--bueno   { background: #dcfce7; color: #15803d; }
+  &--regular { background: #fef3c7; color: #b45309; }
+  &--bajo    { background: #ffe4e6; color: #be123c; }
 }

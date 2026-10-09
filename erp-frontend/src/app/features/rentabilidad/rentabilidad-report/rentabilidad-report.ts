@@ -1,15 +1,16 @@
-import { DatePipe, DecimalPipe } from '@angular/common';
-import { Component, OnInit, inject, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { FormBuilder, FormControl, ReactiveFormsModule } from '@angular/forms';
+import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
+import { debounceTime, distinctUntilChanged, of, switchMap } from 'rxjs';
+import type { ChartData } from 'chart.js';
 import { AuthService } from '../../../core/auth/auth.service';
+import { ChartComponent } from '../../../shared/chart/chart';
 import { ClienteService } from '../../clientes/cliente.service';
 import { ClienteResponse } from '../../clientes/dto/cliente';
 import { EventoService } from '../../eventos/evento.service';
@@ -21,20 +22,27 @@ import { SelectBuscable } from '../../../shared/select-buscable';
 
 const PAGINA_URL = '/api/rentabilidad';
 
+/** Colores de los rubros de costo, los mismos de los indicadores. */
+const COLOR_PERSONAL = '#3b82f6';
+const COLOR_INVENTARIO = '#f59e0b';
+const COLOR_EXTRA = '#8b5cf6';
+
+/** Semaforo del margen de un evento: verde desde 30%, amarillo desde 15%, rojo por debajo. */
+const MARGEN_BUENO = 30;
+const MARGEN_REGULAR = 15;
+
 @Component({
   selector: 'app-rentabilidad-report',
-  imports: [SelectBuscable, TablaResponsiva, 
+  imports: [SelectBuscable, TablaResponsiva,
+    CommonModule,
     ReactiveFormsModule,
-    DatePipe,
-    DecimalPipe,
-    MatCardModule,
     MatTableModule,
     MatPaginatorModule,
     MatButtonModule,
     MatIconModule,
-    MatFormFieldModule,
-    MatInputModule,
     MatSelectModule,
+    MatAutocompleteModule,
+    ChartComponent,
   ],
   templateUrl: './rentabilidad-report.html',
   styleUrl: './rentabilidad-report.scss',
@@ -48,15 +56,18 @@ export class RentabilidadReport implements OnInit {
 
   readonly filas = signal<RentabilidadEventoResponse[]>([]);
   readonly resumen = signal<RentabilidadResumenResponse | null>(null);
-  readonly clientes = signal<ClienteResponse[]>([]);
   readonly tiposEvento = signal<TipoEventoResponse[]>([]);
   readonly totalElements = signal(0);
   readonly pageIndex = signal(0);
   readonly pageSize = signal(20);
 
+  /** Autocomplete de cliente, igual que en el Reporte de eventos. */
+  readonly busquedaCliente = new FormControl('', { nonNullable: true });
+  readonly clientesFiltrados = signal<ClienteResponse[]>([]);
+
   readonly puedeExportar: boolean;
 
-  readonly columnas = ['idEvento', 'fechaEvento', 'cliente', 'tipo', 'ingresos', 'costos', 'ganancia', 'porcentaje'];
+  readonly columnas = ['cliente', 'tipo', 'fecha', 'acordado', 'cobrado', 'costos', 'ganancia', 'margen'];
 
   readonly formulario = this.fb.group({
     fechaDesde: this.fb.control<string | null>(null),
@@ -65,14 +76,86 @@ export class RentabilidadReport implements OnInit {
     idTipoEvento: this.fb.control<number | null>(null),
   });
 
+  /** Los tres rubros de costo, para la dona y su leyenda. */
+  readonly rubrosCosto = computed(() => {
+    const r = this.resumen();
+    if (!r) {
+      return [];
+    }
+    return [
+      { nombre: 'Personal', monto: r.costoPersonal, color: COLOR_PERSONAL },
+      { nombre: 'Inventario', monto: r.costoInventario, color: COLOR_INVENTARIO },
+      { nombre: 'Costos extra', monto: r.costoExtra, color: COLOR_EXTRA },
+    ];
+  });
+
+  readonly datosCostos = computed<ChartData<'doughnut'>>(() => ({
+    labels: this.rubrosCosto().map((c) => c.nombre),
+    datasets: [{ data: this.rubrosCosto().map((c) => c.monto), backgroundColor: this.rubrosCosto().map((c) => c.color) }],
+  }));
+
+  readonly datosPorTipo = computed<ChartData<'bar'>>(() => {
+    const tipos = this.resumen()?.porTipo ?? [];
+    return {
+      labels: tipos.map((t) => t.tipoEventoNombre),
+      datasets: [
+        {
+          label: 'Ganancia (Q)',
+          data: tipos.map((t) => t.gananciaAcordada),
+          backgroundColor: tipos.map((t) => (t.gananciaAcordada < 0 ? '#f43f5e' : '#10b981')),
+        },
+      ],
+    };
+  });
+
+  /** El tipo de evento que mas ganancia dejo (vienen ordenados de mayor a menor). */
+  readonly masRentable = computed(() => this.resumen()?.porTipo?.[0] ?? null);
+
+  readonly opcionesDona = {
+    cutout: '68%',
+    plugins: { legend: { display: false } },
+  };
+
+  readonly opcionesBarras = {
+    plugins: { legend: { display: false } },
+    scales: { y: { beginAtZero: true } },
+  };
+
   constructor() {
     this.puedeExportar = this.authService.tienePermiso(PAGINA_URL, 'exportar');
   }
 
   ngOnInit(): void {
-    this.clienteService.listar('', 0, 200).subscribe((p) => this.clientes.set(p.content));
     this.eventoService.listarTiposEvento().subscribe((t) => this.tiposEvento.set(t));
+
+    this.busquedaCliente.valueChanges.subscribe((texto) => {
+      if (typeof texto === 'string' && !texto.trim()) {
+        this.formulario.controls.idCliente.setValue(null);
+        this.clientesFiltrados.set([]);
+      }
+    });
+    this.busquedaCliente.valueChanges
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged(),
+        switchMap((texto) => {
+          const valor = typeof texto === 'string' ? texto.trim() : '';
+          return valor ? this.clienteService.listar(valor, 0, 10) : of(null);
+        }),
+      )
+      .subscribe((page) => this.clientesFiltrados.set(page?.content ?? []));
+
     this.cargar();
+  }
+
+  mostrarCliente(cliente: ClienteResponse | string | null): string {
+    if (!cliente || typeof cliente === 'string') return '';
+    return cliente.nombre;
+  }
+
+  seleccionarCliente(event: MatAutocompleteSelectedEvent): void {
+    const valor = event.option.value as ClienteResponse | null;
+    this.formulario.controls.idCliente.setValue(valor ? valor.idCliente : null);
   }
 
   private get filtros(): FiltrosRentabilidad {
@@ -100,6 +183,8 @@ export class RentabilidadReport implements OnInit {
 
   limpiarFiltros(): void {
     this.formulario.reset();
+    this.busquedaCliente.setValue('');
+    this.clientesFiltrados.set([]);
     this.aplicarFiltros();
   }
 
@@ -109,19 +194,41 @@ export class RentabilidadReport implements OnInit {
     this.cargar();
   }
 
+  /** Porcentaje de un rubro sobre el total de costos, para la leyenda de la dona. */
+  porcentajeCosto(monto: number): number {
+    const total = this.resumen()?.totalCostos ?? 0;
+    return total > 0 ? (monto / total) * 100 : 0;
+  }
+
+  semaforo(margen: number): 'bueno' | 'regular' | 'bajo' {
+    return margen >= MARGEN_BUENO ? 'bueno' : margen >= MARGEN_REGULAR ? 'regular' : 'bajo';
+  }
+
+  anchoBarraMargen(margen: number): number {
+    return Math.min(Math.max(margen, 0), 100);
+  }
+
   /** Exporta la pagina actual a CSV (abre en Excel). */
   exportarCsv(): void {
-    const encabezado = 'Evento,Fecha,Cliente,Tipo,Ingresos,Costos,Ganancia,Porcentaje';
+    const encabezado =
+      'Evento,Fecha,Cliente,Tipo,Acordado,Cobrado,Por cobrar,Personal,Inventario,Costos extra,Costos,Ganancia acordada,Ganancia cobrada,Margen';
+    const texto = (valor: string) => `"${valor.replaceAll('"', '""')}"`;
     const lineas = this.filas().map((f) =>
       [
         f.idEvento,
         f.fechaEvento,
-        `"${f.clienteNombre.replaceAll('"', '""')}"`,
-        `"${f.tipoEventoNombre.replaceAll('"', '""')}"`,
-        f.totalIngresos,
+        texto(f.clienteNombre),
+        texto(f.tipoEventoNombre),
+        f.ingresosAcordados,
+        f.cobrado,
+        f.porCobrar,
+        f.costoPersonal,
+        f.costoInventario,
+        f.costoExtra,
         f.totalCostos,
-        f.ganancia,
-        f.porcentaje,
+        f.gananciaAcordada,
+        f.gananciaCobrada,
+        f.margen,
       ].join(','),
     );
     // BOM para que Excel reconozca UTF-8 (tildes y enies)

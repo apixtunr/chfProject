@@ -75,6 +75,8 @@ export interface ConteoResponse {
 
 export interface EventoResumenResponse {
   totalEventos: number;
+  /** Suma de invitados de los eventos finalizados del periodo. */
+  personasAtendidas: number;
   porEstado: ConteoResponse[];
   porTipo: ConteoResponse[];
 }

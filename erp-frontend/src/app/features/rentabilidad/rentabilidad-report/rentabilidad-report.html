@@ -1,135 +1,275 @@
-<div class="encabezado">
-  <h1>Rentabilidad</h1>
+<!-- ══ CABECERA ════════════════════════════════════════════════ -->
+<div class="rpt-header">
+  <div class="rpt-header-left">
+    <h1 class="rpt-titulo">Rentabilidad</h1>
+    <p class="rpt-subtitulo">Ganancia de los eventos finalizados.</p>
+  </div>
   @if (puedeExportar) {
-    <button mat-stroked-button (click)="exportarCsv()" [disabled]="filas().length === 0">
+    <button mat-stroked-button class="rpt-btn-limpiar" (click)="exportarCsv()" [disabled]="filas().length === 0">
       <mat-icon>download</mat-icon>
       Exportar CSV
     </button>
   }
 </div>
 
-<mat-card class="tarjeta-filtros">
-  <mat-card-content>
-    <form [formGroup]="formulario" (ngSubmit)="aplicarFiltros()" class="filtros">
-      <mat-form-field appearance="outline">
-        <mat-label>Desde</mat-label>
-        <input matInput type="date" formControlName="fechaDesde" />
-      </mat-form-field>
+<!-- ══ FILTROS ════════════════════════════════════════════════ -->
+<div class="rpt-filtros-card">
+  <form [formGroup]="formulario" (ngSubmit)="aplicarFiltros()" class="rpt-filtros">
 
-      <mat-form-field appearance="outline">
-        <mat-label>Hasta</mat-label>
-        <input matInput type="date" formControlName="fechaHasta" />
-      </mat-form-field>
+    <div class="rpt-filtro-campo">
+      <label class="rpt-filtro-label"><mat-icon>calendar_today</mat-icon>Desde</label>
+      <input class="rpt-filtro-input" type="date" formControlName="fechaDesde" />
+    </div>
 
-      <mat-form-field appearance="outline" class="filtro-ancho">
-        <mat-label>Cliente</mat-label>
-        <mat-select formControlName="idCliente">
-          <mat-option [value]="null">Todos</mat-option>
-          @for (cliente of clientes(); track cliente.idCliente) {
-            <mat-option [value]="cliente.idCliente">{{ cliente.nombre }}</mat-option>
+    <div class="rpt-filtro-campo">
+      <label class="rpt-filtro-label"><mat-icon>calendar_today</mat-icon>Hasta</label>
+      <input class="rpt-filtro-input" type="date" formControlName="fechaHasta" />
+    </div>
+
+    <div class="rpt-filtro-campo rpt-filtro-campo--wide">
+      <label class="rpt-filtro-label"><mat-icon>person</mat-icon>Cliente</label>
+      <div class="pf-input-wrap">
+        <mat-icon class="pf-input-icon">search</mat-icon>
+        <input
+          class="pf-input"
+          [formControl]="busquedaCliente"
+          [matAutocomplete]="autoCliente"
+          placeholder="Buscar cliente..."
+          autocomplete="off"
+        />
+        <mat-autocomplete #autoCliente="matAutocomplete" [displayWith]="mostrarCliente" (optionSelected)="seleccionarCliente($event)">
+          <mat-option [value]="null">Todos los clientes</mat-option>
+          @for (c of clientesFiltrados(); track c.idCliente) {
+            <mat-option [value]="c">{{ c.nombre }}</mat-option>
           }
-        </mat-select>
-      </mat-form-field>
-
-      <mat-form-field appearance="outline">
-        <mat-label>Tipo de evento</mat-label>
-        <mat-select formControlName="idTipoEvento">
-          <mat-option [value]="null">Todos</mat-option>
-          @for (tipo of tiposEvento(); track tipo.idTipoEvento) {
-            <mat-option [value]="tipo.idTipoEvento">{{ tipo.nombreTipo }}</mat-option>
-          }
-        </mat-select>
-      </mat-form-field>
-
-      <div class="acciones-filtros">
-        <button mat-flat-button color="primary" type="submit">Aplicar</button>
-        <button mat-button type="button" (click)="limpiarFiltros()">Limpiar</button>
+        </mat-autocomplete>
       </div>
-    </form>
-  </mat-card-content>
-</mat-card>
+    </div>
 
+    <div class="rpt-filtro-campo rpt-filtro-campo--lista">
+      <label class="rpt-filtro-label"><mat-icon>event</mat-icon>Tipo de evento</label>
+      <div class="pf-input-wrap pf-input-wrap--select">
+        <mat-select sinBuscador class="pf-select" formControlName="idTipoEvento">
+          <mat-option [value]="null">Todos los tipos</mat-option>
+          @for (t of tiposEvento(); track t.idTipoEvento) {
+            <mat-option [value]="t.idTipoEvento">{{ t.nombreTipo }}</mat-option>
+          }
+        </mat-select>
+      </div>
+    </div>
+
+    <div class="rpt-filtro-acciones">
+      <button mat-flat-button type="submit" class="rpt-btn-aplicar">
+        <mat-icon>filter_alt</mat-icon>Aplicar
+      </button>
+      <button mat-stroked-button type="button" class="rpt-btn-limpiar" (click)="limpiarFiltros()">
+        Limpiar
+      </button>
+    </div>
+
+  </form>
+</div>
+
+<!-- ══ KPIs ═══════════════════════════════════════════════════ -->
 @if (resumen(); as r) {
-  <div class="tarjetas-resumen">
-    <mat-card class="kpi">
-      <span class="kpi-valor">{{ r.cantidadEventos }}</span>
-      <span class="kpi-etiqueta">Eventos</span>
-    </mat-card>
-    <mat-card class="kpi">
-      <span class="kpi-valor">Q {{ r.totalIngresos | number: '1.2-2' }}</span>
-      <span class="kpi-etiqueta">Ingresos</span>
-    </mat-card>
-    <mat-card class="kpi">
-      <span class="kpi-valor">Q {{ r.totalCostos | number: '1.2-2' }}</span>
-      <span class="kpi-etiqueta">Costos</span>
-    </mat-card>
-    <mat-card class="kpi" [class.kpi-negativo]="r.gananciaTotal < 0">
-      <span class="kpi-valor">Q {{ r.gananciaTotal | number: '1.2-2' }}</span>
-      <span class="kpi-etiqueta">Ganancia</span>
-    </mat-card>
-    <mat-card class="kpi">
-      <span class="kpi-valor">{{ r.margenPromedio | number: '1.1-1' }}%</span>
-      <span class="kpi-etiqueta">Margen promedio</span>
-    </mat-card>
+  <div class="rpt-kpis">
+
+    <div class="rpt-kpi">
+      <div class="rpt-kpi-top">
+        <span class="rpt-kpi-label">INGRESOS ACORDADOS</span>
+        <span class="rpt-kpi-icon rpt-kpi-icon--blue"><mat-icon>request_quote</mat-icon></span>
+      </div>
+      <p class="rpt-kpi-valor">Q{{ r.ingresosAcordados | number: '1.2-2' }}</p>
+      <p class="rpt-kpi-sub">{{ r.cantidadEventos }} evento{{ r.cantidadEventos === 1 ? '' : 's' }} finalizado{{ r.cantidadEventos === 1 ? '' : 's' }}</p>
+    </div>
+
+    <div class="rpt-kpi">
+      <div class="rpt-kpi-top">
+        <span class="rpt-kpi-label">COBRADO</span>
+        <span class="rpt-kpi-icon rpt-kpi-icon--green"><mat-icon>payments</mat-icon></span>
+      </div>
+      <p class="rpt-kpi-valor">Q{{ r.cobrado | number: '1.2-2' }}</p>
+      <p class="rpt-kpi-sub" [class.rpt-por-cobrar]="r.porCobrar > 0">Por cobrar: Q{{ r.porCobrar | number: '1.2-2' }}</p>
+    </div>
+
+    <div class="rpt-kpi">
+      <div class="rpt-kpi-top">
+        <span class="rpt-kpi-label">COSTOS</span>
+        <span class="rpt-kpi-icon rpt-kpi-icon--red"><mat-icon>shopping_cart</mat-icon></span>
+      </div>
+      <p class="rpt-kpi-valor">Q{{ r.totalCostos | number: '1.2-2' }}</p>
+      <p class="rpt-kpi-sub">Personal, inventario y extras</p>
+    </div>
+
+    <div class="rpt-kpi rpt-kpi--dark">
+      <div class="rpt-kpi-top">
+        <span class="rpt-kpi-label rpt-kpi-label--light">GANANCIA ACORDADA</span>
+        <span class="rpt-kpi-icon rpt-kpi-icon--green"><mat-icon>trending_up</mat-icon></span>
+      </div>
+      <p class="rpt-kpi-valor rpt-kpi-valor--white">Q{{ r.gananciaAcordada | number: '1.2-2' }}</p>
+      <div class="rpt-margen-bar"><div class="rpt-margen-bar-fill" [style.width.%]="anchoBarraMargen(r.margen)"></div></div>
+      <p class="rpt-kpi-sub rpt-kpi-sub--light">Margen: {{ r.margen | number: '1.1-1' }}%</p>
+    </div>
+
+    <div class="rpt-kpi">
+      <div class="rpt-kpi-top">
+        <span class="rpt-kpi-label">GANANCIA COBRADA</span>
+        <span class="rpt-kpi-icon rpt-kpi-icon--purple"><mat-icon>savings</mat-icon></span>
+      </div>
+      <p class="rpt-kpi-valor" [class.rpt-kpi-valor--red]="r.gananciaCobrada < 0">Q{{ r.gananciaCobrada | number: '1.2-2' }}</p>
+      <p class="rpt-kpi-sub">Lo que realmente quedó</p>
+    </div>
+
+  </div>
+
+  <!-- ══ GRÁFICAS ════════════════════════════════════════════════ -->
+  <div class="rpt-graficas">
+
+    <!-- Desglose de costos -->
+    <div class="rpt-card">
+      <div class="rpt-card-header">
+        <div>
+          <p class="rpt-card-titulo">Desglose de costos</p>
+          <p class="rpt-card-sub">En qué se fue el dinero de los eventos</p>
+        </div>
+        @if (r.totalCostos > 0) {
+          <span class="rpt-badge-total">Total: Q{{ r.totalCostos | number: '1.2-2' }}</span>
+        }
+      </div>
+      <div class="rpt-grafica-body">
+        @if (r.totalCostos > 0) {
+          <div class="rpt-doughnut-wrap">
+            <app-chart type="doughnut" [data]="datosCostos()" [options]="opcionesDona" />
+          </div>
+          <div class="rpt-leyenda">
+            @for (rubro of rubrosCosto(); track rubro.nombre) {
+              <div class="rpt-leyenda-item">
+                <span class="rpt-leyenda-dot" [style.background]="rubro.color"></span>
+                <span class="rpt-leyenda-nombre">{{ rubro.nombre }}</span>
+                <span class="rpt-leyenda-val">
+                  Q{{ rubro.monto | number: '1.2-2' }} ({{ porcentajeCosto(rubro.monto) | number: '1.0-0' }}%)
+                </span>
+              </div>
+            }
+          </div>
+        } @else {
+          <p class="rpt-sin-datos">Sin eventos finalizados en este periodo</p>
+        }
+      </div>
+    </div>
+
+    <!-- Ganancia por tipo de evento -->
+    <div class="rpt-card">
+      <div class="rpt-card-header">
+        <div>
+          <p class="rpt-card-titulo">Ganancia por tipo de evento</p>
+          <p class="rpt-card-sub">Qué tipo de evento deja más</p>
+        </div>
+      </div>
+      <div class="rpt-grafica-body rpt-grafica-body--bar">
+        @if (r.porTipo.length > 0) {
+          <app-chart type="bar" [data]="datosPorTipo()" [options]="opcionesBarras" />
+        } @else {
+          <p class="rpt-sin-datos">Sin eventos finalizados en este periodo</p>
+        }
+      </div>
+      @if (masRentable(); as t) {
+        <div class="rpt-card-footer">
+          Más rentable: <strong>{{ t.tipoEventoNombre }}</strong>
+          (Q{{ t.gananciaAcordada | number: '1.2-2' }}, margen {{ t.margen | number: '1.1-1' }}%)
+        </div>
+      }
+    </div>
+
   </div>
 }
 
-<div class="tabla-contenedor">
-  <table mat-table [dataSource]="filas()" class="tabla">
-    <ng-container matColumnDef="idEvento">
-      <th mat-header-cell *matHeaderCellDef>Evento</th>
-      <td mat-cell *matCellDef="let f">#{{ f.idEvento }}</td>
-    </ng-container>
+<!-- ══ TABLA ═══════════════════════════════════════════════════ -->
+<div class="rpt-card rpt-card--tabla">
+  <div class="rpt-card-header">
+    <div>
+      <p class="rpt-card-titulo">Rentabilidad por evento</p>
+      <p class="rpt-card-sub">Lo acordado, lo cobrado, lo que costó y lo que dejó cada evento</p>
+    </div>
+    @if (totalElements() > 0) {
+      <span class="rpt-badge-total">Mostrando {{ filas().length }} de {{ totalElements() }}</span>
+    }
+  </div>
 
-    <ng-container matColumnDef="fechaEvento">
-      <th mat-header-cell *matHeaderCellDef>Fecha</th>
-      <td mat-cell *matCellDef="let f">{{ f.fechaEvento | date: 'dd/MM/yyyy' }}</td>
-    </ng-container>
+  <div class="tabla-contenedor">
+    <table mat-table [dataSource]="filas()" class="tabla rpt-tabla rpt-tabla--rentabilidad">
 
-    <ng-container matColumnDef="cliente">
-      <th mat-header-cell *matHeaderCellDef>Cliente</th>
-      <td mat-cell *matCellDef="let f">{{ f.clienteNombre }}</td>
-    </ng-container>
+      <ng-container matColumnDef="cliente">
+        <th mat-header-cell *matHeaderCellDef>Cliente</th>
+        <td mat-cell *matCellDef="let f">
+          <div class="rpt-cliente-cell">
+            <span class="rpt-avatar">{{ f.clienteNombre.charAt(0) }}</span>
+            <div>
+              <p class="rpt-cliente-nombre">{{ f.clienteNombre }}</p>
+              <p class="rpt-cliente-id">Evento #{{ f.idEvento }}</p>
+            </div>
+          </div>
+        </td>
+      </ng-container>
 
-    <ng-container matColumnDef="tipo">
-      <th mat-header-cell *matHeaderCellDef>Tipo</th>
-      <td mat-cell *matCellDef="let f">{{ f.tipoEventoNombre }}</td>
-    </ng-container>
+      <ng-container matColumnDef="tipo">
+        <th mat-header-cell *matHeaderCellDef>Tipo</th>
+        <td mat-cell *matCellDef="let f"><span class="rpt-tipo-chip">{{ f.tipoEventoNombre }}</span></td>
+      </ng-container>
 
-    <ng-container matColumnDef="ingresos">
-      <th mat-header-cell *matHeaderCellDef class="num">Ingresos</th>
-      <td mat-cell *matCellDef="let f" class="num">Q {{ f.totalIngresos | number: '1.2-2' }}</td>
-    </ng-container>
+      <ng-container matColumnDef="fecha">
+        <th mat-header-cell *matHeaderCellDef>Fecha</th>
+        <td mat-cell *matCellDef="let f">{{ f.fechaEvento | date: 'dd/MM/yyyy' }}</td>
+      </ng-container>
 
-    <ng-container matColumnDef="costos">
-      <th mat-header-cell *matHeaderCellDef class="num">Costos</th>
-      <td mat-cell *matCellDef="let f" class="num">Q {{ f.totalCostos | number: '1.2-2' }}</td>
-    </ng-container>
+      <ng-container matColumnDef="acordado">
+        <th mat-header-cell *matHeaderCellDef class="rpt-num">Acordado</th>
+        <td mat-cell *matCellDef="let f" class="rpt-num">Q{{ f.ingresosAcordados | number: '1.2-2' }}</td>
+      </ng-container>
 
-    <ng-container matColumnDef="ganancia">
-      <th mat-header-cell *matHeaderCellDef class="num">Ganancia</th>
-      <td mat-cell *matCellDef="let f" class="num" [class.negativo]="f.ganancia < 0">
-        Q {{ f.ganancia | number: '1.2-2' }}
-      </td>
-    </ng-container>
+      <ng-container matColumnDef="cobrado">
+        <th mat-header-cell *matHeaderCellDef class="rpt-num">Cobrado</th>
+        <td mat-cell *matCellDef="let f" class="rpt-num">
+          Q{{ f.cobrado | number: '1.2-2' }}
+          @if (f.porCobrar > 0) {
+            <span class="rpt-por-cobrar rpt-num-sub">Por cobrar: Q{{ f.porCobrar | number: '1.2-2' }}</span>
+          }
+        </td>
+      </ng-container>
 
-    <ng-container matColumnDef="porcentaje">
-      <th mat-header-cell *matHeaderCellDef class="num">Margen</th>
-      <td mat-cell *matCellDef="let f" class="num" [class.negativo]="f.porcentaje < 0">
-        {{ f.porcentaje | number: '1.1-1' }}%
-      </td>
-    </ng-container>
+      <ng-container matColumnDef="costos">
+        <th mat-header-cell *matHeaderCellDef class="rpt-num">Costos</th>
+        <td mat-cell *matCellDef="let f" class="rpt-num">Q{{ f.totalCostos | number: '1.2-2' }}</td>
+      </ng-container>
 
-    <tr mat-header-row *matHeaderRowDef="columnas"></tr>
-    <tr mat-row *matRowDef="let row; columns: columnas"></tr>
-  </table>
+      <ng-container matColumnDef="ganancia">
+        <th mat-header-cell *matHeaderCellDef class="rpt-num">Ganancia</th>
+        <td mat-cell *matCellDef="let f" class="rpt-num" [class.rpt-negativo]="f.gananciaAcordada < 0">
+          <strong>Q{{ f.gananciaAcordada | number: '1.2-2' }}</strong>
+        </td>
+      </ng-container>
 
-  <mat-paginator
-    [length]="totalElements()"
-    [pageIndex]="pageIndex()"
-    [pageSize]="pageSize()"
-    [pageSizeOptions]="[10, 20, 50]"
-    (page)="onPageChange($event)"
-  >
-  </mat-paginator>
+      <ng-container matColumnDef="margen">
+        <th mat-header-cell *matHeaderCellDef>Margen</th>
+        <td mat-cell *matCellDef="let f">
+          <span class="rpt-margen-chip" [ngClass]="'rpt-margen-chip--' + semaforo(f.margen)">{{ f.margen | number: '1.1-1' }}%</span>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="columnas"></tr>
+      <tr mat-row *matRowDef="let row; columns: columnas"></tr>
+      <tr *matNoDataRow>
+        <td class="rpt-sin-datos" [attr.colspan]="columnas.length">Sin eventos finalizados en este periodo</td>
+      </tr>
+    </table>
+
+    <mat-paginator
+      [length]="totalElements()"
+      [pageIndex]="pageIndex()"
+      [pageSize]="pageSize()"
+      [pageSizeOptions]="[10, 20, 50]"
+      [showFirstLastButtons]="true"
+      (page)="onPageChange($event)"
+    ></mat-paginator>
+  </div>
 </div>

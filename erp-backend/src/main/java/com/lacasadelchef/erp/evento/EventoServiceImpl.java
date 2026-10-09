@@ -110,6 +110,7 @@ public class EventoServiceImpl implements EventoService {
                 .toList();
         return EventoResumenResponse.builder()
                 .totalEventos(total)
+                .personasAtendidas(eventoRepository.sumarPersonasAtendidas(fechaDesde, fechaHasta, idCliente, idTipoEvento))
                 .porEstado(porEstado)
                 .porTipo(porTipo)
                 .build();

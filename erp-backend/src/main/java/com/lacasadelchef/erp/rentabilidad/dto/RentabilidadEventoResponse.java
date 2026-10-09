@@ -1,13 +1,16 @@
 package com.lacasadelchef.erp.rentabilidad.dto;
 
-import com.lacasadelchef.erp.entity.Cliente;
-import com.lacasadelchef.erp.entity.Evento;
-import com.lacasadelchef.erp.entity.VRentabilidadEvento;
 import lombok.Builder;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+/**
+ * Rentabilidad de un evento finalizado, con las dos lecturas de la ganancia:
+ * - acordada: lo que se vendio menos lo que costo; dice si el precio y los costos estuvieron bien.
+ * - cobrada: lo que realmente entro menos lo que costo; el dinero que quedo.
+ * La diferencia entre las dos es lo que falta cobrar.
+ */
 @Builder
 public record RentabilidadEventoResponse(
         Integer idEvento,
@@ -15,26 +18,22 @@ public record RentabilidadEventoResponse(
         String tipoEventoNombre,
         Integer idCliente,
         String clienteNombre,
-        BigDecimal totalIngresos,
-        BigDecimal totalCostos,
-        BigDecimal ganancia,
-        BigDecimal porcentaje
-) {
 
-    public static RentabilidadEventoResponse desde(Evento evento, VRentabilidadEvento rentabilidad) {
-        Cliente cliente = evento.getCotizacionVersion() != null
-                ? evento.getCotizacionVersion().getCotizacion().getCliente()
-                : evento.getCliente();
-        return RentabilidadEventoResponse.builder()
-                .idEvento(evento.getIdEvento())
-                .fechaEvento(evento.getFechaEvento())
-                .tipoEventoNombre(evento.getTipoEvento().getNombreTipo())
-                .idCliente(cliente.getIdCliente())
-                .clienteNombre(cliente.getNombre())
-                .totalIngresos(rentabilidad != null ? rentabilidad.getTotalIngresos() : BigDecimal.ZERO)
-                .totalCostos(rentabilidad != null ? rentabilidad.getTotalCostos() : BigDecimal.ZERO)
-                .ganancia(rentabilidad != null ? rentabilidad.getGanancia() : BigDecimal.ZERO)
-                .porcentaje(rentabilidad != null ? rentabilidad.getPorcentaje() : BigDecimal.ZERO)
-                .build();
-    }
+        /** Precio del evento mas los costos extra que el cliente pago. */
+        BigDecimal ingresosAcordados,
+        /** Lo que entro: abonos al precio mas esos reembolsos (sin pagos anulados). */
+        BigDecimal cobrado,
+        /** Lo que el cliente todavia debe del precio del evento. */
+        BigDecimal porCobrar,
+
+        BigDecimal costoPersonal,
+        BigDecimal costoInventario,
+        BigDecimal costoExtra,
+        BigDecimal totalCostos,
+
+        BigDecimal gananciaAcordada,
+        BigDecimal gananciaCobrada,
+        /** Ganancia acordada sobre ingresos acordados, en porcentaje. */
+        BigDecimal margen
+) {
 }

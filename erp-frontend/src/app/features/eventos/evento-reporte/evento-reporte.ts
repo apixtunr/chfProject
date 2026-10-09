@@ -17,8 +17,6 @@ import { EstadoService } from '../../../core/catalogos/estado.service';
 import { ChartComponent } from '../../../shared/chart/chart';
 import { ClienteService } from '../../clientes/cliente.service';
 import { ClienteResponse } from '../../clientes/dto/cliente';
-import { RentabilidadService } from '../../rentabilidad/rentabilidad.service';
-import { RentabilidadResumenResponse } from '../../rentabilidad/dto/rentabilidad';
 import { EventoService } from '../evento.service';
 import {
   ColorEstado,
@@ -56,7 +54,6 @@ const PALETA_TIPOS = ['#5c6bc0', '#26a69a', '#fb8c00', '#8d6e63', '#7e57c2', '#2
 })
 export class EventoReporte implements OnInit {
   private readonly eventoService = inject(EventoService);
-  private readonly rentabilidadService = inject(RentabilidadService);
   private readonly clienteService = inject(ClienteService);
   private readonly estadoService = inject(EstadoService);
   private readonly fb = inject(FormBuilder);
@@ -75,7 +72,13 @@ export class EventoReporte implements OnInit {
   readonly clientesFiltrados = signal<ClienteResponse[]>([]);
 
   readonly resumen = signal<EventoResumenResponse | null>(null);
-  readonly rentabilidadResumen = signal<RentabilidadResumenResponse | null>(null);
+
+  /** Cuantos eventos del periodo estan en ese estado (sale del mismo conteo de la grafica). */
+  cantidadEnEstado(...estados: string[]): number {
+    return (this.resumen()?.porEstado ?? [])
+      .filter((c) => estados.includes(c.etiqueta))
+      .reduce((total, c) => total + c.cantidad, 0);
+  }
 
   readonly columnas = ['cliente', 'tipo', 'fecha', 'estado'];
 
@@ -214,14 +217,6 @@ export class EventoReporte implements OnInit {
       this.totalElements.set(page.totalElements);
     });
     this.eventoService.resumen(filtros).subscribe((r) => this.resumen.set(r));
-    this.rentabilidadService
-      .resumen({
-        fechaDesde: filtros.fechaDesde,
-        fechaHasta: filtros.fechaHasta,
-        idCliente: filtros.idCliente,
-        idTipoEvento: filtros.idTipoEvento,
-      })
-      .subscribe((r) => this.rentabilidadResumen.set(r));
   }
 
   aplicarFiltros(): void {

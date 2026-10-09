@@ -8,6 +8,8 @@ import java.util.List;
 @Builder
 public record EventoResumenResponse(
         long totalEventos,
+        /** Suma de invitados de los eventos finalizados del periodo. */
+        long personasAtendidas,
         List<ConteoResponse> porEstado,
         List<ConteoResponse> porTipo
 ) {
