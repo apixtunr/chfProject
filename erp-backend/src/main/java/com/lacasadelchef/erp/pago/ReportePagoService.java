@@ -5,7 +5,6 @@ import com.lacasadelchef.erp.common.reporte.ReporteTablaBuilder;
 import com.lacasadelchef.erp.entity.Cliente;
 import com.lacasadelchef.erp.entity.Evento;
 import com.lacasadelchef.erp.entity.Pago;
-import com.lacasadelchef.erp.entity.Usuario;
 import com.lacasadelchef.erp.pago.CuentaPorCobrar.Situacion;
 import com.lacasadelchef.erp.repository.PagoRepository;
 import com.lacasadelchef.erp.repository.VPagoEventoRepository;
@@ -39,12 +38,13 @@ public class ReportePagoService {
         return ReporteTablaBuilder.de("Recibos emitidos", pagos)
                 .texto("recibo", "Recibo", 1.2f, p -> ReciboPagoPdfService.numeroRecibo(p.getIdPago()))
                 .fechaHora("fecha", "Fecha", 1.7f, Pago::getFechaPago)
-                .texto("evento", "Evento", 0.9f, p -> "#" + p.getEvento().getIdEvento())
+                .texto("evento", "Evento", 1.6f,
+                        p -> "#" + p.getEvento().getIdEvento() + " " + p.getEvento().getTipoEvento().getNombreTipo())
                 .texto("cliente", "Cliente", 2.3f, p -> nombreCliente(p.getEvento()))
                 .texto("concepto", "Concepto", 1.7f, ReportePagoService::concepto)
                 .texto("metodo", "Forma de pago", 1.4f, p -> p.getMetodoPago().getNombreMetodo())
                 .texto("referencia", "Referencia", 1.3f, Pago::getReferenciaTransaccion)
-                .texto("recibidoPor", "Recibido por", 1.7f, p -> nombreDe(p.getUsuario()))
+                .texto("recibidoPor", "Recibido por", 1.3f, p -> p.getUsuario() != null ? p.getUsuario().getUsername() : "")
                 .texto("estado", "Estado", 1.6f, p -> p.getEstado().getNombre())
                 .monto("monto", "Monto", 1.2f, true, Pago::getMonto)
                 .fechaDeAgrupacion(p -> p.getFechaPago().toLocalDate())
@@ -95,12 +95,5 @@ public class ReportePagoService {
                 ? evento.getCotizacionVersion().getCotizacion().getCliente()
                 : evento.getCliente();
         return cliente != null ? cliente.getNombre() : "";
-    }
-
-    private static String nombreDe(Usuario usuario) {
-        if (usuario == null) {
-            return "";
-        }
-        return usuario.getEmpleado() != null ? usuario.getEmpleado().getNombreCompleto() : usuario.getUsername();
     }
 }
