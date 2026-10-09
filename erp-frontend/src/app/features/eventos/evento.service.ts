@@ -134,6 +134,10 @@ export class EventoService {
     return this.http.post<CostoEventoResponse>(`${BASE_URL}/${idEvento}/costos`, request);
   }
 
+  actualizarCosto(idEvento: number, idCosto: number, request: CostoEventoRequest): Observable<CostoEventoResponse> {
+    return this.http.put<CostoEventoResponse>(`${BASE_URL}/${idEvento}/costos/${idCosto}`, request);
+  }
+
   eliminarCosto(idEvento: number, idCosto: number): Observable<void> {
     return this.http.delete<void>(`${BASE_URL}/${idEvento}/costos/${idCosto}`);
   }
@@ -148,6 +152,10 @@ export class EventoService {
     return this.http.post<EventoEmpleadoResponse>(`${BASE_URL}/${idEvento}/empleados/${idEmpleado}`, request);
   }
 
+  actualizarEmpleado(idEvento: number, idEmpleado: number, request: EventoEmpleadoRequest): Observable<EventoEmpleadoResponse> {
+    return this.http.put<EventoEmpleadoResponse>(`${BASE_URL}/${idEvento}/empleados/${idEmpleado}`, request);
+  }
+
   quitarEmpleado(idEvento: number, idEmpleado: number): Observable<void> {
     return this.http.delete<void>(`${BASE_URL}/${idEvento}/empleados/${idEmpleado}`);
   }
@@ -160,6 +168,10 @@ export class EventoService {
 
   asignarVehiculo(idEvento: number, idVehiculo: number, request: EventoVehiculoRequest): Observable<EventoVehiculoResponse> {
     return this.http.post<EventoVehiculoResponse>(`${BASE_URL}/${idEvento}/vehiculos/${idVehiculo}`, request);
+  }
+
+  actualizarVehiculo(idEvento: number, idVehiculo: number, request: EventoVehiculoRequest): Observable<EventoVehiculoResponse> {
+    return this.http.put<EventoVehiculoResponse>(`${BASE_URL}/${idEvento}/vehiculos/${idVehiculo}`, request);
   }
 
   quitarVehiculo(idEvento: number, idVehiculo: number): Observable<void> {

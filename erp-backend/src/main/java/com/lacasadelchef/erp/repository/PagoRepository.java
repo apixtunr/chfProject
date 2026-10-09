@@ -14,6 +14,9 @@ public interface PagoRepository extends JpaRepository<Pago, Integer> {
 
     List<Pago> findByEventoIdEvento(Integer idEvento);
 
+    /** Si el cliente ya pago (y no se anulo) el reembolso de ese costo extra. */
+    boolean existsByCostoEventoIdCostoEventoAndEstadoNombreNot(Integer idCostoEvento, String estado);
+
     Page<Pago> findByEventoIdEvento(Integer idEvento, Pageable pageable);
 
     /** Suma de abonos al precio del evento (sin contar reembolsos de costos ni pagos ANULADOS),

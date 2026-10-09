@@ -158,6 +158,14 @@ export class EventoDetail implements OnInit {
     referenciaTransaccion: [{ value: '', disabled: true }],
   });
 
+  /**
+   * Fila que se esta corrigiendo en cada seccion (null: el formulario agrega una nueva).
+   * Editar reusa el mismo formulario de arriba de la tabla en vez de abrir otra pantalla.
+   */
+  readonly costoEnEdicion = signal<CostoEventoResponse | null>(null);
+  readonly personalEnEdicion = signal<EventoEmpleadoResponse | null>(null);
+  readonly vehiculoEnEdicion = signal<EventoVehiculoResponse | null>(null);
+
   readonly formularioPersonal = this.fb.nonNullable.group({
     idEmpleado: this.fb.control<number | null>(null, Validators.required),
     salarioEvento: this.fb.control<number | null>(null, Validators.required),
@@ -431,6 +439,52 @@ export class EventoDetail implements OnInit {
 
   // --- Costos ---
 
+  editarCosto(costo: CostoEventoResponse): void {
+    this.costoEnEdicion.set(costo);
+    this.formularioCosto.reset();
+    this.formularioCosto.patchValue({
+      idTipoCosto: costo.idTipoCosto,
+      descripcion: costo.descripcion ?? '',
+      monto: costo.monto,
+      fechaCosto: new Date(`${costo.fechaCosto}T00:00:00`),
+    });
+    // Ya cobrado al cliente: su pago quedo por ese monto (el backend tambien lo impide).
+    if (costo.pagado) {
+      this.formularioCosto.controls.monto.disable();
+    }
+  }
+
+  cancelarEdicionCosto(): void {
+    this.costoEnEdicion.set(null);
+    this.formularioCosto.controls.monto.enable();
+    this.formularioCosto.reset();
+  }
+
+  guardarCosto(): void {
+    const enEdicion = this.costoEnEdicion();
+    if (!enEdicion) {
+      this.agregarCosto();
+      return;
+    }
+    if (this.formularioCosto.invalid) {
+      this.formularioCosto.markAllAsTouched();
+      return;
+    }
+    const v = this.formularioCosto.getRawValue();
+    this.eventoService
+      .actualizarCosto(this.idEvento, enEdicion.idCostoEvento, {
+        idTipoCosto: v.idTipoCosto!,
+        descripcion: v.descripcion || null,
+        monto: v.monto!,
+        fechaCosto: this.aFechaIso(v.fechaCosto),
+      })
+      .subscribe(() => {
+        this.cancelarEdicionCosto();
+        this.snackBar.open('Costo actualizado', 'Cerrar', { duration: 3000 });
+        this.cargar();
+      });
+  }
+
   agregarCosto(): void {
     if (this.formularioCosto.invalid) {
       this.formularioCosto.markAllAsTouched();
@@ -513,6 +567,42 @@ export class EventoDetail implements OnInit {
       });
   }
 
+  editarEmpleado(asignacion: EventoEmpleadoResponse): void {
+    this.personalEnEdicion.set(asignacion);
+    this.formularioPersonal.reset();
+    // El empleado no se cambia al editar (para eso se quita y se asigna otro): solo el pago.
+    this.formularioPersonal.patchValue({ idEmpleado: asignacion.idEmpleado, salarioEvento: asignacion.salarioEvento });
+  }
+
+  cancelarEdicionEmpleado(): void {
+    this.personalEnEdicion.set(null);
+    this.formularioPersonal.reset();
+  }
+
+  guardarEmpleado(): void {
+    const enEdicion = this.personalEnEdicion();
+    if (!enEdicion) {
+      this.asignarEmpleado();
+      return;
+    }
+    if (this.formularioPersonal.invalid) {
+      this.formularioPersonal.markAllAsTouched();
+      return;
+    }
+    this.eventoService
+      .actualizarEmpleado(this.idEvento, enEdicion.idEmpleado, {
+        salarioEvento: this.formularioPersonal.getRawValue().salarioEvento!,
+        horaInicio: enEdicion.horaInicio,
+        horaFin: enEdicion.horaFin,
+        idEstado: enEdicion.idEstado,
+      })
+      .subscribe(() => {
+        this.cancelarEdicionEmpleado();
+        this.snackBar.open('Pago del empleado actualizado', 'Cerrar', { duration: 3000 });
+        this.cargar();
+      });
+  }
+
   quitarEmpleado(asignacion: EventoEmpleadoResponse): void {
     this.eventoService.quitarEmpleado(this.idEvento, asignacion.idEmpleado).subscribe(() => this.cargar());
   }
@@ -529,6 +619,38 @@ export class EventoDetail implements OnInit {
       .asignarVehiculo(this.idEvento, v.idVehiculo!, { idEmpleadoConductor: v.idEmpleadoConductor })
       .subscribe(() => {
         this.formularioVehiculo.reset();
+        this.cargar();
+      });
+  }
+
+  editarVehiculo(asignacion: EventoVehiculoResponse): void {
+    this.vehiculoEnEdicion.set(asignacion);
+    this.formularioVehiculo.reset();
+    // El vehiculo no se cambia al editar (para eso se quita y se asigna otro): solo el conductor.
+    this.formularioVehiculo.patchValue({
+      idVehiculo: asignacion.idVehiculo,
+      idEmpleadoConductor: asignacion.idEmpleadoConductor,
+    });
+  }
+
+  cancelarEdicionVehiculo(): void {
+    this.vehiculoEnEdicion.set(null);
+    this.formularioVehiculo.reset();
+  }
+
+  guardarVehiculo(): void {
+    const enEdicion = this.vehiculoEnEdicion();
+    if (!enEdicion) {
+      this.asignarVehiculo();
+      return;
+    }
+    this.eventoService
+      .actualizarVehiculo(this.idEvento, enEdicion.idVehiculo, {
+        idEmpleadoConductor: this.formularioVehiculo.getRawValue().idEmpleadoConductor,
+      })
+      .subscribe(() => {
+        this.cancelarEdicionVehiculo();
+        this.snackBar.open('Conductor actualizado', 'Cerrar', { duration: 3000 });
         this.cargar();
       });
   }

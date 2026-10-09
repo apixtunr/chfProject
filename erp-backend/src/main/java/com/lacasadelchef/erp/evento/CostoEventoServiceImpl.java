@@ -1,5 +1,6 @@
 package com.lacasadelchef.erp.evento;
 
+import com.lacasadelchef.erp.common.exception.BusinessException;
 import com.lacasadelchef.erp.common.exception.ResourceNotFoundException;
 import com.lacasadelchef.erp.entity.CostoEvento;
 import com.lacasadelchef.erp.entity.Evento;
@@ -57,9 +58,16 @@ public class CostoEventoServiceImpl implements CostoEventoService {
     @Transactional
     public CostoEventoResponse actualizar(Integer idEvento, Integer idCostoEvento, CostoEventoRequest request) {
         CostoEvento costoEvento = buscarCosto(idEvento, idCostoEvento);
+        // Si el cliente ya pago este costo, el pago quedo por ese monto: cambiarlo aqui los
+        // descuadraria. Para corregirlo hay que anular ese pago primero.
+        boolean cobrado = pagoRepository.existsByCostoEventoIdCostoEventoAndEstadoNombreNot(idCostoEvento, "ANULADO");
+        if (cobrado && request.monto().compareTo(costoEvento.getMonto()) != 0) {
+            throw new BusinessException(
+                    "El cliente ya pagó este costo: para cambiar el monto, anule primero ese pago");
+        }
         aplicar(request, costoEvento);
         costoEvento = costoEventoRepository.save(costoEvento);
-        return CostoEventoResponse.desde(costoEvento);
+        return CostoEventoResponse.desde(costoEvento, cobrado);
     }
 
     @Override

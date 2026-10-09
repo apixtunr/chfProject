@@ -248,7 +248,7 @@
       </ng-template>
       <div class="contenido-tab">
         @if (puedeModificar) {
-          <form [formGroup]="formularioCosto" (ngSubmit)="agregarCosto()" class="formulario-linea">
+          <form [formGroup]="formularioCosto" (ngSubmit)="guardarCosto()" class="formulario-linea">
             <mat-form-field appearance="outline" class="campo-chico">
               <mat-label>Tipo</mat-label>
               <mat-select formControlName="idTipoCosto">
@@ -275,6 +275,7 @@
               <mat-datepicker #pickerCosto></mat-datepicker>
             </mat-form-field>
 
+            @if (!costoEnEdicion()) {
             <div class="fila-recargo">
               <mat-checkbox formControlName="recargarCliente">El cliente cubre este costo</mat-checkbox>
 
@@ -300,8 +301,14 @@
                 </div>
               }
             </div>
+            }
 
-            <button mat-flat-button color="primary" type="submit">Agregar</button>
+            @if (costoEnEdicion()) {
+              <button mat-button type="button" (click)="cancelarEdicionCosto()">Cancelar</button>
+              <button mat-flat-button color="primary" type="submit">Guardar</button>
+            } @else {
+              <button mat-flat-button color="primary" type="submit">Agregar</button>
+            }
           </form>
         }
 
@@ -335,6 +342,9 @@
               <th mat-header-cell *matHeaderCellDef>Acciones</th>
               <td mat-cell *matCellDef="let c">
                 @if (puedeModificar) {
+                  <button mat-icon-button class="tbl-btn-editar" (click)="editarCosto(c)" matTooltip="Editar costo" aria-label="Editar costo">
+                    <mat-icon>edit</mat-icon>
+                  </button>
                   <button mat-icon-button class="tbl-btn-eliminar" (click)="eliminarCosto(c)" matTooltip="Eliminar costo" aria-label="Eliminar costo">
                     <mat-icon>delete</mat-icon>
                   </button>
@@ -353,8 +363,14 @@
 
     <mat-tab label="Asignación de personal">
       <div class="contenido-tab">
-        @if (puedeAsignarRecursos) {
-          <form [formGroup]="formularioPersonal" (ngSubmit)="asignarEmpleado()" class="formulario-linea">
+        @if (puedeAsignarRecursos || personalEnEdicion()) {
+          <form [formGroup]="formularioPersonal" (ngSubmit)="guardarEmpleado()" class="formulario-linea">
+            @if (personalEnEdicion(); as p) {
+              <mat-form-field appearance="outline" class="campo-chico">
+                <mat-label>Empleado</mat-label>
+                <input matInput [value]="p.nombreEmpleado" disabled />
+              </mat-form-field>
+            } @else {
             <mat-form-field appearance="outline" class="campo-chico">
               <mat-label>Empleado</mat-label>
               <mat-select formControlName="idEmpleado">
@@ -365,11 +381,17 @@
                 }
               </mat-select>
             </mat-form-field>
+            }
             <mat-form-field appearance="outline" class="campo-chico">
               <mat-label>Pago por evento (Q)</mat-label>
               <input matInput type="number" formControlName="salarioEvento" />
             </mat-form-field>
-            <button mat-flat-button color="primary" type="submit">Asignar</button>
+            @if (personalEnEdicion()) {
+              <button mat-button type="button" (click)="cancelarEdicionEmpleado()">Cancelar</button>
+              <button mat-flat-button color="primary" type="submit">Guardar</button>
+            } @else {
+              <button mat-flat-button color="primary" type="submit">Asignar</button>
+            }
           </form>
         }
 
@@ -390,6 +412,11 @@
             <ng-container matColumnDef="acciones">
               <th mat-header-cell *matHeaderCellDef>Acciones</th>
               <td mat-cell *matCellDef="let p">
+                @if (puedeModificar) {
+                  <button mat-icon-button class="tbl-btn-editar" (click)="editarEmpleado(p)" matTooltip="Editar pago" aria-label="Editar pago">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                }
                 @if (puedeAsignarRecursos) {
                   <button mat-icon-button class="tbl-btn-eliminar" (click)="quitarEmpleado(p)" matTooltip="Eliminar empleado" aria-label="Quitar empleado">
                     <mat-icon>delete</mat-icon>
@@ -410,7 +437,13 @@
     <mat-tab label="Asignación de vehículos">
       <div class="contenido-tab">
         @if (puedeAsignarRecursos) {
-          <form [formGroup]="formularioVehiculo" (ngSubmit)="asignarVehiculo()" class="formulario-linea">
+          <form [formGroup]="formularioVehiculo" (ngSubmit)="guardarVehiculo()" class="formulario-linea">
+            @if (vehiculoEnEdicion(); as v) {
+              <mat-form-field appearance="outline" class="campo-chico">
+                <mat-label>Vehiculo</mat-label>
+                <input matInput [value]="v.placaVehiculo" disabled />
+              </mat-form-field>
+            } @else {
             <mat-form-field appearance="outline" class="campo-chico">
               <mat-label>Vehiculo</mat-label>
               <mat-select formControlName="idVehiculo">
@@ -419,6 +452,7 @@
                 }
               </mat-select>
             </mat-form-field>
+            }
             <mat-form-field appearance="outline" class="campo-chico">
               <mat-label>Conductor (opcional)</mat-label>
               <!-- El conductor sale del personal del evento: asi su pago y su horario ya quedan
@@ -438,7 +472,12 @@
                 <mat-hint>Nadie del personal tiene licencia registrada (se agrega en Empleados)</mat-hint>
               }
             </mat-form-field>
-            <button mat-flat-button color="primary" type="submit">Asignar</button>
+            @if (vehiculoEnEdicion()) {
+              <button mat-button type="button" (click)="cancelarEdicionVehiculo()">Cancelar</button>
+              <button mat-flat-button color="primary" type="submit">Guardar</button>
+            } @else {
+              <button mat-flat-button color="primary" type="submit">Asignar</button>
+            }
           </form>
         }
 
@@ -456,6 +495,9 @@
               <th mat-header-cell *matHeaderCellDef>Acciones</th>
               <td mat-cell *matCellDef="let v">
                 @if (puedeAsignarRecursos) {
+                  <button mat-icon-button class="tbl-btn-editar" (click)="editarVehiculo(v)" matTooltip="Editar conductor" aria-label="Editar conductor">
+                    <mat-icon>edit</mat-icon>
+                  </button>
                   <button mat-icon-button class="tbl-btn-eliminar" (click)="quitarVehiculo(v)" matTooltip="Eliminar vehículo" aria-label="Quitar vehículo">
                     <mat-icon>delete</mat-icon>
                   </button>
