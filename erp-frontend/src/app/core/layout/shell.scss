@@ -139,11 +139,18 @@ mat-sidenav-content {
 .panel .mdc-list-item__primary-text {
   white-space: normal;
   line-height: 1.25;
+  font-size: 0.875rem;
+}
+
+.panel .mat-mdc-list-item mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
 }
 
 .panel .mat-mdc-list-item {
   height: auto;
-  min-height: 44px;
+  min-height: 40px;
   padding-top: 6px;
   padding-bottom: 6px;
 }
