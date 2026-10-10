@@ -25,7 +25,7 @@
 
 <!-- ══ FILTROS ════════════════════════════════════════════════ -->
 <div class="rpt-filtros-card">
-  <form (ngSubmit)="cargar()" class="rpt-filtros">
+  <form class="rpt-filtros" (submit)="$event.preventDefault(); cargar()">
 
     @if (config.fechaSegun) {
       <div class="rpt-filtro-campo rpt-filtro-campo--lista">
