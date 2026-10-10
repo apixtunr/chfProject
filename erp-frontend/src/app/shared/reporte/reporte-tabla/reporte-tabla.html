@@ -85,7 +85,7 @@
         <div class="rpt-filtro-campo rpt-filtro-campo--lista">
           <label class="rpt-filtro-label"><mat-icon>{{ filtro.icono }}</mat-icon>{{ filtro.etiqueta }}</label>
           <div class="pf-input-wrap pf-input-wrap--select">
-            <mat-select class="pf-select" [formControl]="filtros.controls[filtro.clave]">
+            <mat-select class="pf-select" [formControl]="filtros.controls[filtro.clave]" [placeholder]="filtro.todos ?? 'Todos'">
               <mat-option [value]="null">{{ filtro.todos ?? 'Todos' }}</mat-option>
               @for (o of opciones()[filtro.clave] ?? []; track o.valor) {
                 <mat-option [value]="o.valor">{{ o.etiqueta }}</mat-option>
@@ -99,7 +99,7 @@
     <div class="rpt-filtro-campo rpt-filtro-campo--lista">
       <label class="rpt-filtro-label"><mat-icon>view_agenda</mat-icon>Agrupar</label>
       <div class="pf-input-wrap pf-input-wrap--select">
-        <mat-select class="pf-select" [formControl]="agrupar">
+        <mat-select class="pf-select" [formControl]="agrupar" placeholder="Sin agrupar">
           <mat-option [value]="null">Sin agrupar</mat-option>
           @for (a of agrupaciones; track a.valor) {
             <mat-option [value]="a.valor">{{ a.etiqueta }}</mat-option>
