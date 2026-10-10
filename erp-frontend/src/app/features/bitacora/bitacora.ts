@@ -156,4 +156,13 @@ export class Bitacora implements OnInit {
   enLineas(valor: string | null): string {
     return (valor ?? '').split(' · ').join('\n');
   }
+
+  /**
+   * Nombre de tabla o de campo con un punto de corte invisible despues de cada guion bajo,
+   * para que "movimiento_inventario" baje de linea como "movimiento_ / inventario" y no a
+   * media palabra.
+   */
+  cortable(nombre: string | null): string {
+    return nombre ? nombre.replaceAll('_', '_\u200B') : '-';
+  }
 }

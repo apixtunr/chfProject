@@ -68,7 +68,7 @@
 
         <ng-container matColumnDef="tablaAfectada">
           <th mat-header-cell *matHeaderCellDef>Tabla</th>
-          <td mat-cell *matCellDef="let m">{{ m.tablaAfectada }}</td>
+          <td mat-cell *matCellDef="let m" class="col-nombre">{{ cortable(m.tablaAfectada) }}</td>
         </ng-container>
 
         <ng-container matColumnDef="registroId">
@@ -85,7 +85,7 @@
 
         <ng-container matColumnDef="nombreAtributo">
           <th mat-header-cell *matHeaderCellDef>Campo</th>
-          <td mat-cell *matCellDef="let m">{{ m.nombreAtributo ?? '-' }}</td>
+          <td mat-cell *matCellDef="let m" class="col-nombre">{{ cortable(m.nombreAtributo) }}</td>
         </ng-container>
 
         <ng-container matColumnDef="valorAnterior">

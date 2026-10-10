@@ -4,10 +4,36 @@
 
 .tabla {
   width: 100%;
+
+  // Nueve columnas: con el espacio interno normal la tabla quedaba mas ancha que la
+  // pantalla y aparecia un scroll horizontal. Con celdas mas ajustadas cabe completa.
+  .mat-mdc-header-cell,
+  .mat-mdc-cell {
+    padding: 0 10px;
+  }
+}
+
+// El contenido de la pestaña sobresalia 2px y dibujaba otro scroll horizontal debajo de la
+// tabla. El desplazamiento, si hace falta, lo hace solo el contenedor de la tabla.
+:host ::ng-deep .mat-mdc-tab-body-content,
+:host ::ng-deep .mat-mdc-tab-body-wrapper,
+:host ::ng-deep .mat-mdc-tab-body.mat-mdc-tab-body-active {
+  overflow: visible;
+}
+
+// Sin esto la pestaña se estiraba al ancho de la tabla y el scroll pasaba a toda la pagina.
+:host ::ng-deep .mat-mdc-tab-body-wrapper {
+  min-width: 0;
+}
+
+// Nombres de tabla y de campo (movimiento_inventario, intentos_acceso): bajan de linea en
+// el guion bajo (ver cortable() en bitacora.ts) en vez de ensanchar la columna.
+.col-nombre {
+  max-width: 130px;
 }
 
 .col-navegador {
-  max-width: 260px;
+  max-width: 200px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -16,7 +42,7 @@
 /* Un valor puede ser largo (observaciones, direcciones); se recorta y el resto se ve en el tooltip. */
 // Quien hizo la accion: la persona, y debajo el usuario con que entro.
 .col-usuario {
-  white-space: nowrap;
+  max-width: 150px;
 
   .usuario-nombre {
     display: block;
@@ -30,7 +56,7 @@
 }
 
 .col-valor {
-  max-width: 150px;
+  max-width: 105px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
