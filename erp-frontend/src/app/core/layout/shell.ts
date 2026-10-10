@@ -2,7 +2,6 @@ import { BreakpointObserver } from '@angular/cdk/layout';
 import { Component, computed, effect, inject, signal, viewChild } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
-import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
@@ -10,7 +9,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { filter, map, startWith } from 'rxjs';
 import { AuthService } from '../auth/auth.service';
-import { NAV_GROUPS, NavItem } from './nav-items';
+import { NAV_GROUPS, NavGroup } from './nav-items';
 
 @Component({
   selector: 'app-shell',
@@ -23,7 +22,6 @@ import { NAV_GROUPS, NavItem } from './nav-items';
     MatListModule,
     MatIconModule,
     MatButtonModule,
-    MatExpansionModule,
   ],
   templateUrl: './shell.html',
   styleUrl: './shell.scss',
@@ -49,13 +47,11 @@ export class Shell {
     })).filter((grupo) => grupo.items.length > 0),
   );
 
-  /**
-   * Un modulo cuya unica pantalla se llama igual que el modulo no aporta nada al
-   * desplegarse: repite el mismo texto un nivel mas abajo. Se muestra como enlace.
-   */
-  esModuloDeUnaPantalla(grupo: { modulo: string; items: NavItem[] }): boolean {
-    return grupo.items.length === 1 && grupo.items[0].label === grupo.modulo;
-  }
+  /** Inicio va primero en la columna de modulos, con su unica pantalla. */
+  readonly modulosMenu = computed<NavGroup[]>(() => [
+    { modulo: 'Inicio', icon: 'home', color: '#64748B', items: [{ label: 'Inicio', route: '/', paginaUrl: '', icon: 'home' }] },
+    ...this.gruposMenu(),
+  ]);
 
   readonly usuario = computed(() => this.authService.usuarioActual());
 
@@ -68,16 +64,23 @@ export class Shell {
     { initialValue: this.router.url },
   );
 
+  /** El modulo de la pantalla abierta (Inicio si no corresponde a ninguno). */
   private readonly moduloActivo = computed(() => {
     const url = this.urlActual();
-    return NAV_GROUPS.find((grupo) => grupo.items.some((item) => url.startsWith(item.route)))?.modulo ?? null;
+    return NAV_GROUPS.find((grupo) => grupo.items.some((item) => url.startsWith(item.route)))?.modulo ?? 'Inicio';
   });
 
-  /** Paneles abiertos: arranca vacio (todo colapsado) y se va abriendo con la navegacion o a mano. */
-  private readonly modulosExpandidos = signal<ReadonlySet<string>>(new Set());
+  /**
+   * El modulo cuyas pantallas se muestran en el panel. Sigue a la pantalla abierta, pero se
+   * puede elegir otro para ver sus pantallas sin salir de la actual.
+   */
+  readonly moduloSeleccionado = signal<string>('Inicio');
+
+  readonly grupoSeleccionado = computed(
+    () => this.modulosMenu().find((grupo) => grupo.modulo === this.moduloSeleccionado()) ?? null,
+  );
 
   constructor() {
-    // En pantalla chica el menu tapa el contenido: al elegir una pantalla se cierra solo.
     this.router.events
       .pipe(filter((e) => e instanceof NavigationEnd))
       .subscribe(() => {
@@ -86,31 +89,16 @@ export class Shell {
         }
       });
 
-    // Al navegar, deja abierto unicamente el modulo de la pantalla activa (no se van
-    // acumulando los anteriores). Un clic manual en otro modulo si puede abrir varios
-    // a la vez, hasta la siguiente navegacion.
-    effect(() => {
-      const activo = this.moduloActivo();
-      if (activo) {
-        this.modulosExpandidos.set(new Set([activo]));
-      }
-    });
+    effect(() => this.moduloSeleccionado.set(this.moduloActivo()));
   }
 
-  estaExpandido(modulo: string): boolean {
-    return this.modulosExpandidos().has(modulo);
-  }
-
-  alternarModulo(modulo: string, expandido: boolean): void {
-    this.modulosExpandidos.update((actual) => {
-      const nuevo = new Set(actual);
-      if (expandido) {
-        nuevo.add(modulo);
-      } else {
-        nuevo.delete(modulo);
-      }
-      return nuevo;
-    });
+  /** Inicio y los modulos de una sola pantalla abren su pantalla; los demas muestran sus pantallas. */
+  elegirModulo(grupo: NavGroup): void {
+    if (grupo.items.length === 1) {
+      this.router.navigateByUrl(grupo.items[0].route);
+      return;
+    }
+    this.moduloSeleccionado.set(grupo.modulo);
   }
 
   cerrarSesion(): void {

@@ -25,47 +25,30 @@
       [opened]="!esCompacto()"
       [fixedInViewport]="esCompacto()"
       fixedTopGap="0"
+      [autoFocus]="false"
     >
-      <mat-nav-list dense class="lista-inicio">
-        <a mat-list-item routerLink="/" routerLinkActive="activo" [routerLinkActiveOptions]="{ exact: true }">
-          <mat-icon matListItemIcon>home</mat-icon>
-          <span matListItemTitle>Inicio</span>
-        </a>
-      </mat-nav-list>
+      <!-- Menu en dos niveles: a la izquierda los modulos; al lado, las pantallas del modulo
+           elegido. Asi se ven todos los modulos a la vez, sin acordeones que desplegar. -->
+      <div class="menu">
+        <nav class="riel" aria-label="Módulos">
+          @for (grupo of modulosMenu(); track grupo.modulo) {
+            <button
+              type="button"
+              class="riel-modulo"
+              [class.riel-modulo--activo]="grupo.modulo === moduloSeleccionado()"
+              (click)="elegirModulo(grupo)"
+            >
+              <span class="icono-modulo" [style.background-color]="grupo.color">
+                <mat-icon>{{ grupo.icon }}</mat-icon>
+              </span>
+              <span class="riel-nombre">{{ grupo.modulo }}</span>
+            </button>
+          }
+        </nav>
 
-      <mat-accordion multi displayMode="flat">
-        @for (grupo of gruposMenu(); track grupo.modulo) {
-          <!-- Un modulo de una sola pantalla no necesita desplegarse: el panel mostraba
-               "Clientes" y adentro otra vez "Clientes". Se dibuja como enlace directo. -->
-          @if (esModuloDeUnaPantalla(grupo)) {
-            <mat-nav-list dense class="lista-modulo-simple">
-              <a
-                mat-list-item
-                [routerLink]="grupo.items[0].route"
-                routerLinkActive="activo"
-                [routerLinkActiveOptions]="{ exact: true }"
-              >
-                <span class="icono-modulo" matListItemIcon [style.background-color]="grupo.color">
-                  <mat-icon>{{ grupo.icon }}</mat-icon>
-                </span>
-                <span matListItemTitle>{{ grupo.modulo }}</span>
-              </a>
-            </mat-nav-list>
-          } @else {
-          <mat-expansion-panel
-            class="panel-modulo"
-            [expanded]="estaExpandido(grupo.modulo)"
-            (expandedChange)="alternarModulo(grupo.modulo, $event)"
-          >
-            <mat-expansion-panel-header>
-              <mat-panel-title class="titulo-modulo">
-                <span class="icono-modulo" [style.background-color]="grupo.color">
-                  <mat-icon>{{ grupo.icon }}</mat-icon>
-                </span>
-                <span>{{ grupo.modulo }}</span>
-              </mat-panel-title>
-            </mat-expansion-panel-header>
-
+        <div class="panel">
+          @if (grupoSeleccionado(); as grupo) {
+            <p class="panel-titulo">{{ grupo.modulo }}</p>
             <mat-nav-list dense>
               @for (item of grupo.items; track item.route) {
                 <a
@@ -79,17 +62,16 @@
                 </a>
               }
             </mat-nav-list>
-          </mat-expansion-panel>
           }
-        }
-      </mat-accordion>
 
-      <!-- Datos de la empresa al pie del menu: los mismos del membrete de la cotizacion y
-           del recibo. -->
-      <div class="empresa-sidebar">
-        <span class="empresa-nombre">La Casa del Chef</span>
-        <span class="empresa-giro">Servicios de Banquetes y Eventos</span>
-        <span class="empresa-telefono"><mat-icon>call</mat-icon>5173-0435</span>
+          <!-- Datos de la empresa al pie del menu: los mismos del membrete de la cotizacion y
+               del recibo. -->
+          <div class="empresa-sidebar">
+            <span class="empresa-nombre">La Casa del Chef</span>
+            <span class="empresa-giro">Servicios de Banquetes y Eventos</span>
+            <span class="empresa-telefono"><mat-icon>call</mat-icon>5173-0435</span>
+          </div>
+        </div>
       </div>
     </mat-sidenav>
 

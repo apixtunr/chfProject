@@ -19,7 +19,7 @@ mat-sidenav-content {
 }
 
 .sidenav {
-  width: 288px;
+  width: 320px;
 
   // Mismo color que la barra superior: el menu deja de ser una franja blanca mas y la
   // interfaz gana un ancla oscura a la izquierda. Los colores de texto e iconos de aqui
@@ -39,10 +39,6 @@ mat-sidenav-content {
   --mat-list-list-item-hover-state-layer-color: var(--chf-marca-contraste);
   --mat-list-list-item-focus-state-layer-color: var(--chf-marca-contraste);
 
-  --mat-expansion-container-background-color: transparent;
-  --mat-expansion-header-text-color: var(--chf-marca-contraste);
-  --mat-expansion-header-indicator-color: var(--chf-marca-contraste-suave);
-  --mat-expansion-header-hover-state-layer-color: rgba(255, 255, 255, 0.06);
 
   // Angular Material inserta el contenido del sidenav dentro de un
   // .mat-drawer-inner-container propio (no es hijo directo estilable sin
@@ -82,9 +78,88 @@ mat-sidenav-content {
   }
 }
 
+// Menu en dos niveles: la columna de modulos (riel) y, al lado, las pantallas del modulo
+// elegido (panel). Ocupan todo el alto del menu.
+.menu {
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 100%;
+}
+
+.riel {
+  flex: 0 0 84px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 6px;
+  background-color: var(--chf-marca-barra);
+}
+
+.riel-modulo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 9px 2px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--chf-marca-contraste-suave);
+  font: inherit;
+  cursor: pointer;
+  transition: background-color 0.15s;
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+    color: var(--chf-marca-contraste);
+  }
+
+  &--activo {
+    background-color: rgba(255, 255, 255, 0.14);
+    color: var(--chf-marca-contraste);
+  }
+}
+
+.riel-nombre {
+  font-size: 0.68rem;
+  line-height: 1.2;
+  text-align: center;
+  font-weight: 500;
+}
+
+.panel {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  padding-top: 10px;
+}
+
+// Los nombres largos (Estadisticas de eventos) bajan de linea en vez de cortarse.
+.panel .mdc-list-item__primary-text {
+  white-space: normal;
+  line-height: 1.25;
+}
+
+.panel .mat-mdc-list-item {
+  height: auto;
+  min-height: 44px;
+  padding-top: 6px;
+  padding-bottom: 6px;
+}
+
+.panel-titulo {
+  margin: 6px 16px 8px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--chf-marca-contraste-suave);
+}
+
 // Pie del menu con los datos de la empresa: margin-top auto lo empuja al fondo.
 .empresa-sidebar {
-  margin: auto 16px 16px;
+  margin: auto 12px 16px;
   padding-top: 16px;
   border-top: 1px solid rgba(255, 255, 255, 0.12);
   display: flex;
@@ -139,23 +214,6 @@ mat-sidenav-content {
 // Iconos del item activo: a blanco pleno, igual que su texto.
 .sidenav .activo mat-icon {
   color: var(--chf-marca-contraste);
-}
-
-.panel-modulo {
-  box-shadow: none !important;
-  border-radius: 0 !important;
-
-  // Compactar el contenido del panel para que el menu no quede aireado
-  ::ng-deep .mat-expansion-panel-body {
-    padding: 0 0 8px;
-  }
-}
-
-.titulo-modulo {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-weight: 500;
 }
 
 // Los iconos de modulo eran pastillas de 8 colores distintos, uno por modulo, con el
@@ -264,7 +322,7 @@ mat-sidenav-content {
   }
 
   .sidenav {
-    width: min(288px, 85vw);
+    width: min(320px, 92vw);
   }
 
 }
@@ -272,21 +330,4 @@ mat-sidenav-content {
 .contenido-centrado {
   max-width: 1500px;
   margin-inline: auto;
-}
-
-// Jerarquia del menu. El icono de un modulo desplegable arranca en 24px (lo fija el
-// padding del mat-expansion-panel-header), pero los mat-list-item arrancan en 12px: eso
-// dejaba las pantallas de un modulo MENOS indentadas que el modulo que las contiene, y
-// los enlaces sueltos (Inicio, Clientes, Pagos) sin alinear con el resto. Los valores de
-// abajo son el desplazamiento que se suma a esos 12px propios del list-item: el primer
-// nivel queda en 24px, igual que los modulos, y las pantallas de adentro 16px mas.
-.lista-inicio,
-.lista-modulo-simple {
-  ::ng-deep .mat-mdc-list-item {
-    padding-left: 12px;
-  }
-}
-
-.panel-modulo ::ng-deep .mat-mdc-list-item {
-  padding-left: 28px;
 }
