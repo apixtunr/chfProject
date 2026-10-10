@@ -116,7 +116,7 @@ class ReciboPagoPdfServiceTest {
         lector.close();
 
         assertThat(texto)
-                .contains("RECIBO DE PAGO", "REC-000007", "08/10/2026 10:30")
+                .contains("RECIBO DE PAGO", "No. 000007", "08/10/2026 10:30")
                 .contains("María Fernanda López", "4589632-1")
                 .contains("Q1,500.00", "Un mil quinientos quetzales con 00/100")
                 .contains("Abono al evento #45", "Boda")

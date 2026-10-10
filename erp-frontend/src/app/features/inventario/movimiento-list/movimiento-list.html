@@ -11,7 +11,7 @@
     @if (tipoFiltro() === 'producto') {
       <div class="pf-input-wrap pf-input-wrap--select filtro-lista">
         <mat-icon class="pf-input-icon">inventory_2</mat-icon>
-        <mat-select class="pf-select" [value]="idProductoFiltro()" (selectionChange)="filtrarPorProducto($event.value)" aria-label="Producto">
+        <mat-select class="pf-select" [value]="idProductoFiltro()" (selectionChange)="filtrarPorProducto($event.value)" aria-label="Producto" placeholder="Todos">
           <mat-option [value]="null">Todos</mat-option>
           @for (producto of productos(); track producto.idProducto) {
             <mat-option [value]="producto.idProducto">{{ producto.nombreProducto }}</mat-option>

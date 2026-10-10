@@ -3,9 +3,9 @@ import { MatDialog } from '@angular/material/dialog';
 import { VisorArchivo } from '../../shared/visor-archivo/visor-archivo';
 import { PagoService } from './pago.service';
 
-/** "REC-000045": el numero del recibo es el del pago (igual que en el backend). */
+/** "000045": el numero del recibo es el del pago (igual que en el backend). */
 export function numeroRecibo(idPago: number): string {
-  return `REC-${String(idPago).padStart(6, '0')}`;
+  return String(idPago).padStart(6, '0');
 }
 
 /**
@@ -21,7 +21,7 @@ export class ReciboPago {
   ver(idPago: number): void {
     this.pagoService.recibo(idPago).subscribe((archivo) =>
       this.dialog.open(VisorArchivo, {
-        data: { titulo: `Recibo ${numeroRecibo(idPago)}`, nombre: `${numeroRecibo(idPago)}.pdf`, archivo },
+        data: { titulo: `Recibo No. ${numeroRecibo(idPago)}`, nombre: `Recibo-${numeroRecibo(idPago)}.pdf`, archivo },
         maxWidth: '95vw',
         autoFocus: false,
       }),

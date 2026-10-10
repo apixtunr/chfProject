@@ -55,7 +55,7 @@ public class PagoController {
     public ResponseEntity<byte[]> recibo(@PathVariable Integer id) {
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_PDF)
-                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"%s.pdf\""
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"Recibo-%s.pdf\""
                         .formatted(ReciboPagoPdfService.numeroRecibo(id)))
                 .cacheControl(CacheControl.noStore())
                 .body(reciboPagoPdfService.generar(id));

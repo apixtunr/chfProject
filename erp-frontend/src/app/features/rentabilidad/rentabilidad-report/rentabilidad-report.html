@@ -61,7 +61,7 @@
     <div class="rpt-filtro-campo rpt-filtro-campo--lista">
       <label class="rpt-filtro-label"><mat-icon>event</mat-icon>Tipo de evento</label>
       <div class="pf-input-wrap pf-input-wrap--select">
-        <mat-select class="pf-select" formControlName="idTipoEvento">
+        <mat-select class="pf-select" formControlName="idTipoEvento" placeholder="Todos los tipos">
           <mat-option [value]="null">Todos los tipos</mat-option>
           @for (t of tiposEvento(); track t.idTipoEvento) {
             <mat-option [value]="t.idTipoEvento">{{ t.nombreTipo }}</mat-option>

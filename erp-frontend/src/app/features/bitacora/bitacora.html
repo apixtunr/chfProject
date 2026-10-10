@@ -8,7 +8,7 @@
       <div class="rpt-filtro-campo rpt-filtro-campo--lista">
         <label class="rpt-filtro-label"><mat-icon>table_chart</mat-icon>Tabla</label>
         <div class="pf-input-wrap pf-input-wrap--select">
-          <mat-select class="pf-select" formControlName="tabla">
+          <mat-select class="pf-select" formControlName="tabla" placeholder="Todas">
               <mat-option [value]="null">Todas</mat-option>
               @for (t of tablasDisponibles(); track t) {
                 <mat-option [value]="t">{{ t }}</mat-option>
@@ -127,7 +127,7 @@
       <div class="rpt-filtro-campo rpt-filtro-campo--lista">
         <label class="rpt-filtro-label"><mat-icon>fact_check</mat-icon>Resultado</label>
         <div class="pf-input-wrap pf-input-wrap--select">
-          <mat-select class="pf-select" formControlName="resultado">
+          <mat-select class="pf-select" formControlName="resultado" placeholder="Todos">
               <mat-option [value]="null">Todos</mat-option>
               @for (r of resultadosAcceso; track r) {
                 <mat-option [value]="r">{{ r }}</mat-option>

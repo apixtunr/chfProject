@@ -61,9 +61,9 @@ public class ReciboPagoPdfService {
 
     private final PagoRepository pagoRepository;
 
-    /** "REC-000045": el numero del recibo es el del pago, que ya es correlativo y unico. */
+    /** "000045": el numero del recibo es el del pago, que ya es correlativo y unico. */
     public static String numeroRecibo(Integer idPago) {
-        return "REC-%06d".formatted(idPago);
+        return "%06d".formatted(idPago);
     }
 
     @Transactional(readOnly = true)

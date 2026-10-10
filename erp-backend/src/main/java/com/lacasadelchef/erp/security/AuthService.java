@@ -44,7 +44,8 @@ public class AuthService {
 
     @Transactional(noRollbackFor = {BadCredentialsException.class, BusinessException.class})
     public LoginResponse login(LoginRequest request, HttpServletRequest http) {
-        Usuario usuario = usuarioRepository.findByUsername(request.username())
+        // El teclado del celular puede dejar un espacio al final del usuario.
+        Usuario usuario = usuarioRepository.findByUsername(request.username().strip())
                 .orElseThrow(() -> new BadCredentialsException("Credenciales invalidas"));
 
         if (!"ACTIVO".equalsIgnoreCase(usuario.getEstado().getNombre())) {

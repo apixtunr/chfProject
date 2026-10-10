@@ -1563,3 +1563,13 @@ mat-paginator {
   }
 }
 
+
+// En iPhone/iPad, Safari acerca la pantalla al enfocar un campo con letra menor a 16px y no
+// la vuelve a alejar (despues del login habia que pellizcar para ver el menu). En pantallas
+// tactiles los campos quedan en 16px; en computadora no cambia nada.
+@media (pointer: coarse) {
+  input,
+  textarea {
+    font-size: 16px !important;
+  }
+}

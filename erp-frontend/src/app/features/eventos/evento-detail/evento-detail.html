@@ -195,7 +195,7 @@
               <div class="pf-field evt-campo evt-campo-chico">
                 <label class="pf-label"><span class="pf-label-name">Bebida</span></label>
                 <div class="pf-input-wrap pf-input-wrap--select">
-                  <mat-select class="pf-select" formControlName="idBebida">
+                  <mat-select class="pf-select" formControlName="idBebida" placeholder="Por definir">
                   <mat-option [value]="null">Por definir</mat-option>
                   @for (bebida of bebidasDelPlato(); track bebida.idBebida) {
                   <mat-option [value]="bebida.idBebida">{{ bebida.nombreBebida }}</mat-option>
@@ -368,7 +368,7 @@
             <div class="pf-field evt-campo evt-campo-chico">
               <label class="pf-label"><span class="pf-label-name">Conductor (opcional)</span></label>
               <div class="pf-input-wrap pf-input-wrap--select">
-                <mat-select class="pf-select" formControlName="idEmpleadoConductor">
+                <mat-select class="pf-select" formControlName="idEmpleadoConductor" placeholder="Sin conductor asignado">
                 <mat-option [value]="null">Sin conductor asignado</mat-option>
                 @for (p of personal(); track p.idEmpleado) {
                 <mat-option [value]="p.idEmpleado" [disabled]="!p.tieneLicencia">

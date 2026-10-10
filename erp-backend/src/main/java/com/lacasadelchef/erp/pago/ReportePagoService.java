@@ -36,7 +36,7 @@ public class ReportePagoService {
                 hasta == null ? null : hasta.plusDays(1).atStartOfDay(),
                 idMetodoPago, idEstado);
         return ReporteTablaBuilder.de("Recibos emitidos", pagos)
-                .texto("recibo", "Recibo", 1.2f, p -> ReciboPagoPdfService.numeroRecibo(p.getIdPago()))
+                .texto("recibo", "Recibo No.", 1.2f, p -> ReciboPagoPdfService.numeroRecibo(p.getIdPago()))
                 .fechaHora("fecha", "Fecha", 1.7f, Pago::getFechaPago)
                 .texto("evento", "Evento", 1.6f,
                         p -> "#" + p.getEvento().getIdEvento() + " " + p.getEvento().getTipoEvento().getNombreTipo())
