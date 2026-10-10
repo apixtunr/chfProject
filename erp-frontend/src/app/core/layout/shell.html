@@ -6,7 +6,11 @@
         <mat-icon>menu</mat-icon>
       </button>
     }
-    <span class="marca">La Casa del Chef</span>
+    <!-- Como en Drive: el logo y el nombre de la empresa llevan a Inicio. -->
+    <a class="marca" routerLink="/" aria-label="Ir a Inicio">
+      <img class="marca-logo" src="icono-192.png" alt="" />
+      <span>La Casa del Chef</span>
+    </a>
     <span class="spacer"></span>
     <span class="usuario">
       <span class="usuario-nombre">{{ usuario()?.nombreCompleto }}</span>
@@ -31,7 +35,7 @@
            elegido. Asi se ven todos los modulos a la vez, sin acordeones que desplegar. -->
       <div class="menu">
         <nav class="riel" aria-label="Módulos">
-          @for (grupo of modulosMenu(); track grupo.modulo) {
+          @for (grupo of gruposMenu(); track grupo.modulo) {
             <button
               type="button"
               class="riel-modulo"

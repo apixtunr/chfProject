@@ -47,12 +47,6 @@ export class Shell {
     })).filter((grupo) => grupo.items.length > 0),
   );
 
-  /** Inicio va primero en la columna de modulos, con su unica pantalla. */
-  readonly modulosMenu = computed<NavGroup[]>(() => [
-    { modulo: 'Inicio', icon: 'home', color: '#64748B', items: [{ label: 'Inicio', route: '/', paginaUrl: '', icon: 'home' }] },
-    ...this.gruposMenu(),
-  ]);
-
   readonly usuario = computed(() => this.authService.usuarioActual());
 
   private readonly urlActual = toSignal(
@@ -64,20 +58,20 @@ export class Shell {
     { initialValue: this.router.url },
   );
 
-  /** El modulo de la pantalla abierta (Inicio si no corresponde a ninguno). */
+  /** El modulo de la pantalla abierta (ninguno en Inicio). */
   private readonly moduloActivo = computed(() => {
     const url = this.urlActual();
-    return NAV_GROUPS.find((grupo) => grupo.items.some((item) => url.startsWith(item.route)))?.modulo ?? 'Inicio';
+    return NAV_GROUPS.find((grupo) => grupo.items.some((item) => url.startsWith(item.route)))?.modulo ?? null;
   });
 
   /**
    * El modulo cuyas pantallas se muestran en el panel. Sigue a la pantalla abierta, pero se
    * puede elegir otro para ver sus pantallas sin salir de la actual.
    */
-  readonly moduloSeleccionado = signal<string>('Inicio');
+  readonly moduloSeleccionado = signal<string | null>(null);
 
   readonly grupoSeleccionado = computed(
-    () => this.modulosMenu().find((grupo) => grupo.modulo === this.moduloSeleccionado()) ?? null,
+    () => this.gruposMenu().find((grupo) => grupo.modulo === this.moduloSeleccionado()) ?? null,
   );
 
   constructor() {
@@ -92,7 +86,7 @@ export class Shell {
     effect(() => this.moduloSeleccionado.set(this.moduloActivo()));
   }
 
-  /** Inicio y los modulos de una sola pantalla abren su pantalla; los demas muestran sus pantallas. */
+  /** Un modulo de una sola pantalla la abre; los demas muestran sus pantallas en el panel. */
   elegirModulo(grupo: NavGroup): void {
     if (grupo.items.length === 1) {
       this.router.navigateByUrl(grupo.items[0].route);

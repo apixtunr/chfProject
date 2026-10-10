@@ -27,7 +27,7 @@ export const NAV_GROUPS: NavGroup[] = [
     color: '#3F51B5',
     icon: 'people',
     items: [
-      { label: 'Clientes', route: '/clientes', paginaUrl: '/api/clientes', icon: 'people' },
+      { label: 'Registro de Clientes', route: '/clientes', paginaUrl: '/api/clientes', icon: 'people' },
       { label: 'Reporte de clientes', route: '/clientes/reporte', paginaUrl: '/api/clientes', icon: 'summarize' },
     ],
   },
@@ -36,7 +36,7 @@ export const NAV_GROUPS: NavGroup[] = [
     color: '#8E44AD',
     icon: 'request_quote',
     items: [
-      { label: 'Cotizaciones', route: '/cotizaciones', paginaUrl: '/api/cotizaciones', icon: 'request_quote' },
+      { label: 'Gestión de Cotizaciones', route: '/cotizaciones', paginaUrl: '/api/cotizaciones', icon: 'request_quote' },
       { label: 'Reporte de cotizaciones', route: '/cotizaciones/reporte', paginaUrl: '/api/cotizaciones', icon: 'summarize' },
     ],
   },
