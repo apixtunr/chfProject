@@ -148,7 +148,7 @@
           </tr>
         </thead>
         <tbody>
-          @for (g of r.grupos; track $index) {
+          @for (g of gruposDeLaPagina(); track $index) {
             @if (g.etiqueta !== null) {
               <tr class="rpt-fila-grupo">
                 <td [attr.colspan]="r.columnas.length">
@@ -163,7 +163,7 @@
                 }
               </tr>
             }
-            @if (columnasQueSuman.length > 0) {
+            @if (columnasQueSuman.length > 0 && g.termina) {
               <tr class="rpt-fila-total">
                 <td [attr.colspan]="columnasAntesDeLaSuma">{{ agrupado ? 'Subtotal' : 'Total' }}</td>
                 @for (c of r.columnas.slice(columnasAntesDeLaSuma); track c.clave) {
@@ -176,7 +176,7 @@
               <td class="rpt-sin-datos" [attr.colspan]="r.columnas.length">{{ config.sinDatos }}</td>
             </tr>
           }
-          @if (agrupado && columnasQueSuman.length > 0) {
+          @if (agrupado && columnasQueSuman.length > 0 && esUltimaPagina()) {
             <tr class="rpt-fila-total rpt-fila-total--general">
               <td [attr.colspan]="columnasAntesDeLaSuma">Total general</td>
               @for (c of r.columnas.slice(columnasAntesDeLaSuma); track c.clave) {
@@ -187,5 +187,16 @@
         </tbody>
       </table>
     </div>
+
+    @if (totalFilas() > 0) {
+      <mat-paginator
+        [length]="totalFilas()"
+        [pageIndex]="pageIndex()"
+        [pageSize]="pageSize()"
+        [pageSizeOptions]="[10, 20, 50, 100]"
+        (page)="cambiarPagina($event)"
+      >
+      </mat-paginator>
+    }
   </div>
 }

@@ -26,7 +26,7 @@ public class PagoPersonalService {
 
     @Transactional(readOnly = true)
     public ReporteTabla generar(LocalDate fechaDesde, LocalDate fechaHasta, String agrupar) {
-        return ReporteTablaBuilder.de("Pago al personal",
+        return ReporteTablaBuilder.de("Reporte de Pagos al Personal",
                         eventoEmpleadoRepository.pagosEnFinalizados(fechaDesde, fechaHasta, null))
                 .texto("nombre", "Nombre", 2.4f, ee -> ee.getEmpleado().getNombreCompleto())
                 .texto("puesto", "Puesto", 1.4f, ee -> ee.getEmpleado().getPuestoEmpleado() != null

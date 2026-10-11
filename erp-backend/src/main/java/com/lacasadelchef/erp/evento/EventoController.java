@@ -32,6 +32,7 @@ public class EventoController {
     private final EventoService eventoService;
     private final HojaServicioPdfService hojaServicioPdfService;
     private final EventoReporteService eventoReporteService;
+    private final EventoEstadisticasPdfService eventoEstadisticasPdfService;
 
     @GetMapping
     public Page<EventoResponse> listar(@RequestParam(required = false) LocalDate fechaDesde,
@@ -49,6 +50,20 @@ public class EventoController {
                                          @RequestParam(required = false) Integer idCliente,
                                          @RequestParam(required = false) Integer idTipoEvento) {
         return eventoService.resumen(fechaDesde, fechaHasta, idCliente, idTipoEvento);
+    }
+
+    /** Estadisticas de eventos en PDF, con los mismos filtros que la pantalla. */
+    @GetMapping("/resumen/pdf")
+    @PreAuthorize("@permisoService.tienePermiso('/api/eventos/resumen', T(com.lacasadelchef.erp.security.TipoPermiso).IMPRIMIR)")
+    public ResponseEntity<byte[]> resumenPdf(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaDesde,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaHasta,
+            @RequestParam(required = false) Integer idCliente,
+            @RequestParam(required = false) Integer idTipoEvento,
+            @RequestParam(required = false) Integer idEstado,
+            @RequestParam(required = false) String filtros) {
+        return ReportePdf.respuesta(eventoEstadisticasPdfService.generar(fechaDesde, fechaHasta, idCliente,
+                idTipoEvento, idEstado, filtros), "estadisticas-de-eventos");
     }
 
     /** Reporte de eventos por periodo; fechaSegun = REGISTRO usa el dia en que se registro el evento. */

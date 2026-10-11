@@ -11,6 +11,7 @@ import { MatTableModule } from '@angular/material/table';
 import { debounceTime, distinctUntilChanged, of, switchMap } from 'rxjs';
 import type { ChartData } from 'chart.js';
 import { AuthService } from '../../../core/auth/auth.service';
+import { VerPdf } from '../../../shared/reporte/exportar';
 import { ChartComponent } from '../../../shared/chart/chart';
 import { ClienteService } from '../../clientes/cliente.service';
 import { ClienteResponse } from '../../clientes/dto/cliente';
@@ -64,6 +65,7 @@ export class RentabilidadReport implements OnInit {
   private readonly clienteService = inject(ClienteService);
   private readonly eventoService = inject(EventoService);
   private readonly authService = inject(AuthService);
+  private readonly verPdf = inject(VerPdf);
 
   readonly filas = signal<RentabilidadEventoResponse[]>([]);
   readonly resumen = signal<RentabilidadResumenResponse | null>(null);
@@ -77,6 +79,7 @@ export class RentabilidadReport implements OnInit {
   readonly clientesFiltrados = signal<ClienteResponse[]>([]);
 
   readonly puedeExportar: boolean;
+  readonly puedeImprimir: boolean;
 
   readonly columnas = ['cliente', 'tipo', 'fecha', 'acordado', 'cobrado', 'costos', 'ganancia', 'margen'];
 
@@ -134,6 +137,7 @@ export class RentabilidadReport implements OnInit {
 
   constructor() {
     this.puedeExportar = this.authService.tienePermiso(PAGINA_URL, 'exportar');
+    this.puedeImprimir = this.authService.tienePermiso(PAGINA_URL, 'imprimir');
   }
 
   ngOnInit(): void {
@@ -220,6 +224,27 @@ export class RentabilidadReport implements OnInit {
   }
 
   /** Exporta la pagina actual a CSV (abre en Excel). */
+  /** El PDF sale con los mismos filtros que la pantalla. */
+  imprimir(): void {
+    this.verPdf.abrir(this.rentabilidadService.pdf(this.filtros, this.textoFiltros()), 'Análisis de rentabilidad',
+      'analisis_de_rentabilidad');
+  }
+
+  /** Los filtros elegidos, en palabras, para el encabezado del PDF. */
+  private textoFiltros(): string {
+    const v = this.formulario.getRawValue();
+    const partes: string[] = [];
+    if (v.idCliente) {
+      const cliente = this.busquedaCliente.value as ClienteResponse | string;
+      partes.push(`Cliente: ${typeof cliente === 'string' ? cliente : cliente.nombre}`);
+    }
+    if (v.idTipoEvento) {
+      const tipo = this.tiposEvento().find((t) => t.idTipoEvento === v.idTipoEvento);
+      partes.push(`Tipo de evento: ${tipo?.nombreTipo ?? v.idTipoEvento}`);
+    }
+    return partes.join('  ·  ');
+  }
+
   exportarCsv(): void {
     const encabezado =
       'Evento,Fecha,Cliente,Tipo,Proyectado,Cobrado,Por cobrar,Personal,Inventario,Costos extra,Costos,Ganancia proyectada,Ganancia cobrada,Margen';

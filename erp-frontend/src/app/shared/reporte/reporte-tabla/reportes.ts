@@ -174,12 +174,12 @@ export const REPORTE_CUENTAS_POR_COBRAR: ConfigReporte = {
 };
 
 export const REPORTE_PAGO_PERSONAL: ConfigReporte = {
-  titulo: 'Pago al personal',
+  titulo: 'Reporte de Pagos al Personal',
   subtitulo: 'Lo pagado a cada persona en los eventos finalizados.',
   icono: 'badge',
   paginaUrl: '/api/rentabilidad/reportes/pago-personal',
   url: 'rentabilidad/reportes/pago-personal',
-  archivo: 'pago_al_personal',
+  archivo: 'reporte_pagos_al_personal',
   fechas: { porDefecto: 'mes' },
   agrupaciones: [{ valor: 'PERSONA', etiqueta: 'Por persona' }],
   filtros: [],

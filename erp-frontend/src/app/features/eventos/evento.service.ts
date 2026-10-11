@@ -44,6 +44,15 @@ export class EventoService {
     return this.http.get<EventoResumenResponse>(`${BASE_URL}/resumen`, { params: this.aParams(filtros) });
   }
 
+  /** Estadisticas de eventos en PDF con los mismos filtros; textoFiltros va en el encabezado. */
+  resumenPdf(filtros: FiltrosEvento, textoFiltros: string): Observable<Blob> {
+    let params = this.aParams(filtros);
+    if (textoFiltros) {
+      params = params.set('filtros', textoFiltros);
+    }
+    return this.http.get(`${BASE_URL}/resumen/pdf`, { params, responseType: 'blob' });
+  }
+
   private aParams(filtros: FiltrosEvento): HttpParams {
     let params = new HttpParams();
     if (filtros.fechaDesde) {

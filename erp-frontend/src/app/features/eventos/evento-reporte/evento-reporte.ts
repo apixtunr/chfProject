@@ -15,6 +15,8 @@ import { debounceTime, distinctUntilChanged, of, switchMap } from 'rxjs';
 import type { ChartData } from 'chart.js';
 import { EstadoResponse } from '../../../core/catalogos/estado';
 import { EstadoService } from '../../../core/catalogos/estado.service';
+import { AuthService } from '../../../core/auth/auth.service';
+import { VerPdf, descargarCsv } from '../../../shared/reporte/exportar';
 import { ChartComponent } from '../../../shared/chart/chart';
 import { ClienteService } from '../../clientes/cliente.service';
 import { ClienteResponse } from '../../clientes/dto/cliente';
@@ -43,6 +45,12 @@ function aFechaIso(fecha: Date | null): string | null {
   return `${fecha.getFullYear()}-${mes}-${dia}`;
 }
 
+/** Opcion de Estadisticas de eventos: da el acceso y los permisos de imprimir y exportar. */
+const PAGINA_URL = '/api/eventos/resumen';
+
+/** Tope de eventos del CSV; un periodo real de la empresa queda muy por debajo. */
+const MAXIMO_EVENTOS_CSV = 5000;
+
 @Component({
   selector: 'app-evento-reporte',
   imports: [TablaResponsiva, 
@@ -68,6 +76,11 @@ export class EventoReporte implements OnInit {
   private readonly clienteService = inject(ClienteService);
   private readonly estadoService = inject(EstadoService);
   private readonly fb = inject(FormBuilder);
+  private readonly authService = inject(AuthService);
+  private readonly verPdf = inject(VerPdf);
+
+  readonly puedeImprimir = this.authService.tienePermiso(PAGINA_URL, 'imprimir');
+  readonly puedeExportar = this.authService.tienePermiso(PAGINA_URL, 'exportar');
 
   readonly eventos = signal<EventoResponse[]>([]);
   readonly totalElements = signal(0);
@@ -228,6 +241,51 @@ export class EventoReporte implements OnInit {
       this.totalElements.set(page.totalElements);
     });
     this.eventoService.resumen(filtros).subscribe((r) => this.resumen.set(r));
+  }
+
+  /** El PDF sale con los mismos filtros que la pantalla. */
+  imprimir(): void {
+    this.verPdf.abrir(this.eventoService.resumenPdf(this.filtros, this.textoFiltros()), 'Estadísticas de eventos',
+      'estadisticas_de_eventos');
+  }
+
+  /** Todos los eventos que cumplen el filtro (no solo la pagina que se ve), una fila por evento. */
+  exportarCsv(): void {
+    this.eventoService.listar(this.filtros, 0, MAXIMO_EVENTOS_CSV, 'fechaEvento,asc').subscribe((page) =>
+      descargarCsv(
+        'estadisticas_de_eventos',
+        ['Evento', 'Fecha', 'Hora de inicio', 'Hora de fin', 'Cliente', 'Tipo', 'Personas', 'Estado'],
+        page.content.map((e) => [
+          e.idEvento,
+          e.fechaEvento,
+          e.horaInicio?.slice(0, 5) ?? '',
+          e.horaFin?.slice(0, 5) ?? '',
+          e.clienteNombre,
+          e.tipoEventoNombre,
+          e.cantidadPersonas,
+          e.estadoNombre,
+        ]),
+      ),
+    );
+  }
+
+  /** Los filtros elegidos, en palabras, para el encabezado del PDF. */
+  private textoFiltros(): string {
+    const v = this.formulario.getRawValue();
+    const partes: string[] = [];
+    if (v.idCliente) {
+      const cliente = this.busquedaCliente.value as ClienteResponse | string;
+      partes.push(`Cliente: ${typeof cliente === 'string' ? cliente : cliente.nombre}`);
+    }
+    if (v.idTipoEvento) {
+      const tipo = this.tiposEvento().find((t) => t.idTipoEvento === v.idTipoEvento);
+      partes.push(`Tipo de evento: ${tipo?.nombreTipo ?? v.idTipoEvento}`);
+    }
+    if (v.idEstado) {
+      const estado = this.estadosEvento().find((e) => e.idEstado === v.idEstado);
+      partes.push(`Estado: ${estado?.nombre ?? v.idEstado}`);
+    }
+    return partes.join('  ·  ');
   }
 
   aplicarFiltros(): void {

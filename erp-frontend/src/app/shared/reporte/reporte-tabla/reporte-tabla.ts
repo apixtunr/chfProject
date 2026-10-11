@@ -1,11 +1,12 @@
 import { CommonModule, DatePipe, DecimalPipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, EnvironmentInjector, OnInit, inject, runInInjectionContext, signal } from '@angular/core';
+import { Component, EnvironmentInjector, OnInit, computed, inject, runInInjectionContext, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatIconModule } from '@angular/material/icon';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute } from '@angular/router';
 import { debounceTime, distinctUntilChanged, of, switchMap } from 'rxjs';
@@ -20,6 +21,7 @@ import {
   ConfigReporte,
   FilaReporte,
   FiltroReporte,
+  GrupoReporte,
   OpcionReporte,
   ReporteTabla,
 } from './reporte-config';
@@ -38,6 +40,7 @@ import {
     MatButtonModule,
     MatDatepickerModule,
     MatIconModule,
+    MatPaginatorModule,
     MatSelectModule,
   ],
   providers: [DatePipe, DecimalPipe],
@@ -55,6 +58,38 @@ export class ReporteTablaPage implements OnInit {
   readonly config: ConfigReporte = inject(ActivatedRoute).snapshot.data['reporte'];
 
   readonly reporte = signal<ReporteTabla | null>(null);
+
+  /** Paginacion en pantalla. El PDF y el CSV siguen saliendo con el reporte completo. */
+  readonly pageIndex = signal(0);
+  readonly pageSize = signal(20);
+
+  /**
+   * Los grupos de la pagina actual. Se paginan las filas de datos: si un grupo sigue en la
+   * pagina siguiente, su titulo se repite arriba; su subtotal sale en la pagina donde termina.
+   */
+  readonly gruposDeLaPagina = computed<(GrupoReporte & { termina: boolean })[]>(() => {
+    const desde = this.pageIndex() * this.pageSize();
+    const hasta = desde + this.pageSize();
+    const pagina: (GrupoReporte & { termina: boolean })[] = [];
+    let inicio = 0;
+    for (const grupo of this.reporte()?.grupos ?? []) {
+      const fin = inicio + grupo.filas.length;
+      if (fin > desde && inicio < hasta) {
+        pagina.push({
+          ...grupo,
+          filas: grupo.filas.slice(Math.max(0, desde - inicio), Math.min(grupo.filas.length, hasta - inicio)),
+          termina: fin <= hasta,
+        });
+      }
+      inicio = fin;
+    }
+    return pagina;
+  });
+
+  /** Total de filas de datos del reporte, para el paginador. */
+  readonly totalFilas = computed(() => (this.reporte()?.grupos ?? []).reduce((n, g) => n + g.filas.length, 0));
+
+  readonly esUltimaPagina = computed(() => (this.pageIndex() + 1) * this.pageSize() >= this.totalFilas());
   readonly opciones = signal<Record<string, OpcionReporte[]>>({});
   readonly agrupaciones: OpcionReporte[] = [...AGRUPACIONES_FECHA, ...(this.config.agrupaciones ?? [])];
 
@@ -129,7 +164,15 @@ export class ReporteTablaPage implements OnInit {
   cargar(): void {
     this.http
       .get<ReporteTabla>(`${API_URL}/${this.config.url}`, { params: parametros(this.valoresConsulta()) })
-      .subscribe((r) => this.reporte.set(r));
+      .subscribe((r) => {
+        this.pageIndex.set(0);
+        this.reporte.set(r);
+      });
+  }
+
+  cambiarPagina(event: PageEvent): void {
+    this.pageIndex.set(event.pageIndex);
+    this.pageSize.set(event.pageSize);
   }
 
   limpiar(): void {

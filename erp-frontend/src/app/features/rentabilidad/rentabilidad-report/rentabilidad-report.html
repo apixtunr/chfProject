@@ -3,16 +3,24 @@
   <div class="rpt-header-left">
     <div class="rpt-header-icono"><mat-icon>trending_up</mat-icon></div>
     <div>
-      <h1 class="rpt-titulo">Rentabilidad</h1>
+      <h1 class="rpt-titulo">Análisis de rentabilidad</h1>
       <p class="rpt-subtitulo">Ganancia de los eventos finalizados.</p>
     </div>
   </div>
-  @if (puedeExportar) {
-    <button mat-stroked-button class="rpt-btn-limpiar" (click)="exportarCsv()" [disabled]="filas().length === 0">
-      <mat-icon>download</mat-icon>
-      Exportar CSV
-    </button>
-  }
+  <div class="rpt-header-acciones">
+    @if (puedeImprimir) {
+      <button mat-stroked-button class="rpt-btn-limpiar" (click)="imprimir()">
+        <mat-icon>picture_as_pdf</mat-icon>
+        Imprimir PDF
+      </button>
+    }
+    @if (puedeExportar) {
+      <button mat-stroked-button class="rpt-btn-limpiar" (click)="exportarCsv()" [disabled]="filas().length === 0">
+        <mat-icon>download</mat-icon>
+        Exportar CSV
+      </button>
+    }
+  </div>
 </div>
 
 <!-- ══ FILTROS ════════════════════════════════════════════════ -->

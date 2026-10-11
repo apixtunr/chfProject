@@ -1,5 +1,6 @@
 package com.lacasadelchef.erp.rentabilidad;
 
+import com.lacasadelchef.erp.common.pdf.ReportePdf;
 import com.lacasadelchef.erp.common.reporte.ReporteTabla;
 import com.lacasadelchef.erp.common.reporte.ReporteTablaPdf;
 import com.lacasadelchef.erp.rentabilidad.dto.RentabilidadEventoResponse;
@@ -27,6 +28,7 @@ public class RentabilidadController {
 
     private final RentabilidadService rentabilidadService;
     private final PagoPersonalService pagoPersonalService;
+    private final RentabilidadPdfService rentabilidadPdfService;
 
     @GetMapping("/eventos")
     public Page<RentabilidadEventoResponse> listarPorEvento(@RequestParam(required = false) LocalDate fechaDesde,
@@ -50,6 +52,20 @@ public class RentabilidadController {
         return rentabilidadService.resumen(fechaDesde, fechaHasta, idCliente, idTipoEvento);
     }
 
+    /** Analisis de rentabilidad en PDF, con los mismos filtros que la pantalla. */
+    @GetMapping("/pdf")
+    @PreAuthorize("@permisoService.tienePermiso('/api/rentabilidad', T(com.lacasadelchef.erp.security.TipoPermiso).IMPRIMIR)")
+    public ResponseEntity<byte[]> analisisPdf(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaDesde,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaHasta,
+            @RequestParam(required = false) Integer idCliente,
+            @RequestParam(required = false) Integer idTipoEvento,
+            @RequestParam(required = false) String filtros) {
+        return ReportePdf.respuesta(
+                rentabilidadPdfService.generar(fechaDesde, fechaHasta, idCliente, idTipoEvento, filtros),
+                "analisis-de-rentabilidad");
+    }
+
     /** Lo que se le pago a cada persona en los eventos finalizados del periodo. */
     @GetMapping("/reportes/pago-personal")
     public ReporteTabla pagoPersonal(
@@ -67,6 +83,6 @@ public class RentabilidadController {
             @RequestParam(required = false) String agrupar,
             @RequestParam(required = false) String filtros) {
         return ReporteTablaPdf.respuesta(pagoPersonalService.generar(fechaDesde, fechaHasta, agrupar),
-                ReporteTablaPdf.subtitulo(fechaDesde, fechaHasta, filtros), "pago-al-personal");
+                ReporteTablaPdf.subtitulo(fechaDesde, fechaHasta, filtros), "reporte-pagos-al-personal");
     }
 }

@@ -7,6 +7,20 @@
       <p class="rpt-subtitulo">Resumen de eventos realizados y su estado actual.</p>
     </div>
   </div>
+  <div class="rpt-header-acciones">
+    @if (puedeImprimir) {
+      <button mat-stroked-button class="rpt-btn-limpiar" (click)="imprimir()">
+        <mat-icon>picture_as_pdf</mat-icon>
+        Imprimir PDF
+      </button>
+    }
+    @if (puedeExportar) {
+      <button mat-stroked-button class="rpt-btn-limpiar" (click)="exportarCsv()" [disabled]="!resumen()?.totalEventos">
+        <mat-icon>download</mat-icon>
+        Exportar CSV
+      </button>
+    }
+  </div>
 </div>
 
 <!-- ══ FILTROS ════════════════════════════════════════════════ -->
