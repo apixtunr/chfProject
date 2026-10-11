@@ -65,7 +65,7 @@ public class EventoController {
     }
 
     @GetMapping("/reportes/eventos/pdf")
-    @PreAuthorize("@permisoService.tienePermiso('/api/eventos', T(com.lacasadelchef.erp.security.TipoPermiso).IMPRIMIR)")
+    @PreAuthorize("@permisoService.tienePermiso('/api/eventos/reportes/eventos', T(com.lacasadelchef.erp.security.TipoPermiso).IMPRIMIR)")
     public ResponseEntity<byte[]> reporteEventosPdf(
             @RequestParam(required = false) String fechaSegun,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaDesde,

@@ -25,7 +25,7 @@ export interface ConfigReporte {
   titulo: string;
   subtitulo: string;
   icono: string;
-  /** Pagina del modulo, para los permisos de imprimir y exportar. */
+  /** Opcion del reporte (su pagina_url): da el acceso a la pantalla y los permisos de imprimir y exportar. */
   paginaUrl: string;
   /** Endpoint relativo a /api (el PDF es el mismo con /pdf al final). */
   url: string;

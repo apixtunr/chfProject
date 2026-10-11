@@ -1,5 +1,15 @@
 import { BreakpointObserver } from '@angular/cdk/layout';
-import { Component, computed, effect, inject, signal, viewChild } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  afterRenderEffect,
+  computed,
+  effect,
+  inject,
+  signal,
+  viewChild,
+  viewChildren,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -9,7 +19,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { filter, map, startWith } from 'rxjs';
 import { AuthService } from '../auth/auth.service';
-import { NAV_GROUPS, NavGroup } from './nav-items';
+import { MenuModulo, MenuService } from './menu.service';
 
 @Component({
   selector: 'app-shell',
@@ -39,13 +49,8 @@ export class Shell {
 
   private readonly sidenav = viewChild.required<MatSidenav>('sidenav');
 
-  /** Modulos con sus pantallas visibles segun permisos; modulos vacios se ocultan. */
-  readonly gruposMenu = computed(() =>
-    NAV_GROUPS.map((grupo) => ({
-      ...grupo,
-      items: grupo.items.filter((item) => this.authService.puedeVer(item.paginaUrl)),
-    })).filter((grupo) => grupo.items.length > 0),
-  );
+  /** Modulos y pantallas del menu, tal como los arma el backend segun los permisos del rol. */
+  readonly gruposMenu = toSignal(inject(MenuService).obtener(), { initialValue: [] as MenuModulo[] });
 
   readonly usuario = computed(() => this.authService.usuarioActual());
 
@@ -61,7 +66,7 @@ export class Shell {
   /** El modulo de la pantalla abierta (ninguno en Inicio). */
   private readonly moduloActivo = computed(() => {
     const url = this.urlActual();
-    return NAV_GROUPS.find((grupo) => grupo.items.some((item) => url.startsWith(item.route)))?.modulo ?? null;
+    return this.gruposMenu().find((grupo) => grupo.pantallas.some((p) => url.startsWith(p.ruta)))?.modulo ?? null;
   });
 
   /**
@@ -74,6 +79,16 @@ export class Shell {
     () => this.gruposMenu().find((grupo) => grupo.modulo === this.moduloSeleccionado()) ?? null,
   );
 
+  private readonly botonesModulo = viewChildren('botonModulo', { read: ElementRef });
+  private readonly opcionesPanel = viewChild('opcionesPanel', { read: ElementRef });
+
+  /**
+   * Cuanto bajan las pantallas del panel para quedar centradas en el modulo elegido, la mitad
+   * arriba y la otra mitad abajo. Cerca de los extremos se ajustan para no salirse por arriba
+   * ni tapar el pie.
+   */
+  readonly desplazamientoPanel = signal(0);
+
   constructor() {
     this.router.events
       .pipe(filter((e) => e instanceof NavigationEnd))
@@ -84,15 +99,46 @@ export class Shell {
       });
 
     effect(() => this.moduloSeleccionado.set(this.moduloActivo()));
+
+    afterRenderEffect(() => {
+      const indice = this.gruposMenu().findIndex((grupo) => grupo.modulo === this.moduloSeleccionado());
+      const boton = this.botonesModulo()[indice]?.nativeElement as HTMLElement | undefined;
+      const opciones = this.opcionesPanel()?.nativeElement as HTMLElement | undefined;
+      if (!boton || !opciones) {
+        return;
+      }
+      const panel = opciones.parentElement!;
+      const pie = panel.querySelector<HTMLElement>('.empresa-sidebar');
+      const items = opciones.querySelectorAll<HTMLElement>('.mat-mdc-list-item');
+      // Posiciones sin el desplazamiento que ya tiene aplicado.
+      const inicioOpciones = opciones.getBoundingClientRect().top - parseFloat(opciones.style.marginTop || '0');
+      const primero = items[0].getBoundingClientRect().top - opciones.getBoundingClientRect().top;
+      const altoItems = items[items.length - 1].getBoundingClientRect().bottom - items[0].getBoundingClientRect().top;
+      const centroBoton = boton.getBoundingClientRect().top + boton.offsetHeight / 2;
+      const deseado = centroBoton - altoItems / 2 - primero - inicioOpciones;
+      const espacio = panel.getBoundingClientRect().bottom - inicioOpciones
+        - opciones.offsetHeight - (pie ? pie.offsetHeight + 32 : 0);
+      this.desplazamientoPanel.set(Math.max(0, Math.min(deseado, espacio)));
+    });
   }
 
   /** Un modulo de una sola pantalla la abre; los demas muestran sus pantallas en el panel. */
-  elegirModulo(grupo: NavGroup): void {
-    if (grupo.items.length === 1) {
-      this.router.navigateByUrl(grupo.items[0].route);
+  elegirModulo(grupo: MenuModulo): void {
+    if (grupo.pantallas.length === 1) {
+      this.router.navigateByUrl(grupo.pantallas[0].ruta);
       return;
     }
     this.moduloSeleccionado.set(grupo.modulo);
+  }
+
+  /** La flecha del panel lo oculta; el menu queda solo con la columna de modulos. */
+  ocultarPanel(): void {
+    this.moduloSeleccionado.set(null);
+  }
+
+  /** Ir a Inicio cierra el panel, aunque ya se este en Inicio con un modulo abierto. */
+  irAInicio(): void {
+    this.moduloSeleccionado.set(null);
   }
 
   cerrarSesion(): void {

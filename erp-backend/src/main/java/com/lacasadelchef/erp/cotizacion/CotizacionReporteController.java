@@ -56,7 +56,7 @@ public class CotizacionReporteController {
 
     @GetMapping("/pdf")
     @Transactional(readOnly = true)
-    @PreAuthorize("@permisoService.tienePermiso('/api/cotizaciones', T(com.lacasadelchef.erp.security.TipoPermiso).IMPRIMIR)")
+    @PreAuthorize("@permisoService.tienePermiso('/api/cotizaciones/reportes/cotizaciones', T(com.lacasadelchef.erp.security.TipoPermiso).IMPRIMIR)")
     public ResponseEntity<byte[]> cotizacionesPdf(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaDesde,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaHasta,

@@ -7,7 +7,7 @@
       </button>
     }
     <!-- Como en Drive: el logo y el nombre de la empresa llevan a Inicio. -->
-    <a class="marca" routerLink="/" aria-label="Ir a Inicio">
+    <a class="marca" routerLink="/" aria-label="Ir a Inicio" (click)="irAInicio()">
       <img class="marca-logo" src="logo-marca.png" alt="" />
       <span>La Casa del Chef</span>
     </a>
@@ -25,6 +25,7 @@
     <mat-sidenav
       #sidenav
       class="sidenav"
+      [class.sidenav--solo-riel]="!grupoSeleccionado()"
       [mode]="esCompacto() ? 'over' : 'side'"
       [opened]="!esCompacto()"
       [fixedInViewport]="esCompacto()"
@@ -37,49 +38,64 @@
         <nav class="riel" aria-label="Módulos">
           @for (grupo of gruposMenu(); track grupo.modulo) {
             <button
+              #botonModulo
               type="button"
               class="riel-modulo"
               [class.riel-modulo--activo]="grupo.modulo === moduloSeleccionado()"
               (click)="elegirModulo(grupo)"
             >
               <span class="icono-modulo" [style.background-color]="grupo.color">
-                <mat-icon>{{ grupo.icon }}</mat-icon>
+                <mat-icon>{{ grupo.icono }}</mat-icon>
               </span>
               <span class="riel-nombre">{{ grupo.modulo }}</span>
             </button>
           }
         </nav>
 
-        <div class="panel">
-          @if (grupoSeleccionado(); as grupo) {
-            <p class="panel-titulo">{{ grupo.modulo }}</p>
-            <mat-nav-list dense>
-              @for (item of grupo.items; track item.route) {
-                <a
-                  mat-list-item
-                  [routerLink]="item.route"
-                  routerLinkActive="activo"
-                  [routerLinkActiveOptions]="{ exact: true }"
-                >
-                  <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
-                  <span matListItemTitle>{{ item.label }}</span>
-                </a>
-              }
-            </mat-nav-list>
-          }
+        <!-- En Inicio no hay modulo elegido: el menu queda solo con la columna de modulos y
+             el panel aparece al tocar uno. Sus pantallas quedan centradas en el modulo elegido. -->
+        @if (grupoSeleccionado(); as grupo) {
+          <div class="panel" animate.enter="panel-entra" animate.leave="panel-sale">
+            <button
+              mat-icon-button
+              type="button"
+              class="panel-ocultar"
+              (click)="ocultarPanel()"
+              aria-label="Ocultar pantallas del módulo"
+            >
+              <mat-icon>chevron_left</mat-icon>
+            </button>
+            <div class="panel-opciones" #opcionesPanel [style.margin-top.px]="desplazamientoPanel()">
+              <mat-nav-list dense>
+                @for (pantalla of grupo.pantallas; track pantalla.ruta) {
+                  <a
+                    mat-list-item
+                    [routerLink]="pantalla.ruta"
+                    routerLinkActive="activo"
+                    [routerLinkActiveOptions]="{ exact: true }"
+                  >
+                    <mat-icon matListItemIcon>{{ pantalla.icono }}</mat-icon>
+                    <span matListItemTitle>{{ pantalla.nombre }}</span>
+                  </a>
+                }
+              </mat-nav-list>
+            </div>
 
-          <!-- Datos de la empresa al pie del menu: los mismos del membrete de la cotizacion y
-               del recibo. -->
-          <div class="empresa-sidebar">
-            <span class="empresa-nombre">La Casa del Chef</span>
-            <span class="empresa-giro">Servicios de Banquetes y Eventos</span>
-            <span class="empresa-telefono"><mat-icon>call</mat-icon>5173-0435</span>
+            <!-- Datos de la empresa al pie del menu: los mismos del membrete de la cotizacion
+                 y del recibo. -->
+            <div class="empresa-sidebar">
+              <span class="empresa-nombre">La Casa del Chef</span>
+              <span class="empresa-giro">Servicios de Banquetes y Eventos</span>
+              <span class="empresa-telefono"><mat-icon>call</mat-icon>5173-0435</span>
+            </div>
           </div>
-        </div>
+        }
       </div>
     </mat-sidenav>
 
-    <mat-sidenav-content>
+    <!-- En computadora el contenido se corre al mismo ritmo que se abre o se cierra el panel;
+         el margen que calcula Material llegaria tarde y el contenido saltaria. -->
+    <mat-sidenav-content [style.margin-left.px]="esCompacto() ? null : grupoSeleccionado() ? 320 : 96">
       <main class="contenido">
         <!-- El limitador de ancho tiene que ser un elemento real: el componente que el
              router inserta es hermano de router-outlet y no recibe el atributo de

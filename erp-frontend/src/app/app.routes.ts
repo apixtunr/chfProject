@@ -39,7 +39,7 @@ export const routes: Routes = [
       },
       {
         path: 'clientes/reporte',
-        canActivate: [permisoGuard('/api/clientes')],
+        canActivate: [permisoGuard('/api/clientes/reportes/clientes')],
         data: { reporte: REPORTE_CLIENTES },
         loadComponent: () => import('./shared/reporte/reporte-tabla/reporte-tabla').then((m) => m.ReporteTablaPage),
       },
@@ -61,7 +61,7 @@ export const routes: Routes = [
       },
       {
         path: 'cotizaciones/reporte',
-        canActivate: [permisoGuard('/api/cotizaciones')],
+        canActivate: [permisoGuard('/api/cotizaciones/reportes/cotizaciones')],
         data: { reporte: REPORTE_COTIZACIONES },
         loadComponent: () => import('./shared/reporte/reporte-tabla/reporte-tabla').then((m) => m.ReporteTablaPage),
       },
@@ -101,13 +101,13 @@ export const routes: Routes = [
       },
       {
         path: 'eventos/reporte',
-        canActivate: [permisoGuard('/api/eventos')],
+        canActivate: [permisoGuard('/api/eventos/reportes/eventos')],
         data: { reporte: REPORTE_EVENTOS },
         loadComponent: () => import('./shared/reporte/reporte-tabla/reporte-tabla').then((m) => m.ReporteTablaPage),
       },
       {
         path: 'eventos/estadisticas',
-        canActivate: [permisoGuard('/api/eventos', '/api/rentabilidad', '/api/clientes')],
+        canActivate: [permisoGuard('/api/eventos/resumen')],
         loadComponent: () => import('./features/eventos/evento-reporte/evento-reporte').then((m) => m.EventoReporte),
       },
       {
@@ -173,7 +173,7 @@ export const routes: Routes = [
       },
       {
         path: 'inventario/movimientos/reporte',
-        canActivate: [permisoGuard('/api/movimientos-inventario')],
+        canActivate: [permisoGuard('/api/movimientos-inventario/reportes/movimientos')],
         data: { reporte: REPORTE_MOVIMIENTOS },
         loadComponent: () => import('./shared/reporte/reporte-tabla/reporte-tabla').then((m) => m.ReporteTablaPage),
       },
@@ -190,13 +190,13 @@ export const routes: Routes = [
       },
       {
         path: 'pagos/recibos',
-        canActivate: [permisoGuard('/api/pagos')],
+        canActivate: [permisoGuard('/api/pagos/reportes/recibos')],
         data: { reporte: REPORTE_RECIBOS },
         loadComponent: () => import('./shared/reporte/reporte-tabla/reporte-tabla').then((m) => m.ReporteTablaPage),
       },
       {
         path: 'pagos/cuentas-por-cobrar',
-        canActivate: [permisoGuard('/api/pagos')],
+        canActivate: [permisoGuard('/api/pagos/reportes/cuentas-por-cobrar')],
         data: { reporte: REPORTE_CUENTAS_POR_COBRAR },
         loadComponent: () => import('./shared/reporte/reporte-tabla/reporte-tabla').then((m) => m.ReporteTablaPage),
       },
@@ -321,7 +321,7 @@ export const routes: Routes = [
       },
       {
         path: 'rentabilidad/pago-personal',
-        canActivate: [permisoGuard('/api/rentabilidad')],
+        canActivate: [permisoGuard('/api/rentabilidad/reportes/pago-personal')],
         data: { reporte: REPORTE_PAGO_PERSONAL },
         loadComponent: () => import('./shared/reporte/reporte-tabla/reporte-tabla').then((m) => m.ReporteTablaPage),
       },

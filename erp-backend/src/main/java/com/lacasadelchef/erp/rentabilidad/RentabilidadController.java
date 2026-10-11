@@ -60,7 +60,7 @@ public class RentabilidadController {
     }
 
     @GetMapping("/reportes/pago-personal/pdf")
-    @PreAuthorize("@permisoService.tienePermiso('/api/rentabilidad', T(com.lacasadelchef.erp.security.TipoPermiso).IMPRIMIR)")
+    @PreAuthorize("@permisoService.tienePermiso('/api/rentabilidad/reportes/pago-personal', T(com.lacasadelchef.erp.security.TipoPermiso).IMPRIMIR)")
     public ResponseEntity<byte[]> pagoPersonalPdf(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaDesde,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaHasta,

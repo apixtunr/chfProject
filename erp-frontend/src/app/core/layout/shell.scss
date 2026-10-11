@@ -16,6 +16,7 @@
 // le resta ~15-17px de ancho aqui adentro, corriendo el contenido cada vez que cambia.
 mat-sidenav-content {
   scrollbar-gutter: stable;
+  transition: margin-left 0.28s cubic-bezier(0.2, 0, 0, 1);
 }
 
 .sidenav {
@@ -48,6 +49,8 @@ mat-sidenav-content {
     display: flex;
     flex-direction: column;
     height: 100%;
+    // Mientras el cajon se abre o se cierra, el panel se recorta en vez de mostrar scroll.
+    overflow-x: hidden;
 
     // Con varios modulos abiertos el menu no cabe y aparece el scroll. La barra del
     // navegador (gruesa y gris claro) desentonaba con el fondo oscuro: queda delgada,
@@ -86,8 +89,25 @@ mat-sidenav-content {
   min-height: 100%;
 }
 
+// En Inicio (sin modulo elegido) el menu es solo la columna de modulos.
+.sidenav.sidenav--solo-riel {
+  width: 96px;
+}
+
+// El menu se abre y se cierra como un cajon: cambia de ancho suave, al mismo ritmo que el
+// contenido de la derecha. Material ya define aqui la transicion con que el menu entra en el
+// celular (transform) y con mas peso; se repite la suya y se le suma el ancho.
+.shell-body .sidenav.sidenav {
+  transition:
+    transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1),
+    width 0.28s cubic-bezier(0.2, 0, 0, 1);
+}
+
+// 96px de ancho total, relleno incluido: es la medida del menu cuando solo se ve la columna.
 .riel {
-  flex: 0 0 84px;
+  box-sizing: border-box;
+  flex: 0 0 96px;
+  width: 96px;
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -128,11 +148,61 @@ mat-sidenav-content {
 }
 
 .panel {
-  flex: 1 1 auto;
+  position: relative;
+  // Ancho fijo (320 del menu menos 96 de la columna): mientras el cajon cambia de ancho, el
+  // texto no se reacomoda.
+  flex: 0 0 224px;
   min-width: 0;
   display: flex;
   flex-direction: column;
   padding-top: 10px;
+}
+
+// Las pantallas del modulo aparecen mientras el cajon se abre y se desvanecen mientras se cierra.
+.panel-entra {
+  animation: panel-entra 0.28s ease-out;
+}
+
+.panel-sale {
+  animation: panel-sale 0.2s ease-in forwards;
+}
+
+@keyframes panel-entra {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes panel-sale {
+  to {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shell-body .sidenav.sidenav,
+  mat-sidenav-content {
+    transition: none;
+  }
+
+  .panel-entra,
+  .panel-sale {
+    animation: none;
+  }
+}
+
+// Flecha para ocultar el panel, en su esquina superior derecha. Va por encima del contenido
+// para no mover las pantallas, que se centran en el modulo elegido.
+.panel-ocultar.panel-ocultar {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  z-index: 1;
+  color: var(--chf-marca-contraste-suave);
+
+  &:hover {
+    color: var(--chf-marca-contraste);
+  }
 }
 
 // Los nombres largos (Estadisticas de eventos) bajan de linea en vez de cortarse.
@@ -153,15 +223,6 @@ mat-sidenav-content {
   min-height: 40px;
   padding-top: 6px;
   padding-bottom: 6px;
-}
-
-.panel-titulo {
-  margin: 6px 16px 8px;
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--chf-marca-contraste-suave);
 }
 
 // Pie del menu con los datos de la empresa: margin-top auto lo empuja al fondo.
@@ -352,6 +413,10 @@ mat-sidenav-content {
 
   .sidenav {
     width: min(320px, 92vw);
+  }
+
+  .panel {
+    flex-basis: calc(min(320px, 92vw) - 96px);
   }
 
 }

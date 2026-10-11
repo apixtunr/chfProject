@@ -85,6 +85,8 @@ public final class RecursosApi {
             // El panel de inicio ya viene recortado por rol desde el servicio: cada quien
             // recibe solo las secciones que le tocan, asi que no hay nada que filtrar aca.
             Map.entry("/api/inicio", Regla.autenticado()),
+            // El menu de cada quien ya viene recortado por sus permisos (MenuLateralService).
+            Map.entry("/api/menu", Regla.autenticado()),
 
             // Catalogos: alimentan los desplegables de los formularios.
             Map.entry("/api/departamentos", Regla.autenticado()),
@@ -133,6 +135,18 @@ public final class RecursosApi {
             // mira la agenda.
             Map.entry("/api/eventos/{idEvento}/anticipo", Regla.financiero("/api/eventos")),
             Map.entry("/api/pagos", Regla.modulo("/api/pagos")),
+
+            // Reportes y estadisticas: cada pantalla es su propia opcion (V36), con su
+            // permiso aparte del de la pantalla de trabajo del modulo.
+            Map.entry("/api/clientes/reportes/clientes", Regla.modulo("/api/clientes/reportes/clientes")),
+            Map.entry("/api/cotizaciones/reportes/cotizaciones", Regla.modulo("/api/cotizaciones/reportes/cotizaciones")),
+            Map.entry("/api/eventos/resumen", Regla.modulo("/api/eventos/resumen")),
+            Map.entry("/api/eventos/reportes/eventos", Regla.modulo("/api/eventos/reportes/eventos")),
+            Map.entry("/api/movimientos-inventario/reportes/movimientos",
+                    Regla.modulo("/api/movimientos-inventario/reportes/movimientos")),
+            Map.entry("/api/pagos/reportes/recibos", Regla.modulo("/api/pagos/reportes/recibos")),
+            Map.entry("/api/pagos/reportes/cuentas-por-cobrar", Regla.modulo("/api/pagos/reportes/cuentas-por-cobrar")),
+            Map.entry("/api/rentabilidad/reportes/pago-personal", Regla.modulo("/api/rentabilidad/reportes/pago-personal")),
             Map.entry("/api/rentabilidad", Regla.modulo("/api/rentabilidad")),
             Map.entry("/api/inventarios", Regla.modulo("/api/inventarios")),
             Map.entry("/api/movimientos-inventario", Regla.modulo("/api/movimientos-inventario")),
@@ -152,8 +166,7 @@ public final class RecursosApi {
             Map.entry("/api/bitacora", Regla.modulo("/api/bitacora")),
 
             // La estructura del menu (modulos y vistas) solo se administra desde Roles y
-            // permisos. El menu que ve cada usuario no sale de aca: viaja en la respuesta
-            // del login, dentro de sus permisos.
+            // permisos. El menu que ve cada usuario sale de /api/menu.
             Map.entry("/api/modulos", Regla.modulo("/api/opciones")),
             Map.entry("/api/menu-vistas", Regla.modulo("/api/opciones"))
     );

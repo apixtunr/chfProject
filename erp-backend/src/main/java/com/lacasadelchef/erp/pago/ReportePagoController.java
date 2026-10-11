@@ -37,7 +37,7 @@ public class ReportePagoController {
     }
 
     @GetMapping("/recibos/pdf")
-    @PreAuthorize("@permisoService.tienePermiso('/api/pagos', T(com.lacasadelchef.erp.security.TipoPermiso).IMPRIMIR)")
+    @PreAuthorize("@permisoService.tienePermiso('/api/pagos/reportes/recibos', T(com.lacasadelchef.erp.security.TipoPermiso).IMPRIMIR)")
     public ResponseEntity<byte[]> recibosPdf(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaDesde,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaHasta,
@@ -60,7 +60,7 @@ public class ReportePagoController {
     }
 
     @GetMapping("/cuentas-por-cobrar/pdf")
-    @PreAuthorize("@permisoService.tienePermiso('/api/pagos', T(com.lacasadelchef.erp.security.TipoPermiso).IMPRIMIR)")
+    @PreAuthorize("@permisoService.tienePermiso('/api/pagos/reportes/cuentas-por-cobrar', T(com.lacasadelchef.erp.security.TipoPermiso).IMPRIMIR)")
     public ResponseEntity<byte[]> cuentasPorCobrarPdf(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaDesde,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaHasta,
