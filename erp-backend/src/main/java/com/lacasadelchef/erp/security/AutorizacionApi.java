@@ -1,6 +1,7 @@
 package com.lacasadelchef.erp.security;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.core.Authentication;
@@ -55,8 +56,11 @@ public class AutorizacionApi implements AuthorizationManager<RequestAuthorizatio
             return new AuthorizationDecision(true);
         }
 
+        // Sin token, Spring Security pone un usuario anonimo cuyo isAuthenticated() es true; hay
+        // que descartarlo aparte o las rutas AUTENTICADO quedan abiertas a cualquiera (asi
+        // estuvieron: catalogos y ubicaciones se podian leer sin iniciar sesion).
         Authentication auth = autenticacion.get();
-        if (auth == null || !auth.isAuthenticated()) {
+        if (auth == null || !auth.isAuthenticated() || auth instanceof AnonymousAuthenticationToken) {
             return new AuthorizationDecision(false);
         }
         if (regla.acceso() == RecursosApi.Acceso.AUTENTICADO) {

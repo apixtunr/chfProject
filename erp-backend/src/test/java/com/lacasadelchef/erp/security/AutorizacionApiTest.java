@@ -264,10 +264,18 @@ class AutorizacionApiTest {
     @Test
     @DisplayName("Un usuario anonimo no cuenta como conectado")
     void anonimoSeNiega() {
+        // Tal como lo crea Spring Security cuando la peticion no trae token: isAuthenticated()
+        // devuelve true. Antes esta prueba lo forzaba a false y por eso no detectaba que las
+        // rutas AUTENTICADO quedaban abiertas a cualquiera.
         Authentication anonimo = new AnonymousAuthenticationToken(
                 "clave", "anonimo", List.of(new SimpleGrantedAuthority("ROLE_ANONYMOUS")));
-        anonimo.setAuthenticated(false);
 
+        assertThat(anonimo.isAuthenticated()).isTrue();
         assertThat(permite(anonimo, "GET", "/api/departamentos")).isFalse();
+        assertThat(permite(anonimo, "GET", "/api/ubicaciones")).isFalse();
+        assertThat(permite(anonimo, "GET", "/api/inicio")).isFalse();
+        assertThat(permite(anonimo, "GET", "/api/menu")).isFalse();
+        assertThat(permite(anonimo, "GET", "/api/pagos")).isFalse();
+        assertThat(permite(anonimo, "POST", "/api/auth/login")).isTrue();
     }
 }
