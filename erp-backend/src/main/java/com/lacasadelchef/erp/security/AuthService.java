@@ -112,6 +112,16 @@ public class AuthService {
         }
     }
 
+    /**
+     * Los permisos vigentes del rol del usuario, leidos de rol_opcion en este momento. El
+     * frontend los vuelve a pedir en cada navegacion, para que un cambio hecho en Roles y
+     * permisos se refleje sin cerrar sesion.
+     */
+    @Transactional(readOnly = true)
+    public List<PermisoResponse> permisosDe(Usuario usuario) {
+        return cargarPermisos(usuario.getRol().getIdRol());
+    }
+
     private List<PermisoResponse> cargarPermisos(Integer idRol) {
         return rolOpcionRepository.findPermisosByRol(idRol).stream()
                 .map(ro -> PermisoResponse.builder()

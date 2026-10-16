@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
 import { AuthService } from '../auth/auth.service';
 import { ApiError } from '../models/api-error';
+import { SIN_MENSAJE_DE_ERROR } from './sin-mensaje-de-error';
 
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
@@ -17,7 +18,7 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
         if (error.status === 401 && !req.url.includes('/auth/login')) {
           authService.logout();
           router.navigateByUrl('/login');
-        } else {
+        } else if (!req.context.get(SIN_MENSAJE_DE_ERROR)) {
           const apiError = error.error as ApiError | undefined;
           const mensaje = apiError?.mensaje ?? 'Ocurrio un error inesperado';
           snackBar.open(mensaje, 'Cerrar', { duration: 5000 });

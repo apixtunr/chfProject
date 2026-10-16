@@ -164,6 +164,7 @@ export class RolPermisos implements OnInit {
         this.snackBar.open(`Permisos guardados (${operaciones.length} cambio(s))`, 'Cerrar', { duration: 3000 });
         this.guardando.set(false);
         this.cargar();
+        this.authService.refrescarPermisos().subscribe();
       },
       error: () => this.guardando.set(false),
     });

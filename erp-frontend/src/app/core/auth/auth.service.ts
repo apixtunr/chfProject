@@ -1,9 +1,10 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpContext } from '@angular/common/http';
 import { Injectable, computed, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { Observable, tap } from 'rxjs';
+import { Observable, catchError, map, of, tap } from 'rxjs';
 import { API_URL } from '../api-config';
-import { LoginRequest, LoginResponse, TipoPermiso } from '../models/auth';
+import { SIN_MENSAJE_DE_ERROR } from '../http/sin-mensaje-de-error';
+import { LoginRequest, LoginResponse, PermisoResponse, TipoPermiso } from '../models/auth';
 
 const STORAGE_KEY = 'erp-sesion';
 
@@ -32,6 +33,39 @@ export class AuthService {
         this.router.navigateByUrl('/login');
       }
     });
+    // Al volver a la pestana se traen los permisos vigentes, por si los cambiaron mientras
+    // tanto en Roles y permisos.
+    window.addEventListener('focus', () => {
+      if (this.sesion() !== null) {
+        this.refrescarPermisos().subscribe();
+      }
+    });
+  }
+
+  /**
+   * Vuelve a pedir al servidor los permisos del rol, para que un cambio hecho en Roles y
+   * permisos se refleje sin cerrar sesion. Se llama antes de cada navegacion (guardia
+   * permisosAlDiaGuard) y al volver a la pestana. Si la consulta falla se siguen usando
+   * los permisos que ya se tenian: el servidor valida igual cada operacion.
+   */
+  refrescarPermisos(): Observable<void> {
+    if (this.sesion() === null) {
+      return of(undefined);
+    }
+    const context = new HttpContext().set(SIN_MENSAJE_DE_ERROR, true);
+    return this.http.get<PermisoResponse[]>(`${API_URL}/menu/permisos`, { context }).pipe(
+      tap((permisos) => {
+        const actual = this.sesion();
+        if (actual === null || JSON.stringify(actual.permisos) === JSON.stringify(permisos)) {
+          return;
+        }
+        const nueva = { ...actual, permisos };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(nueva));
+        this.sesion.set(nueva);
+      }),
+      map(() => undefined),
+      catchError(() => of(undefined)),
+    );
   }
 
   login(request: LoginRequest): Observable<LoginResponse> {

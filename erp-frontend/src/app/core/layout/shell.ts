@@ -10,14 +10,14 @@ import {
   viewChild,
   viewChildren,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
-import { filter, map, startWith } from 'rxjs';
+import { filter, map, startWith, switchMap } from 'rxjs';
 import { AuthService } from '../auth/auth.service';
 import { MenuModulo, MenuService } from './menu.service';
 
@@ -49,8 +49,16 @@ export class Shell {
 
   private readonly sidenav = viewChild.required<MatSidenav>('sidenav');
 
-  /** Modulos y pantallas del menu, tal como los arma el backend segun los permisos del rol. */
-  readonly gruposMenu = toSignal(inject(MenuService).obtener(), { initialValue: [] as MenuModulo[] });
+  private readonly menuService = inject(MenuService);
+
+  /**
+   * Modulos y pantallas del menu, tal como los arma el backend segun los permisos del rol.
+   * Se vuelve a pedir cada vez que cambian los permisos de la sesion.
+   */
+  readonly gruposMenu = toSignal(
+    toObservable(this.authService.permisos).pipe(switchMap(() => this.menuService.obtener())),
+    { initialValue: [] as MenuModulo[] },
+  );
 
   readonly usuario = computed(() => this.authService.usuarioActual());
 

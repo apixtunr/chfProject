@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/auth/auth.guard';
+import { permisosAlDiaGuard } from './core/auth/permisos-al-dia.guard';
 import { permisoAccionGuard, permisoGuard } from './core/auth/permiso.guard';
 import {
   REPORTE_CLIENTES,
@@ -22,6 +23,7 @@ export const routes: Routes = [
     path: '',
     component: Shell,
     canActivate: [authGuard],
+    canActivateChild: [permisosAlDiaGuard],
     children: [
       {
         path: '',
