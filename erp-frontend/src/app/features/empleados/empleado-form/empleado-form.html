@@ -89,7 +89,7 @@
         </label>
         <div class="pf-input-wrap pf-input-wrap--select" [class.pf-input-wrap--error]="formulario.controls.idPuestoEmpleado.invalid && formulario.controls.idPuestoEmpleado.touched">
           <mat-icon class="pf-input-icon">work</mat-icon>
-          <mat-select id="puesto" class="pf-select" formControlName="idPuestoEmpleado" placeholder="Seleccionar puesto">
+          <mat-select id="puesto" class="pf-select" formControlName="idPuestoEmpleado" placeholder="Seleccione puesto">
             @for (puesto of puestos(); track puesto.idPuestoEmpleado) {
               <mat-option [value]="puesto.idPuestoEmpleado">{{ puesto.nombreRol }}</mat-option>
             }
@@ -111,7 +111,7 @@
         </label>
         <div class="pf-input-wrap pf-input-wrap--select" [class.pf-input-wrap--error]="formulario.controls.idEstado.invalid && formulario.controls.idEstado.touched">
           <mat-icon class="pf-input-icon">toggle_on</mat-icon>
-          <mat-select id="estado" class="pf-select" formControlName="idEstado" placeholder="Seleccionar estado">
+          <mat-select id="estado" class="pf-select" formControlName="idEstado" placeholder="Seleccione estado">
             @for (estado of estados(); track estado.idEstado) {
               <mat-option [value]="estado.idEstado">{{ estado.nombre }}</mat-option>
             }
@@ -129,7 +129,7 @@
         </label>
         <div class="pf-input-wrap pf-input-wrap--select">
           <mat-icon class="pf-input-icon">wc</mat-icon>
-          <mat-select id="genero" class="pf-select" formControlName="idGenero" placeholder="Seleccionar género">
+          <mat-select id="genero" class="pf-select" formControlName="idGenero" placeholder="Seleccione género">
             @for (genero of generos(); track genero.idGenero) {
               <mat-option [value]="genero.idGenero">{{ genero.nombreGenero }}</mat-option>
             }
@@ -217,7 +217,7 @@
           </label>
           <div class="pf-input-wrap pf-input-wrap--select" [class.pf-input-wrap--error]="fila.controls.idTipoDocumento.invalid && fila.controls.idTipoDocumento.touched">
             <mat-icon class="pf-input-icon">description</mat-icon>
-            <mat-select [id]="'tipoDocumento' + i" class="pf-select" formControlName="idTipoDocumento" placeholder="Seleccionar tipo">
+            <mat-select [id]="'tipoDocumento' + i" class="pf-select" formControlName="idTipoDocumento" placeholder="Seleccione tipo">
               @for (tipo of tiposDisponibles(i); track tipo.idTipoDocumento) {
                 <mat-option [value]="tipo.idTipoDocumento">{{ tipo.nombreTipo }}</mat-option>
               }
@@ -330,7 +330,7 @@
                 </label>
                 <div class="pf-input-wrap pf-input-wrap--select" [class.pf-input-wrap--error]="formulario.controls.idRolUsuario.invalid && formulario.controls.idRolUsuario.touched">
                   <mat-icon class="pf-input-icon">admin_panel_settings</mat-icon>
-                  <mat-select id="rolUsuario" class="pf-select" formControlName="idRolUsuario" placeholder="Seleccionar rol">
+                  <mat-select id="rolUsuario" class="pf-select" formControlName="idRolUsuario" placeholder="Seleccione rol">
                     @for (rol of roles(); track rol.idRol) {
                       <mat-option [value]="rol.idRol">{{ rol.nombreRol }}</mat-option>
                     }

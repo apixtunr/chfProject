@@ -10,7 +10,7 @@
       <span class="pf-foco" [class.pf-foco--modificacion]="idMenu()" [class.pf-foco--alta]="!idMenu()" role="img" [attr.aria-label]="idMenu() ? 'Modificación' : 'Alta'"></span>
       <h1 class="pf-title">{{ idMenu() ? 'Editar Menú' : 'Nuevo Menú' }}</h1>
     </div>
-    <p class="pf-subtitle">Cree el menú a partir de una cotización aceptada o ingrese sus datos directamente.</p>
+    <p class="pf-subtitle">Registro de un nuevo menú.</p>
   </div>
 </div>
 
@@ -62,7 +62,7 @@
           id="estado"
           class="pf-select"
           formControlName="idEstado"
-          placeholder="Seleccionar estado"
+          placeholder="Seleccione estado"
         >
           @for (estado of estados(); track estado.idEstado) {
             <mat-option [value]="estado.idEstado">{{ estado.nombre }}</mat-option>

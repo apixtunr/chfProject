@@ -13,7 +13,7 @@
     <p class="pf-subtitle">
       {{ idProducto()
         ? 'Modifique los datos del producto y guarde los cambios.'
-        : 'Ingrese el producto para poder llevar su existencia en el inventario.' }}
+        : 'Ingrese el producto para registrar su existencia en el inventario.' }}
     </p>
   </div>
 </div>
@@ -62,7 +62,7 @@
       </label>
       <div class="pf-input-wrap pf-input-wrap--select" [class.pf-input-wrap--error]="formulario.controls.idCategoria.invalid && formulario.controls.idCategoria.touched">
         <mat-icon class="pf-input-icon">category</mat-icon>
-        <mat-select id="categoria" class="pf-select" formControlName="idCategoria" placeholder="Seleccionar categoría">
+        <mat-select id="categoria" class="pf-select" formControlName="idCategoria" placeholder="Seleccione categoría">
           @for (categoria of categorias(); track categoria.idCategoria) {
             <mat-option [value]="categoria.idCategoria">
               {{ categoria.nombreTipo }} - {{ categoria.nombreCategoria }}

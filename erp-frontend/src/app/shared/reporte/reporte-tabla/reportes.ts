@@ -12,8 +12,8 @@ import { ConfigReporte } from './reporte-config';
  */
 
 export const REPORTE_CLIENTES: ConfigReporte = {
-  titulo: 'Clientes registrados',
-  subtitulo: 'Clientes dados de alta en el periodo.',
+  titulo: 'Reporte de Clientes',
+  subtitulo: 'Reporte de clientes registrados, por fecha y estado',
   icono: 'people',
   paginaUrl: '/api/clientes/reportes/clientes',
   url: 'clientes/reportes/clientes',
@@ -29,7 +29,7 @@ export const REPORTE_CLIENTES: ConfigReporte = {
 
 export const REPORTE_COTIZACIONES: ConfigReporte = {
   titulo: 'Cotizaciones por periodo',
-  subtitulo: 'Cotizaciones con su versión vigente, su estado y su monto.',
+  subtitulo: 'Detalle de cotizaciones con su versión vigente, estado y monto.',
   icono: 'request_quote',
   paginaUrl: '/api/cotizaciones/reportes/cotizaciones',
   url: 'cotizaciones/reportes/cotizaciones',
@@ -81,7 +81,7 @@ export const REPORTE_EVENTOS: ConfigReporte = {
 
 export const REPORTE_MOVIMIENTOS: ConfigReporte = {
   titulo: 'Movimientos de inventario',
-  subtitulo: 'Entradas, salidas y ajustes del periodo.',
+  subtitulo: 'Detalle de entradas, salidas y ajustes del inventario.',
   icono: 'swap_vert',
   paginaUrl: '/api/movimientos-inventario/reportes/movimientos',
   url: 'movimientos-inventario/reportes/movimientos',
@@ -175,7 +175,7 @@ export const REPORTE_CUENTAS_POR_COBRAR: ConfigReporte = {
 
 export const REPORTE_PAGO_PERSONAL: ConfigReporte = {
   titulo: 'Reporte de Pagos al Personal',
-  subtitulo: 'Lo pagado a cada persona en los eventos finalizados.',
+  subtitulo: 'Detalle de pagos realizados',
   icono: 'badge',
   paginaUrl: '/api/rentabilidad/reportes/pago-personal',
   url: 'rentabilidad/reportes/pago-personal',

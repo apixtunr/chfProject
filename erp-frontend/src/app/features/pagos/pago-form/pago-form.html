@@ -57,7 +57,7 @@
         </label>
         <div class="pf-input-wrap pf-input-wrap--select" [class.pf-input-wrap--error]="formulario.controls.idMetodoPago.invalid && formulario.controls.idMetodoPago.touched">
           <mat-icon class="pf-input-icon">credit_card</mat-icon>
-          <mat-select id="metodoPago" class="pf-select" formControlName="idMetodoPago" placeholder="Seleccionar método">
+          <mat-select id="metodoPago" class="pf-select" formControlName="idMetodoPago" placeholder="Seleccione método">
             @for (metodo of metodos(); track metodo.idMetodoPago) {
               <mat-option [value]="metodo.idMetodoPago">{{ metodo.nombreMetodo }}</mat-option>
             }

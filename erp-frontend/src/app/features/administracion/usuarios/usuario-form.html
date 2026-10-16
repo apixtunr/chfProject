@@ -40,7 +40,7 @@
       </label>
       <div class="pf-input-wrap pf-input-wrap--select" [class.pf-input-wrap--error]="formulario.controls.idEmpleado.invalid && formulario.controls.idEmpleado.touched">
         <mat-icon class="pf-input-icon">person</mat-icon>
-        <mat-select id="empleado" class="pf-select" formControlName="idEmpleado" placeholder="Seleccionar empleado">
+        <mat-select id="empleado" class="pf-select" formControlName="idEmpleado" placeholder="Seleccione empleado">
           @for (empleado of empleados(); track empleado.idEmpleado) {
             <mat-option [value]="empleado.idEmpleado">{{ empleado.nombre }} {{ empleado.apellido }}</mat-option>
           }
@@ -112,7 +112,7 @@
         </label>
         <div class="pf-input-wrap pf-input-wrap--select" [class.pf-input-wrap--error]="formulario.controls.idRol.invalid && formulario.controls.idRol.touched">
           <mat-icon class="pf-input-icon">admin_panel_settings</mat-icon>
-          <mat-select id="rol" class="pf-select" formControlName="idRol" placeholder="Seleccionar rol">
+          <mat-select id="rol" class="pf-select" formControlName="idRol" placeholder="Seleccione rol">
             @for (rol of roles(); track rol.idRol) {
               <mat-option [value]="rol.idRol">{{ rol.nombreRol }}</mat-option>
             }
@@ -131,7 +131,7 @@
         </label>
         <div class="pf-input-wrap pf-input-wrap--select" [class.pf-input-wrap--error]="formulario.controls.idEstado.invalid && formulario.controls.idEstado.touched">
           <mat-icon class="pf-input-icon">toggle_on</mat-icon>
-          <mat-select id="estado" class="pf-select" formControlName="idEstado" placeholder="Seleccionar estado">
+          <mat-select id="estado" class="pf-select" formControlName="idEstado" placeholder="Seleccione estado">
             @for (estado of estados(); track estado.idEstado) {
               <mat-option [value]="estado.idEstado">{{ estado.nombre }}</mat-option>
             }

@@ -13,7 +13,7 @@
     <p class="pf-subtitle">
       {{ idPlato()
         ? 'Modifique los datos del plato y guarde los cambios.'
-        : 'Ingrese los datos del plato para poder agregarlo a los menús.' }}
+        : 'Registro de un nuevo plato asociado a un menú.' }}
     </p>
   </div>
 </div>
@@ -65,7 +65,7 @@
         </label>
         <div class="pf-input-wrap pf-input-wrap--select" [class.pf-input-wrap--error]="formulario.controls.idEstado.invalid && formulario.controls.idEstado.touched">
           <mat-icon class="pf-input-icon">toggle_on</mat-icon>
-          <mat-select id="estado" class="pf-select" formControlName="idEstado" placeholder="Seleccionar estado">
+          <mat-select id="estado" class="pf-select" formControlName="idEstado" placeholder="Seleccione estado">
             @for (estado of estados(); track estado.idEstado) {
               <mat-option [value]="estado.idEstado">{{ estado.nombre }}</mat-option>
             }

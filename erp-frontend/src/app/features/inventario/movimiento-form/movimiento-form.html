@@ -34,7 +34,7 @@
       </label>
       <div class="pf-input-wrap pf-input-wrap--select" [class.pf-input-wrap--error]="formulario.controls.idProducto.invalid && formulario.controls.idProducto.touched">
         <mat-icon class="pf-input-icon">inventory_2</mat-icon>
-        <mat-select id="producto" class="pf-select" formControlName="idProducto" placeholder="Seleccionar producto">
+        <mat-select id="producto" class="pf-select" formControlName="idProducto" placeholder="Seleccione producto">
           @for (producto of productos(); track producto.idProducto) {
             <mat-option [value]="producto.idProducto">
               {{ producto.nombreProducto }} ({{ producto.unidadMedida }})

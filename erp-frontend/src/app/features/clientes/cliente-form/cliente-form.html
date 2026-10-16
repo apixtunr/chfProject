@@ -134,7 +134,7 @@
         @if (formulario.controls.correo.invalid && formulario.controls.correo.touched) {
           <p class="pf-error">El correo no tiene un formato válido.</p>
         } @else if (compartidoCon().correo; as otro) {
-          <p class="pf-aviso">También es el correo de {{ otro }}. Puede guardarlo si lo comparten.</p>
+          <p class="pf-aviso">El correo se encuentra registrado a nombre de {{ otro }}. Si el correo es compartido, puede registrar el mismo correo para este cliente.</p>
         }
       </div>
     </div>
@@ -176,7 +176,7 @@
             id="departamento"
             class="pf-select"
             formControlName="idDepartamento"
-            placeholder="Seleccionar departamento"
+            placeholder="Seleccione departamento"
           >
             @for (d of departamentos(); track d.idDepartamento) {
               <mat-option [value]="d.idDepartamento">{{ d.nombreDepartamento }}</mat-option>
@@ -204,7 +204,7 @@
             id="municipio"
             class="pf-select"
             formControlName="idMunicipio"
-            placeholder="Seleccionar municipio"
+            placeholder="Seleccione municipio"
           >
             @for (m of municipios(); track m.idMunicipio) {
               <mat-option [value]="m.idMunicipio">{{ m.nombreMunicipio }}</mat-option>

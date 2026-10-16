@@ -41,7 +41,7 @@
         </label>
         <div class="pf-input-wrap pf-input-wrap--select" [class.pf-input-wrap--error]="formulario.controls.idTipoPlaca.invalid && formulario.controls.idTipoPlaca.touched">
           <mat-icon class="pf-input-icon">badge</mat-icon>
-          <mat-select id="tipoPlaca" class="pf-select" formControlName="idTipoPlaca" placeholder="Seleccionar tipo">
+          <mat-select id="tipoPlaca" class="pf-select" formControlName="idTipoPlaca" placeholder="Seleccione tipo">
             @for (tipo of tiposPlaca(); track tipo.idTipoPlaca) {
               <mat-option [value]="tipo.idTipoPlaca">{{ tipo.nombreTipo }}</mat-option>
             }
@@ -88,7 +88,7 @@
         </label>
         <div class="pf-input-wrap pf-input-wrap--select" [class.pf-input-wrap--error]="formulario.controls.idLineaVehiculo.invalid && formulario.controls.idLineaVehiculo.touched">
           <mat-icon class="pf-input-icon">directions_car</mat-icon>
-          <mat-select id="linea" class="pf-select" formControlName="idLineaVehiculo" placeholder="Seleccionar marca y línea">
+          <mat-select id="linea" class="pf-select" formControlName="idLineaVehiculo" placeholder="Seleccione marca y línea">
             @for (linea of lineas(); track linea.idLineaVehiculo) {
               <mat-option [value]="linea.idLineaVehiculo">{{ linea.nombreMarca }} - {{ linea.nombreLinea }}</mat-option>
             }
@@ -128,7 +128,7 @@
       </label>
       <div class="pf-input-wrap pf-input-wrap--select" [class.pf-input-wrap--error]="formulario.controls.idEstado.invalid && formulario.controls.idEstado.touched">
         <mat-icon class="pf-input-icon">toggle_on</mat-icon>
-        <mat-select id="estado" class="pf-select" formControlName="idEstado" placeholder="Seleccionar estado">
+        <mat-select id="estado" class="pf-select" formControlName="idEstado" placeholder="Seleccione estado">
           @for (estado of estados(); track estado.idEstado) {
             <mat-option [value]="estado.idEstado">{{ estado.nombre }}</mat-option>
           }
