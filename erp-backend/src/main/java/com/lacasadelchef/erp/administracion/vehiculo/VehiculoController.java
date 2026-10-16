@@ -1,7 +1,5 @@
-package com.lacasadelchef.erp.administracion.flota;
+package com.lacasadelchef.erp.administracion.vehiculo;
 
-import com.lacasadelchef.erp.administracion.flota.dto.VehiculoRequest;
-import com.lacasadelchef.erp.administracion.flota.dto.VehiculoResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -11,6 +9,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import com.lacasadelchef.erp.administracion.vehiculo.dto.VehiculoRequest;
+import com.lacasadelchef.erp.administracion.vehiculo.dto.VehiculoResponse;
 
 @RestController
 @RequestMapping("/api/vehiculos")

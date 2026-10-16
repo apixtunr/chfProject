@@ -1,9 +1,9 @@
-package com.lacasadelchef.erp.administracion.flota;
-
-import com.lacasadelchef.erp.administracion.flota.dto.MarcaVehiculoRequest;
-import com.lacasadelchef.erp.administracion.flota.dto.MarcaVehiculoResponse;
+package com.lacasadelchef.erp.administracion.vehiculo;
 
 import java.util.List;
+
+import com.lacasadelchef.erp.administracion.vehiculo.dto.MarcaVehiculoRequest;
+import com.lacasadelchef.erp.administracion.vehiculo.dto.MarcaVehiculoResponse;
 
 public interface MarcaVehiculoService {
 

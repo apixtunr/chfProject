@@ -1,9 +1,9 @@
-package com.lacasadelchef.erp.administracion.flota;
-
-import com.lacasadelchef.erp.administracion.flota.dto.TipoPlacaRequest;
-import com.lacasadelchef.erp.administracion.flota.dto.TipoPlacaResponse;
+package com.lacasadelchef.erp.administracion.vehiculo;
 
 import java.util.List;
+
+import com.lacasadelchef.erp.administracion.vehiculo.dto.TipoPlacaRequest;
+import com.lacasadelchef.erp.administracion.vehiculo.dto.TipoPlacaResponse;
 
 public interface TipoPlacaService {
 

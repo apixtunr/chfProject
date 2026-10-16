@@ -1,9 +1,9 @@
-package com.lacasadelchef.erp.administracion.flota;
-
-import com.lacasadelchef.erp.administracion.flota.dto.LineaVehiculoRequest;
-import com.lacasadelchef.erp.administracion.flota.dto.LineaVehiculoResponse;
+package com.lacasadelchef.erp.administracion.vehiculo;
 
 import java.util.List;
+
+import com.lacasadelchef.erp.administracion.vehiculo.dto.LineaVehiculoRequest;
+import com.lacasadelchef.erp.administracion.vehiculo.dto.LineaVehiculoResponse;
 
 public interface LineaVehiculoService {
 

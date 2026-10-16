@@ -1,4 +1,4 @@
-package com.lacasadelchef.erp.administracion.flota.dto;
+package com.lacasadelchef.erp.administracion.vehiculo.dto;
 
 import com.lacasadelchef.erp.entity.LineaVehiculo;
 import lombok.Builder;

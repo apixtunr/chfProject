@@ -1,9 +1,10 @@
-package com.lacasadelchef.erp.administracion.flota;
+package com.lacasadelchef.erp.administracion.vehiculo;
 
-import com.lacasadelchef.erp.administracion.flota.dto.VehiculoRequest;
-import com.lacasadelchef.erp.administracion.flota.dto.VehiculoResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+
+import com.lacasadelchef.erp.administracion.vehiculo.dto.VehiculoRequest;
+import com.lacasadelchef.erp.administracion.vehiculo.dto.VehiculoResponse;
 
 public interface VehiculoService {
 

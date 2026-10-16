@@ -1,7 +1,7 @@
-package com.lacasadelchef.erp.administracion.flota;
+package com.lacasadelchef.erp.administracion.vehiculo;
 
-import com.lacasadelchef.erp.administracion.flota.dto.MarcaVehiculoRequest;
-import com.lacasadelchef.erp.administracion.flota.dto.MarcaVehiculoResponse;
+import com.lacasadelchef.erp.administracion.vehiculo.dto.MarcaVehiculoRequest;
+import com.lacasadelchef.erp.administracion.vehiculo.dto.MarcaVehiculoResponse;
 import com.lacasadelchef.erp.common.exception.ResourceNotFoundException;
 import com.lacasadelchef.erp.entity.MarcaVehiculo;
 import com.lacasadelchef.erp.repository.MarcaVehiculoRepository;

@@ -1,7 +1,7 @@
-package com.lacasadelchef.erp.administracion.flota;
+package com.lacasadelchef.erp.administracion.vehiculo;
 
-import com.lacasadelchef.erp.administracion.flota.dto.TipoPlacaRequest;
-import com.lacasadelchef.erp.administracion.flota.dto.TipoPlacaResponse;
+import com.lacasadelchef.erp.administracion.vehiculo.dto.TipoPlacaRequest;
+import com.lacasadelchef.erp.administracion.vehiculo.dto.TipoPlacaResponse;
 import com.lacasadelchef.erp.common.exception.ResourceNotFoundException;
 import com.lacasadelchef.erp.entity.TipoPlaca;
 import com.lacasadelchef.erp.repository.TipoPlacaRepository;
