@@ -10,16 +10,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Autorizacion fina por rol_opcion, usada desde @PreAuthorize en los controladores.
- * ADMINISTRADOR siempre tiene permiso (evita el problema de arranque: sin esto nadie
- * podria configurar opcion/rol_opcion si el propio admin quedara bloqueado). Para
- * cualquier otro rol, si no existe una fila opcion.pagina_url + rol_opcion configurada,
- * se niega el permiso (falla cerrado).
+ * Todos los roles, ADMINISTRADOR incluido, tienen exactamente los permisos marcados en
+ * rol_opcion (V39 le dio al ADMINISTRADOR todas las casillas). Si no existe una fila
+ * opcion.pagina_url + rol_opcion configurada, se niega el permiso (falla cerrado).
  */
 @Service
 @RequiredArgsConstructor
 public class PermisoService {
-
-    private static final String ROL_ADMINISTRADOR = "ADMINISTRADOR";
 
     private final RolOpcionRepository rolOpcionRepository;
 
@@ -28,9 +25,6 @@ public class PermisoService {
         UsuarioPrincipal principal = usuarioActual();
         if (principal == null) {
             return false;
-        }
-        if (ROL_ADMINISTRADOR.equalsIgnoreCase(principal.getUsuario().getRol().getNombreRol())) {
-            return true;
         }
         Integer idRol = principal.getUsuario().getRol().getIdRol();
         return rolOpcionRepository.findByRolIdRolAndOpcionPaginaUrl(idRol, paginaUrl)
@@ -55,9 +49,6 @@ public class PermisoService {
         UsuarioPrincipal principal = usuarioActual();
         if (principal == null) {
             return false;
-        }
-        if (ROL_ADMINISTRADOR.equalsIgnoreCase(principal.getUsuario().getRol().getNombreRol())) {
-            return true;
         }
         return rolOpcionRepository
                 .findByRolIdRolAndOpcionPaginaUrl(principal.getUsuario().getRol().getIdRol(), paginaUrl)

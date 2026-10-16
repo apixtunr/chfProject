@@ -30,19 +30,19 @@ public class MenuVistaController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    @PreAuthorize("@permisoService.tienePermiso('/api/menu-vistas', T(com.lacasadelchef.erp.security.TipoPermiso).ALTA)")
+    @PreAuthorize("@permisoService.tienePermiso('/api/opciones', T(com.lacasadelchef.erp.security.TipoPermiso).ALTA)")
     public MenuVistaResponse crear(@Valid @RequestBody MenuVistaRequest request) {
         return menuVistaService.crear(request);
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("@permisoService.tienePermiso('/api/menu-vistas', T(com.lacasadelchef.erp.security.TipoPermiso).MODIFICACION)")
+    @PreAuthorize("@permisoService.tienePermiso('/api/opciones', T(com.lacasadelchef.erp.security.TipoPermiso).MODIFICACION)")
     public MenuVistaResponse actualizar(@PathVariable Integer id, @Valid @RequestBody MenuVistaRequest request) {
         return menuVistaService.actualizar(id, request);
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("@permisoService.tienePermiso('/api/menu-vistas', T(com.lacasadelchef.erp.security.TipoPermiso).BAJA)")
+    @PreAuthorize("@permisoService.tienePermiso('/api/opciones', T(com.lacasadelchef.erp.security.TipoPermiso).BAJA)")
     public ResponseEntity<Void> eliminar(@PathVariable Integer id) {
         menuVistaService.eliminar(id);
         return ResponseEntity.noContent().build();

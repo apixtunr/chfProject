@@ -15,9 +15,8 @@ export class AuthService {
   readonly permisos = computed(() => this.sesion()?.permisos ?? []);
   readonly estaAutenticado = computed(() => this.sesion() !== null);
   /**
-   * Espeja el bypass de ADMINISTRADOR en security/PermisoService.java del backend. Hoy
-   * rol_opcion esta vacia (nadie configuro permisos todavia), asi que sin este bypass el
-   * propio admin no veria nada en el menu.
+   * Solo para reglas de negocio propias del rol (cancelar un evento). Los permisos de
+   * pantalla del ADMINISTRADOR salen de rol_opcion, igual que los de cualquier rol.
    */
   readonly esAdministrador = computed(() => this.sesion()?.rol === 'ADMINISTRADOR');
 
@@ -73,16 +72,13 @@ export class AuthService {
 
   /** paginaUrl debe ser el mismo string exacto que manda el backend (ej. '/api/clientes'). */
   tienePermiso(paginaUrl: string, tipo: TipoPermiso): boolean {
-    if (this.esAdministrador()) {
-      return true;
-    }
     const permiso = this.permisos().find((p) => p.paginaUrl === paginaUrl);
     return permiso ? permiso[tipo] : false;
   }
 
   /** Puede ver/navegar a la pantalla de ese modulo (no implica poder crear/editar/borrar). */
   puedeVer(paginaUrl: string): boolean {
-    return this.esAdministrador() || this.permisos().some((p) => p.paginaUrl === paginaUrl);
+    return this.permisos().some((p) => p.paginaUrl === paginaUrl);
   }
 
   private leerSesionGuardada(): LoginResponse | null {

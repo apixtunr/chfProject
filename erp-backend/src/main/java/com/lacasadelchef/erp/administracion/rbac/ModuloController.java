@@ -30,19 +30,19 @@ public class ModuloController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    @PreAuthorize("@permisoService.tienePermiso('/api/modulos', T(com.lacasadelchef.erp.security.TipoPermiso).ALTA)")
+    @PreAuthorize("@permisoService.tienePermiso('/api/opciones', T(com.lacasadelchef.erp.security.TipoPermiso).ALTA)")
     public ModuloResponse crear(@Valid @RequestBody ModuloRequest request) {
         return moduloService.crear(request);
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("@permisoService.tienePermiso('/api/modulos', T(com.lacasadelchef.erp.security.TipoPermiso).MODIFICACION)")
+    @PreAuthorize("@permisoService.tienePermiso('/api/opciones', T(com.lacasadelchef.erp.security.TipoPermiso).MODIFICACION)")
     public ModuloResponse actualizar(@PathVariable Integer id, @Valid @RequestBody ModuloRequest request) {
         return moduloService.actualizar(id, request);
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("@permisoService.tienePermiso('/api/modulos', T(com.lacasadelchef.erp.security.TipoPermiso).BAJA)")
+    @PreAuthorize("@permisoService.tienePermiso('/api/opciones', T(com.lacasadelchef.erp.security.TipoPermiso).BAJA)")
     public ResponseEntity<Void> eliminar(@PathVariable Integer id) {
         moduloService.eliminar(id);
         return ResponseEntity.noContent().build();

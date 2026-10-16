@@ -45,15 +45,13 @@ import java.util.Set;
  * todos los eventos a la vez) y no evento por evento, para que el inicio cargue con un
  * numero fijo de consultas sin importar cuantos eventos haya en la semana.
  *
- * Las secciones se filtran con la misma regla que el menu lateral: ADMINISTRADOR ve todo;
- * cualquier otro rol ve una seccion solo si tiene fila en rol_opcion para la pantalla de
- * donde salen esos datos (aunque sea "solo consulta").
+ * Las secciones se filtran con la misma regla que el menu lateral: cada rol, ADMINISTRADOR
+ * incluido, ve una seccion solo si tiene fila en rol_opcion para la pantalla de donde salen
+ * esos datos (aunque sea "solo consulta").
  */
 @Service
 @RequiredArgsConstructor
 public class InicioServiceImpl implements InicioService {
-
-    private static final String ROL_ADMINISTRADOR = "ADMINISTRADOR";
 
     private static final String URL_EVENTOS = "/api/eventos";
     private static final String URL_COTIZACIONES = "/api/cotizaciones";
@@ -401,9 +399,6 @@ public class InicioServiceImpl implements InicioService {
     private boolean puedeVer(Usuario usuario, String paginaUrl) {
         if (usuario == null) {
             return false;
-        }
-        if (ROL_ADMINISTRADOR.equalsIgnoreCase(usuario.getRol().getNombreRol())) {
-            return true;
         }
         return rolOpcionRepository.findByRolIdRolAndOpcionPaginaUrl(usuario.getRol().getIdRol(), paginaUrl).isPresent();
     }

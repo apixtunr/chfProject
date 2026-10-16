@@ -21,7 +21,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -50,8 +49,11 @@ class MenuLateralServiceTest {
     }
 
     @Test
-    @DisplayName("ADMINISTRADOR recibe todas las opciones, agrupadas por modulo y en orden")
+    @DisplayName("Con todas sus opciones marcadas, ADMINISTRADOR las recibe agrupadas por modulo y en orden")
     void administradorVeTodo() {
+        when(rolOpcionRepository.findPermisosByRol(1))
+                .thenReturn(List.of(permiso(pagos), permiso(recibos), permiso(departamentos)));
+
         List<MenuModuloResponse> menu = menuLateralService.menuDe(usuario("ADMINISTRADOR", 1));
 
         assertThat(menu).extracting(MenuModuloResponse::modulo).containsExactly("Pagos", "Administración");
@@ -60,7 +62,6 @@ class MenuLateralServiceTest {
                 new MenuOpcionResponse("Recibos emitidos", "/api/pagos/reportes/recibos", "Pagos"));
         assertThat(menu.get(1).opciones())
                 .containsExactly(new MenuOpcionResponse("Departamentos", "/api/departamentos", "Catálogos"));
-        verifyNoInteractions(rolOpcionRepository);
     }
 
     @Test

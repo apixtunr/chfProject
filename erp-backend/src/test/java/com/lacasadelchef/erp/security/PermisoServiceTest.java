@@ -34,11 +34,16 @@ class PermisoServiceTest {
     }
 
     @Test
-    @DisplayName("ADMINISTRADOR siempre tiene permiso, sin consultar rol_opcion")
-    void adminSiempreTienePermiso() {
+    @DisplayName("ADMINISTRADOR tiene solo los permisos marcados en rol_opcion, como cualquier rol")
+    void adminSigueSusCasillas() {
         autenticar("ADMINISTRADOR", 1);
+        RolOpcion ro = new RolOpcion();
+        ro.setAlta(true);
+        when(rolOpcionRepository.findByRolIdRolAndOpcionPaginaUrl(1, URL))
+                .thenReturn(Optional.of(ro));
 
-        assertThat(permisoService.tienePermiso(URL, TipoPermiso.BAJA)).isTrue();
+        assertThat(permisoService.tienePermiso(URL, TipoPermiso.ALTA)).isTrue();
+        assertThat(permisoService.tienePermiso(URL, TipoPermiso.BAJA)).isFalse();
     }
 
     @Test
