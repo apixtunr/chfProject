@@ -102,7 +102,7 @@ export class EmpleadoList implements OnInit {
     const ref = this.dialog.open(ConfirmDialog, {
       data: {
         titulo: 'Eliminar empleado',
-        mensaje: `¿Eliminar a "${empleado.nombre} ${empleado.apellido}"? Esta accion no se puede deshacer.`,
+        mensaje: `¿Eliminar a "${empleado.nombre} ${empleado.apellido}"? Esta acción no se puede deshacer.`,
       },
     });
 

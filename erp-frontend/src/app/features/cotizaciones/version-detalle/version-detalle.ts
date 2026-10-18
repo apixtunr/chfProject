@@ -313,7 +313,7 @@ export class VersionDetalle implements OnInit {
 
   eliminarLinea(detalle: DetalleCotizacionResponse): void {
     const ref = this.dialog.open(ConfirmDialog, {
-      data: { titulo: 'Eliminar', mensaje: `Quitar "${detalle.nombrePlato}" de la cotización?` },
+      data: { titulo: 'Eliminar', mensaje: `¿Quitar "${detalle.nombrePlato}" de la cotización?` },
     });
     ref.afterClosed().subscribe((confirmado) => {
       if (!confirmado) {
@@ -405,7 +405,7 @@ export class VersionDetalle implements OnInit {
 
   cambiarEstado(estado: EstadoResponse): void {
     const ref = this.dialog.open(ConfirmDialog, {
-      data: { titulo: 'Cambiar estado', mensaje: `¿Pasar esta version a "${estado.nombre}"?` },
+      data: { titulo: 'Cambiar estado', mensaje: `¿Pasar esta versión a "${estado.nombre}"?` },
     });
     ref.afterClosed().subscribe((confirmado) => {
       if (!confirmado) {

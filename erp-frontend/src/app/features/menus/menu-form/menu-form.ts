@@ -63,7 +63,7 @@ export class MenuForm implements OnInit {
 
     operacion.subscribe({
       next: (menu) => {
-        this.snackBar.open(id ? 'Menu actualizado' : 'Menu creado. Ahora agrega sus platos', 'Cerrar', {
+        this.snackBar.open(id ? 'Menú actualizado' : 'Menú creado. Ahora agregue sus platos', 'Cerrar', {
           duration: 3000,
         });
         // Al crear, va directo a componer el menu
