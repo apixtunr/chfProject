@@ -35,7 +35,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-/** El recibo de pago: lo que el cliente se lleva cuando entrega el dinero. */
 @ExtendWith(MockitoExtension.class)
 class ReciboPagoPdfServiceTest {
 
@@ -48,7 +47,6 @@ class ReciboPagoPdfServiceTest {
         return estado;
     }
 
-    /** Abono en efectivo de Q1,500 a un evento de Q4,000 que ya tenia Q1,000 abonados. */
     private static Pago abonoEnEfectivo(String estadoPago) {
         Cliente cliente = new Cliente();
         cliente.setNombre("María Fernanda López");
@@ -101,13 +99,11 @@ class ReciboPagoPdfServiceTest {
         when(pagoRepository.sumarAbonadoHasta(45, 7)).thenReturn(new BigDecimal("2500.00"));
 
         Pago pago = abonoEnEfectivo("CONFIRMADO");
-        // Con todo lo opcional lleno: es el caso que antes se pasaba a una segunda hoja.
         pago.setReferenciaTransaccion("TRX-889911");
         pago.setObservaciones("Entregado en oficina por el padre de la novia, segundo abono");
         when(pagoRepository.findById(7)).thenReturn(Optional.of(pago));
 
         byte[] pdf = service.generar(7);
-        // Copia para revisarlo a ojo (target/ no se versiona).
         Files.write(Path.of("target", "recibo-ejemplo.pdf"), pdf);
         String texto = texto(pdf);
 

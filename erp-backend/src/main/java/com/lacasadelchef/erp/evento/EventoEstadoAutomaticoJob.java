@@ -15,15 +15,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Red de seguridad de baja frecuencia: mueve CREADO -> CANCELADO (si nunca se planifico) y
- * PLANIFICADO -> EN CURSO -> FINALIZADO en base a la fecha/hora cargada, por si algun evento
- * se quedo sin temporizador (por ejemplo, si se inserto por SQL directo, sin pasar por
- * EventoServiceImpl, o si el proceso se cayo justo en mal momento). El disparo en el instante
- * exacto lo hace EventoEstadoSchedulerService; este job es solo el respaldo, por eso corre
- * cada 5 minutos y no antes. Cancelar un evento PLANIFICADO o EN CURSO sigue siendo siempre
- * una decision manual (ver EventoServiceImpl.cambiarEstado); solo CREADO se cancela solo.
- */
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -50,8 +41,6 @@ public class EventoEstadoAutomaticoJob {
         List<Integer> iniciados = pasarEventos(ESTADO_PLANIFICADO, ESTADO_EN_CURSO, hoy, ahora, Evento::getHoraInicio);
         List<Integer> finalizados = pasarEventos(ESTADO_EN_CURSO, ESTADO_FINALIZADO, hoy, ahora, Evento::getHoraFin);
 
-        // Igual que en el disparo exacto (EventoEstadoTransicionExecutor): al iniciar el evento
-        // se descuenta del inventario real todo lo planificado que seguia pendiente.
         iniciados.forEach(eventoInventarioService::confirmarConsumoAutomatico);
 
         if (!cancelados.isEmpty() || !iniciados.isEmpty() || !finalizados.isEmpty()) {

@@ -63,7 +63,6 @@ class CotizacionVersionServiceImplTest {
         return estado;
     }
 
-    /** Version en CREADA de una cotizacion con la fecha indicada y el total indicado. */
     private CotizacionVersion prepararCreada(LocalDate fechaEvento, String montoTotal) {
         Cotizacion cotizacion = new Cotizacion();
         cotizacion.setIdCotizacion(10);
@@ -165,7 +164,6 @@ class CotizacionVersionServiceImplTest {
         verify(cotizacionVersionRepository, never()).save(any());
     }
 
-    /** Cotizacion 10 cuya ultima version (v1) esta en el estado indicado. */
     private CotizacionVersion ultimaVersionEn(String estadoNombre) {
         Cotizacion cotizacion = new Cotizacion();
         cotizacion.setIdCotizacion(10);

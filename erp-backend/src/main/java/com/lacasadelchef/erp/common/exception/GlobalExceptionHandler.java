@@ -31,7 +31,6 @@ public class GlobalExceptionHandler {
         return build(HttpStatus.BAD_REQUEST, ex.getMessage(), req, null);
     }
 
-    /** Archivo mas grande que spring.servlet.multipart.max-file-size (comprobantes de pago). */
     @ExceptionHandler(MaxUploadSizeExceededException.class)
     public ResponseEntity<ApiError> archivoMuyGrande(MaxUploadSizeExceededException ex, HttpServletRequest req) {
         return build(HttpStatus.BAD_REQUEST, "El archivo pesa más de 5 MB", req, null);
@@ -47,16 +46,6 @@ public class GlobalExceptionHandler {
         return build(HttpStatus.FORBIDDEN, "No tiene permisos para esta operación", req, null);
     }
 
-    /**
-     * Verbo HTTP que la ruta no admite (por ejemplo un PATCH donde solo hay GET y POST).
-     * Sin este manejador caía en el genérico y salía como 500, dando a entender que algo
-     * se rompió en el servidor cuando en realidad la petición estaba mal formada.
-     */
-    /**
-     * Ruta inexistente. Sin este manejador caia en el generico y salia como 500, lo que
-     * aparenta una falla del servidor cuando en realidad la direccion no existe (por
-     * ejemplo por venir en mayusculas: el ruteo distingue may/min).
-     */
     @ExceptionHandler(NoResourceFoundException.class)
     public ResponseEntity<ApiError> rutaInexistente(NoResourceFoundException ex, HttpServletRequest req) {
         return build(HttpStatus.NOT_FOUND, "La ruta solicitada no existe.", req, null);

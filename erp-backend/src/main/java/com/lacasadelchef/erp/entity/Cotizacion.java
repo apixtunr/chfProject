@@ -46,7 +46,6 @@ public class Cotizacion extends Auditable {
     @Column(name = "presupuesto_cliente", precision = 12, scale = 2)
     private BigDecimal presupuestoCliente;
 
-    /** Inicio del servicio de 4 horas; el fin se calcula con CondicionesComerciales. */
     @Column(name = "hora_inicio")
     private LocalTime horaInicio;
 }

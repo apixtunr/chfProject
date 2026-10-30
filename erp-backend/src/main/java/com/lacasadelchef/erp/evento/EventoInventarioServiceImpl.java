@@ -55,9 +55,6 @@ public class EventoInventarioServiceImpl implements EventoInventarioService {
                 .orElseThrow(() -> new ResourceNotFoundException("Producto", idProducto));
         validarNoCancelado(evento);
 
-        // Si el producto ya esta en el evento, guardar una linea nueva con la misma llave la
-        // sobrescribia: volvia a "planificado" sin devolver al stock lo ya descontado, y al
-        // confirmarla otra vez se descontaba dos veces. Ahora se respeta lo que ya existe.
         var existente = eventoInventarioRepository.findById(new EventoInventarioId(idEvento, idProducto));
         if (existente.isPresent()) {
             EventoInventario linea = existente.get();
@@ -115,8 +112,6 @@ public class EventoInventarioServiceImpl implements EventoInventarioService {
             try {
                 lineaConfirmador.confirmar(item, idEvento, motivo);
             } catch (BusinessException e) {
-                // Sin un usuario presente para decidir que hacer (esto corre desde el scheduler),
-                // se omite ese producto y se sigue con los demas en vez de bloquear al evento.
                 log.warn("No se pudo confirmar consumo automatico del producto {} en el evento {}: {}",
                         item.getProducto().getIdProducto(), idEvento, e.getMessage());
             }
@@ -151,9 +146,6 @@ public class EventoInventarioServiceImpl implements EventoInventarioService {
         }
         BigDecimal cantidadAnterior = item.getCantidad();
         BigDecimal cantidadCorrecta = request.cantidadCorrecta();
-        // Cuanto hay que devolverle al stock (positivo) o quitarle de mas (negativo) para que
-        // el stock real quede como si desde el principio se hubiera confirmado la cantidad
-        // correcta, sin borrar el movimiento SALIDA original del historial.
         BigDecimal ajuste = cantidadAnterior.subtract(cantidadCorrecta);
         if (ajuste.compareTo(BigDecimal.ZERO) != 0) {
             movimientoInventarioService.registrar(new MovimientoInventarioRequest(
@@ -174,11 +166,6 @@ public class EventoInventarioServiceImpl implements EventoInventarioService {
                         "El producto %d no esta asociado al evento %d".formatted(idProducto, idEvento)));
     }
 
-    /**
-     * Una linea ya descontada del stock solo se cambia con "Corregir consumo", que ajusta el
-     * stock por la diferencia. La fecha de consumo nunca la manda el cliente: la pone el
-     * sistema al confirmar.
-     */
     private static void validarNoConsumido(EventoInventario linea, String accion) {
         if (linea.getFechaConsumo() != null) {
             throw new BusinessException(("%s ya se descontó del stock (%s): para %s use \"Corregir consumo\","
@@ -187,7 +174,6 @@ public class EventoInventarioServiceImpl implements EventoInventarioService {
         }
     }
 
-    /** Un evento cancelado ya no usa inventario: no se planifica ni se descuenta nada mas. */
     private static void validarNoCancelado(Evento evento) {
         if (EventoReglas.ESTADO_CANCELADO.equalsIgnoreCase(evento.getEstado().getNombre())) {
             throw new BusinessException("El evento está CANCELADO: ya no se le asigna ni descuenta inventario");

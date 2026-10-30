@@ -1,15 +1,8 @@
-// Los estilos pf-* de este formulario viven en src/styles.scss. Aqui solo queda lo
-// propio de esta pantalla: el saldo del evento.
 
-// Saldo del evento, a la vista antes de escribir el monto para no cobrar de mas. Tres
-// datos en fila; el pendiente se destaca porque es el que se mira para decidir cuanto
-// cobrar.
 .saldo-evento {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 12px;
-  // Mismo margen lateral que los campos (.pf-field lleva 20px), para que el saldo no
-  // quede pegado a la franja oscura ni a los bordes de la tarjeta.
   margin: 20px 20px 4px;
 
   &__dato {

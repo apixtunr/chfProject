@@ -71,7 +71,6 @@ class AuthServiceTest {
         usuario.setEstado(activo);
         usuario.setRol(rol);
 
-        // La bitacora se registra en casi todos los caminos; lenient para los que no.
         lenient().when(accionRepository.findByNombre(anyString()))
                 .thenReturn(Optional.of(new Accion()));
     }

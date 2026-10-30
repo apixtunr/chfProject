@@ -40,15 +40,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * Arma el panel de inicio. Las consultas se hacen en bloque (una por tipo de dato para
- * todos los eventos a la vez) y no evento por evento, para que el inicio cargue con un
- * numero fijo de consultas sin importar cuantos eventos haya en la semana.
- *
- * Las secciones se filtran con la misma regla que el menu lateral: cada rol, ADMINISTRADOR
- * incluido, ve una seccion solo si tiene fila en rol_opcion para la pantalla de donde salen
- * esos datos (aunque sea "solo consulta").
- */
 @Service
 @RequiredArgsConstructor
 public class InicioServiceImpl implements InicioService {
@@ -64,12 +55,9 @@ public class InicioServiceImpl implements InicioService {
     private static final String ESTADO_EN_CURSO = "EN CURSO";
     private static final String ESTADO_CANCELADO = "CANCELADO";
 
-    /** Dias hacia adelante que cubre la agenda de la semana (hoy incluido). */
     private static final int DIAS_AGENDA = 7;
-    /** Ventana para anticipar faltantes de insumos: lo que se va a consumir en estas dos semanas. */
     private static final int DIAS_INSUMOS = 14;
     private static final int LIMITE_LISTA = 8;
-    /** Forma de pago del menu: el primer 50% se paga una semana antes del evento. */
     private static final int DIAS_ANTICIPO = CondicionesComerciales.DIAS_ANTICIPACION;
     private static final BigDecimal PORCION_ANTICIPO = CondicionesComerciales.PORCION_ANTICIPO;
 
@@ -172,8 +160,6 @@ public class InicioServiceImpl implements InicioService {
                     """, VPagoEvento.class)
                     .setParameter("cancelado", ESTADO_CANCELADO)
                     .getResultList();
-            // Lo mas urgente primero: los eventos de esta semana sin el primer 50%, y despues
-            // lo que ya paso o esta por pasar y sigue sin pagarse.
             panel.cobrosPendientes(conSaldo.stream()
                     .filter(v -> !v.getFechaEvento().isAfter(hoy.plusDays(30)))
                     .map(v -> new CobroPanelResponse(v.getIdEvento(), v.getFechaEvento(), v.getClienteNombre(),
@@ -192,8 +178,6 @@ public class InicioServiceImpl implements InicioService {
 
         return panel.resumen(resumen.build()).build();
     }
-
-    // ------------------------------------------------------------------ eventos
 
     private Map<Integer, EventoPanelResponse> armarEventos(List<Evento> eventos) {
         Map<Integer, EventoPanelResponse> resultado = new HashMap<>();
@@ -230,7 +214,6 @@ public class InicioServiceImpl implements InicioService {
             boolean tieneVehiculos = conVehiculo.contains(id);
             boolean tieneInventario = conInventario.contains(id);
 
-            // Mismo orden y mismas etiquetas que el mensaje de EventoServiceImpl.planificar().
             List<String> faltantes = new ArrayList<>();
             if (!tieneMenu) faltantes.add("Menú");
             if (!tienePersonal) faltantes.add("Personal");
@@ -275,7 +258,6 @@ public class InicioServiceImpl implements InicioService {
         return mapa;
     }
 
-    /** Lo que falta del primer 50% si el evento es en los proximos 7 dias; null si no aplica. */
     static BigDecimal anticipoFaltante(VPagoEvento v, LocalDate hoy) {
         if (v.getFechaEvento().isBefore(hoy) || v.getFechaEvento().isAfter(hoy.plusDays(DIAS_ANTICIPO))) {
             return null;
@@ -284,8 +266,6 @@ public class InicioServiceImpl implements InicioService {
         BigDecimal falta = anticipo.subtract(v.getAbonado() == null ? BigDecimal.ZERO : v.getAbonado());
         return falta.signum() > 0 ? falta : null;
     }
-
-    // ---------------------------------------------------------------- cotizacion
 
     private CotizacionPanelResponse aCotizacion(CotizacionVersion cv) {
         var c = cv.getCotizacion();
@@ -300,8 +280,6 @@ public class InicioServiceImpl implements InicioService {
                 .fechaVersion(cv.getFechaVersion())
                 .build();
     }
-
-    // ---------------------------------------------------------------- inventario
 
     private List<InsumoPanelResponse> insumosFaltantes(LocalDate hoy) {
         List<Object[]> requeridos = em.createQuery("""
@@ -346,8 +324,6 @@ public class InicioServiceImpl implements InicioService {
         return faltantes.stream().limit(LIMITE_LISTA).toList();
     }
 
-    // ----------------------------------------------------------------- bitacora
-
     private ActividadPanelResponse actividad(LocalDate hoy) {
         LocalDateTime inicioDia = hoy.atStartOfDay();
         Map<String, Long> accesos = new HashMap<>();
@@ -359,8 +335,6 @@ public class InicioServiceImpl implements InicioService {
             accesos.put((String) fila[0], (Long) fila[1]);
         }
 
-        // La bitacora de movimientos guarda una fila por campo modificado: un solo "guardar"
-        // puede dejar diez filas. Para contar y listar cambios se agrupan por registro.
         List<BitacoraMovimiento> ultimos = em.createQuery("""
                 SELECT b FROM BitacoraMovimiento b LEFT JOIN FETCH b.usuario
                 ORDER BY b.fechaMovimiento DESC
@@ -393,8 +367,6 @@ public class InicioServiceImpl implements InicioService {
                 cambiosHoy != null ? cambiosHoy : 0L,
                 List.copyOf(recientes.values()));
     }
-
-    // ------------------------------------------------------------------ permisos
 
     private boolean puedeVer(Usuario usuario, String paginaUrl) {
         if (usuario == null) {

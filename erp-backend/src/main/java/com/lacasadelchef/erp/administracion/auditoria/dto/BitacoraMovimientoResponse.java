@@ -10,7 +10,6 @@ public record BitacoraMovimientoResponse(
         Long idBitacoraMovimiento,
         Integer idUsuario,
         String usernameUsuario,
-        /** Persona detras del usuario ("Nombre Apellido"); quien hizo la accion. */
         String nombreEmpleado,
         String tablaAfectada,
         String registroId,

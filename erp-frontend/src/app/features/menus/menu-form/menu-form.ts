@@ -66,7 +66,6 @@ export class MenuForm implements OnInit {
         this.snackBar.open(id ? 'Menú actualizado' : 'Menú creado. Ahora agregue sus platos', 'Cerrar', {
           duration: 3000,
         });
-        // Al crear, va directo a componer el menu
         this.router.navigate(['/menus', menu.idMenu]);
       },
       error: () => this.guardando.set(false),

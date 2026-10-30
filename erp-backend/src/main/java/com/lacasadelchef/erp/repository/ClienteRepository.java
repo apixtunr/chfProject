@@ -15,12 +15,6 @@ import java.time.LocalDateTime;
 
 public interface ClienteRepository extends JpaRepository<Cliente, Integer> {
 
-    /**
-     * Busqueda del listado y de los selectores. "texto" busca en nombre, NIT, telefono y
-     * correo; "digitos" es el mismo texto sin guiones ni espacios, para encontrar NIT y
-     * telefonos escritos con otro formato. Cadena vacia = sin filtro (en texto, digitos y
-     * estado); se evita null porque PostgreSQL no puede deducir el tipo de un parametro nulo.
-     */
     @Query("""
             SELECT c FROM Cliente c
             WHERE (:estado = '' OR c.estado.nombre = :estado)
@@ -37,10 +31,6 @@ public interface ClienteRepository extends JpaRepository<Cliente, Integer> {
 
     Optional<Cliente> findByNit(String nit);
 
-    /**
-     * Candidatos a duplicado: mismo NIT (no CF), telefono, correo o nombre. Cadena vacia =
-     * no comparar ese dato; excluir = id del cliente que se edita (0 si es nuevo).
-     */
     @Query("""
             SELECT c FROM Cliente c
             WHERE c.idCliente <> :excluir
@@ -56,9 +46,6 @@ public interface ClienteRepository extends JpaRepository<Cliente, Integer> {
                                   @Param("nombre") String nombre,
                                   @Param("excluir") Integer excluir);
 
-    // --- Negocio abierto: impide inactivar al cliente ---------------------------
-
-    /** Cotizaciones cuya ultima version sigue en CREADA o ENVIADA. */
     @Query("""
             SELECT COUNT(cv) FROM CotizacionVersion cv
             WHERE cv.cotizacion.cliente.idCliente = :idCliente
@@ -68,7 +55,6 @@ public interface ClienteRepository extends JpaRepository<Cliente, Integer> {
             """)
     long contarCotizacionesAbiertas(@Param("idCliente") Integer idCliente);
 
-    /** Eventos que todavia no terminan (el cliente sale de la cotizacion o del evento directo). */
     @Query("""
             SELECT COUNT(e) FROM Evento e
             LEFT JOIN e.cotizacionVersion cv
@@ -78,14 +64,12 @@ public interface ClienteRepository extends JpaRepository<Cliente, Integer> {
             """)
     long contarEventosVigentes(@Param("idCliente") Integer idCliente);
 
-    /** Lo que el cliente todavia debe, sin contar eventos cancelados. */
     @Query("""
             SELECT COALESCE(SUM(v.pendiente), 0) FROM VPagoEvento v
             WHERE v.idCliente = :idCliente AND v.pendiente > 0 AND v.estadoNombre <> 'CANCELADO'
             """)
     BigDecimal saldoPendiente(@Param("idCliente") Integer idCliente);
 
-    /** Reporte de clientes registrados en un periodo (por el dia en que se dieron de alta). */
     @Query(nativeQuery = true, value = """
             SELECT c.id_cliente AS "idCliente",
                    c.nombre AS "nombre",

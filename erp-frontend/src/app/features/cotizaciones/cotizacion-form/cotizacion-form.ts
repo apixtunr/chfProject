@@ -46,7 +46,6 @@ export class CotizacionForm implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly snackBar = inject(MatSnackBar);
 
-  /** Texto que el usuario escribe para buscar; separado del idCliente que en realidad se envia. */
   readonly busquedaCliente = new FormControl('', { nonNullable: true });
   readonly clientesFiltrados = signal<ClienteResponse[]>([]);
 
@@ -55,19 +54,13 @@ export class CotizacionForm implements OnInit {
   readonly municipios = signal<MunicipioResponse[]>([]);
 
   readonly guardando = signal(false);
-  /** En edicion: la cotizacion y su ubicacion (la direccion se corrige sobre la misma). */
   readonly idCotizacion = signal<number | null>(null);
   private idUbicacion: number | null = null;
-  /** Municipio a elegir en cuanto llegue la lista del departamento (al cargar para editar). */
   private municipioPendiente: number | null = null;
 
   readonly horasDeInicio = HORAS_DE_INICIO;
   readonly horarioServicio = horarioServicio;
   readonly minimoPersonas = MINIMO_PERSONAS;
-  /**
-   * Una semana de anticipacion (el backend lo vuelve a validar). Al editar, si la fecha que
-   * ya tenia es mas cercana, se deja elegible para no bloquear el guardado de otros datos.
-   */
   readonly fechaMinima = signal(fechaMinimaEvento());
 
   readonly formulario = this.crearFormulario();
@@ -91,7 +84,6 @@ export class CotizacionForm implements OnInit {
     const idParam = this.route.snapshot.paramMap.get('id');
     this.departamentoService.listar().subscribe((d) => {
       this.departamentos.set(d);
-      // La ubicacion guardada trae el nombre del departamento: hace falta la lista para elegirlo.
       if (idParam) {
         this.cargarParaEditar(Number(idParam));
       }
@@ -112,11 +104,7 @@ export class CotizacionForm implements OnInit {
     });
 
     this.busquedaCliente.valueChanges.subscribe((texto) => {
-      // Si el usuario edita el texto sin volver a elegir una opcion, el id queda invalido.
       this.formulario.controls.idCliente.setValue(null);
-      // Al seleccionar una opcion, el autocomplete guarda el ClienteResponse completo
-      // (no un string) como valor del control; solo hay texto libre que evaluar cuando
-      // sigue siendo un string.
       if (typeof texto === 'string' && !texto.trim()) {
         this.clientesFiltrados.set([]);
       }
@@ -134,16 +122,11 @@ export class CotizacionForm implements OnInit {
       .subscribe((page) => this.clientesFiltrados.set(page?.content ?? []));
   }
 
-  /** Solo avisa: la empresa atiende desde 50 personas, pero la decision es de quien cotiza. */
   debajoDelMinimo(): boolean {
     const personas = this.formulario.controls.cantidadPersonas.value;
     return personas != null && personas > 0 && personas < MINIMO_PERSONAS;
   }
 
-  /**
-   * Edicion de los datos generales. Solo se llega aqui con la ultima version en CREADA:
-   * una vez enviada, el backend ya no deja cambiarlos (hay que crear una version nueva).
-   */
   private cargarParaEditar(id: number): void {
     this.idCotizacion.set(id);
     this.cotizacionService.obtener(id).subscribe((c) => {
@@ -163,7 +146,6 @@ export class CotizacionForm implements OnInit {
         horaInicio: c.horaInicio ? c.horaInicio.substring(0, 5) : null,
       });
       this.clienteService.obtener(c.idCliente).subscribe((cliente) => {
-        // Sin emitir: el cambio de texto borraria el idCliente que se acaba de poner.
         this.busquedaCliente.setValue(cliente as never, { emitEvent: false });
       });
       this.ubicacionService.obtener(c.idUbicacion).subscribe((u) => {
@@ -223,7 +205,6 @@ export class CotizacionForm implements OnInit {
       return;
     }
 
-    // La ubicacion es propia de esta cotizacion: se crea primero, y luego se usa su id.
     this.ubicacionService.crear(ubicacion).subscribe({
       next: (nueva) => {
         this.cotizacionService
@@ -240,7 +221,6 @@ export class CotizacionForm implements OnInit {
     });
   }
 
-  /** "2026-12-05" -> fecha local (sin pasar por UTC, que la correria un dia). */
   private deFechaIso(fecha: string): Date {
     const [anio, mes, dia] = fecha.split('-').map(Number);
     return new Date(anio, mes - 1, dia);

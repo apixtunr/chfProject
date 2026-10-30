@@ -1,24 +1,15 @@
-// Los estilos pf-* de este formulario viven en src/styles.scss, compartidos con las
-// demas pantallas que usan el mismo patron. Aqui solo queda lo propio de esta pantalla:
-// la tarjeta de acceso al sistema, que no existe en ningun otro formulario.
 
-// Las dos opciones en columna y no en fila: la primera ("no entra al sistema") es la
-// habitual y conviene que se lea completa antes de pasar a la otra.
 .acceso-opciones {
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
 
-// Sangrado respecto de la pregunta, para que se lea que depende de haber dicho que si.
-// No es un .pf-field, asi que el margen lateral de la tarjeta se pone aca; los campos de
-// adentro traen el suyo y quedan un paso mas adentro, bajo la linea.
 .acceso-campos {
   margin: 12px 20px 20px 32px;
   border-left: 2px solid var(--chf-borde-suave);
 }
 
-// Usuario que el sistema le va a asignar: se muestra, no se escribe.
 .usuario-previsto {
   display: flex;
   align-items: flex-start;
@@ -51,13 +42,11 @@
     height: 18px;
   }
 
-  // No tener acceso es lo normal, no una falta: va en gris y sin icono de alerta.
   &--sin {
     color: var(--chf-texto-medio);
   }
 }
 
-// Seccion Documentos: el boton de quitar va al lado del numero, en la misma linea.
 .documento-numero {
   display: flex;
   align-items: center;
@@ -75,7 +64,6 @@
   color: var(--chf-texto-medio);
 }
 
-// El boton de agregar con el mismo margen lateral que los campos de la tarjeta.
 .documentos-agregar {
   padding: 0 20px 20px;
 }

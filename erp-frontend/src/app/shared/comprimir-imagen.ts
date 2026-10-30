@@ -1,15 +1,6 @@
-/** Lado mayor con el que una boleta fotografiada se sigue leyendo bien. */
 const LADO_MAXIMO = 1600;
 const CALIDAD_JPG = 0.8;
 
-/**
- * Reduce una foto antes de subirla. La foto de una boleta tomada con el celular pesa
- * 3-5 MB; a 1600 px de lado y en JPG queda en 200-400 KB y se sigue leyendo bien.
- *
- * Los PDF y las imagenes que ya son chicas se devuelven tal cual. Si el navegador no
- * logra leer la imagen (formato raro), tambien se devuelve la original y el backend
- * decide si la acepta.
- */
 export async function comprimirImagen(archivo: File): Promise<File> {
   if (!archivo.type.startsWith('image/') || archivo.type === 'image/gif') {
     return archivo;
@@ -34,7 +25,6 @@ export async function comprimirImagen(archivo: File): Promise<File> {
     imagen.close();
     return archivo;
   }
-  // Fondo blanco: un PNG con transparencia quedaria negro al pasarlo a JPG.
   contexto.fillStyle = '#fff';
   contexto.fillRect(0, 0, lienzo.width, lienzo.height);
   contexto.drawImage(imagen, 0, 0, lienzo.width, lienzo.height);
@@ -48,7 +38,6 @@ export async function comprimirImagen(archivo: File): Promise<File> {
   return new File([blob], nombre, { type: 'image/jpeg' });
 }
 
-/** 245760 -> "240 KB", 3145728 -> "3.0 MB". */
 export function tamanoLegible(bytes: number | null | undefined): string {
   if (!bytes) {
     return '';

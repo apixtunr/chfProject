@@ -35,7 +35,6 @@ import { TablaResponsiva } from '../../../shared/tabla-responsiva';
 const TIPO_ESTADO_EVENTO = 'EVENTO';
 const PALETA_TIPOS = ['#5c6bc0', '#26a69a', '#fb8c00', '#8d6e63', '#7e57c2', '#26c6da', '#ec407a', '#9ccc65', '#5d4037', '#78909c'];
 
-/** Date del calendario -> "2026-10-08", como lo espera la API (null si no se eligio). */
 function aFechaIso(fecha: Date | null): string | null {
   if (!fecha) {
     return null;
@@ -45,10 +44,8 @@ function aFechaIso(fecha: Date | null): string | null {
   return `${fecha.getFullYear()}-${mes}-${dia}`;
 }
 
-/** Opcion de Estadisticas de eventos: da el acceso y los permisos de imprimir y exportar. */
 const PAGINA_URL = '/api/eventos/resumen';
 
-/** Tope de eventos del CSV; un periodo real de la empresa queda muy por debajo. */
 const MAXIMO_EVENTOS_CSV = 5000;
 
 @Component({
@@ -91,13 +88,11 @@ export class EventoReporte implements OnInit {
   readonly tiposEvento = signal<TipoEventoResponse[]>([]);
   readonly estadosEvento = signal<EstadoResponse[]>([]);
 
-  /** Autocomplete de cliente — igual que en cotizacion-form */
   readonly busquedaCliente = new FormControl('', { nonNullable: true });
   readonly clientesFiltrados = signal<ClienteResponse[]>([]);
 
   readonly resumen = signal<EventoResumenResponse | null>(null);
 
-  /** Cuantos eventos del periodo estan en ese estado (sale del mismo conteo de la grafica). */
   cantidadEnEstado(...estados: string[]): number {
     return (this.resumen()?.porEstado ?? [])
       .filter((c) => estados.includes(c.etiqueta))
@@ -121,8 +116,6 @@ export class EventoReporte implements OnInit {
       datasets: [
         {
           data: conteos.map((c) => c.cantidad),
-          // Para la grafica se usa el tono de texto (mas saturado), no el fondo pastel del
-          // chip: ese fondo se ve casi invisible como relleno solido sobre el card blanco.
           backgroundColor: conteos.map((c) => (COLOR_POR_ESTADO_EVENTO[c.etiqueta] ?? COLOR_ESTADO_EVENTO_DEFECTO).text),
         },
       ],
@@ -190,7 +183,6 @@ export class EventoReporte implements OnInit {
     this.eventoService.listarTiposEvento().subscribe((t) => this.tiposEvento.set(t));
     this.estadoService.listarPorTipo(TIPO_ESTADO_EVENTO).subscribe((e) => this.estadosEvento.set(e));
 
-    // Autocomplete de cliente
     this.busquedaCliente.valueChanges.subscribe((texto) => {
       if (typeof texto === 'string' && !texto.trim()) {
         this.formulario.controls.idCliente.setValue(null);
@@ -243,13 +235,11 @@ export class EventoReporte implements OnInit {
     this.eventoService.resumen(filtros).subscribe((r) => this.resumen.set(r));
   }
 
-  /** El PDF sale con los mismos filtros que la pantalla. */
   imprimir(): void {
     this.verPdf.abrir(this.eventoService.resumenPdf(this.filtros, this.textoFiltros()), 'Estadísticas de eventos',
       'estadisticas_de_eventos');
   }
 
-  /** Todos los eventos que cumplen el filtro (no solo la pagina que se ve), una fila por evento. */
   exportarCsv(): void {
     this.eventoService.listar(this.filtros, 0, MAXIMO_EVENTOS_CSV, 'fechaEvento,asc').subscribe((page) =>
       descargarCsv(
@@ -269,7 +259,6 @@ export class EventoReporte implements OnInit {
     );
   }
 
-  /** Los filtros elegidos, en palabras, para el encabezado del PDF. */
   private textoFiltros(): string {
     const v = this.formulario.getRawValue();
     const partes: string[] = [];

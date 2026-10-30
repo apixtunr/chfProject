@@ -17,7 +17,6 @@ export class BebidaService {
     return this.http.get<Page<BebidaResponse>>(`${API_URL}/bebidas`, { params });
   }
 
-  /** Las activas, para asignarlas a un plato. */
   listarActivas(): Observable<BebidaResponse[]> {
     return this.http.get<BebidaResponse[]>(`${API_URL}/bebidas/activas`);
   }

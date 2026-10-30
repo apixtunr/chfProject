@@ -30,14 +30,6 @@ import java.util.List;
 
 import static com.lacasadelchef.erp.common.pdf.ReportePdf.fecha;
 
-/**
- * Hoja de servicio de un evento: lo que el personal necesita tener a mano el dia del
- * evento (donde y a que hora, que se sirve, quien va, en que vehiculo y que insumos se
- * cargan). Reemplaza la hoja que se anotaba a mano.
- *
- * No incluye montos: la leen Cocina y Almacén, que no tienen acceso a los costos ni a lo
- * que se le paga a cada persona.
- */
 @Service
 @RequiredArgsConstructor
 public class HojaServicioPdfService {
@@ -50,7 +42,6 @@ public class HojaServicioPdfService {
     private final EventoVehiculoRepository eventoVehiculoRepository;
     private final EventoInventarioRepository eventoInventarioRepository;
 
-    /** Una linea del menu, venga de la cotizacion aceptada o del menu directo del evento. */
     private record LineaMenu(String menu, Plato plato, Integer cantidad, Bebida bebida, String observaciones) {
     }
 
@@ -155,7 +146,6 @@ public class HojaServicioPdfService {
                 .toList();
     }
 
-    /** "120 personas" para un plato por persona; "300 unidades" para las boquitas y piezas. */
     static String cantidad(Plato plato, Integer cantidad) {
         int n = cantidad == null ? 0 : cantidad;
         if (plato.getUnidadVenta() == UnidadVenta.PERSONA) {
@@ -195,7 +185,6 @@ public class HojaServicioPdfService {
         return "%s a %s".formatted(inicio.toString().substring(0, 5), fin.toString().substring(0, 5));
     }
 
-    /** 12 en vez de 12.00; 2.5 se queda como 2.5. */
     private static String numero(BigDecimal valor) {
         return valor == null ? "0" : valor.stripTrailingZeros().toPlainString();
     }

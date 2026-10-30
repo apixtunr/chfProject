@@ -1,4 +1,3 @@
-/** Espeja ubicacion/dto/UbicacionResponse.java del backend. */
 export interface UbicacionResponse {
   idUbicacion: number;
   idMunicipio: number;

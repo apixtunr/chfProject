@@ -3,12 +3,6 @@ package com.lacasadelchef.erp.common.pdf;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-/**
- * Un monto en quetzales escrito en letras, como se acostumbra en recibos y cheques:
- * 1500.00 -> "Un mil quinientos quetzales con 00/100".
- *
- * Alcanza hasta 999 999 999.99, de sobra para lo que se cobra por un evento.
- */
 public final class MontoEnLetras {
 
     private static final String[] UNIDADES = {
@@ -33,9 +27,7 @@ public final class MontoEnLetras {
         long enteros = valor.longValue();
         int centavos = valor.remainder(BigDecimal.ONE).movePointRight(2).intValue();
 
-        // "uno" se apocopa delante de un sustantivo: "veintiún quetzales", "un quetzal".
         String letras = enteros == 0 ? "cero" : apocopar(numero(enteros));
-        // "un millón de quetzales", pero "un millón doscientos mil quetzales".
         String moneda = enteros == 1 ? "quetzal"
                 : enteros >= 1_000_000 && enteros % 1_000_000 == 0 ? "de quetzales" : "quetzales";
         String texto = "%s %s con %02d/100".formatted(letras, moneda, centavos);
@@ -50,7 +42,6 @@ public final class MontoEnLetras {
         }
         if (n >= 1000) {
             long miles = n / 1000;
-            // "un mil" y no "mil" a secas: es la forma usual en documentos de pago en Guatemala.
             String parte = apocopar(numero(miles)) + " mil";
             return unir(parte, n % 1000);
         }
@@ -72,7 +63,6 @@ public final class MontoEnLetras {
         return resto == 0 ? parte : parte + " " + numero(resto);
     }
 
-    /** Delante de un sustantivo ("mil", "millones", "quetzales"): "veintiún mil", "treinta y un quetzales". */
     private static String apocopar(String letras) {
         if (letras.endsWith("veintiuno")) {
             return letras.substring(0, letras.length() - 3) + "ún";

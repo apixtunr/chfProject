@@ -107,19 +107,16 @@ export class EventoDetail implements OnInit {
   readonly costos = signal<CostoEventoResponse[]>([]);
   readonly personal = signal<EventoEmpleadoResponse[]>([]);
 
-  /** Alguien del personal puede conducir (tiene licencia registrada). */
   readonly hayConductores = computed(() => this.personal().some((p) => p.tieneLicencia));
   readonly vehiculos = signal<EventoVehiculoResponse[]>([]);
   readonly inventario = signal<EventoInventarioResponse[]>([]);
   readonly detalleMenu = signal<DetalleEventoResponse[]>([]);
-  /** Cuando el evento nacio de una cotizacion, su menu es el que ahi se acepto (solo lectura). */
   readonly detalleCotizacionOrigen = signal<DetalleCotizacionResponse[]>([]);
   readonly serviciosCotizacionOrigen = signal<ServicioCotizacionResponse[]>([]);
 
   readonly empleadosDisponibles = signal<EmpleadoResponse[]>([]);
   readonly vehiculosDisponibles = signal<VehiculoResponse[]>([]);
 
-  /** Empleados que aun se pueden asignar: activos y que no esten ya en el personal del evento. */
   readonly empleadosParaAsignar = computed(() => {
     const asignados = new Set(this.personal().map((p) => p.idEmpleado));
     return this.empleadosDisponibles().filter(
@@ -127,7 +124,6 @@ export class EventoDetail implements OnInit {
     );
   });
 
-  /** Vehiculos que aun no estan asignados a este evento. */
   readonly vehiculosParaAsignar = computed(() => {
     const asignados = new Set(this.vehiculos().map((v) => v.idVehiculo));
     return this.vehiculosDisponibles().filter((v) => !asignados.has(v.idVehiculo));
@@ -152,17 +148,11 @@ export class EventoDetail implements OnInit {
     descripcion: [''],
     monto: this.fb.control<number | null>(null, Validators.required),
     fechaCosto: this.fb.control<Date | null>(null, Validators.required),
-    /** Si el cliente cubre este costo, se crea de una vez el pago correspondiente. */
     recargarCliente: false,
     idMetodoPago: this.fb.control<number | null>(null),
-    // Bloqueada hasta elegir un metodo que pida referencia (efectivo no lleva).
     referenciaTransaccion: [{ value: '', disabled: true }],
   });
 
-  /**
-   * Fila que se esta corrigiendo en cada seccion (null: el formulario agrega una nueva).
-   * Editar reusa el mismo formulario de arriba de la tabla en vez de abrir otra pantalla.
-   */
   readonly costoEnEdicion = signal<CostoEventoResponse | null>(null);
   readonly personalEnEdicion = signal<EventoEmpleadoResponse | null>(null);
   readonly vehiculoEnEdicion = signal<EventoVehiculoResponse | null>(null);
@@ -182,7 +172,6 @@ export class EventoDetail implements OnInit {
     cantidad: this.fb.control<number | null>(null, Validators.required),
   });
 
-  /** Producto cuya fila de inventario ya confirmada se esta corrigiendo (null = ninguna). */
   readonly idProductoCorrigiendo = signal<number | null>(null);
   readonly controlCorreccion = this.fb.control<number | null>(null, [Validators.required, Validators.min(0)]);
 
@@ -191,19 +180,15 @@ export class EventoDetail implements OnInit {
     idPlato: this.fb.control<number | null>(null, Validators.required),
     cantidadPlatos: [1, [Validators.required, Validators.min(1)]],
     observaciones: [''],
-    // La bebida viene con el plato: se elige entre las que incluye.
     idBebida: this.fb.control<number | null>(null),
   });
-  /** Bebidas que incluye el plato elegido; vacio = no lleva bebida. */
   readonly bebidasDelPlato = signal<BebidaResumen[]>([]);
-  /** Los platos por persona se cuentan en personas; las boquitas, en piezas. */
   readonly esPorPersona = signal(true);
 
   constructor() {
     this.idEvento = Number(this.route.snapshot.paramMap.get('id'));
   }
 
-  /** Un evento CANCELADO queda de solo lectura: ya no se le agrega ni quita nada. */
   get puedeModificar(): boolean {
     return this.authService.tienePermiso(PAGINA_URL, 'modificacion') && this.evento()?.estadoNombre !== 'CANCELADO';
   }
@@ -212,7 +197,6 @@ export class EventoDetail implements OnInit {
     return this.authService.esAdministrador();
   }
 
-  /** La hoja de servicio la imprime quien prepara el evento; un evento cancelado ya no se prepara. */
   get puedeImprimirHoja(): boolean {
     const estado = this.evento()?.estadoNombre;
     return this.authService.tienePermiso(PAGINA_URL, 'imprimir') && !!estado && estado !== 'CANCELADO';
@@ -229,19 +213,11 @@ export class EventoDetail implements OnInit {
     return this.authService.puedeVer('/api/rentabilidad');
   }
 
-  /** El menu solo se puede armar aqui cuando el evento es directo (sin cotizacion) y todavia
-   * se esta armando (CREADO o PLANIFICADO). */
   get puedeEditarMenu(): boolean {
     const e = this.evento();
     return this.puedeModificar && !!e && e.idCotizacionVersion === null && this.esCreadoOPlanificado(e.estadoNombre);
   }
 
-  /**
-   * Personal, vehiculos e inventario se definen mientras el evento se sigue armando (CREADO
-   * o ya PLANIFICADO); una vez que inicio (EN CURSO) o termino (FINALIZADO), ya no tiene
-   * sentido seguir agregando o quitando. Lo unico que se puede seguir ingresando en cualquier
-   * estado no cancelado es un costo extra.
-   */
   get puedeAsignarRecursos(): boolean {
     return this.puedeModificar && this.esCreadoOPlanificado(this.evento()?.estadoNombre);
   }
@@ -250,12 +226,10 @@ export class EventoDetail implements OnInit {
     return estadoNombre === 'CREADO' || estadoNombre === 'PLANIFICADO';
   }
 
-  /** El boton "Planificar" solo aplica mientras el evento sigue en CREADO. */
   get puedePlanificar(): boolean {
     return this.puedeModificar && this.evento()?.estadoNombre === 'CREADO';
   }
 
-  /** Cancelar pide motivo y acuerdo con el cliente; solo administrador, y no si ya termino. */
   get puedeCancelarEvento(): boolean {
     const estado = this.evento()?.estadoNombre;
     return this.puedeModificar && this.puedeCancelar && !!estado && estado !== 'FINALIZADO';
@@ -292,10 +266,6 @@ export class EventoDetail implements OnInit {
   }
 
   ngOnInit(): void {
-    // Las listas para elegir (personal, vehiculos, productos, menus) solo se piden si el
-    // rol puede leer ese modulo. Antes se pedian siempre: con el control de acceso del
-    // backend en su lugar, un usuario de Cocina abria el detalle y disparaba siete
-    // rechazos, cada uno con su aviso de error en pantalla, sin haber hecho nada malo.
     if (this.authService.puedeVer('/api/empleados')) {
       this.empleadoService.listar('', 0, 200).subscribe((p) => this.empleadosDisponibles.set(p.content));
     }
@@ -308,20 +278,14 @@ export class EventoDetail implements OnInit {
     if (this.authService.puedeVer('/api/menus')) {
       this.menuService.listarActivos().subscribe((m) => this.menusDisponibles.set(m));
     }
-    // Estos tres son catalogos: cualquiera con sesion los puede leer.
     this.tipoCostoService.listar().subscribe((t) => this.tiposCosto.set(t));
     this.pagoService.listarMetodos().subscribe((m) => this.metodosPago.set(m));
     this.cargar();
 
-    // El backend cambia EN CURSO/FINALIZADO solo, en el instante exacto de la hora
-    // cargada; sin esto, la pantalla se queda mostrando el estado viejo hasta que el
-    // usuario haga algo que recargue los datos (F5, cambiar de tab, etc.).
     interval(20000)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.eventoService.obtener(this.idEvento).subscribe((e) => this.evento.set(e)));
 
-    // Si el cliente cubre el costo, hay que elegir metodo de pago; y si ese
-    // metodo exige referencia (tarjeta, transferencia), tambien se vuelve obligatoria.
     this.formularioCosto.controls.recargarCliente.valueChanges.subscribe((recargar) => {
       const metodo = this.formularioCosto.controls.idMetodoPago;
       metodo.setValidators(recargar ? Validators.required : null);
@@ -339,7 +303,6 @@ export class EventoDetail implements OnInit {
       if (requiere) {
         referencia.enable();
       } else {
-        // Efectivo, por ejemplo, no tiene numero de referencia: se bloquea y se limpia.
         referencia.setValue('');
         referencia.disable();
       }
@@ -366,21 +329,12 @@ export class EventoDetail implements OnInit {
     });
   }
 
-  /** Precio de catalogo que aplica segun el tamano del evento: "Q40.00 por persona", "Q800.00 el ciento". */
   etiquetaPrecio(plato: MenuPlatoResponse): string {
     const volumen = (this.evento()?.cantidadPersonas ?? 0) >= PERSONAS_PRECIO_VOLUMEN;
     const precio = plato.precioDesde100 != null && volumen ? plato.precioDesde100 : plato.precioUnitario;
     return `Q${Number(precio).toFixed(2)} ${PRECIO_POR[plato.unidadVenta]}`;
   }
 
-  /**
-   * Si este usuario puede ver los montos del evento: salarios del personal asignado y
-   * costos. Espeja la regla del backend (RecursosApi.MODULO_FINANCIERO): los ve quien
-   * carga los eventos, porque es quien fija esos montos, o quien lleva las finanzas.
-   *
-   * Ver la agenda no alcanza: Cocina y Almacén la necesitan para trabajar, pero no tienen
-   * por que saber cuanto gana cada companero.
-   */
   get puedeVerMontosDelEvento(): boolean {
     return this.authService.tienePermiso(PAGINA_URL, 'alta') || this.authService.puedeVer('/api/rentabilidad');
   }
@@ -402,8 +356,6 @@ export class EventoDetail implements OnInit {
     this.eventoService.listarDetalle(this.idEvento).subscribe((d) => this.detalleMenu.set(d));
   }
 
-  /** Chequeo rapido en el cliente (el backend igual lo valida de verdad): evita el viaje
-   * al servidor para el caso comun de que a todos se les olvida algo antes de planificar. */
   private seccionesFaltantesParaPlanificar(): string[] {
     const faltantes: string[] = [];
     if (this.lineasMenuDetalle.length === 0) {
@@ -429,7 +381,6 @@ export class EventoDetail implements OnInit {
       });
       return;
     }
-    // El 50% se cobra una semana antes: si falta, se avisa y queda a criterio del usuario.
     this.eventoService.anticipo(this.idEvento).subscribe((anticipo) => {
       const q = (n: number) => `Q${Number(n).toLocaleString('es-GT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
       const mensaje = anticipo.cubierto
@@ -451,8 +402,6 @@ export class EventoDetail implements OnInit {
     });
   }
 
-  // --- Costos ---
-
   editarCosto(costo: CostoEventoResponse): void {
     this.costoEnEdicion.set(costo);
     this.formularioCosto.reset();
@@ -462,7 +411,6 @@ export class EventoDetail implements OnInit {
       monto: costo.monto,
       fechaCosto: new Date(`${costo.fechaCosto}T00:00:00`),
     });
-    // Ya cobrado al cliente: su pago quedo por ese monto (el backend tambien lo impide).
     if (costo.pagado) {
       this.formularioCosto.controls.monto.disable();
     }
@@ -531,7 +479,6 @@ export class EventoDetail implements OnInit {
       });
   }
 
-  /** Crea el pago del recargo (nace CONFIRMADO de una vez, registrar el pago ya es confirmarlo). */
   private crearPagoDeRecargo(
     idCostoEvento: number,
     monto: number,
@@ -546,7 +493,6 @@ export class EventoDetail implements OnInit {
       monto,
       referenciaTransaccion: referencia || null,
       observaciones: descripcionCosto ? `Recargo por: ${descripcionCosto}` : 'Recargo por costo extra del evento',
-      // El cliente paga el costo el mismo dia en que se registra.
       fechaPago: `${fecha}T00:00:00`,
       idCostoEvento,
     });
@@ -556,17 +502,12 @@ export class EventoDetail implements OnInit {
     this.eventoService.eliminarCosto(this.idEvento, costo.idCostoEvento).subscribe(() => this.cargar());
   }
 
-  // --- Personal ---
-
   asignarEmpleado(): void {
     if (this.formularioPersonal.invalid) {
       this.formularioPersonal.markAllAsTouched();
       return;
     }
     const v = this.formularioPersonal.getRawValue();
-    // El personal se asigna por la duracion completa del evento, no se pide hora
-    // aparte: si alguien se queda mas tiempo del previsto, eso se registra como
-    // costo extra (Personal extra), no como un horario distinto aqui.
     const evento = this.evento();
     this.eventoService
       .asignarEmpleado(this.idEvento, v.idEmpleado!, {
@@ -584,7 +525,6 @@ export class EventoDetail implements OnInit {
   editarEmpleado(asignacion: EventoEmpleadoResponse): void {
     this.personalEnEdicion.set(asignacion);
     this.formularioPersonal.reset();
-    // El empleado no se cambia al editar (para eso se quita y se asigna otro): solo el pago.
     this.formularioPersonal.patchValue({ idEmpleado: asignacion.idEmpleado, salarioEvento: asignacion.salarioEvento });
   }
 
@@ -621,8 +561,6 @@ export class EventoDetail implements OnInit {
     this.eventoService.quitarEmpleado(this.idEvento, asignacion.idEmpleado).subscribe(() => this.cargar());
   }
 
-  // --- Vehiculos ---
-
   asignarVehiculo(): void {
     if (this.formularioVehiculo.invalid) {
       this.formularioVehiculo.markAllAsTouched();
@@ -640,7 +578,6 @@ export class EventoDetail implements OnInit {
   editarVehiculo(asignacion: EventoVehiculoResponse): void {
     this.vehiculoEnEdicion.set(asignacion);
     this.formularioVehiculo.reset();
-    // El vehiculo no se cambia al editar (para eso se quita y se asigna otro): solo el conductor.
     this.formularioVehiculo.patchValue({
       idVehiculo: asignacion.idVehiculo,
       idEmpleadoConductor: asignacion.idEmpleadoConductor,
@@ -673,8 +610,6 @@ export class EventoDetail implements OnInit {
     this.eventoService.quitarVehiculo(this.idEvento, asignacion.idVehiculo).subscribe(() => this.cargar());
   }
 
-  // --- Inventario ---
-
   planificarProducto(): void {
     if (this.formularioInventario.invalid) {
       this.formularioInventario.markAllAsTouched();
@@ -697,9 +632,6 @@ export class EventoDetail implements OnInit {
     return this.inventario().some((i) => !i.fechaConsumo);
   }
 
-  /** La columna de acciones se muestra si alguna fila tiene algo que hacer: eliminar (pendiente,
-   * solo mientras se puede asignar recursos) o corregir (ya confirmado, en cualquier estado no
-   * cancelado). Si ninguna fila califica, la columna no aporta nada y se oculta. */
   get columnasInventario(): string[] {
     const hayAccionPosible = this.inventario().some((i) =>
       i.fechaConsumo ? this.puedeModificar : this.puedeAsignarRecursos,
@@ -707,10 +639,6 @@ export class EventoDetail implements OnInit {
     return hayAccionPosible ? [...this.columnasInventarioBase, 'acciones'] : this.columnasInventarioBase;
   }
 
-  // --- Detalle: solo listas y sumas simples de lo que ya esta cargado en cada pestana.
-  // La ganancia real (ingresos por Pagos menos costos) vive en Rentabilidad, no aqui. ---
-
-  /** El menu viene de la cotizacion de origen si el evento nacio de una, si no del propio evento. */
   get lineasMenuDetalle(): (DetalleEventoResponse | DetalleCotizacionResponse)[] {
     return this.evento()?.idCotizacionVersion != null ? this.detalleCotizacionOrigen() : this.detalleMenu();
   }
@@ -719,7 +647,6 @@ export class EventoDetail implements OnInit {
     return this.lineasMenuDetalle.reduce((acc, d) => acc + d.subtotal, 0);
   }
 
-  /** Solo existe si el evento nacio de una cotizacion; un evento directo nunca tiene. */
   get subtotalServiciosDetalle(): number {
     return this.serviciosCotizacionOrigen().reduce((acc, s) => acc + s.monto, 0);
   }
@@ -732,13 +659,10 @@ export class EventoDetail implements OnInit {
     return this.personal().reduce((acc, p) => acc + p.salarioEvento, 0);
   }
 
-  /** precio_unitario del producto no viaja en EventoInventarioResponse; se busca en el
-   * catalogo ya cargado (productosDisponibles) por idProducto. */
   precioUnitarioProducto(idProducto: number): number {
     return this.productosDisponibles().find((p) => p.idProducto === idProducto)?.precioUnitario ?? 0;
   }
 
-  /** Solo lo ya Confirmado representa un gasto real; lo Planificado todavia no se uso. */
   costoInventarioLinea(item: EventoInventarioResponse): number {
     return item.fechaConsumo ? item.cantidad * this.precioUnitarioProducto(item.idProducto) : 0;
   }
@@ -747,8 +671,6 @@ export class EventoDetail implements OnInit {
     return this.inventario().reduce((acc, i) => acc + this.costoInventarioLinea(i), 0);
   }
 
-  /** Gasto operativo simple (no es la ganancia: le falta restar contra los ingresos reales,
-   * eso lo hace Rentabilidad con los Pagos). Vehiculos no entra, no tiene costo registrado. */
   get totalGastosDetalle(): number {
     return this.subtotalCostosDetalle + this.subtotalPersonalDetalle + this.subtotalInventarioDetalle;
   }
@@ -812,8 +734,6 @@ export class EventoDetail implements OnInit {
       });
     });
   }
-
-  // --- Menu (solo eventos directos, sin cotizacion) ---
 
   agregarLineaMenu(): void {
     if (this.formularioMenu.invalid) {

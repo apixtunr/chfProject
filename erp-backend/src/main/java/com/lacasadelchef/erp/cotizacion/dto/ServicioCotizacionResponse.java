@@ -15,7 +15,6 @@ public record ServicioCotizacionResponse(
         String tipoServicioNombre,
         String descripcion,
         Integer cantidad,
-        /** Precio de cada unidad: el del catalogo si es fijo, si no el total entre la cantidad. */
         BigDecimal precioUnitario,
         BigDecimal monto,
         BigDecimal montoTotalVersion,

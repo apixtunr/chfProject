@@ -78,15 +78,6 @@ public class EmpleadoServiceImpl implements EmpleadoService {
         return respuestaCompleta(buscar(id));
     }
 
-    /**
-     * Da de alta al empleado y, si se pidio, su acceso al sistema.
-     *
-     * Las dos cosas van en la misma transaccion (@Transactional): si la creacion del
-     * usuario falla, la del empleado se deshace. Sin eso, un error al crear el usuario
-     * dejaria el empleado grabado sin usuario, y al reintentar quedarian dos empleados
-     * para la misma persona. El nombre de usuario lo genera PoliticaUsuario con el nombre
-     * del empleado, asi que no puede chocar con otro.
-     */
     @Override
     @Transactional
     public EmpleadoResponse crear(EmpleadoRequest request) {
@@ -119,7 +110,6 @@ public class EmpleadoServiceImpl implements EmpleadoService {
         return usuario;
     }
 
-    /** Quienes de esta pagina tienen usuario, en una sola consulta y no una por fila. */
     private Set<Integer> idsConUsuario(List<Empleado> empleados) {
         if (empleados.isEmpty()) {
             return Set.of();
@@ -142,10 +132,6 @@ public class EmpleadoServiceImpl implements EmpleadoService {
         return respuestaCompleta(empleado);
     }
 
-    /**
-     * Guarda el DPI y los demas documentos junto con los datos del empleado, en la misma
-     * transaccion: si un documento esta repetido o mal escrito, no queda nada a medias.
-     */
     private void guardarDocumentos(Empleado empleado, EmpleadoRequest request) {
         TipoDocumento tipoDpi = documentosEmpleado.tipoDpi();
         documentosEmpleado.guardar(empleado, tipoDpi, request.dpi());
@@ -165,7 +151,6 @@ public class EmpleadoServiceImpl implements EmpleadoService {
             }
             documentosEmpleado.guardar(empleado, tipo, item.numeroDocumento());
         }
-        // La lista reemplaza a lo registrado: lo que ya no viene se quita (el DPI nunca).
         documentoEmpleadoRepository.findByEmpleadoIdEmpleado(empleado.getIdEmpleado()).stream()
                 .filter(d -> !DocumentosEmpleado.esDpi(d.getTipoDocumento()))
                 .filter(d -> !enviados.contains(d.getTipoDocumento().getIdTipoDocumento()))
@@ -187,7 +172,6 @@ public class EmpleadoServiceImpl implements EmpleadoService {
                 usuarioRepository.findByEmpleadoIdEmpleado(empleado.getIdEmpleado()).orElse(null), dpi, otros);
     }
 
-    /** El DPI de los empleados de esta pagina, en una sola consulta. */
     private Map<Integer, String> dpisDe(List<Empleado> empleados) {
         if (empleados.isEmpty()) {
             return Map.of();
@@ -201,8 +185,6 @@ public class EmpleadoServiceImpl implements EmpleadoService {
     @Override
     @Transactional
     public void eliminar(Integer id) {
-        // Si el empleado tiene usuario, documentos o asignaciones a eventos, la FK lo
-        // impide y el GlobalExceptionHandler lo traduce a HTTP 409.
         Empleado empleado = buscar(id);
         empleadoRepository.delete(empleado);
     }

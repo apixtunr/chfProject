@@ -1,16 +1,10 @@
-// Pantalla de inicio: encabezado, indicadores, la fila de operacion y los pendientes. Los
-// paneles de adentro tienen su propia hoja (panel-*/*.scss) y comparten _inicio-comun.
-// Todo color sale de los tokens (var(--chf-*)).
 
 :host {
   display: block;
-  // Se heredan a los paneles hijos (las variables CSS atraviesan la encapsulacion).
   --radio: 16px;
   --sombra: 0 1px 2px rgba(15, 23, 42, 0.04), 0 1px 3px rgba(15, 23, 42, 0.06);
   --sombra-hover: 0 4px 6px -1px rgba(15, 23, 42, 0.06), 0 10px 24px -6px rgba(15, 23, 42, 0.12);
 }
-
-// ------------------------------------------------------------------ encabezado
 
 .encabezado {
   display: flex;
@@ -100,8 +94,6 @@ button:focus-visible {
   outline-offset: 2px;
 }
 
-// ----------------------------------------------------------------- indicadores
-
 .indicadores {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
@@ -176,7 +168,6 @@ button:focus-visible {
   color: var(--chf-texto-medio);
 }
 
-// El ambar solo se enciende cuando hay algo pendiente: fijo dejaria de significar algo.
 .indicador--atencion {
   border-color: color-mix(in srgb, var(--chf-alerta) 45%, transparent);
 
@@ -197,12 +188,6 @@ button:focus-visible {
   }
 }
 
-// ------------------------------------------------------------------ distribucion
-// Antes era una columna principal y una lateral: con varias tarjetas de pendientes la
-// lateral crecia hacia abajo y la principal quedaba corta, sobre todo con poco zoom o en
-// monitores anchos. Ahora la operacion (preparacion + agenda) va en una fila de dos y los
-// pendientes se reparten debajo, a todo el ancho, en tantas columnas como quepan.
-
 .operacion {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));
@@ -210,8 +195,6 @@ button:focus-visible {
   align-items: start;
   margin-bottom: 24px;
 }
-
-// -------------------------------------------------------------- error y carga
 
 .aviso-error {
   display: flex;

@@ -10,7 +10,6 @@ import java.util.List;
 
 public interface ClienteService {
 
-    /** estado: "ACTIVO", "INACTIVO" o null/vacio para todos. */
     Page<ClienteResponse> listar(String busqueda, String estado, Pageable pageable);
 
     ClienteResponse obtenerPorId(Integer id);
@@ -19,7 +18,6 @@ public interface ClienteService {
 
     ClienteResponse actualizar(Integer id, ClienteRequest request);
 
-    /** Inactivar o reactivar. Un cliente no se borra (ver V20). */
     ClienteResponse cambiarEstado(Integer id, boolean activo);
 
     List<PosibleDuplicadoResponse> posiblesDuplicados(String nombre, String nit, String telefono, String correo,

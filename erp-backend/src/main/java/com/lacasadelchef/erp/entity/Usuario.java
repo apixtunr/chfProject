@@ -28,11 +28,6 @@ public class Usuario extends Auditable {
     @JoinColumn(name = "id_rol", nullable = false)
     private Rol rol;
 
-    /**
-     * La persona detras del usuario. Obligatorio: un usuario del sistema es siempre
-     * alguien del negocio, y de ahi sale su nombre completo (la tabla usuario no lo
-     * guarda aparte, para no tener el mismo dato en dos lugares).
-     */
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "id_empleado", nullable = false, unique = true)
     private Empleado empleado;
@@ -40,7 +35,6 @@ public class Usuario extends Auditable {
     @Column(name = "username", nullable = false, length = 50)
     private String username;
 
-    /** Hash BCrypt. Nunca exponer en DTOs de respuesta. */
     @Column(name = "password_hash", nullable = false, length = 100)
     private String passwordHash;
 
@@ -50,10 +44,6 @@ public class Usuario extends Auditable {
     @Column(name = "fecha_ultimo_acceso")
     private LocalDateTime fechaUltimoAcceso;
 
-    /**
-     * Marca de revocacion de tokens: al hacer logout se fija en NOW() y el
-     * filtro JWT rechaza cualquier token emitido antes. NULL = sin revocacion.
-     */
     @Column(name = "tokens_validos_desde")
     private LocalDateTime tokensValidosDesde;
 }

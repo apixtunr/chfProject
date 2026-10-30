@@ -1,4 +1,3 @@
-<!-- ══ CABECERA DE PÁGINA ══════════════════════════════════════ -->
 <div class="pf-page-header">
   <div class="pf-header-left">
     <nav class="pf-breadcrumb" aria-label="Ruta de navegación">
@@ -14,10 +13,8 @@
   </div>
 </div>
 
-<!-- ══ FORMULARIO ══════════════════════════════════════════════ -->
 <form [formGroup]="formulario" (ngSubmit)="guardar()" novalidate>
 
-  <!-- ── SECCIÓN 1: Origen del evento ── -->
   <div class="pf-section">
     <div class="pf-section-header">
       <div class="pf-section-title">
@@ -136,7 +133,6 @@
   </div>
 
   @if (tieneCotizacion() !== null) {
-    <!-- ── SECCIÓN 2: Detalles del evento ── -->
     <div class="pf-section">
       <div class="pf-section-header">
         <div class="pf-section-title">
@@ -266,7 +262,6 @@
   }
 
   @if (tieneCotizacion() === false) {
-    <!-- ── SECCIÓN 3: Ubicación ── -->
     <div class="pf-section">
       <div class="pf-section-header">
         <div class="pf-section-title">
@@ -338,7 +333,6 @@
     </div>
   }
 
-  <!-- ══ ACCIONES ════════════════════════════════════════════ -->
   <div class="pf-footer-actions">
     <button mat-stroked-button type="button" routerLink="/eventos" class="pf-btn-cancel pf-btn-cancelar">Cancelar</button>
     <button

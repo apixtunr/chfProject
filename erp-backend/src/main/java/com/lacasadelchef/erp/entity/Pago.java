@@ -25,7 +25,6 @@ public class Pago extends Auditable {
     @JoinColumn(name = "id_evento", nullable = false)
     private Evento evento;
 
-    /** Usuario que registro el pago. */
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "id_usuario", nullable = false)
     private Usuario usuario;
@@ -38,7 +37,6 @@ public class Pago extends Auditable {
     @JoinColumn(name = "id_estado", nullable = false)
     private Estado estado;
 
-    /** Si no es null, este pago es el reembolso de ese costo extra (no un abono al menu). */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_costo_evento")
     private CostoEvento costoEvento;

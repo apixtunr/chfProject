@@ -1,10 +1,4 @@
-// La cabecera de pagina, las secciones y los botones usan las clases pf-* de
-// src/styles.scss, compartidas con los formularios de Cliente y Cotizacion. Aqui solo
-// quedan los estilos propios de esta pantalla: el formulario horizontal de carga de
-// lineas y el aviso de presupuesto.
 
-// Aviso de que la version supera el presupuesto que dio el cliente. Usa el token de
-// aviso del sistema, no un naranja escrito a mano.
 .alerta-presupuesto {
   display: flex;
   align-items: center;
@@ -24,8 +18,6 @@
   }
 }
 
-// Formulario de carga en una sola linea. A diferencia de los formularios de alta, aqui
-// se agregan renglones de a uno, asi que conviene tenerlo todo a la vista horizontal.
 .formulario-linea {
   display: flex;
   align-items: flex-start;
@@ -49,7 +41,6 @@
 .botones-formulario {
   display: flex;
   gap: 8px;
-  // Alinea los botones con los campos, que tienen el espacio del texto de ayuda debajo.
   margin-top: 6px;
 }
 
@@ -61,12 +52,10 @@
   width: 190px;
 }
 
-// Plato que incluye bebida y aun no la tiene: hay que elegirla para enviar.
 .bebida-pendiente {
   color: var(--chf-estado-aviso);
 }
 
-// "vence en 5 dias (dd/MM/yyyy)" junto al estado de una version ENVIADA.
 .vigencia {
   margin-left: 8px;
   font-size: 0.8rem;

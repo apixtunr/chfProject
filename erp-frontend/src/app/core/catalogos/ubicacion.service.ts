@@ -6,7 +6,6 @@ import { UbicacionRequest, UbicacionResponse } from './ubicacion';
 
 const BASE_URL = `${API_URL}/ubicaciones`;
 
-/** Salones/direcciones de eventos (propios o de terceros). Usado por Cotizaciones y Eventos. */
 @Injectable({ providedIn: 'root' })
 export class UbicacionService {
   constructor(private readonly http: HttpClient) {}

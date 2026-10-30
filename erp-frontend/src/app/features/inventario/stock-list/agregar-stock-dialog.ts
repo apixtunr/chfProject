@@ -12,7 +12,6 @@ export interface ResultadoAgregarStock {
   descripcion: string | null;
 }
 
-/** Atajo para cargar stock sin ir hasta Movimientos: por debajo registra una ENTRADA igual. */
 @Component({
   selector: 'app-agregar-stock-dialog',
   imports: [MatIconModule, FormsModule, MatDialogModule, MatButtonModule, MatFormFieldModule, MatInputModule],

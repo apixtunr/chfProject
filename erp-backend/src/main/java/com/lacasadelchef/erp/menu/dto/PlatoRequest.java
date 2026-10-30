@@ -16,10 +16,8 @@ public record PlatoRequest(
         @NotNull(message = "El estado es obligatorio")
         Integer idEstado,
 
-        /** Como se lee su precio: por persona (si viene vacio), por ciento o por unidad. */
         UnidadVenta unidadVenta,
 
-        /** Bebidas que incluye (id de bebida); vacio = no incluye bebida. */
         List<Integer> idsBebida
 ) {
 }

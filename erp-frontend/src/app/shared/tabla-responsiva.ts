@@ -1,14 +1,5 @@
 import { AfterViewInit, Directive, ElementRef, OnDestroy, inject } from '@angular/core';
 
-/**
- * En celular las tablas se dibujan como tarjetas (una por fila) y el encabezado se
- * oculta; cada celda muestra entonces el nombre de su columna a la izquierda. Ese
- * nombre se toma del encabezado real de la tabla y se copia en data-label, que es lo
- * que lee el CSS de styles.scss. Asi ninguna pantalla tiene que repetir sus titulos.
- *
- * Las filas llegan y cambian despues (paginacion, filtros, busqueda), por eso se
- * vuelve a etiquetar cada vez que el cuerpo de la tabla cambia.
- */
 @Directive({
   selector: 'table.tabla',
   host: { class: 'tabla-responsiva' },

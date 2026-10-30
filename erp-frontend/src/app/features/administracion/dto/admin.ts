@@ -34,7 +34,6 @@ export interface RolOpcionResponse extends RolOpcionRequest {
   paginaUrl: string | null;
 }
 
-/** Sin nombre de usuario: lo genera el backend con el nombre del empleado (politica-usuario.ts). */
 export interface UsuarioRequest {
   password: string;
   idRol: number;

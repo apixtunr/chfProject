@@ -1,4 +1,3 @@
-<!-- ══ CABECERA ════════════════════════════════════════════════ -->
 <div class="rpt-header">
   <div class="rpt-header-left">
     <div class="rpt-header-icono"><mat-icon>insights</mat-icon></div>
@@ -23,7 +22,6 @@
   </div>
 </div>
 
-<!-- ══ FILTROS ════════════════════════════════════════════════ -->
 <div class="rpt-filtros-card">
   <form [formGroup]="formulario" (ngSubmit)="aplicarFiltros()" class="rpt-filtros">
 
@@ -102,11 +100,9 @@
   </form>
 </div>
 
-<!-- ══ KPIs ═══════════════════════════════════════════════════ -->
 <div class="rpt-card rpt-panel">
   <div class="rpt-kpis">
 
-    <!-- Eventos -->
     <div class="rpt-kpi">
       <span class="rpt-kpi-icon rpt-kpi-icon--blue"><mat-icon>event</mat-icon></span>
       <div class="rpt-kpi-texto">
@@ -116,7 +112,6 @@
       </div>
     </div>
 
-    <!-- Finalizados -->
     <div class="rpt-kpi">
       <span class="rpt-kpi-icon rpt-kpi-icon--green"><mat-icon>task_alt</mat-icon></span>
       <div class="rpt-kpi-texto">
@@ -126,7 +121,6 @@
       </div>
     </div>
 
-    <!-- Por realizar -->
     <div class="rpt-kpi">
       <span class="rpt-kpi-icon rpt-kpi-icon--yellow"><mat-icon>schedule</mat-icon></span>
       <div class="rpt-kpi-texto">
@@ -136,7 +130,6 @@
       </div>
     </div>
 
-    <!-- Cancelados -->
     <div class="rpt-kpi">
       <span class="rpt-kpi-icon rpt-kpi-icon--red"><mat-icon>event_busy</mat-icon></span>
       <div class="rpt-kpi-texto">
@@ -146,7 +139,6 @@
       </div>
     </div>
 
-    <!-- Personas atendidas -->
     <div class="rpt-kpi">
       <span class="rpt-kpi-icon rpt-kpi-icon--purple"><mat-icon>groups</mat-icon></span>
       <div class="rpt-kpi-texto">
@@ -159,10 +151,8 @@
   </div>
 </div>
 
-<!-- ══ GRÁFICAS ════════════════════════════════════════════════ -->
 <div class="rpt-graficas">
 
-  <!-- Eventos por estado -->
   <div class="rpt-card">
     <div class="rpt-card-header">
       <div>
@@ -202,7 +192,6 @@
     }
   </div>
 
-  <!-- Eventos por tipo -->
   <div class="rpt-card">
     <div class="rpt-card-header">
       <div>
@@ -226,7 +215,6 @@
 
 </div>
 
-<!-- ══ TABLA ═══════════════════════════════════════════════════ -->
 <div class="rpt-card rpt-card--tabla">
   <div class="rpt-card-header">
     <div>
@@ -243,7 +231,6 @@
   <div class="tabla-contenedor">
     <table mat-table [dataSource]="eventos()" class="tabla rpt-tabla">
 
-      <!-- Cliente -->
       <ng-container matColumnDef="cliente">
         <th mat-header-cell *matHeaderCellDef>Cliente</th>
         <td mat-cell *matCellDef="let e">
@@ -257,7 +244,6 @@
         </td>
       </ng-container>
 
-      <!-- Tipo -->
       <ng-container matColumnDef="tipo">
         <th mat-header-cell *matHeaderCellDef>Tipo</th>
         <td mat-cell *matCellDef="let e">
@@ -267,7 +253,6 @@
         </td>
       </ng-container>
 
-      <!-- Fecha -->
       <ng-container matColumnDef="fecha">
         <th mat-header-cell *matHeaderCellDef>Fecha y hora</th>
         <td mat-cell *matCellDef="let e">
@@ -279,7 +264,6 @@
         </td>
       </ng-container>
 
-      <!-- Estado -->
       <ng-container matColumnDef="estado">
         <th mat-header-cell *matHeaderCellDef>Estado</th>
         <td mat-cell *matCellDef="let e">

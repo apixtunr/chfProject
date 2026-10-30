@@ -4,10 +4,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
-/**
- * Alta de usuario para un empleado. No trae nombre de usuario: lo genera el sistema con
- * la politica de la empresa (ver {@link com.lacasadelchef.erp.administracion.usuario.PoliticaUsuario}).
- */
 public record UsuarioRequest(
 
 
@@ -21,10 +17,6 @@ public record UsuarioRequest(
         @NotNull(message = "El estado es obligatorio")
         Integer idEstado,
 
-        /**
-         * Empleado al que pertenece el usuario. Obligatorio: todo usuario es una persona
-         * del negocio. Al reves no: la mayoria de los empleados no tiene usuario.
-         */
         @NotNull(message = "El empleado es obligatorio")
         Integer idEmpleado
 ) {

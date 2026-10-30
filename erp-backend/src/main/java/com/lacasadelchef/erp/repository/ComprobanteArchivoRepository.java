@@ -8,7 +8,6 @@ import java.util.List;
 
 public interface ComprobanteArchivoRepository extends JpaRepository<ComprobanteArchivo, Integer> {
 
-    /** Lo que se muestra de un archivo sin traer su contenido (cientos de KB por archivo). */
     interface ArchivoResumen {
         Integer getIdComprobante();
 

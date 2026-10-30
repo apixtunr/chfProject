@@ -4,20 +4,17 @@ import { Observable, map } from 'rxjs';
 import { API_URL } from '../api-config';
 import { MODULOS, MODULO_SIN_PRESENTACION, PANTALLAS, VISTAS_AGRUPADAS } from './menu-presentacion';
 
-/** Lo que devuelve /api/menu: las opciones que el rol puede ver, por modulo y en orden. */
 interface MenuModuloResponse {
   modulo: string;
   opciones: { nombre: string; paginaUrl: string; vista: string }[];
 }
 
-/** Una pantalla del panel del menu. */
 export interface MenuPantalla {
   nombre: string;
   ruta: string;
   icono: string;
 }
 
-/** Un modulo de la columna del menu con las pantallas que el usuario puede abrir. */
 export interface MenuModulo {
   modulo: string;
   icono: string;
@@ -25,11 +22,6 @@ export interface MenuModulo {
   pantallas: MenuPantalla[];
 }
 
-/**
- * El menu lateral sale de la base de datos: el backend devuelve los modulos y opciones que el
- * rol puede ver, con sus nombres y en su orden. Aca se les pone la presentacion (icono, color
- * y ruta) de menu-presentacion.ts.
- */
 @Injectable({ providedIn: 'root' })
 export class MenuService {
   private readonly http = inject(HttpClient);

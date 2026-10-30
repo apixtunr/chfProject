@@ -5,7 +5,6 @@ export interface PlatoRequest {
   nombrePlato: string;
   idEstado: number;
   unidadVenta: UnidadVenta;
-  /** Bebidas que incluye (catalogo de bebidas); vacio = no incluye bebida. */
   idsBebida: number[];
 }
 

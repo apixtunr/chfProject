@@ -28,17 +28,11 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
-/**
- * Altas y bajas dejan en la bitacora una fila con todo el registro resumido. Se usa
- * Usuario porque tiene los tres casos especiales: una columna de control que no se
- * registra, la contrasena que se enmascara y una columna que llena la base de datos.
- */
 @ExtendWith(MockitoExtension.class)
 class AuditoriaCambiosListenerTest {
 
     private static final String[] PROPIEDADES = {"username", "passwordHash", "fechaUltimoAcceso", "intentosAcceso"};
     private static final String[] COLUMNAS = {"username", "password_hash", "fecha_ultimo_acceso", "intentos_acceso"};
-    /** intentos_acceso la pone la base de datos (DEFAULT 0): no se conoce al insertar. */
     private static final boolean[] INSERTABLES = {true, true, true, false};
 
     @Mock private EntityPersister persister;
@@ -49,7 +43,6 @@ class AuditoriaCambiosListenerTest {
     @Mock private PreparedStatement sentencia;
 
     private final AuditoriaCambiosListener listener = new AuditoriaCambiosListener();
-    /** Parametros enviados al INSERT de bitacora_movimiento, por posicion (1 = id_usuario). */
     private final Map<Integer, String> parametros = new HashMap<>();
 
     @BeforeEach
@@ -112,7 +105,6 @@ class AuditoriaCambiosListenerTest {
 
         listener.onPostDelete(new PostDeleteEvent(new Usuario(), 7, new Object[]{empleado}, persister, session));
 
-        // Se reusa la columna "username" del persister: lo que importa es como se escribe el valor.
         assertThat(parametros.get(5)).isEqualTo("username: 2 (Lucia Ramirez)");
     }
 
@@ -132,7 +124,6 @@ class AuditoriaCambiosListenerTest {
 
         listener.onPostDelete(new PostDeleteEvent(new Usuario(), 7, new Object[]{usuario}, persister, session));
 
-        // Se reusa la columna "username" del persister: lo que importa es como se escribe el valor.
         assertThat(parametros.get(5)).isEqualTo("username: 5 (Lucia Ramirez - lramirez)");
     }
 }

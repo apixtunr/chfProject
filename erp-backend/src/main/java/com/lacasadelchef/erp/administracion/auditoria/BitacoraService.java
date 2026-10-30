@@ -16,6 +16,5 @@ public interface BitacoraService {
     Page<BitacoraAccesoResponse> listarAccesos(Integer idUsuario, String resultado,
                                                 LocalDate fechaDesde, LocalDate fechaHasta, Pageable pageable);
 
-    /** Tablas que aparecen en bitacora_movimiento, para poblar el filtro de la pantalla. */
     List<String> listarTablasConMovimientos();
 }

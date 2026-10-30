@@ -2,8 +2,6 @@
 
 :host {
   display: block;
-  // Mamposteria: las tarjetas tienen alturas muy distintas; con columnas CSS se acomodan
-  // una debajo de otra sin dejar huecos, y el numero de columnas sigue al ancho.
   columns: 340px;
   column-gap: 24px;
 }
@@ -200,7 +198,6 @@
   }
 }
 
-// Verde = alta, azul = cambio, rojo = baja.
 .punto {
   width: 8px;
   height: 8px;

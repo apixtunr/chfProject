@@ -15,7 +15,6 @@ public interface EventoVehiculoRepository extends JpaRepository<EventoVehiculo, 
 
     boolean existsByEventoIdEvento(Integer idEvento);
 
-    /** Otro evento del mismo dia que ya usa ese vehiculo (sin contar cancelados). */
     @Query("""
             SELECT ev FROM EventoVehiculo ev
             WHERE ev.vehiculo.idVehiculo = :idVehiculo

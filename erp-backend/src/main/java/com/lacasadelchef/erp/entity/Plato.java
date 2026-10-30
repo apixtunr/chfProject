@@ -29,16 +29,13 @@ public class Plato extends Auditable {
     @Column(name = "nombre_plato", nullable = false, length = 120)
     private String nombrePlato;
 
-    /** Como se lee su precio en el menu: por persona, por ciento o por unidad. */
     @Enumerated(EnumType.STRING)
     @Column(name = "unidad_venta", nullable = false, length = 10)
     private UnidadVenta unidadVenta = UnidadVenta.PERSONA;
 
-    /** Bebidas que incluye el plato; vacio = no incluye bebida (boquitas). */
     @OneToMany(mappedBy = "plato", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PlatoBebida> bebidas = new ArrayList<>();
 
-    /** Las bebidas que se pueden elegir al cotizar el plato: las activas, en orden de catalogo. */
     public List<Bebida> opcionesBebida() {
         return bebidas.stream()
                 .map(PlatoBebida::getBebida)

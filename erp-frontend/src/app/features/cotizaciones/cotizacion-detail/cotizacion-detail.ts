@@ -58,7 +58,6 @@ export class CotizacionDetail implements OnInit {
   readonly horarioServicio = horarioServicio;
   readonly textoVigencia = textoVigencia;
 
-  /** Los datos generales se corrigen mientras la ultima version sigue en borrador (CREADA). */
   get puedeEditarDatos(): boolean {
     return (
       this.authService.tienePermiso(PAGINA_URL, 'modificacion') && this.versiones()[0]?.estadoNombre === 'CREADA'
@@ -69,7 +68,6 @@ export class CotizacionDetail implements OnInit {
     return this.authService.tienePermiso(PAGINA_URL, 'alta');
   }
 
-  /** Version nueva si el cliente no acepto la ultima: enviada (pide cambios), rechazada o vencida. */
   get puedeCrearVersion(): boolean {
     const ultima = this.versiones()[0]?.estadoNombre;
     return this.puedeCrear && !!ultima && PERMITEN_VERSION_NUEVA.includes(ultima);
@@ -90,7 +88,6 @@ export class CotizacionDetail implements OnInit {
       this.crearVersion();
       return;
     }
-    // La enviada deja de valer: que quede claro antes de hacerlo.
     const ref = this.dialog.open(ConfirmDialog, {
       data: {
         titulo: 'Nueva versión',

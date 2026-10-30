@@ -4,7 +4,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
-/** Un documento del empleado (que no sea el DPI) dentro del formulario del empleado. */
 public record DocumentoItemRequest(
 
         @NotNull(message = "El tipo de documento es obligatorio")

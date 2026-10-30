@@ -1,4 +1,3 @@
-<!-- ══ CABECERA ════════════════════════════════════════════════ -->
 <div class="rpt-header">
   <div class="rpt-header-left">
     <div class="rpt-header-icono"><mat-icon>trending_up</mat-icon></div>
@@ -23,7 +22,6 @@
   </div>
 </div>
 
-<!-- ══ FILTROS ════════════════════════════════════════════════ -->
 <div class="rpt-filtros-card">
   <form [formGroup]="formulario" (ngSubmit)="aplicarFiltros()" class="rpt-filtros">
 
@@ -90,7 +88,6 @@
   </form>
 </div>
 
-<!-- ══ KPIs ═══════════════════════════════════════════════════ -->
 @if (resumen(); as r) {
   <div class="rpt-card rpt-panel">
     <div class="rpt-kpis">
@@ -144,10 +141,8 @@
     </div>
   </div>
 
-  <!-- ══ GRÁFICAS ════════════════════════════════════════════════ -->
   <div class="rpt-graficas">
 
-    <!-- Desglose de costos -->
     <div class="rpt-card">
       <div class="rpt-card-header">
         <div>
@@ -180,7 +175,6 @@
       </div>
     </div>
 
-    <!-- Ganancia por tipo de evento -->
     <div class="rpt-card">
       <div class="rpt-card-header">
         <div>
@@ -206,7 +200,6 @@
   </div>
 }
 
-<!-- ══ TABLA ═══════════════════════════════════════════════════ -->
 <div class="rpt-card rpt-card--tabla">
   <div class="rpt-card-header">
     <div>

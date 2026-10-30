@@ -38,18 +38,10 @@ public class CotizacionVersionServiceImpl implements CotizacionVersionService {
     private static final String ESTADO_REEMPLAZADA = "REEMPLAZADA";
     static final String ESTADO_VENCIDA = "VENCIDA";
 
-    /**
-     * Maquina de estados de una version de cotizacion, para los cambios que hace el
-     * usuario. ACEPTADA, RECHAZADA, VENCIDA y REEMPLAZADA son terminales (no aparecen
-     * como llave). VENCIDA la pone la tarea automatica cuando pasa la vigencia
-     * (CotizacionVencimientoJob) y REEMPLAZADA se pone sola al crear una version nueva
-     * sobre una ENVIADA; ninguna de las dos se elige a mano.
-     */
     private static final Map<String, Set<String>> TRANSICIONES_VALIDAS = Map.of(
             ESTADO_CREADA, Set.of(ESTADO_ENVIADA),
             ESTADO_ENVIADA, Set.of(ESTADO_ACEPTADA, ESTADO_RECHAZADA));
 
-    /** Sobre que ultima version se puede crear otra: lo que el cliente no acepto. */
     private static final Set<String> PERMITEN_VERSION_NUEVA = Set.of(ESTADO_ENVIADA, ESTADO_RECHAZADA, ESTADO_VENCIDA);
 
     private final CotizacionVersionRepository cotizacionVersionRepository;
@@ -98,7 +90,6 @@ public class CotizacionVersionServiceImpl implements CotizacionVersionService {
             throw new BusinessException("No se puede crear una versión nueva sobre una versión %s".formatted(estadoUltima));
         }
 
-        // El cliente pidio cambios a la que tenia en la mano: esa ya no se puede aceptar.
         if (ESTADO_ENVIADA.equals(estadoUltima)) {
             ultima.setEstado(buscarEstado(ESTADO_REEMPLAZADA));
             cotizacionVersionRepository.save(ultima);
@@ -140,9 +131,6 @@ public class CotizacionVersionServiceImpl implements CotizacionVersionService {
             }
 
             if (!detallesAnteriores.isEmpty() || !serviciosAnteriores.isEmpty()) {
-                // El trigger de detalle_cotizacion/servicio_cotizacion actualiza monto_total de otra
-                // fila (cotizacion_version); hay que refrescar para no devolver el valor en cero con
-                // el que se creo "nueva".
                 entityManager.flush();
                 entityManager.refresh(nueva);
             }
@@ -173,18 +161,14 @@ public class CotizacionVersionServiceImpl implements CotizacionVersionService {
 
         if (ESTADO_ENVIADA.equals(estadoDestino)) {
             validarListaParaEnviar(version);
-            // La vigencia corre desde que el cliente la recibe y queda fija aunque despues
-            // se cambie app.cotizacion.vigencia-dias: es lo que dice el PDF que se le mando.
             version.setFechaEnvio(LocalDateTime.now());
             version.setVigenteHasta(LocalDate.now().plusDays(condicionesComerciales.vigenciaDias()));
         } else if (ESTADO_ACEPTADA.equals(estadoDestino) && version.getVigenteHasta() != null
                 && version.getVigenteHasta().isBefore(LocalDate.now())) {
-            // Por si la tarea automatica todavia no la paso a VENCIDA.
             throw new BusinessException("La cotización venció el %s. Cree una versión nueva con los precios actuales"
                     .formatted(version.getVigenteHasta().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))));
         } else if (ESTADO_ACEPTADA.equals(estadoDestino) && version.getCotizacion().getFechaEvento() != null
                 && version.getCotizacion().getFechaEvento().isBefore(CondicionesComerciales.fechaMinimaEvento(LocalDate.now()))) {
-            // Aceptarla crearia un evento que ya no se puede agendar.
             throw new BusinessException(("El evento es el %s y los eventos se agendan con al menos %d días de"
                     + " anticipación. Cree una versión nueva con otra fecha")
                     .formatted(version.getCotizacion().getFechaEvento().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
@@ -195,12 +179,6 @@ public class CotizacionVersionServiceImpl implements CotizacionVersionService {
         return CotizacionVersionResponse.desde(version);
     }
 
-    /**
-     * Lo que se le envia al cliente tiene que poder convertirse en un evento: al menos un
-     * plato o servicio con un total mayor a cero, una fecha que todavia no paso, la hora
-     * de inicio del servicio y la bebida de cada plato que la incluye. Se
-     * revisa todo y se dice todo lo que falta de una vez, para no corregir de a uno.
-     */
     private void validarListaParaEnviar(CotizacionVersion version) {
         Integer id = version.getIdCotizacionVersion();
         List<String> faltantes = new ArrayList<>();
@@ -235,7 +213,6 @@ public class CotizacionVersionServiceImpl implements CotizacionVersionService {
         }
     }
 
-    /** "a", "a y b", "a, b y c". */
     private static String enumerar(List<String> partes) {
         if (partes.size() == 1) {
             return partes.get(0);

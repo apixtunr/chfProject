@@ -48,7 +48,6 @@ export class MovimientoForm implements OnInit {
   guardar(): void {
     const v = this.formulario.getRawValue();
 
-    // ENTRADA/SALIDA exigen magnitud positiva; AJUSTE cualquier valor distinto de cero
     if (v.cantidad !== null) {
       if (v.tipoMovimiento !== 'AJUSTE' && v.cantidad <= 0) {
         this.formulario.controls.cantidad.setErrors({ positiva: true });

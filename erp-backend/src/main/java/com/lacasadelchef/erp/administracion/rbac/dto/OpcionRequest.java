@@ -15,7 +15,6 @@ public record OpcionRequest(
 
         Integer ordenMenuVista,
 
-        /** Path base del controlador (ej. '/api/clientes'); usado por PermisoService para autorizar. */
         @Size(max = 255)
         String paginaUrl,
 

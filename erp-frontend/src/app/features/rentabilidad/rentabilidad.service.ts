@@ -20,7 +20,6 @@ export class RentabilidadService {
     return this.http.get<RentabilidadResumenResponse>(`${BASE_URL}/resumen`, { params: this.aParams(filtros) });
   }
 
-  /** Analisis de rentabilidad en PDF con los mismos filtros; textoFiltros va en el encabezado. */
   pdf(filtros: FiltrosRentabilidad, textoFiltros: string): Observable<Blob> {
     let params = this.aParams(filtros);
     if (textoFiltros) {

@@ -1,4 +1,3 @@
-<!-- ══ CABECERA DE PÁGINA ══════════════════════════════════════ -->
 <div class="pf-page-header">
   <div class="pf-header-left">
     <nav class="pf-breadcrumb" aria-label="Ruta de navegación">
@@ -28,7 +27,6 @@
       </div>
     </div>
 
-    <!-- Saldo del evento: a la vista antes de escribir el monto, para no cobrar de mas. -->
     @if (resumenEvento(); as r) {
       <div class="saldo-evento">
         <div class="saldo-evento__dato">
@@ -46,7 +44,6 @@
       </div>
     }
 
-    <!-- ── Fila 2 columnas: Método + Monto ── -->
     <div class="pf-row-2col">
 
       <div class="pf-field">
@@ -96,7 +93,6 @@
 
     </div>
 
-    <!-- ── Fila 2 columnas: Referencia + Fecha ── -->
     <div class="pf-row-2col">
 
       <div class="pf-field">
@@ -150,7 +146,6 @@
 
     </div>
 
-    <!-- ── Campo 5: Observaciones ── -->
     <div class="pf-field">
       <label class="pf-label" for="observaciones">
         <span class="pf-label-num">5.</span>
@@ -172,9 +167,8 @@
       }
     </div>
 
-  </div><!-- /pf-section -->
+  </div>
 
-  <!-- ══ ACCIONES ABAJO ══════════════════════════════════════ -->
   <div class="pf-footer-actions">
     <button mat-stroked-button type="button" [routerLink]="['/pagos/evento', idEvento()]" class="pf-btn-cancel pf-btn-cancelar">
       Cancelar

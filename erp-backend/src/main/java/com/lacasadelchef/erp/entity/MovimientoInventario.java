@@ -24,7 +24,6 @@ public class MovimientoInventario {
     @JoinColumn(name = "id_producto", nullable = false)
     private Producto producto;
 
-    /** Evento que origina el movimiento (opcional). */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_evento")
     private Evento evento;
@@ -33,7 +32,6 @@ public class MovimientoInventario {
     @JoinColumn(name = "id_usuario")
     private Usuario usuario;
 
-    /** ENTRADA, SALIDA o AJUSTE (validado por CHECK en la base). */
     @Column(name = "tipo_movimiento", nullable = false, length = 20)
     private String tipoMovimiento;
 

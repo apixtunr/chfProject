@@ -11,7 +11,6 @@ interface DiaAgenda {
   eventos: EventoPanel[];
 }
 
-/** Eventos vigentes de los proximos 7 dias, agrupados por dia. */
 @Component({
   selector: 'app-panel-agenda',
   imports: [RouterLink, MatIconModule],

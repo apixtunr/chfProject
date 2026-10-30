@@ -19,20 +19,12 @@ public interface EventoRepository extends JpaRepository<Evento, Integer> {
 
     List<Evento> findByFechaEvento(LocalDate fecha);
 
-    /** Para el job de estados automaticos: eventos de una fecha dada (o anterior) en cierto estado. */
     List<Evento> findByEstadoNombreAndFechaEventoLessThanEqual(String estadoNombre, LocalDate fecha);
 
-    /** Para reconstruir los temporizadores de EventoEstadoSchedulerService al arrancar. */
     List<Evento> findByEstadoNombreIn(List<String> estadoNombres);
 
-    /** Evita que dos eventos distintos se creen a partir de la misma version de cotizacion. */
     boolean existsByCotizacionVersionIdCotizacionVersionAndIdEventoNot(Integer idCotizacionVersion, Integer idEvento);
 
-    /**
-     * Filtros opcionales para reportes (rentabilidad, agenda) y el dashboard de eventos.
-     * Pasar null para omitir un filtro. LEFT JOIN porque un evento puede no tener cotizacion
-     * (evento directo); el cliente en ese caso sale de e.cliente en vez de c.cliente.
-     */
     @Query("""
             SELECT e FROM Evento e
             LEFT JOIN e.cotizacionVersion cv
@@ -50,7 +42,6 @@ public interface EventoRepository extends JpaRepository<Evento, Integer> {
                                    @Param("idEstado") Integer idEstado,
                                    Pageable pageable);
 
-    /** Conteo de eventos agrupado por estado, para el dashboard. Mismos filtros que buscarPorFiltros. */
     @Query("""
             SELECT e.estado.nombre AS etiqueta, COUNT(e) AS cantidad
             FROM Evento e
@@ -67,7 +58,6 @@ public interface EventoRepository extends JpaRepository<Evento, Integer> {
                                             @Param("idCliente") Integer idCliente,
                                             @Param("idTipoEvento") Integer idTipoEvento);
 
-    /** Conteo de eventos agrupado por tipo de evento, para el dashboard. Mismos filtros que buscarPorFiltros. */
     @Query("""
             SELECT e.tipoEvento.nombreTipo AS etiqueta, COUNT(e) AS cantidad
             FROM Evento e
@@ -84,7 +74,6 @@ public interface EventoRepository extends JpaRepository<Evento, Integer> {
                                           @Param("idCliente") Integer idCliente,
                                           @Param("idEstado") Integer idEstado);
 
-    /** Personas atendidas: la suma de invitados de los eventos FINALIZADOS. Mismos filtros que el resumen. */
     @Query("""
             SELECT COALESCE(SUM(e.cantidadPersonas), 0)
             FROM Evento e
@@ -101,14 +90,6 @@ public interface EventoRepository extends JpaRepository<Evento, Integer> {
                                 @Param("idCliente") Integer idCliente,
                                 @Param("idTipoEvento") Integer idTipoEvento);
 
-    /**
-     * Rentabilidad de los eventos FINALIZADOS: solo cuando un evento termino estan completos
-     * sus costos (el inventario se descuenta al iniciar y el personal se paga al final).
-     *
-     * Por evento: lo acordado (precio de su cotizacion o de su menu), lo abonado a ese precio,
-     * los reembolsos de costos extra que pago el cliente (sin pagos anulados) y los costos
-     * por rubro. El inventario se valora al precio actual del producto.
-     */
     @Query(nativeQuery = true, value = """
             SELECT e.id_evento AS "idEvento",
                    e.fecha_evento AS "fechaEvento",
@@ -168,10 +149,6 @@ public interface EventoRepository extends JpaRepository<Evento, Integer> {
         Long getCantidad();
     }
 
-    /**
-     * Reporte de eventos por periodo. fechaSegun = REGISTRO filtra por el dia en que se
-     * registro el evento en el sistema; cualquier otro valor, por la fecha del evento.
-     */
     @Query(nativeQuery = true, value = """
             SELECT e.id_evento AS "idEvento",
                    e.fecha_creacion AS "fechaRegistro",

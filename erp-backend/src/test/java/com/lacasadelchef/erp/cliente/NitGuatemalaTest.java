@@ -42,7 +42,6 @@ class NitGuatemalaTest {
     @org.junit.jupiter.api.Test
     @DisplayName("Un verificador de 10 se escribe K")
     void verificadorK() {
-        // Se busca un cuerpo cuyo verificador sea K y se comprueba que se acepte.
         String cuerpo = java.util.stream.IntStream.range(1, 10_000)
                 .mapToObj(String::valueOf)
                 .filter(c -> NitGuatemala.calcularVerificador(c) == 'K')

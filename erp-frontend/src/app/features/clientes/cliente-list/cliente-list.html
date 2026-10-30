@@ -1,13 +1,7 @@
-<!-- Titulo, buscador y accion en una sola fila: el titulo a la izquierda y los dos
-     controles juntos a la derecha. Antes el boton estaba en la fila del titulo y el
-     buscador en otra, lo que dejaba 92px muertos antes de la tabla. -->
 <div class="encabezado">
   <h1>Clientes</h1>
 
   <div class="encabezado-acciones">
-    <!-- Mismo aspecto que los campos del formulario de cliente: icono a la izquierda,
-         borde visible y texto de ejemplo, en vez del mat-form-field con etiqueta
-         flotante. La lupa es decorativa: la busqueda se dispara sola al escribir. -->
     <div class="buscador">
       <mat-icon class="buscador-icono">search</mat-icon>
       <input
@@ -39,13 +33,11 @@
 <div class="tabla-contenedor">
   <table mat-table [dataSource]="clientes()" class="tabla">
 
-    <!-- Nombre -->
     <ng-container matColumnDef="nombre">
       <th mat-header-cell *matHeaderCellDef>Nombre</th>
       <td mat-cell *matCellDef="let c" [class.celda-inactiva]="!c.activo">{{ c.nombre }}</td>
     </ng-container>
 
-    <!-- NIT — badge de código -->
     <ng-container matColumnDef="nit">
       <th mat-header-cell *matHeaderCellDef>NIT</th>
       <td mat-cell *matCellDef="let c">
@@ -57,7 +49,6 @@
       </td>
     </ng-container>
 
-    <!-- Teléfono — icono inline -->
     <ng-container matColumnDef="telefono">
       <th mat-header-cell *matHeaderCellDef>Teléfono</th>
       <td mat-cell *matCellDef="let c">
@@ -70,7 +61,6 @@
       </td>
     </ng-container>
 
-    <!-- Correo — icono inline -->
     <ng-container matColumnDef="correo">
       <th mat-header-cell *matHeaderCellDef>Correo electrónico</th>
       <td mat-cell *matCellDef="let c">
@@ -83,7 +73,6 @@
       </td>
     </ng-container>
 
-    <!-- Dirección — icono inline -->
     <ng-container matColumnDef="direccion">
       <th mat-header-cell *matHeaderCellDef>Dirección</th>
       <td mat-cell *matCellDef="let c">
@@ -94,7 +83,6 @@
       </td>
     </ng-container>
 
-    <!-- Estado (solo al ver inactivos o todos) -->
     <ng-container matColumnDef="estado">
       <th mat-header-cell *matHeaderCellDef>Estado</th>
       <td mat-cell *matCellDef="let c">
@@ -102,7 +90,6 @@
       </td>
     </ng-container>
 
-    <!-- Acciones -->
     <ng-container matColumnDef="acciones">
       <th mat-header-cell *matHeaderCellDef>Acciones</th>
       <td mat-cell *matCellDef="let c">

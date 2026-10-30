@@ -23,18 +23,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-/**
- * Reglas de negocio de Clientes:
- * <ul>
- *   <li>NIT valido (digito verificador) y unico; vacio = "CF" (consumidor final).</li>
- *   <li>Al menos un medio de contacto: telefono o correo. Se pueden repetir entre
- *       clientes (una organizadora, una familia o una empresa con varias sucursales los
- *       comparten); la pantalla solo avisa, igual que con el nombre.</li>
- *   <li>No se borra: se inactiva. Uno inactivo no entra en cotizaciones ni eventos
- *       nuevos, pero su historial sigue visible. No se puede inactivar mientras tenga
- *       negocio abierto (cotizacion en curso, evento sin terminar o saldo pendiente).</li>
- * </ul>
- */
 @Service
 @RequiredArgsConstructor
 public class ClienteServiceImpl implements ClienteService {
@@ -54,7 +42,7 @@ public class ClienteServiceImpl implements ClienteService {
         String digitos = texto.replaceAll("[\\s\\-]", "").toUpperCase(Locale.ROOT);
         String filtroEstado = estado == null ? "" : estado.trim().toUpperCase(Locale.ROOT);
         if (!filtroEstado.isEmpty() && !filtroEstado.equals(ACTIVO) && !filtroEstado.equals(INACTIVO)) {
-            filtroEstado = ""; // "TODOS" o cualquier otro valor: sin filtro
+            filtroEstado = "";
         }
         return clienteRepository.buscar(texto, digitos, filtroEstado, pageable).map(ClienteResponse::desde);
     }
@@ -95,7 +83,6 @@ public class ClienteServiceImpl implements ClienteService {
             validarSinNegocioAbierto(cliente);
         }
         cliente.setEstado(buscarEstado(activo ? ACTIVO : INACTIVO));
-        // El cambio de estado lo registra la auditoria campo por campo (UPDATE de id_estado).
         return ClienteResponse.desde(clienteRepository.save(cliente));
     }
 
@@ -125,8 +112,6 @@ public class ClienteServiceImpl implements ClienteService {
         return resultado;
     }
 
-    // ------------------------------------------------------------------ privados
-
     private void aplicar(ClienteRequest request, Cliente cliente) {
         Municipio municipio = municipioRepository.findById(request.idMunicipio())
                 .orElseThrow(() -> new ResourceNotFoundException("Municipio", request.idMunicipio()));
@@ -142,7 +127,6 @@ public class ClienteServiceImpl implements ClienteService {
                         "El NIT %s no es válido. Revise que esté bien escrito, por ejemplo 6769359-8"
                                 .formatted(request.nit().trim())));
 
-        // El NIT identifica al cliente para facturar: es el unico dato que no se repite.
         Integer idActual = cliente.getIdCliente() == null ? 0 : cliente.getIdCliente();
         if (!NitGuatemala.CONSUMIDOR_FINAL.equals(nit)) {
             clienteRepository.findByNit(nit)

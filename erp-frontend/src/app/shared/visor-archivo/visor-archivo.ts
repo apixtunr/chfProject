@@ -10,15 +10,6 @@ export interface VisorArchivoData {
   archivo: Blob;
 }
 
-/**
- * Muestra un archivo (foto o PDF de un comprobante) dentro del sistema, en una ventana
- * con boton de cerrar.
- *
- * Antes se abria en otra pestana: en el celular la imagen reemplazaba al sistema y el
- * navegador no siempre dejaba regresar. Las imagenes se ven aqui mismo; los PDF tambien
- * en computadora, pero los navegadores del celular no muestran un PDF dentro de una
- * pagina, asi que ahi se ofrece descargarlo (se abre con el visor del telefono).
- */
 @Component({
   selector: 'app-visor-archivo',
   imports: [MatDialogModule, MatButtonModule, MatIconModule],
@@ -73,7 +64,6 @@ export class VisorArchivo implements OnDestroy {
 
   readonly esImagen = this.data.archivo.type.startsWith('image/');
   readonly esPdf = this.data.archivo.type === 'application/pdf';
-  /** Pantalla tactil y angosta: ahi el PDF no se puede mostrar dentro de la pagina. */
   readonly esCelular = window.matchMedia('(pointer: coarse)').matches && window.innerWidth < 900;
 
   ngOnDestroy(): void {

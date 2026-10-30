@@ -44,7 +44,6 @@ export class ClienteList implements OnInit {
   readonly pageSize = signal(20);
 
   readonly busqueda = new FormControl('', { nonNullable: true });
-  /** Por defecto solo activos: los inactivos se consultan a proposito. */
   readonly estado = signal<EstadoClienteFiltro>('ACTIVO');
   readonly filtrosEstado: { valor: EstadoClienteFiltro; etiqueta: string }[] = [
     { valor: 'ACTIVO', etiqueta: 'Activos' },
@@ -54,7 +53,6 @@ export class ClienteList implements OnInit {
 
   readonly puedeCrear: boolean;
   readonly puedeEditar: boolean;
-  /** Permiso de BAJA: inactiva y reactiva. */
   readonly puedeCambiarEstado: boolean;
 
   constructor() {
@@ -98,11 +96,6 @@ export class ClienteList implements OnInit {
     this.buscar();
   }
 
-  /**
-   * Inactivar pide confirmacion porque saca al cliente de cotizaciones y eventos nuevos;
-   * el backend lo rechaza si todavia tiene negocio abierto y el mensaje llega por el
-   * interceptor de errores. Reactivar no pide confirmacion: no quita nada.
-   */
   cambiarEstado(cliente: ClienteResponse): void {
     if (cliente.activo) {
       const ref = this.dialog.open(ConfirmDialog, {

@@ -1,8 +1,3 @@
-// El tooltip lo inserta Angular Material aparte, en un overlay fuera de este
-// componente: sin ::ng-deep la regla nunca llega a coincidir. Y ojo, el texto real
-// vive en un div interno (.mat-mdc-tooltip-surface) que Material ya trae con
-// "text-align: center" puesto directo -por eso hay que pisar ese elemento
-// especifico y no el contenedor de afuera, si no, nunca le gana.
 ::ng-deep .tooltip-justificado .mat-mdc-tooltip-surface {
   text-align: justify;
 }
@@ -176,10 +171,6 @@
   width: 100%;
 }
 
-// Envuelve cada tabla (no se le pone overflow a la tabla misma: display:block
-// en un <table> rompe su algoritmo de layout y la encoge al ancho del contenido).
-// Asi, si una celda es mas ancha de lo esperado, scrollea aqui adentro en vez
-// de desbordar la pagina completa.
 .boton-confirmar-todo {
   margin-bottom: 16px;
 }
@@ -187,8 +178,6 @@
 .campo-correccion {
   width: 90px;
 
-  // La tabla de Material fija el alto de fila (52px); sin achicar el form-field su
-  // padding/hint reservado hace que esa fila se vea mas alta que las demas.
   ::ng-deep .mat-mdc-text-field-wrapper {
     height: 40px;
   }
@@ -206,17 +195,12 @@
   padding: 20px 0;
 }
 
-// Chip de estado en forma de pildora, mismo criterio que evento-list y evento-reporte.
-// min-width fijo: sin esto, "EN CURSO" se ve mas chico que "PLANIFICADO" porque la
-// pildora se ajusta al ancho del texto (son palabras de largo distinto).
 .mat-mdc-chip.mat-mdc-chip-highlighted {
   --mat-chip-container-shape-radius: 999px;
   --mat-chip-outline-width: 1px;
   --mat-chip-container-height: 22px;
   --mat-chip-label-text-size: 12px;
   --mat-chip-label-text-line-height: 16px;
-  // Ancho aproximado de "PLANIFICADO" (el mas largo) con este padding: los demas
-  // estados quedan igual de anchos.
   min-width: 96px;
 
   ::ng-deep .mdc-evolution-chip__action--primary {
@@ -224,14 +208,11 @@
     padding-right: 6px;
   }
 
-  // El que realmente ocupa todo el ancho de la pildora (flex-basis: 100%) es este,
-  // no el de arriba: el justify-content va aqui para que el texto quede centrado.
   ::ng-deep .mdc-evolution-chip__cell--primary {
     justify-content: center;
   }
 }
 
-// Aviso bajo el encabezado: evento planificado sin el 50%, o cancelado con su motivo.
 .aviso-evento {
   display: flex;
   align-items: center;

@@ -28,10 +28,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-/**
- * Comprobantes de pago: que el archivo sea de verdad un PDF o una imagen, que no se
- * respalde un pago anulado y que una misma boleta no respalde dos pagos.
- */
 @ExtendWith(MockitoExtension.class)
 class ComprobantePagoServiceImplTest {
 

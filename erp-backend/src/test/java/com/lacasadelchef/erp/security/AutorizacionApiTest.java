@@ -23,20 +23,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-/**
- * Las decisiones del guardia de acceso, una por una.
- *
- * Cubre lo que hay que poder demostrar del control por rol: que un rol sin su fila en
- * rol_opcion no puede consultar el modulo, que una ruta no declarada se niega, y que HEAD
- * se verifica igual que GET.
- *
- * Lo de HEAD merece explicacion porque fue un agujero real. El guardia decia "si no es
- * GET, dejalo pasar, ya lo filtrara el @PreAuthorize del metodo". Pero Spring atiende las
- * peticiones HEAD con el mismo metodo del @GetMapping, y ese metodo no lleva
- * @PreAuthorize: un HEAD ejecutaba la consulta completa. El cuerpo no se devuelve, pero
- * la respuesta ya delata si hay datos. Se comprobo contra el sistema corriendo: un usuario
- * de Cocina recibia 403 en GET /api/pagos y 200 en HEAD /api/pagos.
- */
 @ExtendWith(MockitoExtension.class)
 class AutorizacionApiTest {
 
@@ -58,8 +44,6 @@ class AutorizacionApiTest {
         var decision = autorizacionApi.authorize(() -> quien, peticion(metodo, ruta));
         return decision != null && decision.isGranted();
     }
-
-    // --- Consultas de modulo ---------------------------------------------------
 
     @Test
     @DisplayName("Sin la fila de rol_opcion no se puede consultar el modulo")
@@ -84,8 +68,6 @@ class AutorizacionApiTest {
 
         assertThat(permite(conectado(), "GET", "/api/eventos/7/detalles")).isFalse();
     }
-
-    // --- HEAD y otros verbos ---------------------------------------------------
 
     @Test
     @DisplayName("HEAD se verifica igual que GET y no rodea el control")
@@ -113,8 +95,6 @@ class AutorizacionApiTest {
         }
         verify(permisoService, never()).puedeConsultar(anyString());
     }
-
-    // --- Subrutas con dinero adentro --------------------------------------------
 
     @Test
     @DisplayName("Ver la agenda de eventos no da acceso a los salarios del personal")
@@ -177,13 +157,6 @@ class AutorizacionApiTest {
         assertThat(permite(conectado(), "GET", "/api/eventos/37/vehiculos")).isTrue();
     }
 
-    // --- Rutas disfrazadas -------------------------------------------------------
-    //
-    // La ruta llega sin decodificar. Escribiendo emple%61dos, la comparacion literal no
-    // reconocia el segmento y la ruta caia en la regla de /api/eventos, mas permisiva:
-    // Cocina obtenia los salarios. Se comprobo contra el sistema corriendo (200 con el
-    // salario de una persona). Ahora se decodifica antes de comparar.
-
     @Test
     @DisplayName("Una letra codificada no evita la regla de los salarios")
     void letraCodificadaNoEvitaLaRegla() {
@@ -228,8 +201,6 @@ class AutorizacionApiTest {
         assertThat(permite(conectado(), "GET", "/api/usu%61rios")).isFalse();
     }
 
-    // --- Categorias de ruta ----------------------------------------------------
-
     @Test
     @DisplayName("Una ruta que no esta declarada en RecursosApi se niega")
     void rutaNoDeclaradaSeNiega() {
@@ -252,8 +223,6 @@ class AutorizacionApiTest {
         assertThat(permite(null, "POST", "/api/auth/login")).isTrue();
     }
 
-    // --- Sin sesion ------------------------------------------------------------
-
     @Test
     @DisplayName("Sin autenticacion no se permite nada que no sea publico")
     void sinSesionSeNiega() {
@@ -264,9 +233,6 @@ class AutorizacionApiTest {
     @Test
     @DisplayName("Un usuario anonimo no cuenta como conectado")
     void anonimoSeNiega() {
-        // Tal como lo crea Spring Security cuando la peticion no trae token: isAuthenticated()
-        // devuelve true. Antes esta prueba lo forzaba a false y por eso no detectaba que las
-        // rutas AUTENTICADO quedaban abiertas a cualquiera.
         Authentication anonimo = new AnonymousAuthenticationToken(
                 "clave", "anonimo", List.of(new SimpleGrantedAuthority("ROLE_ANONYMOUS")));
 

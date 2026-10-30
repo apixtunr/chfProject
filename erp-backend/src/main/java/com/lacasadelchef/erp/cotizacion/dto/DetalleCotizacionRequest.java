@@ -19,7 +19,6 @@ public record DetalleCotizacionRequest(
         @Size(max = 255)
         String observaciones,
 
-        /** Una de las bebidas que incluye el plato (plato_bebida); si solo incluye una, se pone sola. */
         Integer idBebida
 ) {
 }

@@ -8,13 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * Aplica en la base de datos el cambio de estado que dispara
- * {@link EventoEstadoSchedulerService}. Es un bean aparte (no metodos privados dentro
- * del scheduler) para que Spring pueda interceptar la llamada y aplicar @Transactional
- * de verdad: si el scheduler se llamara a si mismo, la anotacion se ignoraria en
- * silencio (auto-invocacion no pasa por el proxy de Spring).
- */
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -34,14 +27,11 @@ class EventoEstadoTransicionExecutor {
     @Transactional
     public void pasarAEnCurso(Integer idEvento) {
         eventoRepository.findById(idEvento).ifPresent(evento -> {
-            // Si ya no esta PLANIFICADO (lo cancelaron, o algo mas ya lo movio), no se toca.
             if (!ESTADO_PLANIFICADO.equalsIgnoreCase(evento.getEstado().getNombre())) {
                 return;
             }
             evento.setEstado(buscarEstado(ESTADO_EN_CURSO));
             eventoRepository.save(evento);
-            // Al iniciar el evento se da por hecho que ya no se cancelara antes de usarse: se
-            // descuenta del inventario real todo lo planificado que aun seguia pendiente.
             eventoInventarioService.confirmarConsumoAutomatico(idEvento);
             log.info("Evento {} paso a EN CURSO en el instante exacto de hora_inicio", idEvento);
         });
@@ -62,7 +52,6 @@ class EventoEstadoTransicionExecutor {
     @Transactional
     public void cancelarPorFaltaDePlanificacion(Integer idEvento) {
         eventoRepository.findById(idEvento).ifPresent(evento -> {
-            // Si ya lo planificaron (o ya lo cancelaron) antes de que sonara esta alarma, no se toca.
             if (!ESTADO_CREADO.equalsIgnoreCase(evento.getEstado().getNombre())) {
                 return;
             }

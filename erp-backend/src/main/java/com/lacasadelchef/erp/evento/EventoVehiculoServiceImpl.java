@@ -60,7 +60,6 @@ public class EventoVehiculoServiceImpl implements EventoVehiculoService {
         if (eventoVehiculoRepository.existsById(new EventoVehiculoId(idEvento, idVehiculo))) {
             throw new BusinessException("El vehículo %s ya está asignado a este evento".formatted(vehiculo.getPlaca()));
         }
-        // Un vehiculo hace un evento por dia: va, espera el servicio y regresa con el equipo.
         eventoVehiculoRepository.otrasAsignacionesDelDia(idVehiculo, idEvento, evento.getFechaEvento()).stream()
                 .findFirst()
                 .ifPresent(otra -> {
@@ -109,8 +108,6 @@ public class EventoVehiculoServiceImpl implements EventoVehiculoService {
             if (!ESTADO_ACTIVO.equalsIgnoreCase(conductor.getEstado().getNombre())) {
                 throw new BusinessException("%s está inactivo y no puede conducir".formatted(conductor.getNombreCompleto()));
             }
-            // El conductor va con el equipo del evento: tiene que estar en su personal, asi su
-            // pago y su horario quedan registrados y no se compromete en otro evento.
             Integer idEvento = eventoVehiculo.getEvento().getIdEvento();
             if (!eventoEmpleadoRepository.existsById(new EventoEmpleadoId(idEvento, conductor.getIdEmpleado()))) {
                 throw new BusinessException("%s no está en el personal del evento: asígnelo primero en Personal para que pueda conducir"

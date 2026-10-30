@@ -13,7 +13,6 @@ public interface InventarioService {
 
     InventarioResponse obtenerPorProducto(Integer idProducto);
 
-    /** Crea el registro de inventario si aun no existe (upsert de cantidad_minima). */
     InventarioResponse actualizarMinimo(Integer idProducto, InventarioMinimoRequest request);
 
     List<InventarioResponse> alertasBajoStock();

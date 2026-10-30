@@ -15,7 +15,6 @@ public interface MovimientoInventarioRepository extends JpaRepository<Movimiento
 
     Page<MovimientoInventario> findByEventoIdEvento(Integer idEvento, Pageable pageable);
 
-    /** Reporte de movimientos de inventario de un periodo, del mas antiguo al mas reciente. */
     @Query("""
             SELECT m FROM MovimientoInventario m
             JOIN FETCH m.producto p

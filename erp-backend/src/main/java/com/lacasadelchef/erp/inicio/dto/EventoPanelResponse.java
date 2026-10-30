@@ -6,11 +6,6 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
-/**
- * Un evento visto desde el inicio: sus datos basicos y que tan armado esta. Las cuatro
- * banderas "tiene*" son las mismas que exige EventoServiceImpl.planificar(); requiereMenu
- * es false cuando el evento viene de una cotizacion, porque ahi el menu ya esta pactado.
- */
 @Builder
 public record EventoPanelResponse(
         Integer idEvento,

@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
 
-/** Reporte de clientes registrados por periodo (por el dia en que se dieron de alta). */
 @RestController
 @RequestMapping("/api/clientes/reportes/clientes")
 @RequiredArgsConstructor

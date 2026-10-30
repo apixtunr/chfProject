@@ -23,10 +23,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-/**
- * Clientes. No hay DELETE: un cliente se inactiva con PUT /{id}/estado, que usa el
- * permiso de BAJA (quien podia eliminar ahora puede inactivar y reactivar).
- */
 @RestController
 @RequestMapping("/api/clientes")
 @RequiredArgsConstructor
@@ -34,10 +30,6 @@ public class ClienteController {
 
     private final ClienteService clienteService;
 
-    /**
-     * buscar: texto libre sobre nombre, NIT, telefono y correo ("nombre" se acepta por
-     * compatibilidad). estado: ACTIVO, INACTIVO o TODOS (por defecto).
-     */
     @GetMapping
     public Page<ClienteResponse> listar(@RequestParam(required = false) String buscar,
                                         @RequestParam(required = false) String nombre,

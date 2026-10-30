@@ -17,7 +17,6 @@ public record ComprobantePagoResponse(
         LocalDate fechaEmision,
         boolean esValido,
 
-        /** Datos del archivo adjunto; los tres en null si no tiene. */
         String nombreArchivo,
         String tipoContenido,
         Integer tamanoBytes,

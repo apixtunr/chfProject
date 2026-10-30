@@ -11,7 +11,6 @@ public interface BebidaService {
 
     Page<BebidaResponse> listar(String nombre, Pageable pageable);
 
-    /** Las activas, para asignarlas a un plato. */
     List<BebidaResponse> listarActivas();
 
     BebidaResponse obtenerPorId(Integer id);

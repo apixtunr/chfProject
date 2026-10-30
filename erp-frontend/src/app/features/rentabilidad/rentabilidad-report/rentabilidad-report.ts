@@ -23,16 +23,13 @@ import { TablaResponsiva } from '../../../shared/tabla-responsiva';
 
 const PAGINA_URL = '/api/rentabilidad';
 
-/** Colores de los rubros de costo, los mismos de los indicadores. */
 const COLOR_PERSONAL = '#3b82f6';
 const COLOR_INVENTARIO = '#f59e0b';
 const COLOR_EXTRA = '#8b5cf6';
 
-/** Semaforo del margen de un evento: verde desde 30%, amarillo desde 15%, rojo por debajo. */
 const MARGEN_BUENO = 30;
 const MARGEN_REGULAR = 15;
 
-/** Date del calendario -> "2026-10-08", como lo espera la API (null si no se eligio). */
 function aFechaIso(fecha: Date | null): string | null {
   if (!fecha) {
     return null;
@@ -74,7 +71,6 @@ export class RentabilidadReport implements OnInit {
   readonly pageIndex = signal(0);
   readonly pageSize = signal(20);
 
-  /** Autocomplete de cliente, igual que en Estadisticas de eventos. */
   readonly busquedaCliente = new FormControl('', { nonNullable: true });
   readonly clientesFiltrados = signal<ClienteResponse[]>([]);
 
@@ -90,7 +86,6 @@ export class RentabilidadReport implements OnInit {
     idTipoEvento: this.fb.control<number | null>(null),
   });
 
-  /** Los tres rubros de costo, para la dona y su leyenda. */
   readonly rubrosCosto = computed(() => {
     const r = this.resumen();
     if (!r) {
@@ -122,7 +117,6 @@ export class RentabilidadReport implements OnInit {
     };
   });
 
-  /** El tipo de evento que mas ganancia dejo (vienen ordenados de mayor a menor). */
   readonly masRentable = computed(() => this.resumen()?.porTipo?.[0] ?? null);
 
   readonly opcionesDona = {
@@ -209,7 +203,6 @@ export class RentabilidadReport implements OnInit {
     this.cargar();
   }
 
-  /** Porcentaje de un rubro sobre el total de costos, para la leyenda de la dona. */
   porcentajeCosto(monto: number): number {
     const total = this.resumen()?.totalCostos ?? 0;
     return total > 0 ? (monto / total) * 100 : 0;
@@ -223,14 +216,11 @@ export class RentabilidadReport implements OnInit {
     return Math.min(Math.max(margen, 0), 100);
   }
 
-  /** Exporta la pagina actual a CSV (abre en Excel). */
-  /** El PDF sale con los mismos filtros que la pantalla. */
   imprimir(): void {
     this.verPdf.abrir(this.rentabilidadService.pdf(this.filtros, this.textoFiltros()), 'Análisis de rentabilidad',
       'analisis_de_rentabilidad');
   }
 
-  /** Los filtros elegidos, en palabras, para el encabezado del PDF. */
   private textoFiltros(): string {
     const v = this.formulario.getRawValue();
     const partes: string[] = [];
@@ -267,7 +257,6 @@ export class RentabilidadReport implements OnInit {
         f.margen,
       ].join(','),
     );
-    // BOM para que Excel reconozca UTF-8 (tildes y enies)
     const blob = new Blob(['﻿' + [encabezado, ...lineas].join('\n')], { type: 'text/csv;charset=utf-8' });
     const enlace = document.createElement('a');
     enlace.href = URL.createObjectURL(blob);

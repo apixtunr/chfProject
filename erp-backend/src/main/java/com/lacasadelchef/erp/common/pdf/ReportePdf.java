@@ -28,12 +28,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-/**
- * Reporte interno en PDF (cuentas por cobrar, cobros, pago al personal, hoja de servicio):
- * el membrete de la empresa, un titulo con el periodo o los filtros, indicadores en
- * recuadros y tablas con encabezado de color. Cada reporte arma su contenido con estos
- * bloques, para que todos se vean iguales sin repetir el manejo de OpenPDF.
- */
 public class ReportePdf {
 
     public static final DateTimeFormatter FORMATO_FECHA = DateTimeFormatter.ofPattern("dd/MM/yyyy");
@@ -57,11 +51,9 @@ public class ReportePdf {
     private static final Font FUENTE_TOTAL = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 8.5f);
     private static final Font FUENTE_TEXTO = FontFactory.getFont(FontFactory.HELVETICA, 9.5f);
 
-    /** Un recuadro de indicador: etiqueta arriba, valor grande y un detalle opcional debajo. */
     public record Indicador(String etiqueta, String valor, String detalle) {
     }
 
-    /** Columna de una tabla: titulo, ancho relativo y si el contenido va a la derecha (montos). */
     public record Columna(String titulo, float ancho, boolean derecha) {
 
         public static Columna texto(String titulo, float ancho) {
@@ -87,17 +79,14 @@ public class ReportePdf {
         documento.open();
     }
 
-    /** Hoja carta vertical. */
     public static ReportePdf carta() {
         return new ReportePdf(PageSize.LETTER);
     }
 
-    /** Hoja carta horizontal, para tablas con muchas columnas. */
     public static ReportePdf cartaHorizontal() {
         return new ReportePdf(PageSize.LETTER.rotate());
     }
 
-    /** Titulo del reporte y, debajo, el periodo o los filtros aplicados y cuando se genero. */
     public ReportePdf titulo(String titulo, String subtitulo) {
         Paragraph p = new Paragraph(titulo, FUENTE_TITULO);
         p.setSpacingAfter(2);
@@ -110,7 +99,6 @@ public class ReportePdf {
         return this;
     }
 
-    /** Fila de indicadores en recuadros grises, todos del mismo ancho. */
     public ReportePdf indicadores(List<Indicador> indicadores) {
         PdfPTable tabla = new PdfPTable(indicadores.size());
         tabla.setWidthPercentage(100);
@@ -135,7 +123,6 @@ public class ReportePdf {
         return this;
     }
 
-    /** Titulo de una seccion, con una linea debajo. */
     public ReportePdf seccion(String titulo) {
         PdfPTable tabla = new PdfPTable(1);
         tabla.setWidthPercentage(100);
@@ -152,7 +139,6 @@ public class ReportePdf {
         return this;
     }
 
-    /** Parrafo de texto normal. */
     public ReportePdf texto(String texto) {
         Paragraph p = new Paragraph(texto, FUENTE_TEXTO);
         p.setSpacingAfter(8);
@@ -160,7 +146,6 @@ public class ReportePdf {
         return this;
     }
 
-    /** Pares etiqueta/valor en recuadros, en varias columnas (los datos de un evento, por ejemplo). */
     public ReportePdf datos(int columnas, List<String[]> pares) {
         PdfPTable tabla = new PdfPTable(columnas);
         tabla.setWidthPercentage(100);
@@ -183,25 +168,15 @@ public class ReportePdf {
         return this;
     }
 
-    /**
-     * Tabla con encabezado navy, filas alternadas y, si se indica, una fila de totales al pie.
-     * Si no hay filas, muestra el texto de "sin datos" en una sola fila.
-     */
     public ReportePdf tabla(List<Columna> columnas, List<List<String>> filas, List<String> totales, String sinDatos) {
         return tabla(columnas, filas, Set.of(), totales, sinDatos);
     }
 
-    /** Igual que la otra, con filas atenuadas en gris (las que no suman, como un recibo anulado). */
     public ReportePdf tabla(List<Columna> columnas, List<List<String>> filas, Set<Integer> atenuadas,
                             List<String> totales, String sinDatos) {
         return tabla(null, columnas, filas, atenuadas, totales, sinDatos);
     }
 
-    /**
-     * Con titulo: el titulo del grupo va dentro de la tabla, como parte de su encabezado,
-     * para que nunca quede solo al pie de una hoja con la tabla en la siguiente (y se
-     * repita si la tabla sigue en otra hoja).
-     */
     public ReportePdf tabla(String titulo, List<Columna> columnas, List<List<String>> filas, Set<Integer> atenuadas,
                             List<String> totales, String sinDatos) {
         float[] anchos = new float[columnas.size()];
@@ -262,7 +237,6 @@ public class ReportePdf {
         return salida.toByteArray();
     }
 
-    /** Respuesta HTTP para abrir el PDF en el navegador (o en el visor del sistema). */
     public static ResponseEntity<byte[]> respuesta(byte[] contenido, String nombreArchivo) {
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_PDF)
@@ -270,10 +244,6 @@ public class ReportePdf {
                 .cacheControl(CacheControl.noStore())
                 .body(contenido);
     }
-
-    // -------------------------------------------------------------------------------
-    // Formatos que comparten todos los reportes
-    // -------------------------------------------------------------------------------
 
     public static String moneda(BigDecimal monto) {
         BigDecimal valor = (monto == null ? BigDecimal.ZERO : monto).setScale(2, RoundingMode.HALF_UP);
@@ -284,7 +254,6 @@ public class ReportePdf {
         return fecha == null ? "—" : fecha.format(FORMATO_FECHA);
     }
 
-    /** "Del 01/10/2026 al 31/10/2026", "Desde el ...", "Hasta el ..." o "Todas las fechas". */
     public static String periodo(LocalDate desde, LocalDate hasta) {
         if (desde != null && hasta != null) {
             return "Del %s al %s".formatted(fecha(desde), fecha(hasta));
@@ -319,7 +288,6 @@ public class ReportePdf {
         }
     }
 
-    /** El membrete de la empresa; al pie, el numero de pagina en lugar del agradecimiento al cliente. */
     private static final class MembreteInterno extends MembretePdf {
         @Override
         protected String textoPie(PdfWriter writer) {

@@ -1,14 +1,11 @@
-<!-- ══ CABECERA DE PÁGINA ══════════════════════════════════════ -->
 <div class="pf-page-header">
   <div class="pf-header-left">
-    <!-- Breadcrumb -->
     <nav class="pf-breadcrumb" aria-label="Ruta de navegación">
       <a routerLink="/clientes" class="pf-breadcrumb-link">Clientes</a>
       <mat-icon class="pf-breadcrumb-sep">chevron_right</mat-icon>
       <span class="pf-breadcrumb-current">{{ idCliente() ? 'Editar cliente' : 'Nuevo cliente' }}</span>
     </nav>
 
-    <!-- Título + badge -->
     <div class="pf-title-row">
       <span class="pf-foco" [class.pf-foco--modificacion]="idCliente()" [class.pf-foco--alta]="!idCliente()" role="img" [attr.aria-label]="idCliente() ? 'Modificación' : 'Alta'"></span>
       <h1 class="pf-title">
@@ -22,15 +19,12 @@
     </p>
   </div>
 
-  <!-- Acciones arriba (vacío — botones solo abajo) -->
   <div class="pf-header-actions"></div>
 </div>
 
-<!-- ══ SECCIÓN: INFORMACIÓN GENERAL ══════════════════════════ -->
 <form [formGroup]="formulario" (ngSubmit)="guardar()" novalidate>
   <div class="pf-section">
 
-    <!-- Cabecera de sección -->
     <div class="pf-section-header">
       <div class="pf-section-title">
         <mat-icon>contact_page</mat-icon>
@@ -38,7 +32,6 @@
       </div>
     </div>
 
-    <!-- ── Campo 1: Nombre ── -->
     <div class="pf-field">
       <label class="pf-label" for="nombre">
         <span class="pf-label-num">1.</span>
@@ -60,7 +53,6 @@
       }
     </div>
 
-    <!-- ── Campo 2: NIT ── -->
     <div class="pf-field">
       <label class="pf-label" for="nit">
         <span class="pf-label-num">2.</span>
@@ -84,9 +76,7 @@
       }
     </div>
 
-    <!-- ── Fila 2 columnas: Teléfono + Correo ── -->
     <div class="pf-row-2col">
-      <!-- Campo 3: Teléfono -->
       <div class="pf-field">
         <label class="pf-label" for="telefono">
           <span class="pf-label-num">3.</span>
@@ -113,7 +103,6 @@
         }
       </div>
 
-      <!-- Campo 4: Correo -->
       <div class="pf-field">
         <label class="pf-label" for="correo">
           <span class="pf-label-num">4.</span>
@@ -139,7 +128,6 @@
       </div>
     </div>
 
-    <!-- ── Campo 5: Dirección ── -->
     <div class="pf-field">
       <label class="pf-label" for="direccion">
         <span class="pf-label-num">5.</span>
@@ -160,10 +148,8 @@
       }
     </div>
 
-    <!-- ── Fila 2 columnas: Departamento + Municipio ── -->
     <div class="pf-row-2col">
 
-      <!-- Campo 6: Departamento -->
       <div class="pf-field">
         <label class="pf-label" for="departamento">
           <span class="pf-label-num">6.</span>
@@ -188,7 +174,6 @@
         }
       </div>
 
-      <!-- Campo 7: Municipio -->
       <div class="pf-field">
         <label class="pf-label" for="municipio">
           <span class="pf-label-num">7.</span>
@@ -218,9 +203,8 @@
 
     </div>
 
-  </div><!-- /pf-section -->
+  </div>
 
-  <!-- ══ ACCIONES ABAJO ══════════════════════════════════════ -->
   <div class="pf-footer-actions">
     <button mat-stroked-button type="button" routerLink="/clientes" class="pf-btn-cancel pf-btn-cancelar">
       Cancelar

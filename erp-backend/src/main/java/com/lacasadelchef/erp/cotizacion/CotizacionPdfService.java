@@ -36,7 +36,6 @@ import java.time.format.TextStyle;
 import java.util.Locale;
 import java.util.List;
 
-/** Arma el PDF de una version de cotizacion para entregarle al cliente. */
 @Service
 @RequiredArgsConstructor
 public class CotizacionPdfService {
@@ -145,7 +144,6 @@ public class CotizacionPdfService {
 
             documento.add(tabla);
 
-            // Los precios del menu ya incluyen IVA: no se desglosa, se aclara debajo del total.
             BigDecimal total = version.getMontoTotal() != null ? version.getMontoTotal() : BigDecimal.ZERO;
 
             PdfPTable resumen = new PdfPTable(new float[] {3f, 2f});
@@ -180,14 +178,12 @@ public class CotizacionPdfService {
         }
     }
 
-    /** "Titulo: texto" en un parrafo, con el titulo en negrita. */
     private void agregarCondicion(Document documento, String titulo, String texto, Font fuenteTitulo, Font fuente)
             throws DocumentException {
         Paragraph p = new Paragraph();
         p.add(new Phrase(titulo, fuenteTitulo));
         p.add(new Phrase(texto, fuente));
         p.setSpacingAfter(4);
-        // Si no cabe al final de la pagina pasa entera a la siguiente, en vez de partirse.
         p.setKeepTogether(true);
         documento.add(p);
     }
@@ -223,7 +219,6 @@ public class CotizacionPdfService {
         return "%d de %s, %d".formatted(fecha.getDayOfMonth(), mes, fecha.getYear());
     }
 
-    /** "6:00 p.m. a 10:00 p.m.", o "Por definir" si aun no se eligio la hora. */
     private String formatearHorario(LocalTime inicio) {
         if (inicio == null) {
             return "Por definir";

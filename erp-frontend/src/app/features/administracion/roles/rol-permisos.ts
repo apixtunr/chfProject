@@ -14,20 +14,17 @@ import { TablaResponsiva } from '../../../shared/tabla-responsiva';
 
 const PAGINA_URL = '/api/roles';
 
-/** Fila editable de la matriz: una opcion del sistema con sus banderas. */
 interface FilaPermiso {
   idOpcion: number;
   moduloNombre: string;
   nombreOpcion: string;
   paginaUrl: string | null;
-  /** true si el rol tiene acceso a esta opcion (existe fila rol_opcion). */
   acceso: boolean;
   alta: boolean;
   baja: boolean;
   modificacion: boolean;
   imprimir: boolean;
   exportar: boolean;
-  /** Estado original, para calcular el diff al guardar. */
   original: { acceso: boolean; alta: boolean; baja: boolean; modificacion: boolean; imprimir: boolean; exportar: boolean };
 }
 
@@ -47,7 +44,6 @@ export class RolPermisos implements OnInit {
   readonly nombreRol = signal('');
   readonly guardando = signal(false);
 
-  /** Filas agrupadas por modulo (jerarquia modulo -> opciones), en el orden que devuelve el backend. */
   readonly grupos = computed(() => {
     const porModulo = new Map<string, FilaPermiso[]>();
     for (const fila of this.filas()) {
@@ -107,14 +103,12 @@ export class RolPermisos implements OnInit {
     });
   }
 
-  /** Al quitar el acceso se apagan todas las banderas; al darlo no se enciende ninguna (solo lectura). */
   onAccesoChange(fila: FilaPermiso): void {
     if (!fila.acceso) {
       fila.alta = fila.baja = fila.modificacion = fila.imprimir = fila.exportar = false;
     }
   }
 
-  /** Encender cualquier bandera implica tener acceso. */
   onBanderaChange(fila: FilaPermiso): void {
     if (fila.alta || fila.baja || fila.modificacion || fila.imprimir || fila.exportar) {
       fila.acceso = true;

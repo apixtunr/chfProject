@@ -30,11 +30,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-/**
- * Una linea de inventario ya descontada del stock no puede volver a "planificado" por la
- * puerta de atras: antes, agregar otra vez el mismo producto la sobrescribia sin devolver
- * lo descontado y, al confirmarla de nuevo, el stock bajaba dos veces.
- */
 @ExtendWith(MockitoExtension.class)
 class EventoInventarioServiceImplTest {
 

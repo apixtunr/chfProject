@@ -8,11 +8,6 @@ import { diasHasta, fechaCorta, haceCuanto, iniciales, porcentaje } from '../ini
 
 const OPERACIONES: Record<string, string> = { INSERT: 'creó', UPDATE: 'modificó', DELETE: 'eliminó' };
 
-/**
- * Columna lateral del inicio: lo que pide accion en cada area. Cada tarjeta aparece solo
- * si el backend mando esa seccion (no null), es decir, si el rol tiene acceso a la
- * pantalla de origen.
- */
 @Component({
   selector: 'app-panel-pendientes',
   imports: [RouterLink, MatIconModule, MatTooltipModule, DecimalPipe],

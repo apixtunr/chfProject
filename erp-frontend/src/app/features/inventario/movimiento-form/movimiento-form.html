@@ -1,4 +1,3 @@
-<!-- ══ CABECERA DE PÁGINA ══════════════════════════════════════ -->
 <div class="pf-page-header">
   <div class="pf-header-left">
     <nav class="pf-breadcrumb" aria-label="Ruta de navegación">
@@ -14,7 +13,6 @@
   </div>
 </div>
 
-<!-- ══ SECCIÓN: DATOS DEL MOVIMIENTO ══════════════════════════ -->
 <form [formGroup]="formulario" (ngSubmit)="guardar()" novalidate>
   <div class="pf-section">
 
@@ -25,7 +23,6 @@
       </div>
     </div>
 
-    <!-- ── Campo 1: Producto ── -->
     <div class="pf-field">
       <label class="pf-label" for="producto">
         <span class="pf-label-num">1.</span>
@@ -47,7 +44,6 @@
       }
     </div>
 
-    <!-- ── Fila 2 columnas: Tipo + Cantidad ── -->
     <div class="pf-row-2col">
 
       <div class="pf-field">
@@ -64,7 +60,6 @@
             }
           </mat-select>
         </div>
-        <!-- Cambia segun el tipo elegido: explica que le hace al stock. -->
         <p class="pf-ayuda">{{ ayudaTipo }}</p>
       </div>
 
@@ -96,7 +91,6 @@
 
     </div>
 
-    <!-- ── Campo 4: Descripción ── -->
     <div class="pf-field">
       <label class="pf-label" for="descripcion">
         <span class="pf-label-num">4.</span>
@@ -118,9 +112,8 @@
       }
     </div>
 
-  </div><!-- /pf-section -->
+  </div>
 
-  <!-- ══ ACCIONES ABAJO ══════════════════════════════════════ -->
   <div class="pf-footer-actions">
     <button mat-stroked-button type="button" routerLink="/inventario/movimientos" class="pf-btn-cancel pf-btn-cancelar">
       Cancelar

@@ -5,7 +5,6 @@ import { RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/auth/auth.service';
 import { CATALOGOS, CatalogoConfig } from './catalogos-config';
 
-/** Indice de catalogos: muestra solo los que el rol puede ver. */
 @Component({
   selector: 'app-catalogo-index',
   imports: [RouterLink, MatCardModule, MatIconModule],

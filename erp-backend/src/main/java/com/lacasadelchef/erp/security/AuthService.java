@@ -44,7 +44,6 @@ public class AuthService {
 
     @Transactional(noRollbackFor = {BadCredentialsException.class, BusinessException.class})
     public LoginResponse login(LoginRequest request, HttpServletRequest http) {
-        // El teclado del celular puede dejar un espacio al final del usuario.
         Usuario usuario = usuarioRepository.findByUsername(request.username().strip())
                 .orElseThrow(() -> new BadCredentialsException("Credenciales invalidas"));
 
@@ -68,8 +67,6 @@ public class AuthService {
         usuario.setIntentosAcceso(0);
         usuario.setFechaUltimoAcceso(LocalDateTime.now());
 
-        // Identifica esta sesion concreta: se guarda en la bitacora y viaja en el token,
-        // para poder emparejar despues este LOGIN con su LOGOUT.
         String idSesion = UUID.randomUUID().toString();
         registrarBitacora(usuario, ACCION_LOGIN, http, "EXITOSO", idSesion);
 
@@ -99,7 +96,6 @@ public class AuthService {
         registrarBitacora(usuario, ACCION_LOGOUT, http, "EXITOSO", idSesionDe(http));
     }
 
-    /** Recupera del token de la peticion la sesion que se esta cerrando. */
     private String idSesionDe(HttpServletRequest http) {
         String encabezado = http.getHeader("Authorization");
         if (encabezado == null || !encabezado.startsWith("Bearer ")) {
@@ -112,11 +108,6 @@ public class AuthService {
         }
     }
 
-    /**
-     * Los permisos vigentes del rol del usuario, leidos de rol_opcion en este momento. El
-     * frontend los vuelve a pedir en cada navegacion, para que un cambio hecho en Roles y
-     * permisos se refleje sin cerrar sesion.
-     */
     @Transactional(readOnly = true)
     public List<PermisoResponse> permisosDe(Usuario usuario) {
         return cargarPermisos(usuario.getRol().getIdRol());
@@ -142,7 +133,6 @@ public class AuthService {
         registrarBitacora(usuario, accion, http, resultado, null);
     }
 
-    /** idSesion solo aplica al par LOGIN/LOGOUT; un intento fallido no abre sesion. */
     private void registrarBitacora(Usuario usuario, String accion, HttpServletRequest http,
                                     String resultado, String idSesion) {
         Accion acc = accionRepository.findByNombre(accion)

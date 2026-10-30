@@ -18,11 +18,9 @@ public record CostoEventoResponse(
         LocalDate fechaCosto,
         LocalDateTime fechaCreacion,
         LocalDateTime fechaModificacion,
-        /** true si algun Pago quedo enlazado a este costo (el cliente ya lo cubrio). */
         boolean pagado
 ) {
 
-    /** Recien creado/actualizado nunca tiene pago enlazado todavia (eso lo crea una llamada aparte). */
     public static CostoEventoResponse desde(CostoEvento costoEvento) {
         return desde(costoEvento, false);
     }

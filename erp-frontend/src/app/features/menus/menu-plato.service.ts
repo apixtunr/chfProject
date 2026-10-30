@@ -16,8 +16,6 @@ import {
 export class MenuPlatoService {
   constructor(private readonly http: HttpClient) {}
 
-  // --- Platos ---
-
   listarPlatos(nombre: string, page: number, size: number): Observable<Page<PlatoResponse>> {
     let params = new HttpParams().set('page', page).set('size', size).set('sort', 'nombrePlato');
     if (nombre) {
@@ -42,8 +40,6 @@ export class MenuPlatoService {
     return this.http.delete<void>(`${API_URL}/platos/${id}`);
   }
 
-  // --- Menus ---
-
   listarMenus(nombre: string, page: number, size: number): Observable<Page<MenuResponse>> {
     let params = new HttpParams().set('page', page).set('size', size).set('sort', 'nombreMenu');
     if (nombre) {
@@ -67,8 +63,6 @@ export class MenuPlatoService {
   eliminarMenu(id: number): Observable<void> {
     return this.http.delete<void>(`${API_URL}/menus/${id}`);
   }
-
-  // --- Composicion del menu (menu_plato) ---
 
   listarPlatosDeMenu(idMenu: number): Observable<MenuPlatoResponse[]> {
     return this.http.get<MenuPlatoResponse[]>(`${API_URL}/menus/${idMenu}/platos`);

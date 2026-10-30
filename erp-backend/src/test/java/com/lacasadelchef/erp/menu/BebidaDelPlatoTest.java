@@ -27,7 +27,6 @@ public class BebidaDelPlatoTest {
         return bebida;
     }
 
-    /** Plato con sus filas de plato_bebida. */
     static Plato plato(String nombre, Bebida... bebidas) {
         Plato plato = new Plato();
         plato.setIdPlato(nombre.hashCode());

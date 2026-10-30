@@ -13,11 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.List;
 
-/**
- * Pasa a VENCIDA las cotizaciones ENVIADAS cuya vigencia ya termino (vigente_hasta es el
- * ultimo dia valido). Revisa al arrancar y cada hora: basta con una vez al dia, pero asi
- * no depende de que el servidor este encendido a una hora fija.
- */
 @Slf4j
 @Component
 @RequiredArgsConstructor

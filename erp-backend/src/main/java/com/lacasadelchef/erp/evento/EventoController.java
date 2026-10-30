@@ -52,7 +52,6 @@ public class EventoController {
         return eventoService.resumen(fechaDesde, fechaHasta, idCliente, idTipoEvento);
     }
 
-    /** Estadisticas de eventos en PDF, con los mismos filtros que la pantalla. */
     @GetMapping("/resumen/pdf")
     @PreAuthorize("@permisoService.tienePermiso('/api/eventos/resumen', T(com.lacasadelchef.erp.security.TipoPermiso).IMPRIMIR)")
     public ResponseEntity<byte[]> resumenPdf(
@@ -66,7 +65,6 @@ public class EventoController {
                 idTipoEvento, idEstado, filtros), "estadisticas-de-eventos");
     }
 
-    /** Reporte de eventos por periodo; fechaSegun = REGISTRO usa el dia en que se registro el evento. */
     @GetMapping("/reportes/eventos")
     public ReporteTabla reporteEventos(
             @RequestParam(required = false) String fechaSegun,
@@ -105,7 +103,6 @@ public class EventoController {
         return eventoService.obtenerPorId(id);
     }
 
-    /** Hoja de servicio en PDF: lo que el personal necesita el dia del evento, sin montos. */
     @GetMapping("/{id}/hoja-servicio")
     @PreAuthorize("@permisoService.tienePermiso('/api/eventos', T(com.lacasadelchef.erp.security.TipoPermiso).IMPRIMIR)")
     public ResponseEntity<byte[]> hojaServicio(@PathVariable Integer id) {
@@ -138,7 +135,6 @@ public class EventoController {
         return eventoService.cambiarEstado(id, request.idEstado());
     }
 
-    /** sinAnticipo=true: el usuario confirma planificar aunque el cliente no haya pagado el 50%. */
     @PutMapping("/{id}/planificar")
     @PreAuthorize("@permisoService.tienePermiso('/api/eventos', T(com.lacasadelchef.erp.security.TipoPermiso).MODIFICACION)")
     public EventoResponse planificar(@PathVariable Integer id,

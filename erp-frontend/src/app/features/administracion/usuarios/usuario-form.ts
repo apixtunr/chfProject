@@ -37,13 +37,10 @@ export class UsuarioForm implements OnInit {
   readonly empleados = signal<EmpleadoResponse[]>([]);
 
   readonly formulario = this.fb.nonNullable.group({
-    // No se escribe: sale del nombre del empleado (politica de la empresa) y solo se muestra.
     username: this.fb.nonNullable.control({ value: '', disabled: true }),
     password: ['', [Validators.required, Validators.minLength(8)]],
     idRol: this.fb.control<number | null>(null, Validators.required),
     idEstado: this.fb.control<number | null>(null, Validators.required),
-    // Obligatorio: todo usuario es una persona del negocio. De ahi sale su nombre
-    // completo, que la tabla usuario no guarda aparte para no duplicarlo.
     idEmpleado: this.fb.control<number | null>(null, Validators.required),
   });
 
@@ -58,8 +55,6 @@ export class UsuarioForm implements OnInit {
 
     const idParam = this.route.snapshot.paramMap.get('id');
     if (!idParam) {
-      // Al llegar desde la ficha de un empleado ("Crear acceso al sistema") viene ya
-      // elegido, para no obligar a buscarlo otra vez en la lista.
       const empleadoParam = this.route.snapshot.queryParamMap.get('empleado');
       if (empleadoParam) {
         this.formulario.controls.idEmpleado.setValue(Number(empleadoParam));
@@ -68,7 +63,6 @@ export class UsuarioForm implements OnInit {
     }
     const id = Number(idParam);
     this.idUsuario.set(id);
-    // En edicion no se cambia la contrasena aqui (endpoint dedicado) y el usuario nunca.
     this.formulario.controls.password.disable();
     this.adminService.obtenerUsuario(id).subscribe((u) => {
       this.formulario.patchValue({
@@ -80,10 +74,6 @@ export class UsuarioForm implements OnInit {
     });
   }
 
-  /**
-   * En un alta muestra como se va a llamar el usuario segun el empleado elegido. En una
-   * edicion se deja el que ya tiene: el nombre de usuario no cambia aunque cambie el empleado.
-   */
   private mostrarUsuarioPrevisto(): void {
     if (this.idUsuario()) {
       return;

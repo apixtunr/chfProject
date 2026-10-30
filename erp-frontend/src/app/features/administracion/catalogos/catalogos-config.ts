@@ -1,34 +1,21 @@
-/**
- * Configuracion declarativa de los catalogos simples de administracion.
- * Todos comparten el mismo patron de API: GET lista completa, POST, PUT /{id}, DELETE /{id}.
- * Agregar un catalogo nuevo = agregar una entrada aca (cero componentes nuevos).
- */
 export interface CampoCatalogo {
-  /** Clave del campo en el request (y en el response, para editar). */
   key: string;
   label: string;
   tipo: 'texto' | 'numero' | 'select' | 'checkbox';
   requerido?: boolean;
   maxLength?: number;
-  /** Solo para tipo select: endpoint que devuelve las opciones (List). */
   opcionesUrl?: string;
   opcionValue?: string;
   opcionLabel?: string;
-  /** Campo del response a mostrar en la tabla (p.ej. el nombre de la FK). */
   displayKey?: string;
-  /** Solo para tipo checkbox: valor al crear un registro nuevo (por defecto false). */
   valorInicial?: boolean;
 }
 
 export interface CatalogoConfig {
-  /** Segmento de la ruta /admin/catalogos/:id */
   id: string;
   titulo: string;
-  /** Sufijo del endpoint, p.ej. '/departamentos'. */
   endpoint: string;
-  /** pagina_url para permisos (debe existir en la tabla opcion). */
   paginaUrl: string;
-  /** Clave del id en el response, p.ej. 'idDepartamento'. */
   idKey: string;
   campos: CampoCatalogo[];
 }
@@ -84,8 +71,6 @@ export const CATALOGOS: CatalogoConfig[] = [
     campos: [{ key: 'nombreTipo', label: 'Nombre', tipo: 'texto', requerido: true, maxLength: 80 }],
   },
   {
-    // Servicios extra que se cotizan. Con precio (hora extra de cocinero Q25.00) el total se
-    // calcula solo al cotizar; sin precio, se escribe el monto en cada cotizacion.
     id: 'tipos-servicio', titulo: 'Tipos de servicio', endpoint: '/tipos-servicio',
     paginaUrl: '/api/tipos-servicio', idKey: 'idTipoServicio',
     campos: [

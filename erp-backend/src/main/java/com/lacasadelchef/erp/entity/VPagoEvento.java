@@ -11,11 +11,6 @@ import org.hibernate.annotations.Immutable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-/**
- * Mapea la vista v_pago_evento (definida en el script SQL): total, abonado y pendiente por
- * evento, ya calculados en la base de datos. Es de solo lectura: no tiene columnas de
- * auditoria propias y @Immutable evita que Hibernate intente actualizarla.
- */
 @Getter
 @NoArgsConstructor
 @Entity

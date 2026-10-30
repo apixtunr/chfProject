@@ -1,10 +1,4 @@
-/** Espeja rentabilidad/dto/*.java del backend. Solo eventos FINALIZADOS. */
 
-/**
- * Rentabilidad de un evento, con las dos lecturas de la ganancia:
- * - acordada: lo que se vendio menos lo que costo (si el precio y los costos estuvieron bien).
- * - cobrada: lo que realmente entro menos lo que costo (el dinero que quedo).
- */
 export interface RentabilidadEventoResponse {
   idEvento: number;
   fechaEvento: string;

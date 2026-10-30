@@ -47,8 +47,6 @@
       <td mat-cell *matCellDef="let e">{{ e.telefono }}</td>
     </ng-container>
 
-    <!-- Quien entra al sistema y quien no. La mayoria de los empleados no tiene usuario
-         (meseros, cocineros): se los asigna a eventos pero no usan la aplicacion. -->
     <ng-container matColumnDef="acceso">
       <th mat-header-cell *matHeaderCellDef>Acceso al sistema</th>
       <td mat-cell *matCellDef="let e">

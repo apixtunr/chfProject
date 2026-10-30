@@ -1,4 +1,3 @@
-/** Espeja inventario/dto/ProductoResponse.java del backend. */
 export interface ProductoResponse {
   idProducto: number;
   idCategoria: number;

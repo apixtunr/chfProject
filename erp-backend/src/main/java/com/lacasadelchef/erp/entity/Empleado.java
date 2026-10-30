@@ -47,7 +47,6 @@ public class Empleado extends Auditable {
     @Column(name = "fecha_contratacion")
     private LocalDate fechaContratacion;
 
-    /** "Nombre Apellido": como se identifica a la persona en pantallas y bitacora. */
     public String getNombreCompleto() {
         return nombre + " " + apellido;
     }

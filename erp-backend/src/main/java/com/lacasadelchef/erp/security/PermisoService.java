@@ -8,12 +8,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * Autorizacion fina por rol_opcion, usada desde @PreAuthorize en los controladores.
- * Todos los roles, ADMINISTRADOR incluido, tienen exactamente los permisos marcados en
- * rol_opcion (V39 le dio al ADMINISTRADOR todas las casillas). Si no existe una fila
- * opcion.pagina_url + rol_opcion configurada, se niega el permiso (falla cerrado).
- */
 @Service
 @RequiredArgsConstructor
 public class PermisoService {
@@ -32,18 +26,6 @@ public class PermisoService {
                 .orElse(false);
     }
 
-    /**
-     * Si el rol puede CONSULTAR esa pagina.
-     *
-     * No mira ninguna bandera: le alcanza con que exista la fila en rol_opcion. Esa es la
-     * semantica que el modelo ya tenia y que nadie verificaba: una fila con alta, baja y
-     * modificacion en falso significa "puede mirar, no puede tocar". Asi estan hoy COCINA
-     * sobre /api/eventos y ALMACÉN sobre /api/tipos-inventario, y asi lo interpreta el
-     * frontend desde siempre en su metodo puedeVer(). Por eso no hizo falta agregar un
-     * permiso CONSULTA ni una columna a la tabla.
-     *
-     * Falla cerrado: sin fila, no se puede ver.
-     */
     @Transactional(readOnly = true)
     public boolean puedeConsultar(String paginaUrl) {
         UsuarioPrincipal principal = usuarioActual();

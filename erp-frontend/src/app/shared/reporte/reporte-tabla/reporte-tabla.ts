@@ -26,11 +26,6 @@ import {
   ReporteTabla,
 } from './reporte-config';
 
-/**
- * Pantalla de un reporte por modulo: filtros, agrupacion por periodo, tabla con subtotales
- * por grupo y total general, e Imprimir PDF / Exportar CSV segun los permisos del rol.
- * Todos los reportes la usan; lo que cambia viene en la configuracion de su ruta.
- */
 @Component({
   selector: 'app-reporte-tabla',
   imports: [
@@ -59,14 +54,9 @@ export class ReporteTablaPage implements OnInit {
 
   readonly reporte = signal<ReporteTabla | null>(null);
 
-  /** Paginacion en pantalla. El PDF y el CSV siguen saliendo con el reporte completo. */
   readonly pageIndex = signal(0);
   readonly pageSize = signal(20);
 
-  /**
-   * Los grupos de la pagina actual. Se paginan las filas de datos: si un grupo sigue en la
-   * pagina siguiente, su titulo se repite arriba; su subtotal sale en la pagina donde termina.
-   */
   readonly gruposDeLaPagina = computed<(GrupoReporte & { termina: boolean })[]>(() => {
     const desde = this.pageIndex() * this.pageSize();
     const hasta = desde + this.pageSize();
@@ -86,7 +76,6 @@ export class ReporteTablaPage implements OnInit {
     return pagina;
   });
 
-  /** Total de filas de datos del reporte, para el paginador. */
   readonly totalFilas = computed(() => (this.reporte()?.grupos ?? []).reduce((n, g) => n + g.filas.length, 0));
 
   readonly esUltimaPagina = computed(() => (this.pageIndex() + 1) * this.pageSize() >= this.totalFilas());
@@ -106,7 +95,6 @@ export class ReporteTablaPage implements OnInit {
     Object.fromEntries(this.config.filtros.map((f) => [f.clave, new FormControl<string | number | null>(null)])),
   );
 
-  /** Autocomplete de cliente, para los reportes que filtran por cliente. */
   readonly busquedaCliente = new FormControl<ClienteResponse | string>('', { nonNullable: true });
   readonly clientesFiltrados = signal<ClienteResponse[]>([]);
 
@@ -186,7 +174,6 @@ export class ReporteTablaPage implements OnInit {
     this.cargar();
   }
 
-  /** Los filtros aplicados, en texto, para el subtitulo del PDF. */
   private textoFiltros(): string {
     const partes: string[] = [];
     if (this.config.fechaSegun && this.fechaSegun.value !== null) {
@@ -223,7 +210,6 @@ export class ReporteTablaPage implements OnInit {
     this.verPdf.abrir(pdf, this.config.titulo, this.config.archivo);
   }
 
-  /** Una fila por registro; si esta agrupado, la primera columna dice a que grupo pertenece. */
   exportarCsv(): void {
     const r = this.reporte();
     if (!r) {
@@ -263,7 +249,6 @@ export class ReporteTablaPage implements OnInit {
       case 'FECHA':
         return this.datePipe.transform(String(valor), 'dd/MM/yyyy') ?? '';
       case 'FECHA_HORA': {
-        // Un pago registrado solo con el dia queda a las 00:00: se muestra sin hora.
         const texto = String(valor);
         const sinHora = /T00:00(:00)?$/.test(texto);
         return this.datePipe.transform(texto, sinHora ? 'dd/MM/yyyy' : 'dd/MM/yyyy HH:mm') ?? '';
@@ -281,7 +266,6 @@ export class ReporteTablaPage implements OnInit {
     return this.reporte()?.columnas.filter((c) => c.sumar) ?? [];
   }
 
-  /** Posicion de la primera columna que suma: el rotulo "Subtotal" va en la celda anterior. */
   get columnasAntesDeLaSuma(): number {
     const columnas = this.reporte()?.columnas ?? [];
     const indice = columnas.findIndex((c) => c.sumar);

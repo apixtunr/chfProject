@@ -10,7 +10,6 @@ public record BitacoraAccesoResponse(
         Long idBitacoraAcceso,
         Integer idUsuario,
         String usernameUsuario,
-        /** Persona detras del usuario ("Nombre Apellido"); quien hizo la accion. */
         String nombreEmpleado,
         String accion,
         String resultado,

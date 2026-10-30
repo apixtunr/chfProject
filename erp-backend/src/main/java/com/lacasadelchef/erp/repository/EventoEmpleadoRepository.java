@@ -15,7 +15,6 @@ public interface EventoEmpleadoRepository extends JpaRepository<EventoEmpleado, 
 
     boolean existsByEventoIdEvento(Integer idEvento);
 
-    /** Donde mas trabaja ese empleado el mismo dia (sin contar eventos cancelados). */
     @Query("""
             SELECT ee FROM EventoEmpleado ee
             WHERE ee.empleado.idEmpleado = :idEmpleado
@@ -27,7 +26,6 @@ public interface EventoEmpleadoRepository extends JpaRepository<EventoEmpleado, 
                                                  @Param("idEvento") Integer idEvento,
                                                  @Param("fecha") LocalDate fecha);
 
-    /** Lo que se le pago a cada persona en los eventos FINALIZADOS de un periodo, por persona y fecha. */
     @Query("""
             SELECT ee FROM EventoEmpleado ee
             JOIN FETCH ee.evento e

@@ -10,7 +10,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.List;
 
-/** Adaptador entre la entidad Usuario y Spring Security. */
 @Getter
 @RequiredArgsConstructor
 public class UsuarioPrincipal implements UserDetails {

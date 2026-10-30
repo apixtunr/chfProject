@@ -4,16 +4,11 @@
   flex-direction: column;
 }
 
-// El toolbar ahora vive fuera del sidenav-container, ocupando todo el ancho arriba;
-// el sidenav-container se queda con el resto de la altura, debajo de el.
 .shell-body {
   flex: 1 1 auto;
   min-height: 0;
 }
 
-// mat-sidenav-content es el que realmente scrollea segun el contenido de cada pantalla
-// ruteada; sin esto, pasar de una pantalla corta a una larga (que si necesita scroll)
-// le resta ~15-17px de ancho aqui adentro, corriendo el contenido cada vez que cambia.
 mat-sidenav-content {
   scrollbar-gutter: stable;
   transition: margin-left 0.28s cubic-bezier(0.2, 0, 0, 1);
@@ -22,16 +17,9 @@ mat-sidenav-content {
 .sidenav {
   width: 320px;
 
-  // Mismo color que la barra superior: el menu deja de ser una franja blanca mas y la
-  // interfaz gana un ancla oscura a la izquierda. Los colores de texto e iconos de aqui
-  // adentro se pasan por los tokens de Material en vez de a mano componente por
-  // componente, para que listas y paneles queden parejos sin pelearse por especificidad.
   background-color: var(--chf-marca);
   color: var(--chf-marca-contraste);
 
-  // Material le pone al sidenav esquinas redondeadas de 16px a la derecha. Con el panel
-  // casi blanco no se notaban; con el oscuro dibujan una curva que lo separa de la barra
-  // superior, y lo que se busca es justo lo contrario: que se lean como un solo bloque.
   border-radius: 0;
 
   --mat-list-list-item-label-text-color: var(--chf-marca-contraste-suave);
@@ -41,20 +29,12 @@ mat-sidenav-content {
   --mat-list-list-item-focus-state-layer-color: var(--chf-marca-contraste);
 
 
-  // Angular Material inserta el contenido del sidenav dentro de un
-  // .mat-drawer-inner-container propio (no es hijo directo estilable sin
-  // ::ng-deep); hay que volverlo flex-column ahi para que el margin-top:
-  // auto del logo lo empuje hasta el fondo real del sidenav.
   ::ng-deep .mat-drawer-inner-container {
     display: flex;
     flex-direction: column;
     height: 100%;
-    // Mientras el cajon se abre o se cierra, el panel se recorta en vez de mostrar scroll.
     overflow-x: hidden;
 
-    // Con varios modulos abiertos el menu no cabe y aparece el scroll. La barra del
-    // navegador (gruesa y gris claro) desentonaba con el fondo oscuro: queda delgada,
-    // sin carril, y solo se nota al pasar el mouse por el menu.
     scrollbar-width: thin;
     scrollbar-color: transparent transparent;
 
@@ -81,29 +61,22 @@ mat-sidenav-content {
   }
 }
 
-// Menu en dos niveles: la columna de modulos (riel) y, al lado, las pantallas del modulo
-// elegido (panel). Ocupan todo el alto del menu.
 .menu {
   display: flex;
   flex: 1 1 auto;
   min-height: 100%;
 }
 
-// En Inicio (sin modulo elegido) el menu es solo la columna de modulos.
 .sidenav.sidenav--solo-riel {
   width: 96px;
 }
 
-// El menu se abre y se cierra como un cajon: cambia de ancho suave, al mismo ritmo que el
-// contenido de la derecha. Material ya define aqui la transicion con que el menu entra en el
-// celular (transform) y con mas peso; se repite la suya y se le suma el ancho.
 .shell-body .sidenav.sidenav {
   transition:
     transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1),
     width 0.28s cubic-bezier(0.2, 0, 0, 1);
 }
 
-// 96px de ancho total, relleno incluido: es la medida del menu cuando solo se ve la columna.
 .riel {
   box-sizing: border-box;
   flex: 0 0 96px;
@@ -149,8 +122,6 @@ mat-sidenav-content {
 
 .panel {
   position: relative;
-  // Ancho fijo (320 del menu menos 96 de la columna): mientras el cajon cambia de ancho, el
-  // texto no se reacomoda.
   flex: 0 0 224px;
   min-width: 0;
   display: flex;
@@ -158,7 +129,6 @@ mat-sidenav-content {
   padding-top: 10px;
 }
 
-// Las pantallas del modulo aparecen mientras el cajon se abre y se desvanecen mientras se cierra.
 .panel-entra {
   animation: panel-entra 0.28s ease-out;
 }
@@ -191,8 +161,6 @@ mat-sidenav-content {
   }
 }
 
-// Flecha para ocultar el panel, en su esquina superior derecha. Va por encima del contenido
-// para no mover las pantallas, que se centran en el modulo elegido.
 .panel-ocultar.panel-ocultar {
   position: absolute;
   top: 6px;
@@ -205,7 +173,6 @@ mat-sidenav-content {
   }
 }
 
-// Los nombres largos (Estadisticas de eventos) bajan de linea en vez de cortarse.
 .panel .mdc-list-item__primary-text {
   white-space: normal;
   line-height: 1.25;
@@ -225,7 +192,6 @@ mat-sidenav-content {
   padding-bottom: 6px;
 }
 
-// Pie del menu con los datos de la empresa: margin-top auto lo empuja al fondo.
 .empresa-sidebar {
   margin: auto 12px 16px;
   padding-top: 16px;
@@ -262,8 +228,6 @@ mat-sidenav-content {
   }
 }
 
-// Sobre el fondo oscuro, el item activo se marca con un velo claro traslucido y texto
-// en blanco pleno. Una pastilla de color solida competiria con el azul de la marca.
 .activo {
   background-color: rgba(255, 255, 255, 0.14);
 
@@ -272,23 +236,14 @@ mat-sidenav-content {
   }
 }
 
-// Color por defecto de los iconos del menu. Ojo con la especificidad: cualquier regla
-// mas abajo que apunte a "<clase> mat-icon" empata con esta y gana por orden de
-// aparicion; por eso .icono-modulo no vuelve a fijar un color propio.
 .sidenav mat-icon {
   color: var(--chf-marca-contraste-suave);
 }
 
-// Iconos del item activo: a blanco pleno, igual que su texto.
 .sidenav .activo mat-icon {
   color: var(--chf-marca-contraste);
 }
 
-// Los iconos de modulo eran pastillas de 8 colores distintos, uno por modulo, con el
-// icono en blanco encima. Al quitar los colores de nav-items.ts la pastilla desaparecio
-// pero el icono se quedo en blanco: blanco sobre fondo claro, invisible. Ahora es
-// monocromatico y del mismo tamano (24px) que los iconos de las pantallas de adentro,
-// que es lo que hacia que unos se vieran y otros no.
 .icono-modulo {
   display: flex;
   align-items: center;
@@ -298,12 +253,6 @@ mat-sidenav-content {
   border-radius: 8px;
   flex: 0 0 auto;
 
-  // Solo el tamano: el color lo resuelve la regla .sidenav mat-icon de mas arriba, y
-  // volver a fijarlo aqui la pisaria por orden de aparicion. Sin este font-size el
-  // icono hereda el del encabezado del panel (16px) y se dibuja mas chico que los de
-  // las pantallas de adentro, que es de donde venia la diferencia visible.
-  // Dentro de la pastilla el icono va en blanco y algo mas chico, para que el color de
-  // fondo se lea. El color se fija aqui a proposito, pisando el gris claro del menu.
   mat-icon {
     color: var(--chf-marca-contraste);
     font-size: 18px;
@@ -314,13 +263,10 @@ mat-sidenav-content {
 
 .toolbar-oscura {
   background-color: var(--chf-marca-barra);
-  color: white;  // Sin esto, Flexbox puede encoger el navbar por debajo de su alto fijo (64px) si el
-  // contenido de abajo pide mas espacio del que hay en los 100vh del .shell -eso paso,
-  // se veia mas chico en pantallas con mas contenido, sin que ninguna regla CSS "ganara".
+  color: white;
   flex-shrink: 0;
 }
 
-// Logo y nombre de la empresa: enlace a Inicio.
 .marca {
   display: inline-flex;
   align-items: center;
@@ -357,13 +303,10 @@ mat-sidenav-content {
   margin-right: 4px;
 }
 
-// Los iconos de la barra (menu y cerrar sesion) en blanco, igual que el texto.
 .toolbar-oscura .mat-mdc-icon-button {
   color: var(--chf-marca-contraste);
 }
 
-// Celular: el nombre completo y el rol no caben junto a la marca; queda solo el rol,
-// que es lo que distingue una sesion de otra, y el titulo se achica.
 @media (max-width: 599.98px) {
   .toolbar-oscura {
     padding-inline: 4px 0;
@@ -393,19 +336,8 @@ mat-sidenav-content {
   padding: 24px;
   background-color: var(--chf-fondo-pagina);
   min-height: 100%;
-
-  // Nota: aqui habia una regla "router-outlet + *" que pintaba una tarjeta blanca con
-  // sombra alrededor de cada pantalla. Nunca llego a aplicarse: con encapsulacion
-  // emulada, el componente que el router inserta lleva su propio _nghost pero no el
-  // _ngcontent de este shell, asi que el selector no lo alcanzaba. Se elimino en vez
-  // de repararla, porque hoy cada pantalla resuelve su propio fondo y revivirla
-  // cambiaria el aspecto de las 46.
 }
 
-// Tope de ancho para el contenido. Sin esto, en un monitor ancho las columnas de una
-// misma fila quedaban separadas por huecos enormes y costaba seguir la linea con la
-// vista. El tope va en este envoltorio y no en .contenido para que el fondo gris siga
-// cubriendo todo el ancho de la ventana.
 @media (max-width: 599.98px) {
   .contenido {
     padding: 16px 12px;

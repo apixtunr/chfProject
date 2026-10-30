@@ -1,15 +1,6 @@
-/**
- * Como se dibuja el menu. La base de datos decide QUE se muestra (modulos, opciones, nombres,
- * orden y permisos por rol); aca solo se dice COMO: el icono y el color de cada modulo, y a que
- * pantalla lleva cada opcion, buscada por su pagina_url.
- *
- * Una opcion de la base que no aparece aca es un permiso que no es pantalla (ubicaciones,
- * metodos de pago, opciones del sistema) y no sale en el menu.
- */
 
 export interface PresentacionModulo {
   icono: string;
-  /** Color de la pastilla del icono en la columna del menu. */
   color: string;
 }
 
@@ -18,7 +9,6 @@ export interface PresentacionPantalla {
   icono: string;
 }
 
-/** Por nombre del modulo (tabla modulo). */
 export const MODULOS: Record<string, PresentacionModulo> = {
   Clientes: { icono: 'people', color: '#3F51B5' },
   Cotizaciones: { icono: 'request_quote', color: '#8E44AD' },
@@ -30,10 +20,8 @@ export const MODULOS: Record<string, PresentacionModulo> = {
   Administración: { icono: 'settings', color: '#E74C3C' },
 };
 
-/** Para un modulo que se agregue en la base y todavia no tenga su presentacion aca. */
 export const MODULO_SIN_PRESENTACION: PresentacionModulo = { icono: 'folder', color: '#607D8B' };
 
-/** Por pagina_url de la opcion (tabla opcion). */
 export const PANTALLAS: Record<string, PresentacionPantalla> = {
   '/api/clientes': { ruta: '/clientes', icono: 'people' },
   '/api/clientes/reportes/clientes': { ruta: '/clientes/reporte', icono: 'summarize' },
@@ -61,10 +49,6 @@ export const PANTALLAS: Record<string, PresentacionPantalla> = {
   '/api/bitacora': { ruta: '/admin/bitacora', icono: 'history' },
 };
 
-/**
- * Vistas (tabla menu_vista) que se muestran como UNA pantalla que agrupa a todas sus
- * opciones: Catalogos reune los 15 catalogos y aparece si el rol tiene permiso sobre alguno.
- */
 export const VISTAS_AGRUPADAS: Record<string, PresentacionPantalla> = {
   Catálogos: { ruta: '/admin/catalogos', icono: 'list_alt' },
 };

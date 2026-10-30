@@ -20,11 +20,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * PDF de cualquier {@link ReporteTabla}: titulo con el periodo y los filtros, los totales
- * en recuadros y una tabla por grupo con su subtotal. Con mas de seis columnas la hoja va
- * horizontal para que quepan.
- */
 public final class ReporteTablaPdf {
 
     private static final DateTimeFormatter FECHA_HORA = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
@@ -32,12 +27,10 @@ public final class ReporteTablaPdf {
     private ReporteTablaPdf() {
     }
 
-    /** Respuesta HTTP con el PDF, para el endpoint .../pdf de cada reporte. */
     public static ResponseEntity<byte[]> respuesta(ReporteTabla reporte, String subtitulo, String nombreArchivo) {
         return ReportePdf.respuesta(generar(reporte, subtitulo), nombreArchivo);
     }
 
-    /** El periodo y, si los hay, los filtros aplicados (el texto de los filtros lo arma la pantalla). */
     public static String subtitulo(LocalDate desde, LocalDate hasta, String filtros) {
         String periodo = ReportePdf.periodo(desde, hasta);
         return filtros == null || filtros.isBlank() ? periodo : periodo + "  ·  " + filtros;
@@ -85,7 +78,6 @@ public final class ReporteTablaPdf {
                     filaDeTotales(columnas, grupo.subtotales(), variosGrupos ? "Subtotal" : "Total"),
                     "No hay registros con estos filtros");
         }
-        // Con varios grupos, el total general ya va en los recuadros de arriba.
         return pdf.cerrar();
     }
 
@@ -122,7 +114,6 @@ public final class ReporteTablaPdf {
             case FECHA -> valor instanceof LocalDate f ? ReportePdf.fecha(f) : valor.toString();
             case FECHA_HORA -> {
                 if (valor instanceof LocalDateTime f) {
-                    // Un pago registrado solo con el dia queda a las 00:00: se imprime sin hora.
                     yield f.toLocalTime().equals(LocalTime.MIDNIGHT) ? ReportePdf.fecha(f.toLocalDate()) : f.format(FECHA_HORA);
                 }
                 yield valor.toString();

@@ -7,7 +7,6 @@ import java.time.LocalTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/** Horario del servicio segun el menu de la empresa. */
 class CondicionesComercialesTest {
 
     @Test
@@ -25,7 +24,6 @@ class CondicionesComercialesTest {
     @Test
     @DisplayName("Dura 4 horas y termina a las 21:00, o a las 22:00 si inicia a las 18 o 19")
     void horaDeFin() {
-        // Desayunos: terminan a mas tardar a las 11:00.
         assertThat(CondicionesComerciales.horaFinServicio(LocalTime.of(7, 0))).isEqualTo(LocalTime.of(11, 0));
         assertThat(CondicionesComerciales.horaFinServicio(LocalTime.of(9, 0))).isEqualTo(LocalTime.of(11, 0));
         assertThat(CondicionesComerciales.horaFinServicio(LocalTime.of(10, 0))).isEqualTo(LocalTime.of(11, 0));

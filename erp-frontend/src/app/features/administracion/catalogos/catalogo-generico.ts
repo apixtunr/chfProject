@@ -19,14 +19,8 @@ import { ConfirmDialog } from '../../../shared/confirm-dialog/confirm-dialog';
 import { CATALOGOS, CampoCatalogo, CatalogoConfig } from './catalogos-config';
 import { TablaResponsiva } from '../../../shared/tabla-responsiva';
 
-/** Fila generica: los catalogos tienen formas distintas, se manejan como objetos planos. */
 type Fila = Record<string, unknown>;
 
-/**
- * CRUD generico para todos los catalogos simples de administracion.
- * La configuracion (endpoint, campos, permisos) viene de catalogos-config.ts
- * segun el parametro :catalogo de la ruta.
- */
 @Component({
   selector: 'app-catalogo-generico',
   imports: [TablaResponsiva, 
@@ -68,7 +62,6 @@ export class CatalogoGenerico implements OnInit {
   columnas: string[] = [];
 
   ngOnInit(): void {
-    // La ruta reutiliza el componente entre catalogos: reaccionar al cambio de parametro
     this.route.paramMap.subscribe((params) => {
       const id = params.get('catalogo');
       const config = CATALOGOS.find((c) => c.id === id);
@@ -90,7 +83,6 @@ export class CatalogoGenerico implements OnInit {
       ...(this.puedeEditar || this.puedeEliminar ? ['acciones'] : []),
     ];
 
-    // Formulario dinamico segun los campos configurados
     const controles: Record<string, FormControl> = {};
     for (const campo of config.campos) {
       const validadores = [];
@@ -106,7 +98,6 @@ export class CatalogoGenerico implements OnInit {
     this.mostrandoForm.set(false);
     this.editandoId.set(null);
 
-    // Opciones de los selects
     const opciones: Record<string, Fila[]> = {};
     this.opcionesPorCampo.set(opciones);
     for (const campo of config.campos) {

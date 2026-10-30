@@ -1,8 +1,3 @@
-/**
- * Respuesta de GET /api/inicio. Cada seccion llega en null cuando el rol del usuario no
- * tiene acceso a la pantalla de donde salen esos datos: null = "no aplica", lista vacia =
- * "aplica, pero no hay nada pendiente".
- */
 export interface PanelInicio {
   fechaReferencia: string;
   rol: string;
@@ -84,7 +79,6 @@ export interface CobroPanel {
   total: number;
   abonado: number;
   pendiente: number;
-  /** Lo que falta del primer 50% (se paga una semana antes); solo si el evento es en 7 dias o menos. */
   anticipoFaltante: number | null;
 }
 

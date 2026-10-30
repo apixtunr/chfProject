@@ -53,7 +53,6 @@ export class MenuDetail implements OnInit {
   readonly todosLosPlatos = signal<PlatoResponse[]>([]);
   readonly agregando = signal(false);
 
-  /** Platos que aun no estan en el menu (para el selector). */
   readonly platosDisponibles = computed(() => {
     const enMenu = new Set(this.platosDelMenu().map((mp) => mp.idPlato));
     return this.todosLosPlatos().filter((p) => !enMenu.has(p.idPlato));
@@ -64,7 +63,6 @@ export class MenuDetail implements OnInit {
   readonly puedeEliminar: boolean;
 
   readonly columnas = ['ordenMenu', 'nombrePlato', 'precioUnitario', 'precioDesde100', 'acciones'];
-  /** "por persona", "el ciento" o "c/u", como se escribe junto al precio. */
   precioPor(unidad: UnidadVenta): string {
     return PRECIO_POR[unidad];
   }
@@ -72,12 +70,10 @@ export class MenuDetail implements OnInit {
   readonly formularioPlato = this.fb.nonNullable.group({
     idPlato: this.fb.control<number | null>(null, Validators.required),
     precioUnitario: this.fb.control<number | null>(null, [Validators.required, Validators.min(0)]),
-    // Opcional: sin el, el plato cuesta lo mismo sin importar el tamano del evento.
     precioDesde100: this.fb.control<number | null>(null, [Validators.min(0)]),
     ordenMenu: this.fb.control<number | null>(null),
   });
 
-  /** Unidad de venta del plato elegido en el formulario, para rotular el precio ("el ciento"). */
   unidadSeleccionada(): UnidadVenta {
     const id = this.formularioPlato.controls.idPlato.value;
     return this.todosLosPlatos().find((p) => p.idPlato === id)?.unidadVenta ?? 'PERSONA';
@@ -122,10 +118,6 @@ export class MenuDetail implements OnInit {
       });
   }
 
-  /**
-   * Cambia uno de los dos precios desde la tabla y reenvia el otro tal como esta. Dejar
-   * vacio el de 100 personas lo quita: el plato queda con un solo precio.
-   */
   actualizarPrecio(mp: MenuPlatoResponse, campo: 'precioUnitario' | 'precioDesde100', valor: string): void {
     const precio = valor.trim() === '' ? null : Number(valor);
     const actual = mp[campo] == null ? null : Number(mp[campo]);
@@ -146,7 +138,6 @@ export class MenuDetail implements OnInit {
         this.snackBar.open('Precio actualizado', 'Cerrar', { duration: 2000 });
         this.cargarPlatos();
       },
-      // Si el backend lo rechaza (ej. el de 100 mas caro que el base), vuelve a mostrar lo guardado.
       error: () => this.cargarPlatos(),
     });
   }

@@ -222,8 +222,6 @@ export const routes: Routes = [
         canActivate: [permisoAccionGuard('/api/pagos', 'modificacion')],
         loadComponent: () => import('./features/pagos/pago-form/pago-form').then((m) => m.PagoForm),
       },
-      // Ojo con el orden: las rutas literales (menus/platos, menus/bebidas, menus/nuevo)
-      // deben ir antes que las parametrizadas (menus/:id)
       {
         path: 'menus/platos',
         canActivate: [permisoGuard('/api/platos')],

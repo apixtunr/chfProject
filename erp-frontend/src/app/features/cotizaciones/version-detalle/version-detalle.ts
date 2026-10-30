@@ -81,30 +81,22 @@ export class VersionDetalle implements OnInit {
   readonly version = signal<CotizacionVersionResponse | null>(null);
   readonly detalles = signal<DetalleCotizacionResponse[]>([]);
 
-  /**
-   * Solo informativo: cuanto queda el total arriba (positivo) o abajo (negativo) de lo que
-   * el cliente dijo que queria gastar. null si no dio presupuesto.
-   */
   readonly diferenciaPresupuesto = computed(() => {
     const presupuesto = this.cotizacion()?.presupuestoCliente;
     const total = this.version()?.montoTotal;
     return presupuesto != null && total != null ? total - presupuesto : null;
   });
   readonly menus = signal<MenuResponse[]>([]);
-  /** Platos disponibles dentro del menu (categoria) elegido en el formulario. */
   readonly platosDelMenu = signal<MenuPlatoResponse[]>([]);
   private readonly idPlatoElegido = signal<number | null>(null);
   readonly nombrePlatoElegido = computed(
     () => this.platosDelMenu().find((p) => p.idPlato === this.idPlatoElegido())?.nombrePlato ?? '',
   );
   readonly precioSeleccionado = signal<number | null>(null);
-  /** Como se vende el plato elegido: la cantidad son personas (por persona) o piezas (boquitas). */
   readonly unidadSeleccionada = signal<UnidadVenta>('PERSONA');
-  /** Bebidas que incluye el plato elegido; vacio = no lleva bebida y el campo no se muestra. */
   readonly bebidasDelPlato = signal<BebidaResumen[]>([]);
 
   readonly personas = computed(() => this.cotizacion()?.cantidadPersonas ?? 0);
-  /** Evento de 100 personas o mas: los platos que tienen precio de volumen se cobran a ese precio. */
   readonly aplicaPrecioVolumen = computed(() => this.personas() >= PERSONAS_PRECIO_VOLUMEN);
   readonly debajoDelMinimo = computed(() => this.personas() > 0 && this.personas() < MINIMO_PERSONAS);
   readonly minimoPersonas = MINIMO_PERSONAS;
@@ -117,16 +109,13 @@ export class VersionDetalle implements OnInit {
   readonly tiposServicio = signal<TipoServicioResponse[]>([]);
   readonly idServicioEditando = signal<number | null>(null);
   readonly textoVigencia = textoVigencia;
-  /** Tipo que tenia la linea que se esta editando: se muestra aunque ya no se ofrezca. */
   private readonly idTipoServicioEditando = signal<number | null>(null);
-  /** Solo los servicios que se ofrecen; los desactivados quedan en las cotizaciones viejas. */
   readonly tiposServicioOfrecidos = computed(() =>
     this.tiposServicio().filter((t) => t.activo || t.idTipoServicio === this.idTipoServicioEditando()),
   );
 
   readonly columnas = ['menu', 'bebida', 'cantidad', 'precio', 'subtotal', 'acciones'];
   readonly columnasServicios = ['tipo', 'descripcion', 'cantidad', 'precio', 'monto', 'acciones'];
-  /** Precio del tipo de servicio elegido si es fijo (hora extra de cocinero Q25.00); null = monto libre. */
   readonly precioFijo = signal<number | null>(null);
 
   readonly formulario = this.crearFormulario();
@@ -143,8 +132,6 @@ export class VersionDetalle implements OnInit {
       idPlato: this.fb.control<number | null>(null, Validators.required),
       cantidadPlatos: [1, [Validators.required, Validators.min(1)]],
       observaciones: [''],
-      // La bebida viene con el plato: se elige entre las que incluye (puede quedar pendiente
-      // mientras se arma el borrador; para enviar la cotizacion es obligatoria).
       idBebida: this.fb.control<number | null>(null),
     });
   }
@@ -185,7 +172,6 @@ export class VersionDetalle implements OnInit {
     this.estadoService.listarPorTipo(TIPO_ESTADO_COTIZACION).subscribe((estados) => this.estadosCotizacion.set(estados));
     this.cargar();
 
-    // Un cargo con precio fijo no se escribe: el total es cantidad x precio y lo muestra el formulario.
     const servicio = this.formularioServicio.controls;
     servicio.idTipoServicio.valueChanges.subscribe((idTipo) => {
       const precio = this.tiposServicio().find((t) => t.idTipoServicio === idTipo)?.precioUnitario ?? null;
@@ -216,9 +202,7 @@ export class VersionDetalle implements OnInit {
       this.unidadSeleccionada.set(plato?.unidadVenta ?? 'PERSONA');
       const bebidas = plato?.bebidas ?? [];
       this.bebidasDelPlato.set(bebidas);
-      // Si incluye una sola (atol, jugo y cafe) se pone sola.
       this.formulario.controls.idBebida.setValue(bebidas.length === 1 ? bebidas[0].idBebida : null);
-      // Bebida obligatoria cuando el plato tiene opciones.
       if (bebidas.length > 0) {
         this.formulario.controls.idBebida.addValidators(Validators.required);
       } else {
@@ -228,10 +212,6 @@ export class VersionDetalle implements OnInit {
     });
   }
 
-  /**
-   * Precio de catalogo que aplica a este evento, como lo dice el menu: "Q40.00 por persona"
-   * o "Q800.00 el ciento".
-   */
   etiquetaPrecio(plato: MenuPlatoResponse): string {
     const precio =
       plato.precioDesde100 != null && this.aplicaPrecioVolumen() ? plato.precioDesde100 : plato.precioUnitario;
@@ -250,12 +230,10 @@ export class VersionDetalle implements OnInit {
     this.menuService.listarPlatosDeMenu(detalle.idMenu).subscribe((platos) => {
       this.platosDelMenu.set(platos);
       const bebidas = platos.find((p) => p.idPlato === detalle.idPlato)?.bebidas ?? [];
-      // Si la bebida de la linea ya se inactivo en el catalogo, se muestra igual para no perderla.
       const actual = detalle.idBebida != null && !bebidas.some((b) => b.idBebida === detalle.idBebida)
         ? [{ idBebida: detalle.idBebida, nombreBebida: detalle.nombreBebida ?? '' }]
         : [];
       this.bebidasDelPlato.set([...bebidas, ...actual]);
-      // Si el plato tiene bebidas, la bebida es obligatoria también al editar.
       if (bebidas.length > 0) {
         this.formulario.controls.idBebida.addValidators(Validators.required);
       } else {
@@ -326,9 +304,6 @@ export class VersionDetalle implements OnInit {
     });
   }
 
-  // --- Servicios extra (hora extra de cocinero, cubremantel, etc.) ---
-
-  /** Con precio fijo, el campo de monto (deshabilitado) muestra cantidad x precio. */
   private mostrarTotalFijo(): void {
     const precio = this.precioFijo();
     if (precio != null) {
@@ -337,7 +312,6 @@ export class VersionDetalle implements OnInit {
     }
   }
 
-  /** "Hora extra de cocinero (Q25.00 c/u)" en el selector. */
   etiquetaTipoServicio(tipo: TipoServicioResponse): string {
     return tipo.precioUnitario != null
       ? `${tipo.nombreTipo} (Q${Number(tipo.precioUnitario).toFixed(2)} c/u)`
@@ -372,7 +346,6 @@ export class VersionDetalle implements OnInit {
       idTipoServicio: valores.idTipoServicio!,
       descripcion: valores.descripcion || null,
       cantidad: valores.cantidad,
-      // Con precio fijo el total lo calcula el backend; solo se manda el monto libre.
       monto: this.precioFijo() != null ? null : valores.monto,
     };
 
@@ -420,7 +393,6 @@ export class VersionDetalle implements OnInit {
 
   descargarPdf(): void {
     this.descargandoPdf.set(true);
-    // Mostrar spinner de descarga.
     zip(this.cotizacionService.descargarPdf(this.idVersion), timer(500))
       .pipe(finalize(() => this.descargandoPdf.set(false)))
       .subscribe(([blob]) => {

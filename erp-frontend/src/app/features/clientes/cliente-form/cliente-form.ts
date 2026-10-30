@@ -15,13 +15,7 @@ import { ClienteService } from '../cliente.service';
 import { PosibleDuplicado } from '../dto/cliente';
 import { alMenosUnoValidator, nitValidator, normalizarNit } from '../nit-guatemala';
 
-/**
- * Datos que se revisan contra otros clientes. Solo el NIT bloquea: telefono y correo se
- * pueden compartir (una familia, una organizadora, una empresa con sucursales), asi que
- * solo avisan.
- */
 type CampoRevisado = 'nit' | 'telefono' | 'correo';
-/** Como los nombra el backend en PosibleDuplicado.coincidencias. */
 const ETIQUETA_CAMPO: Record<CampoRevisado, string> = { nit: 'NIT', telefono: 'teléfono', correo: 'correo' };
 
 @Component({
@@ -49,23 +43,18 @@ export class ClienteForm implements OnInit {
   readonly guardando = signal(false);
   readonly departamentos = signal<DepartamentoResponse[]>([]);
   readonly municipios = signal<MunicipioResponse[]>([]);
-  /** Otro cliente que ya usa este telefono o correo (solo aviso, no impide guardar). */
   readonly compartidoCon = signal<Partial<Record<'telefono' | 'correo', string>>>({});
 
-  // Telefono y correo son opcionales por separado, pero el grupo exige al menos uno.
   readonly formulario = this.fb.nonNullable.group({
     nombre: ['', [Validators.required, Validators.maxLength(150)]],
     correo: ['', [Validators.email, Validators.maxLength(150)]],
     telefono: ['', [Validators.pattern(/^[0-9+\- ]{8,20}$/)]],
-    // Vacio = CF (consumidor final). Se valida el digito verificador.
     nit: ['', [Validators.maxLength(20), nitValidator]],
     direccion: ['', [Validators.required, Validators.maxLength(255)]],
-    // El departamento solo filtra la lista de municipios; lo que se guarda es el municipio.
     idDepartamento: this.fb.control<number | null>(null, Validators.required),
     idMunicipio: this.fb.control<number | null>(null, Validators.required),
   }, { validators: alMenosUnoValidator('telefono', 'correo') });
 
-  /** Cuenta cuántos campos del formulario tienen Validators.required. */
   readonly camposRequeridos = computed(() => {
     const controles = this.formulario.controls;
     return Object.values(controles).filter((c) => c.hasValidator(Validators.required)).length;
@@ -74,17 +63,14 @@ export class ClienteForm implements OnInit {
   ngOnInit(): void {
     this.departamentoService.listar().subscribe((d) => this.departamentos.set(d));
 
-    // El aviso de telefono o correo compartido se borra en cuanto se cambia el dato.
     for (const campo of ['telefono', 'correo'] as const) {
       this.formulario.controls[campo].valueChanges.subscribe(() =>
         this.compartidoCon.update(({ [campo]: _, ...resto }) => resto),
       );
     }
 
-    // Municipio bloqueado hasta que se elija departamento
     this.formulario.controls.idMunicipio.disable();
 
-    // Al elegir departamento, limpia el municipio y carga solo los de ese departamento.
     this.formulario.controls.idDepartamento.valueChanges.subscribe((idDepartamento) => {
       this.formulario.controls.idMunicipio.setValue(null);
       this.municipios.set([]);
@@ -113,7 +99,6 @@ export class ClienteForm implements OnInit {
         direccion: cliente.direccion,
         idDepartamento: cliente.idDepartamento,
       });
-      // El municipio se asigna hasta tener cargada su lista, que depende del departamento.
       this.municipioService.listar(cliente.idDepartamento).subscribe((m) => {
         this.municipios.set(m);
         this.formulario.controls.idMunicipio.enable();
@@ -122,7 +107,6 @@ export class ClienteForm implements OnInit {
     });
   }
 
-  /** Al salir del campo, muestra el NIT como se va a guardar (ej. 67693598 -> 6769359-8). */
   formatearNit(): void {
     const control = this.formulario.controls.nit;
     const normalizado = normalizarNit(control.value);
@@ -131,12 +115,6 @@ export class ClienteForm implements OnInit {
     }
   }
 
-  /**
-   * Al salir de NIT, telefono o correo se revisa si ya pertenece a otro cliente. Un NIT
-   * repetido deja el campo en error con el nombre del dueño y no se puede guardar (el
-   * backend lo vuelve a validar); el error se limpia solo al volver a escribir, porque
-   * Angular recalcula los validadores del campo. Telefono y correo solo muestran un aviso.
-   */
   verificarDuplicado(campo: CampoRevisado): void {
     const control = this.formulario.controls[campo];
     const valor = control.value?.trim();
@@ -175,8 +153,6 @@ export class ClienteForm implements OnInit {
 
     this.guardando.set(true);
     const v = this.formulario.getRawValue();
-    // El NIT repetido bloquea el guardado y se marca en su campo. Telefono, correo o
-    // nombre repetidos solo piden confirmar que se trata de otro cliente.
     this.clienteService
       .posiblesDuplicados({ nombre: v.nombre, nit: v.nit, telefono: v.telefono, correo: v.correo }, this.idCliente())
       .subscribe({

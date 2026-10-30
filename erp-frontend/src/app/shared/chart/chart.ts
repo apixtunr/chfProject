@@ -3,7 +3,6 @@ import { Chart, ChartConfiguration, ChartType, registerables } from 'chart.js';
 
 Chart.register(...registerables);
 
-/** Envoltorio minimo sobre Chart.js: recibe type/data/options y maneja el ciclo de vida del canvas. */
 @Component({
   selector: 'app-chart',
   template: `<canvas #canvas></canvas>`,

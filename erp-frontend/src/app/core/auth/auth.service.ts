@@ -15,26 +15,18 @@ export class AuthService {
   readonly usuarioActual = computed(() => this.sesion());
   readonly permisos = computed(() => this.sesion()?.permisos ?? []);
   readonly estaAutenticado = computed(() => this.sesion() !== null);
-  /**
-   * Solo para reglas de negocio propias del rol (cancelar un evento). Los permisos de
-   * pantalla del ADMINISTRADOR salen de rol_opcion, igual que los de cualquier rol.
-   */
   readonly esAdministrador = computed(() => this.sesion()?.rol === 'ADMINISTRADOR');
 
   constructor(
     private readonly http: HttpClient,
     private readonly router: Router,
   ) {
-    // Sincronizacion entre pestanas: si la sesion se cierra en otra pestana
-    // (localStorage cambia a null), esta pestana tambien queda fuera.
     window.addEventListener('storage', (evento) => {
       if (evento.key === STORAGE_KEY && evento.newValue === null && this.sesion() !== null) {
         this.sesion.set(null);
         this.router.navigateByUrl('/login');
       }
     });
-    // Al volver a la pestana se traen los permisos vigentes, por si los cambiaron mientras
-    // tanto en Roles y permisos.
     window.addEventListener('focus', () => {
       if (this.sesion() !== null) {
         this.refrescarPermisos().subscribe();
@@ -42,12 +34,6 @@ export class AuthService {
     });
   }
 
-  /**
-   * Vuelve a pedir al servidor los permisos del rol, para que un cambio hecho en Roles y
-   * permisos se refleje sin cerrar sesion. Se llama antes de cada navegacion (guardia
-   * permisosAlDiaGuard) y al volver a la pestana. Si la consulta falla se siguen usando
-   * los permisos que ya se tenian: el servidor valida igual cada operacion.
-   */
   refrescarPermisos(): Observable<void> {
     if (this.sesion() === null) {
       return of(undefined);
@@ -77,11 +63,6 @@ export class AuthService {
     );
   }
 
-  /**
-   * Cierra sesion en el SERVIDOR (revoca los tokens vigentes) y luego limpia
-   * el estado local. La limpieza local ocurre aunque el servidor falle o no
-   * responda: el usuario nunca debe quedar "atrapado" en la sesion.
-   */
   logout(): void {
     const token = this.getToken();
     if (token) {
@@ -104,13 +85,11 @@ export class AuthService {
     return this.sesion()?.token ?? null;
   }
 
-  /** paginaUrl debe ser el mismo string exacto que manda el backend (ej. '/api/clientes'). */
   tienePermiso(paginaUrl: string, tipo: TipoPermiso): boolean {
     const permiso = this.permisos().find((p) => p.paginaUrl === paginaUrl);
     return permiso ? permiso[tipo] : false;
   }
 
-  /** Puede ver/navegar a la pantalla de ese modulo (no implica poder crear/editar/borrar). */
   puedeVer(paginaUrl: string): boolean {
     return this.permisos().some((p) => p.paginaUrl === paginaUrl);
   }

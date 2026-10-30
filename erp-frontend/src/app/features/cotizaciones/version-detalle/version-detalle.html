@@ -1,6 +1,4 @@
 @if (version(); as v) {
-  <!-- Mismo encabezado de pagina que los formularios de Cliente y Cotizacion: miga de
-       pan, titulo con etiqueta de estado, subtitulo y acciones a la derecha. -->
   <div class="pf-page-header">
     <div class="pf-header-left">
       <nav class="pf-breadcrumb">
@@ -91,7 +89,6 @@
     </div>
   </div>
 
-  <!-- ── Menu de la cotizacion ────────────────────────────────────────────── -->
   <section class="pf-section">
     <header class="pf-section-header">
       <span class="pf-section-title">
@@ -114,7 +111,6 @@
         <mat-form-field appearance="outline" class="campo-menu">
           <mat-label>Plato</mat-label>
           <mat-select formControlName="idPlato" panelClass="panel-platos">
-            <!-- En el campo cerrado basta el nombre; el precio ya se ve en la linea. -->
             <mat-select-trigger>{{ nombrePlatoElegido() }}</mat-select-trigger>
             @for (plato of platosDelMenu(); track plato.idPlato) {
               <mat-option [value]="plato.idPlato">
@@ -223,7 +219,6 @@
     </table>
   </section>
 
-  <!-- ── Servicios extra ──────────────────────────────────────────────────── -->
   <section class="pf-section">
     <header class="pf-section-header">
       <span class="pf-section-title">

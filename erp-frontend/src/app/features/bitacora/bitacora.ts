@@ -15,7 +15,6 @@ import { BitacoraService } from './bitacora.service';
 import { BitacoraAccesoResponse, BitacoraMovimientoResponse } from './dto/bitacora';
 import { TablaResponsiva } from '../../shared/tabla-responsiva';
 
-/** Valores reales que registra AuthService en bitacora_acceso.resultado. */
 const RESULTADOS_ACCESO = ['EXITOSO', 'PASSWORD_INCORRECTA', 'USUARIO_INACTIVO', 'USUARIO_BLOQUEADO'];
 
 @Component({
@@ -43,7 +42,6 @@ export class Bitacora implements OnInit {
 
   readonly resultadosAcceso = RESULTADOS_ACCESO;
 
-  // --- Movimientos ---
   readonly movimientos = signal<BitacoraMovimientoResponse[]>([]);
   readonly totalMovimientos = signal(0);
   readonly pageIndexMovimientos = signal(0);
@@ -60,7 +58,6 @@ export class Bitacora implements OnInit {
     fechaHasta: this.fb.control<Date | null>(null),
   });
 
-  // --- Accesos ---
   readonly accesos = signal<BitacoraAccesoResponse[]>([]);
   readonly totalAccesos = signal(0);
   readonly pageIndexAccesos = signal(0);
@@ -149,19 +146,10 @@ export class Bitacora implements OnInit {
     return `${anio}-${mes}-${dia}`;
   }
 
-  /**
-   * El alta y la baja guardan el registro entero en una linea ("campo: valor · campo:
-   * valor..."); en el tooltip se muestra un campo por renglon para poder leerlo.
-   */
   enLineas(valor: string | null): string {
     return (valor ?? '').split(' · ').join('\n');
   }
 
-  /**
-   * Nombre de tabla o de campo con un punto de corte invisible despues de cada guion bajo,
-   * para que "movimiento_inventario" baje de linea como "movimiento_ / inventario" y no a
-   * media palabra.
-   */
   cortable(nombre: string | null): string {
     return nombre ? nombre.replaceAll('_', '_\u200B') : '-';
   }

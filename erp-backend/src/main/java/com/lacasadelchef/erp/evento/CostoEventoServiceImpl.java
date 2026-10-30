@@ -31,8 +31,6 @@ public class CostoEventoServiceImpl implements CostoEventoService {
     @Override
     @Transactional(readOnly = true)
     public List<CostoEventoResponse> listar(Integer idEvento) {
-        // Un solo select para saber cuales costos ya tienen su reembolso, en vez de
-        // preguntar uno por uno (N+1) por cada fila de la lista.
         Set<Integer> idsConPago = pagoRepository.findByEventoIdEvento(idEvento).stream()
                 .filter(pago -> pago.getCostoEvento() != null)
                 .map(pago -> pago.getCostoEvento().getIdCostoEvento())
@@ -58,8 +56,6 @@ public class CostoEventoServiceImpl implements CostoEventoService {
     @Transactional
     public CostoEventoResponse actualizar(Integer idEvento, Integer idCostoEvento, CostoEventoRequest request) {
         CostoEvento costoEvento = buscarCosto(idEvento, idCostoEvento);
-        // Si el cliente ya pago este costo, el pago quedo por ese monto: cambiarlo aqui los
-        // descuadraria. Para corregirlo hay que anular ese pago primero.
         boolean cobrado = pagoRepository.existsByCostoEventoIdCostoEventoAndEstadoNombreNot(idCostoEvento, "ANULADO");
         if (cobrado && request.monto().compareTo(costoEvento.getMonto()) != 0) {
             throw new BusinessException(

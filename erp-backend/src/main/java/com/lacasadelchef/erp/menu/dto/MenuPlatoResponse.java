@@ -18,7 +18,6 @@ public record MenuPlatoResponse(
         BigDecimal precioUnitario,
         BigDecimal precioDesde100,
         UnidadVenta unidadVenta,
-        /** Bebidas que incluye el plato, para elegir una al cotizarlo. */
         List<BebidaResumen> bebidas,
         LocalDateTime fechaCreacion,
         LocalDateTime fechaModificacion

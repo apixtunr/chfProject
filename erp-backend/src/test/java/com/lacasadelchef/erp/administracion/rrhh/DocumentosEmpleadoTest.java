@@ -26,10 +26,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-/**
- * Reglas de los documentos del empleado: el formato del DPI, que un numero no quede en
- * dos personas, y que la API no reemplace en silencio ni deje a alguien sin DPI.
- */
 class DocumentosEmpleadoTest {
 
     static TipoDocumento tipo(int id, String nombre) {

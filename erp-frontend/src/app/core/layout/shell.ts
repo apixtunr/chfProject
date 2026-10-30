@@ -41,7 +41,6 @@ export class Shell {
   private readonly router = inject(Router);
   private readonly breakpoints = inject(BreakpointObserver);
 
-  /** Debajo de 1024px (celulares y tabletas) el menu deja de estar fijo y se abre encima. */
   readonly esCompacto = toSignal(
     this.breakpoints.observe('(max-width: 1023.98px)').pipe(map((estado) => estado.matches)),
     { initialValue: false },
@@ -51,10 +50,6 @@ export class Shell {
 
   private readonly menuService = inject(MenuService);
 
-  /**
-   * Modulos y pantallas del menu, tal como los arma el backend segun los permisos del rol.
-   * Se vuelve a pedir cada vez que cambian los permisos de la sesion.
-   */
   readonly gruposMenu = toSignal(
     toObservable(this.authService.permisos).pipe(switchMap(() => this.menuService.obtener())),
     { initialValue: [] as MenuModulo[] },
@@ -71,16 +66,11 @@ export class Shell {
     { initialValue: this.router.url },
   );
 
-  /** El modulo de la pantalla abierta (ninguno en Inicio). */
   private readonly moduloActivo = computed(() => {
     const url = this.urlActual();
     return this.gruposMenu().find((grupo) => grupo.pantallas.some((p) => url.startsWith(p.ruta)))?.modulo ?? null;
   });
 
-  /**
-   * El modulo cuyas pantallas se muestran en el panel. Sigue a la pantalla abierta, pero se
-   * puede elegir otro para ver sus pantallas sin salir de la actual.
-   */
   readonly moduloSeleccionado = signal<string | null>(null);
 
   readonly grupoSeleccionado = computed(
@@ -90,11 +80,6 @@ export class Shell {
   private readonly botonesModulo = viewChildren('botonModulo', { read: ElementRef });
   private readonly opcionesPanel = viewChild('opcionesPanel', { read: ElementRef });
 
-  /**
-   * Cuanto bajan las pantallas del panel para quedar centradas en el modulo elegido, la mitad
-   * arriba y la otra mitad abajo. Cerca de los extremos se ajustan para no salirse por arriba
-   * ni tapar el pie.
-   */
   readonly desplazamientoPanel = signal(0);
 
   constructor() {
@@ -118,7 +103,6 @@ export class Shell {
       const panel = opciones.parentElement!;
       const pie = panel.querySelector<HTMLElement>('.empresa-sidebar');
       const items = opciones.querySelectorAll<HTMLElement>('.mat-mdc-list-item');
-      // Posiciones sin el desplazamiento que ya tiene aplicado.
       const inicioOpciones = opciones.getBoundingClientRect().top - parseFloat(opciones.style.marginTop || '0');
       const primero = items[0].getBoundingClientRect().top - opciones.getBoundingClientRect().top;
       const altoItems = items[items.length - 1].getBoundingClientRect().bottom - items[0].getBoundingClientRect().top;
@@ -130,7 +114,6 @@ export class Shell {
     });
   }
 
-  /** Un modulo de una sola pantalla la abre; los demas muestran sus pantallas en el panel. */
   elegirModulo(grupo: MenuModulo): void {
     if (grupo.pantallas.length === 1) {
       this.router.navigateByUrl(grupo.pantallas[0].ruta);
@@ -139,12 +122,10 @@ export class Shell {
     this.moduloSeleccionado.set(grupo.modulo);
   }
 
-  /** La flecha del panel lo oculta; el menu queda solo con la columna de modulos. */
   ocultarPanel(): void {
     this.moduloSeleccionado.set(null);
   }
 
-  /** Ir a Inicio cierra el panel, aunque ya se este en Inicio con un modulo abierto. */
   irAInicio(): void {
     this.moduloSeleccionado.set(null);
   }

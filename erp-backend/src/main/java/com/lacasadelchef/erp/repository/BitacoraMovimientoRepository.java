@@ -34,7 +34,6 @@ public interface BitacoraMovimientoRepository extends JpaRepository<BitacoraMovi
                                      @Param("fechaHasta") LocalDate fechaHasta,
                                      Pageable pageable);
 
-    /** Para poblar el filtro "Tabla" con las tablas que realmente tienen movimientos registrados. */
     @Query("SELECT DISTINCT b.tablaAfectada FROM BitacoraMovimiento b ORDER BY b.tablaAfectada")
     List<String> listarTablasDistintas();
 }

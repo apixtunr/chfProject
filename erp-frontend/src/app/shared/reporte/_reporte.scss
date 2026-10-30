@@ -1,9 +1,3 @@
-// ══════════════════════════════════════════════════════════════
-// Diseno compartido de los reportes (Estadisticas de eventos, Rentabilidad):
-// cabecera, filtros, indicadores, tarjetas de grafica y tabla.
-// Cada reporte lo incluye con @use en su propio .scss: los estilos quedan
-// locales al componente, no se toca styles.scss global.
-// ══════════════════════════════════════════════════════════════
 
 $brand:   #0f172a;
 $accent:  #4f46e5;
@@ -12,11 +6,9 @@ $muted:   #64748b;
 $text:    #1e293b;
 $bg:      #f8fafc;
 
-// Sombra suave en capas en vez de borde gris: las tarjetas "flotan" sobre el fondo.
 $sombra:  0 0.46875rem 2.1875rem rgba(4, 9, 20, 0.03), 0 0.9375rem 1.40625rem rgba(4, 9, 20, 0.03),
               0 0.25rem 0.53125rem rgba(4, 9, 20, 0.05), 0 0.125rem 0.1875rem rgba(4, 9, 20, 0.03);
 
-// ─── CABECERA ─────────────────────────────────────────────────
 .rpt-header {
   display: flex;
   align-items: center;
@@ -31,7 +23,6 @@ $sombra:  0 0.46875rem 2.1875rem rgba(4, 9, 20, 0.03), 0 0.9375rem 1.40625rem rg
   gap: 16px;
 }
 
-// Recuadro blanco con el icono del reporte, a la izquierda del titulo.
 .rpt-header-icono {
   width: 56px;
   height: 56px;
@@ -64,7 +55,6 @@ $sombra:  0 0.46875rem 2.1875rem rgba(4, 9, 20, 0.03), 0 0.9375rem 1.40625rem rg
   color: $muted;
 }
 
-// ─── FILTROS ──────────────────────────────────────────────────
 .rpt-filtros-card {
   background: #fff;
   box-shadow: $sombra;
@@ -86,8 +76,6 @@ $sombra:  0 0.46875rem 2.1875rem rgba(4, 9, 20, 0.03), 0 0.9375rem 1.40625rem rg
   gap: 5px;
   min-width: 150px;
 
-  // Cliente, tipo de evento y estado: listas con nombres largos, mas anchas que las fechas.
-  // Cliente se estira hasta ocupar lo que sobra de la fila (los botones quedan al final).
   &--wide { min-width: 260px; flex: 1; }
   &--lista { min-width: 220px; }
 }
@@ -136,9 +124,6 @@ $sombra:  0 0.46875rem 2.1875rem rgba(4, 9, 20, 0.03), 0 0.9375rem 1.40625rem rg
   &:hover { background: $bg; }
 }
 
-// ─── KPIs ─────────────────────────────────────────────────────
-// Un solo panel con los indicadores en fila, separados por una linea: icono en un
-// circulo de color a la izquierda, el nombre arriba y la cifra en grande.
 .rpt-panel {
   margin-bottom: 20px;
 }
@@ -214,7 +199,6 @@ $sombra:  0 0.46875rem 2.1875rem rgba(4, 9, 20, 0.03), 0 0.9375rem 1.40625rem rg
   color: $muted;
 }
 
-// Barra de margen
 .rpt-margen-bar {
   height: 5px;
   background: #e2e8f0;
@@ -231,7 +215,6 @@ $sombra:  0 0.46875rem 2.1875rem rgba(4, 9, 20, 0.03), 0 0.9375rem 1.40625rem rg
   max-width: 100%;
 }
 
-// ─── TARJETAS DE GRÁFICA ──────────────────────────────────────
 .rpt-graficas {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -240,9 +223,6 @@ $sombra:  0 0.46875rem 2.1875rem rgba(4, 9, 20, 0.03), 0 0.9375rem 1.40625rem rg
 
   @media (max-width: 800px) { grid-template-columns: 1fr; }
 
-  // Las dos tarjetas de una fila se estiran a la misma altura. Sin esto la franja
-  // inferior quedaba pegada al contenido y debajo sobraba un espacio en blanco; en
-  // columna, el cuerpo absorbe el alto extra y la franja baja al borde.
   .rpt-card {
     display: flex;
     flex-direction: column;
@@ -252,8 +232,6 @@ $sombra:  0 0.46875rem 2.1875rem rgba(4, 9, 20, 0.03), 0 0.9375rem 1.40625rem rg
     flex: 1;
   }
 
-  // La dona y su leyenda se centran como un bloque; si no, quedaban recostadas a la
-  // izquierda con toda la mitad derecha de la tarjeta vacia.
   .rpt-grafica-body:has(.rpt-doughnut-wrap) {
     justify-content: center;
     gap: 40px;
@@ -269,8 +247,6 @@ $sombra:  0 0.46875rem 2.1875rem rgba(4, 9, 20, 0.03), 0 0.9375rem 1.40625rem rg
   &--tabla { margin-bottom: 0; }
 }
 
-// La tabla ya va dentro de la tarjeta: sin el borde propio del contenedor global de
-// tablas, que dibujaba un segundo marco adentro.
 .rpt-card .tabla-contenedor {
   border: none;
   border-radius: 0;
@@ -293,7 +269,6 @@ $sombra:  0 0.46875rem 2.1875rem rgba(4, 9, 20, 0.03), 0 0.9375rem 1.40625rem rg
   font-weight: 600;
   color: $text;
 
-  // Icono del titulo de la tarjeta, en el color de acento.
   mat-icon {
     font-size: 20px;
     width: 20px;
@@ -336,18 +311,11 @@ $sombra:  0 0.46875rem 2.1875rem rgba(4, 9, 20, 0.03), 0 0.9375rem 1.40625rem rg
   height: 160px;
   flex-shrink: 0;
 
-  // El componente de graficas trae altura fija de 260px (la que necesitan las de
-  // barras). Metido en esta caja de 160px se desbordaba 100px hacia abajo: la dona
-  // quedaba corrida y la franja de "Tasa de finalizacion" le pasaba por encima.
   app-chart {
     height: 100%;
   }
 }
 
-// Grilla de tres columnas (punto, nombre, valor) en vez de filas flexibles. Antes el
-// nombre se estiraba hasta el borde de la tarjeta y empujaba el porcentaje al extremo
-// derecho, lejos de lo que describe. Asi el valor queda justo despues del nombre mas
-// largo, y todos los valores alineados en una misma columna.
 .rpt-leyenda {
   display: grid;
   grid-template-columns: auto auto auto;
@@ -356,7 +324,6 @@ $sombra:  0 0.46875rem 2.1875rem rgba(4, 9, 20, 0.03), 0 0.9375rem 1.40625rem rg
   align-items: center;
 }
 
-// Cada fila no genera caja propia: sus tres piezas pasan a ser celdas de la grilla.
 .rpt-leyenda-item {
   display: contents;
   font-size: 0.82rem;
@@ -402,7 +369,6 @@ $sombra:  0 0.46875rem 2.1875rem rgba(4, 9, 20, 0.03), 0 0.9375rem 1.40625rem rg
   width: 100%;
 }
 
-// ─── TABLA ────────────────────────────────────────────────────
 .rpt-tabla {
   width: 100%;
   min-width: 640px;
@@ -413,7 +379,6 @@ $sombra:  0 0.46875rem 2.1875rem rgba(4, 9, 20, 0.03), 0 0.9375rem 1.40625rem rg
   .mat-column-estado  { width: 14%; }
 }
 
-// Celda cliente con avatar
 .rpt-cliente-cell {
   display: flex;
   align-items: center;
@@ -448,7 +413,6 @@ $sombra:  0 0.46875rem 2.1875rem rgba(4, 9, 20, 0.03), 0 0.9375rem 1.40625rem rg
   color: $muted;
 }
 
-// Chip de tipo de evento — color variable por tipo
 .rpt-tipo-chip {
   display: inline-flex;
   align-items: center;
@@ -462,7 +426,6 @@ $sombra:  0 0.46875rem 2.1875rem rgba(4, 9, 20, 0.03), 0 0.9375rem 1.40625rem rg
   white-space: nowrap;
 }
 
-// Chip de estado
 .rpt-estado-chip {
   display: inline-flex;
   align-items: center;
@@ -476,29 +439,23 @@ $sombra:  0 0.46875rem 2.1875rem rgba(4, 9, 20, 0.03), 0 0.9375rem 1.40625rem rg
   justify-content: center;
 }
 
-// ── Reportes por modulo (cuentas por cobrar, cobros, pago al personal) ──────────
-
-// Botones de la cabecera (Imprimir PDF y Exportar CSV) uno junto al otro.
 .rpt-header-acciones {
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
 }
 
-// Montos alineados a la derecha, para comparar las cifras de una columna.
 .rpt-monto {
   text-align: right;
   white-space: nowrap;
 }
 
-// Fila de totales al pie de una tabla.
 .rpt-fila-total td {
   font-weight: 700;
   background: #f8fafc;
   border-top: 2px solid #e2e8f0;
 }
 
-// ── Tabla de los reportes por modulo ───────────────────────────────────────────
 .rpt-resumen {
   display: flex;
   flex-wrap: wrap;
@@ -538,7 +495,6 @@ $sombra:  0 0.46875rem 2.1875rem rgba(4, 9, 20, 0.03), 0 0.9375rem 1.40625rem rg
   tbody tr:hover td { background: #fafbfc; }
 }
 
-// Encabezado de cada grupo (Octubre 2026, Semana del..., una persona...).
 .rpt-fila-grupo td {
   padding-top: 16px;
   font-weight: 700;
@@ -552,7 +508,6 @@ $sombra:  0 0.46875rem 2.1875rem rgba(4, 9, 20, 0.03), 0 0.9375rem 1.40625rem rg
   }
 }
 
-// Registros que se muestran pero no suman (recibos anulados).
 .rpt-fila-excluida td {
   color: #94a3b8;
   text-decoration: line-through;

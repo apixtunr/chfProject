@@ -1,4 +1,3 @@
-/** Espeja common/exception/ApiError.java del backend. */
 export interface ApiError {
   timestamp: string;
   status: number;

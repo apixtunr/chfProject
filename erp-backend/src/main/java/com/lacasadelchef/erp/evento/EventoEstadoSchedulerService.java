@@ -19,19 +19,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledFuture;
 
-/**
- * Dispara CREADO -> CANCELADO (si nunca se planifico), PLANIFICADO -> EN CURSO -> FINALIZADO
- * en el instante exacto de hora_inicio/hora_fin de cada evento, en vez de esperar a la
- * siguiente pasada de un job periodico. Cada vez que un evento se crea, se planifica, se
- * edita o se cancela, hay que reprogramar su temporizador (por eso EventoServiceImpl llama
- * a programar()/cancelarTareas() en cada uno de esos casos).
- *
- * Los temporizadores viven en memoria: si el backend se reinicia se pierden, por eso
- * al arrancar se reconstruyen todos a partir de lo que siga CREADO, PLANIFICADO o EN CURSO
- * en la base de datos (reprogramarPendientes()). EventoEstadoAutomaticoJob se deja aparte
- * como red de seguridad de baja frecuencia, por si algun evento entra a la tabla sin
- * pasar por este servicio (por ejemplo, una carga directa por SQL).
- */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -59,7 +46,6 @@ public class EventoEstadoSchedulerService {
         }
     }
 
-    /** Programa (o reprograma) el temporizador que corresponda segun el estado actual del evento. */
     public void programar(Evento evento) {
         Integer id = evento.getIdEvento();
         String estado = evento.getEstado().getNombre().toUpperCase();
@@ -71,8 +57,6 @@ public class EventoEstadoSchedulerService {
         cancelar(temporizadoresFin, id);
 
         if (ESTADO_CREADO.equals(estado)) {
-            // Si nadie lo planifica antes de que llegue su hora de inicio, se cancela solo:
-            // no puede arrancar un evento que nunca se termino de armar.
             programarTarea(temporizadoresInicio, id, fecha, horaInicio, () -> executor.cancelarPorFaltaDePlanificacion(id));
         } else if (ESTADO_PLANIFICADO.equals(estado)) {
             programarTarea(temporizadoresInicio, id, fecha, horaInicio, () -> {
@@ -82,10 +66,8 @@ public class EventoEstadoSchedulerService {
         } else if (ESTADO_EN_CURSO.equals(estado)) {
             programarTarea(temporizadoresFin, id, fecha, horaFin, () -> executor.pasarAFinalizado(id));
         }
-        // Cualquier otro estado (FINALIZADO, CANCELADO): no queda nada pendiente por programar.
     }
 
-    /** Cancela cualquier temporizador pendiente de este evento (se cancelo o se elimino). */
     public void cancelarTareas(Integer idEvento) {
         cancelar(temporizadoresInicio, idEvento);
         cancelar(temporizadoresFin, idEvento);

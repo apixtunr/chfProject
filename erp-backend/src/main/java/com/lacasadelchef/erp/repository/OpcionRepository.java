@@ -7,7 +7,6 @@ import org.springframework.data.jpa.repository.Query;
 
 public interface OpcionRepository extends JpaRepository<Opcion, Integer> {
 
-    /** Todas las opciones con su vista y su modulo, en el orden del menu. */
     @Query("""
             SELECT o FROM Opcion o
             JOIN FETCH o.menuVista mv

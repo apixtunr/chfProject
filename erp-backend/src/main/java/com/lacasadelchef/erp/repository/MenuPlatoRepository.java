@@ -13,7 +13,6 @@ public interface MenuPlatoRepository extends JpaRepository<MenuPlato, MenuPlatoI
 
     List<MenuPlato> findByMenuIdMenuOrderByOrdenMenu(Integer idMenu);
 
-    /** Precio de un menu completo: suma de sus platos. 0 si todavia no tiene ninguno. */
     @Query("SELECT COALESCE(SUM(mp.precioUnitario), 0) FROM MenuPlato mp WHERE mp.menu.idMenu = :idMenu")
     BigDecimal sumarPrecioPorMenu(@Param("idMenu") Integer idMenu);
 }

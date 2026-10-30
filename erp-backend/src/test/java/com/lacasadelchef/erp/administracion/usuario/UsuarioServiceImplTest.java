@@ -30,12 +30,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-/**
- * La relacion usuario-empleado es uno a uno: un empleado tiene como mucho un usuario, y
- * un usuario pertenece siempre a un empleado. La base lo garantiza con un indice unico y
- * un NOT NULL; estas pruebas cubren que el servicio lo diga con un mensaje entendible en
- * vez de dejar que reviente contra la base con un error generico.
- */
 @ExtendWith(MockitoExtension.class)
 class UsuarioServiceImplTest {
 

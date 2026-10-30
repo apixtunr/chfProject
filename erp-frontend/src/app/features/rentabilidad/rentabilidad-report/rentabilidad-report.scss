@@ -4,13 +4,11 @@
   .mat-column-cliente { width: auto; }
 }
 
-// Montos alineados a la derecha, para comparar las cifras de una columna.
 .rpt-num {
   text-align: right;
   white-space: nowrap;
 }
 
-// "Por cobrar" debajo de lo cobrado, en rojo: es lo que el cliente todavia debe.
 .rpt-num-sub {
   display: block;
   font-size: 0.72rem;
@@ -25,7 +23,6 @@
   color: #e11d48;
 }
 
-// Semaforo del margen: verde desde 30%, amarillo desde 15%, rojo por debajo.
 .rpt-margen-chip {
   display: inline-flex;
   justify-content: center;

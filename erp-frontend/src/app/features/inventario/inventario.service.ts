@@ -16,8 +16,6 @@ import {
 export class InventarioService {
   constructor(private readonly http: HttpClient) {}
 
-  // --- Productos ---
-
   listarProductos(nombre: string, page: number, size: number): Observable<Page<ProductoResponse>> {
     let params = new HttpParams().set('page', page).set('size', size).set('sort', 'nombreProducto');
     if (nombre) {
@@ -46,8 +44,6 @@ export class InventarioService {
     return this.http.get<CategoriaProductoResponse[]>(`${API_URL}/categorias-producto`);
   }
 
-  // --- Stock ---
-
   listarInventarios(page: number, size: number): Observable<Page<InventarioResponse>> {
     const params = new HttpParams().set('page', page).set('size', size);
     return this.http.get<Page<InventarioResponse>>(`${API_URL}/inventarios`, { params });
@@ -62,8 +58,6 @@ export class InventarioService {
       cantidadMinima,
     });
   }
-
-  // --- Movimientos ---
 
   listarMovimientos(
     idProducto: number | null,

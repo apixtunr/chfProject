@@ -40,7 +40,6 @@ public class DetalleCotizacion extends Auditable {
     @Column(name = "precio_unitario", nullable = false, precision = 12, scale = 2)
     private BigDecimal precioUnitario;
 
-    /** Columna generada en PostgreSQL (cantidad * precio); solo lectura. */
     @Generated(event = {EventType.INSERT, EventType.UPDATE})
     @Column(name = "subtotal", insertable = false, updatable = false, precision = 12, scale = 2)
     private BigDecimal subtotal;
@@ -48,7 +47,6 @@ public class DetalleCotizacion extends Auditable {
     @Column(name = "observaciones", length = 255)
     private String observaciones;
 
-    /** Bebida que eligio el cliente entre las que incluye el plato; null si no incluye. */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_bebida")
     private Bebida bebida;

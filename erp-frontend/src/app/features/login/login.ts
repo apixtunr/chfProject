@@ -39,8 +39,6 @@ export class Login {
 
     this.authService.login(this.formulario.getRawValue()).subscribe({
       next: () => {
-        // Si la navegacion se cancela (ej. una guarda devuelve false sin redirigir)
-        // el spinner no debe quedarse girando para siempre.
         this.router.navigateByUrl('/').then((exito) => {
           if (!exito) {
             this.cargando.set(false);

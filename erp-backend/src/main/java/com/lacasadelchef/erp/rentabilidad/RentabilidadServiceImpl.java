@@ -23,10 +23,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-/**
- * Rentabilidad de los eventos FINALIZADOS. Los creados, planificados o en curso no cuentan
- * (sus costos aun no estan completos y su ganancia saldria inflada) y los cancelados tampoco.
- */
 @Service
 @RequiredArgsConstructor
 public class RentabilidadServiceImpl implements RentabilidadService {
@@ -40,7 +36,6 @@ public class RentabilidadServiceImpl implements RentabilidadService {
     public Page<RentabilidadEventoResponse> listarPorEvento(LocalDate fechaDesde, LocalDate fechaHasta,
                                                              Integer idCliente, Integer idTipoEvento, Pageable pageable) {
         List<RentabilidadEventoResponse> todos = calcular(null, fechaDesde, fechaHasta, idCliente, idTipoEvento);
-        // Ya vienen ordenados del mas reciente al mas antiguo; son pocos, se paginan aqui.
         if (pageable.isUnpaged()) {
             return new PageImpl<>(todos);
         }
@@ -106,10 +101,6 @@ public class RentabilidadServiceImpl implements RentabilidadService {
                 .toList();
     }
 
-    /**
-     * Las cuentas de un evento. Un costo extra que pago el cliente esta en los dos lados
-     * (es costo y es ingreso), asi que no cambia la ganancia: solo la refleja completa.
-     */
     static RentabilidadEventoResponse desde(RentabilidadFila fila) {
         BigDecimal precio = valor(fila.getPrecio());
         BigDecimal abonado = valor(fila.getAbonado());

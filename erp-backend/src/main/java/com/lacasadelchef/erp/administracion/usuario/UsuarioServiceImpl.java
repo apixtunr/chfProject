@@ -73,8 +73,6 @@ public class UsuarioServiceImpl implements UsuarioService {
     @Override
     @Transactional
     public void eliminar(Integer id) {
-        // Si el usuario registro pagos, movimientos de inventario o bitacoras, la FK lo
-        // impide y el GlobalExceptionHandler lo traduce a HTTP 409.
         Usuario usuario = buscar(id);
         usuarioRepository.delete(usuario);
     }
@@ -102,14 +100,6 @@ public class UsuarioServiceImpl implements UsuarioService {
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario", id));
     }
 
-    /**
-     * Comprueba que el empleado no tenga ya un usuario antes de tocar la base. El indice
-     * unico igual lo impediria, pero con un 409 generico que no dice que paso. El nombre
-     * de usuario no hace falta revisarlo: PoliticaUsuario siempre da uno libre.
-     *
-     * @param idUsuarioActual null en un alta; en una edicion, el id que se esta editando,
-     *                        para no chocar consigo mismo
-     */
     private void validarDisponibilidad(Integer idEmpleado, Integer idUsuarioActual) {
         usuarioRepository.findByEmpleadoIdEmpleado(idEmpleado)
                 .filter(u -> !u.getIdUsuario().equals(idUsuarioActual))

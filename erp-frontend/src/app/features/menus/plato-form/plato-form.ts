@@ -33,14 +33,12 @@ export class PlatoForm implements OnInit {
   readonly guardando = signal(false);
   readonly estados = signal<EstadoResponse[]>([]);
 
-  /** Las activas del catalogo, mas las que ya tenga el plato aunque se hayan inactivado. */
   readonly bebidasDisponibles = signal<BebidaResumen[]>([]);
 
   readonly formulario = this.fb.nonNullable.group({
     nombrePlato: ['', [Validators.required, Validators.maxLength(120)]],
     idEstado: this.fb.control<number | null>(null, Validators.required),
     unidadVenta: this.fb.nonNullable.control<UnidadVenta>('PERSONA', Validators.required),
-    // Bebidas que incluye el plato; ninguna = no lleva bebida (boquitas).
     idsBebida: this.fb.nonNullable.control<number[]>([]),
   });
 

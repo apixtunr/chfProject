@@ -48,7 +48,6 @@ export class MovimientoList implements OnInit {
   readonly idProductoFiltro = signal<number | null>(null);
   readonly idEventoFiltro = signal<number | null>(null);
 
-  /** Valor del input, separado de idEventoFiltro para no disparar la busqueda en cada tecla. */
   idEventoInput: number | null = null;
 
   readonly puedeRegistrar: boolean;
@@ -60,7 +59,6 @@ export class MovimientoList implements OnInit {
   }
 
   ngOnInit(): void {
-    // Catalogo para el filtro (mismo tope que usa el resto de la app para dropdowns)
     this.inventarioService.listarProductos('', 0, 200).subscribe((p) => this.productos.set(p.content));
     this.cargar();
   }
@@ -74,7 +72,6 @@ export class MovimientoList implements OnInit {
       });
   }
 
-  /** Al cambiar de tipo se limpia el filtro que ya no aplica (nunca conviven los dos a la vez). */
   cambiarTipoFiltro(tipo: 'producto' | 'evento'): void {
     this.tipoFiltro.set(tipo);
     if (tipo === 'producto') {

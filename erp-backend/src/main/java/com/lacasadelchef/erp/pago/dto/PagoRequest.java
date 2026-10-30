@@ -28,7 +28,6 @@ public record PagoRequest(
         @NotNull(message = "La fecha del pago es obligatoria")
         LocalDateTime fechaPago,
 
-        /** Si viene con valor, este pago es el reembolso de ese costo extra, no un abono al menu. */
         Integer idCostoEvento
 ) {
 }

@@ -19,7 +19,6 @@ public record EventoEmpleadoResponse(
         LocalTime horaInicio,
         LocalTime horaFin,
 
-        /** Si tiene licencia de conducir registrada. Solo viene en el listado del personal. */
         Boolean tieneLicencia
 ) {
 

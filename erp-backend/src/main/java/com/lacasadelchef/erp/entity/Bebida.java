@@ -6,7 +6,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/** Bebida que puede incluir un plato del menu (te frio, rosa de Jamaica, atol...). */
 @Getter
 @Setter
 @NoArgsConstructor

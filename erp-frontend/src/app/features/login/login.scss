@@ -10,7 +10,6 @@
   overflow: hidden;
   background: linear-gradient(160deg, var(--chf-login-fondo-a) 0%, var(--chf-login-fondo-b) 55%, var(--chf-login-fondo-c) 100%);
 
-  // Mancha decorativa suave arriba a la izquierda
   &::before {
     content: '';
     position: absolute;

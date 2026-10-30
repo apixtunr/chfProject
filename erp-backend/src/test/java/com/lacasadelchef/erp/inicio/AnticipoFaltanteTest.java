@@ -10,7 +10,6 @@ import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/** El primer 50% se paga una semana antes del evento (forma de pago del menu). */
 class AnticipoFaltanteTest {
 
     private static final LocalDate HOY = LocalDate.of(2026, 10, 1);

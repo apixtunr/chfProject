@@ -16,7 +16,6 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-/** Las cuentas de la rentabilidad: ganancia acordada, ganancia cobrada y lo que falta cobrar. */
 @ExtendWith(MockitoExtension.class)
 class RentabilidadServiceImplTest {
 
@@ -43,7 +42,6 @@ class RentabilidadServiceImplTest {
     @Test
     @DisplayName("Un evento de Q2,000 con la mitad cobrada: gana segun lo acordado, pero el dinero que quedo es menor")
     void gananciaAcordadaYCobrada() {
-        // Precio 2000, abonado 1000, transporte 100 cobrado al cliente; personal 600, inventario 500.
         var r = RentabilidadServiceImpl.desde(fila(44, "Boda", "2000", "1000", "100", "600", "500", "100"));
 
         assertThat(r.ingresosAcordados()).isEqualByComparingTo("2100");

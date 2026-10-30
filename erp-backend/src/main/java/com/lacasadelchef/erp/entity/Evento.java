@@ -22,12 +22,10 @@ public class Evento extends Auditable {
     @Column(name = "id_evento")
     private Integer idEvento;
 
-    /** Nullable: un evento puede nacer directo, sin pasar por cotizacion. */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_cotizacion_version")
     private CotizacionVersion cotizacionVersion;
 
-    /** Solo se usa cuando el evento no tiene cotizacion; si la tiene, el cliente se deriva de ahi. */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_cliente")
     private Cliente cliente;
@@ -59,18 +57,15 @@ public class Evento extends Auditable {
     @Column(name = "observaciones", length = 500)
     private String observaciones;
 
-    /** Mantenido por trigger en la base de datos a partir de detalle_evento. */
     @Column(name = "monto_menu", insertable = false, updatable = false, precision = 12, scale = 2)
     private BigDecimal montoMenu;
 
-    /** Se planifico sin tener pagado el 50% (decision del usuario; queda en la bitacora). */
     @Column(name = "planificado_sin_anticipo", nullable = false)
     private Boolean planificadoSinAnticipo = false;
 
     @Column(name = "motivo_cancelacion", length = 255)
     private String motivoCancelacion;
 
-    /** En que quedo lo pagado al cancelar: SIN_ANTICIPO, RETENIDO, DEVUELTO o DEVUELTO_PARCIAL. */
     @Column(name = "acuerdo_anticipo", length = 20)
     private String acuerdoAnticipo;
 

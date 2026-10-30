@@ -1,4 +1,3 @@
-<!-- ══ CABECERA ════════════════════════════════════════════════ -->
 <div class="rpt-header">
   <div class="rpt-header-left">
     <div class="rpt-header-icono"><mat-icon>{{ config.icono }}</mat-icon></div>
@@ -23,7 +22,6 @@
   </div>
 </div>
 
-<!-- ══ FILTROS ════════════════════════════════════════════════ -->
 <div class="rpt-filtros-card">
   <form class="rpt-filtros" (submit)="$event.preventDefault(); cargar()">
 
@@ -120,7 +118,6 @@
   </form>
 </div>
 
-<!-- ══ TABLA ═══════════════════════════════════════════════════ -->
 @if (reporte(); as r) {
   <div class="rpt-card rpt-card--tabla">
     <div class="rpt-card-header">

@@ -12,7 +12,6 @@ public record MenuResponse(
         String nombreMenu,
         Integer idEstado,
         String estadoNombre,
-        /** Suma de los precios de los platos del menu; es el precio que se usa en cotizaciones/eventos. */
         BigDecimal precioTotal,
         LocalDateTime fechaCreacion,
         LocalDateTime fechaModificacion

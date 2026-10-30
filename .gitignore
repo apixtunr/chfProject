@@ -1,6 +1,4 @@
-# Archivos de sistema operativo
 .DS_Store
 Thumbs.db
 
-# Variables de entorno del despliegue: contrasenas, no van al repositorio
 .env

@@ -69,8 +69,6 @@ public class MenuServiceImpl implements MenuService {
     @Override
     @Transactional
     public void eliminar(Integer id) {
-        // Si el menu esta referenciado en algun detalle de cotizacion, la FK lo impide
-        // y el GlobalExceptionHandler lo traduce a HTTP 409.
         Menu menu = buscarMenu(id);
         menuRepository.delete(menu);
     }
@@ -138,7 +136,6 @@ public class MenuServiceImpl implements MenuService {
     }
 
     private void aplicar(MenuPlatoRequest request, MenuPlato menuPlato) {
-        // El precio de volumen es un descuento por cantidad: nunca mas caro que el base.
         if (request.precioDesde100() != null && request.precioDesde100().compareTo(request.precioUnitario()) > 0) {
             throw new BusinessException("El precio desde 100 personas no puede ser mayor que el precio base");
         }

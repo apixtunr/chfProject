@@ -1,4 +1,3 @@
-<!-- ══ CABECERA DE PÁGINA ══════════════════════════════════════ -->
 <div class="pf-page-header">
   <div class="pf-header-left">
     <nav class="pf-breadcrumb" aria-label="Ruta de navegación">
@@ -16,10 +15,8 @@
   </div>
 </div>
 
-<!-- ══ FORMULARIO ══════════════════════════════════════════════ -->
 <form [formGroup]="formulario" (ngSubmit)="guardar()" novalidate>
 
-  <!-- ── SECCIÓN 1: Cliente ── -->
   <div class="pf-section">
     <div class="pf-section-header">
       <div class="pf-section-title">
@@ -56,7 +53,6 @@
     </div>
   </div>
 
-  <!-- ── SECCIÓN 2: Detalles del evento ── -->
   <div class="pf-section">
     <div class="pf-section-header">
       <div class="pf-section-title">
@@ -65,7 +61,6 @@
       </div>
     </div>
 
-    <!-- Tipo de evento -->
     <div class="pf-row-2col">
       <div class="pf-field">
         <label class="pf-label" for="tipoEvento">
@@ -87,7 +82,6 @@
       </div>
     </div>
 
-    <!-- Cantidad de personas + Presupuesto del cliente -->
     <div class="pf-row-2col">
       <div class="pf-field">
         <label class="pf-label" for="cantidadPersonas">
@@ -119,7 +113,6 @@
       </div>
     </div>
 
-    <!-- Fecha estimada + Horario -->
     <div class="pf-row-2col">
       <div class="pf-field">
         <label class="pf-label" for="fechaEvento">
@@ -167,7 +160,6 @@
     </div>
   </div>
 
-  <!-- ── SECCIÓN 3: Ubicación ── -->
   <div class="pf-section">
     <div class="pf-section-header">
       <div class="pf-section-title">
@@ -176,7 +168,6 @@
       </div>
     </div>
 
-    <!-- Departamento + Municipio -->
     <div class="pf-row-2col">
       <div class="pf-field">
         <label class="pf-label" for="departamento">
@@ -220,7 +211,6 @@
       </div>
     </div>
 
-    <!-- Dirección -->
     <div class="pf-field pf-field--last">
       <label class="pf-label" for="direccion">
         <span class="pf-label-num">9.</span>
@@ -237,7 +227,6 @@
     </div>
   </div>
 
-  <!-- ══ ACCIONES ════════════════════════════════════════════ -->
   <div class="pf-footer-actions">
     <button
       mat-stroked-button

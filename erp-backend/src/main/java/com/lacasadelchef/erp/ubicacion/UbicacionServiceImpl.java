@@ -53,8 +53,6 @@ public class UbicacionServiceImpl implements UbicacionService {
     @Override
     @Transactional
     public void eliminar(Integer id) {
-        // Si la ubicacion tiene eventos asociados, la FK lo impide y el
-        // GlobalExceptionHandler lo traduce a HTTP 409.
         Ubicacion ubicacion = buscar(id);
         ubicacionRepository.delete(ubicacion);
     }

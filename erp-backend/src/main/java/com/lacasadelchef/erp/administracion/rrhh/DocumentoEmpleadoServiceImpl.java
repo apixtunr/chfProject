@@ -41,7 +41,6 @@ public class DocumentoEmpleadoServiceImpl implements DocumentoEmpleadoService {
                 .orElseThrow(() -> new ResourceNotFoundException("Empleado", idEmpleado));
         TipoDocumento tipoDocumento = tipoDocumentoRepository.findById(idTipoDocumento)
                 .orElseThrow(() -> new ResourceNotFoundException("TipoDocumento", idTipoDocumento));
-        // Sin esto, guardar con la misma llave reemplazaba en silencio el documento anterior.
         if (documentoEmpleadoRepository.existsById(new DocumentoEmpleadoId(idEmpleado, idTipoDocumento))) {
             throw new BusinessException("%s ya tiene registrado su %s; modifíquelo en lugar de agregarlo otra vez"
                     .formatted(empleado.getNombreCompleto(), tipoDocumento.getNombreTipo()));

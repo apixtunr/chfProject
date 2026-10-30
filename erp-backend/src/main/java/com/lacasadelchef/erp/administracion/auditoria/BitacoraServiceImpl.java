@@ -13,11 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.List;
 
-/**
- * Solo lectura: bitacora_movimiento y bitacora_acceso se llenan desde
- * AuditoriaCambiosListener y AuthService respectivamente; este servicio unicamente
- * las consulta para la pantalla de Bitacora.
- */
+
 @Service
 @RequiredArgsConstructor
 public class BitacoraServiceImpl implements BitacoraService {

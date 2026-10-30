@@ -12,15 +12,10 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.function.Function;
 
-/**
- * Reporte de eventos por periodo. No lleva montos: el modulo de Eventos lo consultan
- * tambien Cocina y Almacén, que no ven los costos ni los precios.
- */
 @Service
 @RequiredArgsConstructor
 public class EventoReporteService {
 
-    /** Filtrar y agrupar por el dia en que se registro el evento, en lugar de su fecha. */
     public static final String SEGUN_REGISTRO = "REGISTRO";
 
     private final EventoRepository eventoRepository;

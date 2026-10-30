@@ -1,4 +1,3 @@
-/** Espeja administracion/flota/dto/*.java del backend. */
 export interface VehiculoRequest {
   idLineaVehiculo: number;
   idTipoPlaca: number;

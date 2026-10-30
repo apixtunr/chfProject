@@ -11,11 +11,6 @@ interface Paso {
   listo: boolean;
 }
 
-/**
- * Eventos en CREADO: lo que les falta para poder planificarse y cuanto tiempo queda antes
- * de que el sistema los cancele solos (ver EventoEstadoSchedulerService en el backend).
- * Los pasos son los mismos cuatro que valida EventoServiceImpl.planificar().
- */
 @Component({
   selector: 'app-panel-preparacion',
   imports: [RouterLink, MatIconModule, MatTooltipModule],
@@ -54,7 +49,6 @@ export class PanelPreparacion {
     return Number(e.fechaEvento.substring(8, 10));
   }
 
-  /** Cuenta regresiva hasta la hora de inicio, que es cuando se cancela si sigue sin planificar. */
   plazo(e: EventoPanel): string {
     const dias = this.dias(e);
     if (dias <= 0) return e.horaInicio ? `Se cancela hoy a las ${hora(e.horaInicio)}` : 'Se cancela hoy';

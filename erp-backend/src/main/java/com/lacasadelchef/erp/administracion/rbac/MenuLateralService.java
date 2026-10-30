@@ -17,17 +17,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * Arma el menu lateral desde las tablas modulo, menu_vista y opcion.
- *
- * Devuelve, agrupadas por modulo y en el orden de la base, las opciones sobre las que el rol
- * tiene su fila en rol_opcion, que es el mismo criterio con que el backend deja consultar
- * cada ruta. Los modulos sin opciones permitidas no se envian. ADMINISTRADOR sigue la misma
- * regla que los demas roles.
- *
- * Como se dibuja cada opcion (su icono, su ruta en el frontend, el color del modulo) no es
- * dato del negocio y lo resuelve el frontend a partir de la pagina_url.
- */
 @Service
 @RequiredArgsConstructor
 public class MenuLateralService {

@@ -34,7 +34,6 @@ public class PagoController {
         return pagoService.listar(idEvento, pageable);
     }
 
-    /** Eventos con su saldo (total/abonado/pendiente), para la pantalla principal de Pagos. */
     @GetMapping("/eventos")
     public Page<EventoPagoResponse> listarEventosConSaldo(
             @RequestParam(required = false) String filtro,
@@ -50,7 +49,6 @@ public class PagoController {
         return pagoService.obtenerPorId(id);
     }
 
-    /** Recibo del pago en PDF, para entregarle al cliente. */
     @GetMapping("/{id}/recibo")
     public ResponseEntity<byte[]> recibo(@PathVariable Integer id) {
         return ResponseEntity.ok()

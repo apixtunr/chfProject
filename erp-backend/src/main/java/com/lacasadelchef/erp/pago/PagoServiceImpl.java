@@ -35,9 +35,6 @@ import java.time.LocalDate;
 public class PagoServiceImpl implements PagoService {
 
     private static final String TIPO_ESTADO_PAGO = "PAGO";
-    // Registrar un pago ya ES la confirmacion (no hay un paso de aprobacion aparte en este
-    // negocio); nace CONFIRMADO. ANULADO sigue existiendo para cuando un pago valido se
-    // invalida despues (cheque rebotado, transferencia reversada), sin borrar el registro.
     private static final String ESTADO_CONFIRMADO = "CONFIRMADO";
     private static final String ESTADO_EVENTO_CANCELADO = "CANCELADO";
 
@@ -99,8 +96,6 @@ public class PagoServiceImpl implements PagoService {
     @Override
     @Transactional
     public void eliminar(Integer id) {
-        // Si el pago tiene comprobantes asociados, la FK lo impide y el
-        // GlobalExceptionHandler lo traduce a HTTP 409.
         Pago pago = buscarPago(id);
         pagoRepository.delete(pago);
     }
@@ -134,8 +129,6 @@ public class PagoServiceImpl implements PagoService {
     private void aplicar(PagoRequest request, Pago pago) {
         Evento evento = eventoRepository.findById(request.idEvento())
                 .orElseThrow(() -> new ResourceNotFoundException("Evento", request.idEvento()));
-        // Al cancelar se pacta con el cliente que pasa con lo pagado (se devuelve, se retiene...):
-        // un abono despues de eso descuadraria el acuerdo.
         if (ESTADO_EVENTO_CANCELADO.equalsIgnoreCase(evento.getEstado().getNombre())) {
             throw new BusinessException("El evento #%d está cancelado: ya no se le registran pagos"
                     .formatted(evento.getIdEvento()));
@@ -154,8 +147,6 @@ public class PagoServiceImpl implements PagoService {
                     .orElseThrow(() -> new ResourceNotFoundException("CostoEvento", request.idCostoEvento()));
         }
 
-        // El limite de "no exceder el pendiente" solo aplica a abonos al precio del evento; un
-        // reembolso de costo extra es un concepto aparte (ver Pago.costoEvento) y no cuenta contra ese saldo.
         if (costoEvento == null) {
             validarNoExcedePendiente(evento, request.monto(), pago.getIdPago());
         }

@@ -1,5 +1,4 @@
 @if (evento(); as e) {
-  <!-- Encabezado del evento: titulo, estado y acciones arriba; sus datos en recuadros abajo. -->
   <section class="evt-cabecera">
     <div class="evt-cabecera-fila">
       <div class="evt-cabecera-titulo">
@@ -377,9 +376,6 @@
                 }
                 </mat-select>
               </div>
-              <!-- El conductor sale del personal del evento: asi su pago y su horario ya quedan
-              registrados. Y tiene que tener licencia de conducir registrada en sus
-              documentos (Empleados). El backend valida las dos cosas. -->
               @if (personal().length === 0) {
               <p class="pf-ayuda">Asigne primero el personal del evento para elegir conductor</p>
               } @else if (!hayConductores()) {

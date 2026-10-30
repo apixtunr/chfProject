@@ -5,7 +5,6 @@ import lombok.Builder;
 
 import java.time.LocalDateTime;
 
-/** Nunca incluye passwordHash. */
 @Builder
 public record UsuarioResponse(
         Integer idUsuario,

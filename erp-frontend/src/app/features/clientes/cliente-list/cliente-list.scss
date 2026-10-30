@@ -2,7 +2,6 @@
   width: 100%;
   min-width: 820px;
 
-  // Sin columna ID — los anchos se redistribuyen en 5 columnas de datos + acciones.
   .mat-column-nombre    { width: 22%; }
   .mat-column-nit       { width: 13%; }
   .mat-column-telefono  { width: 16%; }
@@ -11,13 +10,11 @@
   .mat-column-acciones  { width: 4%; white-space: nowrap; text-align: right; }
 }
 
-// 2. Estilos principales de la tabla Angular Material
 .tabla {
   width: 100%;
   min-width: 820px;
   background: transparent;
 
-  // Distribución de anchos por columnas nativas de Angular Material
   .mat-column-nombre    { width: 22%; }
   .mat-column-nit       { width: 13%; }
   .mat-column-telefono  { width: 16%; }
@@ -25,9 +22,6 @@
   .mat-column-direccion { width: 23%; }
   .mat-column-acciones  { width: 4%; white-space: nowrap; text-align: right; }
 
-  // 3. Estilos internos para los componentes de las celdas (Anidados)
-  
-  // Contenedor para alinear iconos y texto de forma horizontal
   .tbl-icon-cell {
     display: inline-flex;
     align-items: center;
@@ -38,11 +32,10 @@
       font-size: 18px;
       width: 18px;
       height: 18px;
-      color: var(--chf-texto-ejemplo); // Color sutil para los iconos internos
+      color: var(--chf-texto-ejemplo);
     }
   }
 
-  // Badge tipo código para el NIT
   .tbl-badge-codigo {
     display: inline-block;
     padding: 2px 6px;

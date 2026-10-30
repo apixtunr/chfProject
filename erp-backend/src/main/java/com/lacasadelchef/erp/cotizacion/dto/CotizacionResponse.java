@@ -24,19 +24,16 @@ public record CotizacionResponse(
         LocalDate fechaEvento,
         BigDecimal presupuestoCliente,
         LocalTime horaInicio,
-        /** Calculada: 4 horas despues del inicio, sin pasar del cierre del servicio. */
         LocalTime horaFin,
         Integer ultimaVersionId,
         Integer ultimaVersionNumero,
         String ultimaVersionEstado,
         BigDecimal ultimaVersionMonto,
-        /** Hasta que dia vale la ultima version si esta ENVIADA (para el aviso "vence en X dias"). */
         LocalDate ultimaVersionVigenteHasta,
         LocalDateTime fechaCreacion,
         LocalDateTime fechaModificacion
 ) {
 
-    /** Para listados: incluye el estado/monto de la version mas reciente. */
     public static CotizacionResponse desde(Cotizacion cotizacion, CotizacionVersion ultimaVersion) {
         return CotizacionResponse.builder()
                 .idCotizacion(cotizacion.getIdCotizacion())

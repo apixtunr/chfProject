@@ -20,8 +20,6 @@ const VERSIONES_URL = `${BASE_URL}/versiones`;
 export class CotizacionService {
   constructor(private readonly http: HttpClient) {}
 
-  // --- Cabecera ---
-
   listar(idCliente: number | null, page: number, size: number): Observable<Page<CotizacionResponse>> {
     let params = new HttpParams().set('page', page).set('size', size).set('sort', 'fechaCotizacion,desc');
     if (idCliente) {
@@ -46,8 +44,6 @@ export class CotizacionService {
     return this.http.delete<void>(`${BASE_URL}/${id}`);
   }
 
-  // --- Versiones ---
-
   listarVersiones(idCotizacion: number): Observable<CotizacionVersionResponse[]> {
     return this.http.get<CotizacionVersionResponse[]>(`${BASE_URL}/${idCotizacion}/versiones`);
   }
@@ -69,8 +65,6 @@ export class CotizacionService {
     return this.http.get(`${VERSIONES_URL}/${idVersion}/pdf`, { responseType: 'blob' });
   }
 
-  // --- Detalle ---
-
   listarDetalle(idVersion: number): Observable<DetalleCotizacionResponse[]> {
     return this.http.get<DetalleCotizacionResponse[]>(`${VERSIONES_URL}/${idVersion}/detalles`);
   }
@@ -90,8 +84,6 @@ export class CotizacionService {
   eliminarDetalle(idVersion: number, idDetalle: number): Observable<void> {
     return this.http.delete<void>(`${VERSIONES_URL}/${idVersion}/detalles/${idDetalle}`);
   }
-
-  // --- Servicios extra (hora extra de cocinero, cubremantel, etc.) ---
 
   listarServicios(idVersion: number): Observable<ServicioCotizacionResponse[]> {
     return this.http.get<ServicioCotizacionResponse[]>(`${VERSIONES_URL}/${idVersion}/servicios`);

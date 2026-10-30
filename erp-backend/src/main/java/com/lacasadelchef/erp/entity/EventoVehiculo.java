@@ -28,7 +28,6 @@ public class EventoVehiculo {
     @JoinColumn(name = "id_vehiculo")
     private Vehiculo vehiculo;
 
-    /** Conductor asignado (opcional). */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_empleado")
     private Empleado empleado;

@@ -5,7 +5,6 @@ import lombok.Builder;
 
 import java.time.LocalDateTime;
 
-/** Datos de salida de un cliente (nunca se expone la entidad directamente). */
 @Builder
 public record ClienteResponse(
         Integer idCliente,

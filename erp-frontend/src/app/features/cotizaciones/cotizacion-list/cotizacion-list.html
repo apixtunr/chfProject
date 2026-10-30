@@ -11,13 +11,11 @@
 <div class="tabla-contenedor">
   <table mat-table [dataSource]="cotizaciones()" class="tabla">
 
-    <!-- Cliente -->
     <ng-container matColumnDef="cliente">
       <th mat-header-cell *matHeaderCellDef>Cliente</th>
       <td mat-cell *matCellDef="let c">{{ c.clienteNombre }}</td>
     </ng-container>
 
-    <!-- Tipo de evento -->
     <ng-container matColumnDef="tipoEvento">
       <th mat-header-cell *matHeaderCellDef>Tipo de evento</th>
       <td mat-cell *matCellDef="let c">
@@ -28,7 +26,6 @@
       </td>
     </ng-container>
 
-    <!-- Fecha -->
     <ng-container matColumnDef="fechaCotizacion">
       <th mat-header-cell *matHeaderCellDef>Fecha</th>
       <td mat-cell *matCellDef="let c">
@@ -39,7 +36,6 @@
       </td>
     </ng-container>
 
-    <!-- Estado — chip semántico -->
     <ng-container matColumnDef="estado">
       <th mat-header-cell *matHeaderCellDef>Estado</th>
       <td mat-cell *matCellDef="let c">
@@ -56,7 +52,6 @@
       </td>
     </ng-container>
 
-    <!-- Monto -->
     <ng-container matColumnDef="monto">
       <th mat-header-cell *matHeaderCellDef>Monto</th>
       <td mat-cell *matCellDef="let c" class="col-monto">
@@ -64,7 +59,6 @@
       </td>
     </ng-container>
 
-    <!-- Acciones -->
     <ng-container matColumnDef="acciones">
       <th mat-header-cell *matHeaderCellDef>Acciones</th>
       <td mat-cell *matCellDef="let c">

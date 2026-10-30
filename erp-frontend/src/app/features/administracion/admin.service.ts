@@ -18,8 +18,6 @@ import {
 export class AdminService {
   constructor(private readonly http: HttpClient) {}
 
-  // --- Roles ---
-
   listarRoles(): Observable<RolResponse[]> {
     return this.http.get<RolResponse[]>(`${API_URL}/roles`);
   }
@@ -35,8 +33,6 @@ export class AdminService {
   eliminarRol(id: number): Observable<void> {
     return this.http.delete<void>(`${API_URL}/roles/${id}`);
   }
-
-  // --- Opciones y permisos ---
 
   listarOpciones(): Observable<OpcionResponse[]> {
     return this.http.get<OpcionResponse[]>(`${API_URL}/opciones`);
@@ -57,8 +53,6 @@ export class AdminService {
   quitarPermiso(idRol: number, idOpcion: number): Observable<void> {
     return this.http.delete<void>(`${API_URL}/roles/${idRol}/permisos/${idOpcion}`);
   }
-
-  // --- Usuarios ---
 
   listarUsuarios(username: string, page: number, size: number): Observable<Page<UsuarioResponse>> {
     let params = new HttpParams().set('page', page).set('size', size).set('sort', 'username');

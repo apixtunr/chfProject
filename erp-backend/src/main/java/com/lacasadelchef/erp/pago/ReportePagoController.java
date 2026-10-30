@@ -15,10 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
 
-/**
- * Reportes de Pagos. Consultarlos exige el modulo de Pagos (RecursosApi); el PDF, ademas,
- * el permiso de imprimir. El CSV lo arma la pantalla con la misma respuesta.
- */
 @RestController
 @RequestMapping("/api/pagos/reportes")
 @RequiredArgsConstructor
@@ -69,7 +65,6 @@ public class ReportePagoController {
             @RequestParam(required = false) String agrupar,
             @RequestParam(required = false) String filtros) {
         ReporteTabla r = reportePagoService.cuentasPorCobrar(fechaDesde, fechaHasta, idCliente, situacion, agrupar);
-        // Es una foto del dia: lo que se debe hoy. Las fechas, si se dan, son las de los eventos.
         String sub = "Al " + ReportePdf.fecha(LocalDate.now());
         if (fechaDesde != null || fechaHasta != null) {
             sub += "  ·  Eventos: " + ReportePdf.periodo(fechaDesde, fechaHasta).toLowerCase();

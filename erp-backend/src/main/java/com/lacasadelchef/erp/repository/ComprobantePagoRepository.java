@@ -10,6 +10,5 @@ public interface ComprobantePagoRepository extends JpaRepository<ComprobantePago
 
     List<ComprobantePago> findByPagoIdPago(Integer idPago);
 
-    /** Otro comprobante con el mismo tipo y numero (a lo sumo uno, por el indice unico de V32). */
     Optional<ComprobantePago> findByTipoComprobanteAndNumeroComprobante(String tipoComprobante, String numeroComprobante);
 }

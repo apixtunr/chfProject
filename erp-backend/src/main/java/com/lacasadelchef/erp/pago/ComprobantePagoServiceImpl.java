@@ -25,7 +25,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ComprobantePagoServiceImpl implements ComprobantePagoService {
 
-    /** Los mismos de la restriccion ck_comprobante_pago_tipo (V32). */
     static final List<String> TIPOS_COMPROBANTE = List.of(
             "Boleta de depósito", "Voucher de tarjeta", "Comprobante de transferencia", "Factura", "Recibo");
 
@@ -42,7 +41,6 @@ public class ComprobantePagoServiceImpl implements ComprobantePagoService {
         if (comprobantes.isEmpty()) {
             return List.of();
         }
-        // Los datos de los archivos en una sola consulta y sin su contenido.
         Map<Integer, ArchivoResumen> archivos = comprobanteArchivoRepository
                 .findByIdComprobanteIn(comprobantes.stream().map(ComprobantePago::getIdComprobante).toList())
                 .stream()
@@ -52,17 +50,12 @@ public class ComprobantePagoServiceImpl implements ComprobantePagoService {
                 .toList();
     }
 
-    /**
-     * Comprobante y archivo van en la misma transaccion: si el archivo no es valido, el
-     * comprobante tampoco queda grabado (sin eso quedaria uno "sin archivo" a medias).
-     */
     @Override
     @Transactional
     public ComprobantePagoResponse agregar(Integer idPago, ComprobantePagoRequest request, MultipartFile archivo) {
         Pago pago = pagoRepository.findById(idPago)
                 .orElseThrow(() -> new ResourceNotFoundException("Pago", idPago));
         validarPagoVigente(pago);
-        // El archivo se revisa antes de grabar nada: si no sirve, no queda el comprobante solo.
         ArchivoComprobante.Revisado revisado = archivo == null ? null : ArchivoComprobante.revisar(archivo);
         ComprobantePago comprobante = new ComprobantePago();
         comprobante.setPago(pago);
@@ -106,7 +99,6 @@ public class ComprobantePagoServiceImpl implements ComprobantePagoService {
     @Transactional
     public void eliminar(Integer idPago, Integer idComprobante) {
         ComprobantePago comprobante = buscar(idPago, idComprobante);
-        // El archivo se borra primero y de forma explicita, para que quede en la bitacora.
         comprobanteArchivoRepository.findById(idComprobante).ifPresent(comprobanteArchivoRepository::delete);
         comprobantePagoRepository.delete(comprobante);
     }
@@ -123,7 +115,6 @@ public class ComprobantePagoServiceImpl implements ComprobantePagoService {
         guardado.setTamanoBytes(revisado.contenido().length);
         guardado.setContenido(revisado.contenido());
         guardado = comprobanteArchivoRepository.save(guardado);
-        // archivo_url apunta a donde se descarga: el archivo vive en la base, no en un disco.
         comprobante.setArchivoUrl("/api/pagos/%d/comprobantes/%d/archivo"
                 .formatted(comprobante.getPago().getIdPago(), comprobante.getIdComprobante()));
         comprobantePagoRepository.save(comprobante);
@@ -154,7 +145,6 @@ public class ComprobantePagoServiceImpl implements ComprobantePagoService {
         };
     }
 
-    /** Un pago anulado ya no cuenta: respaldarlo con comprobantes no tiene sentido. */
     private static void validarPagoVigente(Pago pago) {
         if (ESTADO_ANULADO.equalsIgnoreCase(pago.getEstado().getNombre())) {
             throw new BusinessException("El pago #%d está anulado: no se le pueden agregar comprobantes"
@@ -177,7 +167,6 @@ public class ComprobantePagoServiceImpl implements ComprobantePagoService {
             throw new BusinessException("Tipo de comprobante no válido. Use uno de: " + String.join(", ", TIPOS_COMPROBANTE));
         }
         String numero = request.numeroComprobante().trim();
-        // Una misma boleta no puede respaldar dos pagos.
         comprobantePagoRepository.findByTipoComprobanteAndNumeroComprobante(tipo, numero)
                 .filter(otro -> !otro.getIdComprobante().equals(comprobante.getIdComprobante()))
                 .ifPresent(otro -> {

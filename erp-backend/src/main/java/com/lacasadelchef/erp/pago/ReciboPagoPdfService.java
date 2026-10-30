@@ -37,13 +37,6 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.util.Locale;
 
-/**
- * Recibo de un pago, para entregarle al cliente (impreso o por WhatsApp). Sobre todo para
- * el efectivo, donde no hay comprobante del banco que respalde lo que entrego.
- *
- * Es un recibo interno, sin valor fiscal: la factura se emite aparte, en el portal del
- * certificador. Los precios ya incluyen IVA y no se desglosa, igual que en la cotizacion.
- */
 @Service
 @RequiredArgsConstructor
 public class ReciboPagoPdfService {
@@ -61,7 +54,6 @@ public class ReciboPagoPdfService {
 
     private final PagoRepository pagoRepository;
 
-    /** "000045": el numero del recibo es el del pago, que ya es correlativo y unico. */
     public static String numeroRecibo(Integer idPago) {
         return "%06d".formatted(idPago);
     }
@@ -82,13 +74,11 @@ public class ReciboPagoPdfService {
 
         try {
             ByteArrayOutputStream salida = new ByteArrayOutputStream();
-            // Media carta horizontal: el tamano habitual de un recibo, la mitad de una hoja carta.
             Document documento = new Document(MEDIA_CARTA_HORIZONTAL, 30, 30, 72, 34);
             PdfWriter writer = PdfWriter.getInstance(documento, salida);
             writer.setPageEvent(anulado ? new MembreteAnulado() : new MembretePdf(true));
             documento.open();
 
-            // Titulo a la izquierda; numero y fecha a la derecha.
             PdfPTable encabezado = tabla(new float[] {3f, 2f});
             encabezado.addCell(celda(new Phrase("RECIBO DE PAGO", fuenteTitulo), Element.ALIGN_LEFT));
             Phrase numero = new Phrase();
@@ -98,7 +88,6 @@ public class ReciboPagoPdfService {
             encabezado.setSpacingAfter(6);
             documento.add(encabezado);
 
-            // Quien paga y cuanto.
             Cliente cliente = clienteDe(evento);
             PdfPTable quienCuanto = tabla(new float[] {1.6f, 1f});
             quienCuanto.addCell(celda(new Phrase("RECIBIMOS DE", fuenteEtiqueta), Element.ALIGN_LEFT));
@@ -124,11 +113,9 @@ public class ReciboPagoPdfService {
             letras.setSpacingAfter(6);
             documento.add(letras);
 
-            // Por que y como.
             PdfPTable conceptoForma = tabla(new float[] {1.6f, 1f});
             conceptoForma.addCell(celda(new Phrase("POR CONCEPTO DE", fuenteEtiqueta), Element.ALIGN_LEFT));
             conceptoForma.addCell(celda(new Phrase("FORMA DE PAGO", fuenteEtiqueta), Element.ALIGN_LEFT));
-            // Mismo interlineado que la forma de pago, para que las dos columnas arranquen a la misma altura.
             conceptoForma.addCell(celdaDosLineas(new Phrase(concepto(pago, evento), fuenteTexto)));
             Phrase forma = new Phrase(pago.getMetodoPago().getNombreMetodo(), fuenteTexto);
             if (pago.getReferenciaTransaccion() != null && !pago.getReferenciaTransaccion().isBlank()) {
@@ -144,8 +131,6 @@ public class ReciboPagoPdfService {
             conceptoForma.setSpacingAfter(6);
             documento.add(conceptoForma);
 
-            // El estado de cuenta solo tiene sentido en un abono al precio del evento; un
-            // reembolso de costo extra va aparte y no cuenta contra ese saldo.
             if (pago.getCostoEvento() == null && !anulado) {
                 BigDecimal total = totalDe(evento);
                 BigDecimal abonado = pagoRepository.sumarAbonadoHasta(evento.getIdEvento(), pago.getIdPago());
@@ -186,7 +171,6 @@ public class ReciboPagoPdfService {
                 : evento.getCliente();
     }
 
-    /** El precio del evento: el de su cotizacion aceptada, o la suma de su menu si se creo directo. */
     private static BigDecimal totalDe(Evento evento) {
         BigDecimal total = evento.getCotizacionVersion() != null
                 ? evento.getCotizacionVersion().getMontoTotal()
@@ -219,10 +203,6 @@ public class ReciboPagoPdfService {
                 fecha.getMonth().getDisplayName(TextStyle.FULL, LOCALE_ES), fecha.getYear());
     }
 
-    /**
-     * El formulario de pago solo pide el dia: esos pagos quedan a las 00:00, que no es una
-     * hora real, y se imprime solo la fecha. Si se registro la hora, va con la hora.
-     */
     static String formatearFechaPago(LocalDateTime fechaPago) {
         return fechaPago.toLocalTime().equals(LocalTime.MIDNIGHT)
                 ? fechaPago.format(FORMATO_FECHA)
@@ -234,7 +214,6 @@ public class ReciboPagoPdfService {
         return String.format(Locale.US, "Q%,.2f", valor);
     }
 
-    /** Tabla a todo el ancho y sin bordes. */
     private static PdfPTable tabla(float[] anchos) {
         PdfPTable tabla = new PdfPTable(anchos);
         tabla.setWidthPercentage(100);
@@ -249,17 +228,12 @@ public class ReciboPagoPdfService {
         return celda;
     }
 
-    /**
-     * Celda de dos lineas (nombre y NIT del cliente, metodo y referencia) con interlineado
-     * holgado: con el normal quedaban pegadas.
-     */
     private static PdfPCell celdaDosLineas(Phrase contenido) {
         PdfPCell celda = celda(contenido, Element.ALIGN_LEFT);
         celda.setLeading(0, 1.4f);
         return celda;
     }
 
-    /** "Etiqueta" chica arriba y el valor debajo, en un recuadro gris. */
     private static PdfPCell dato(String etiqueta, String valor, Font fuenteEtiqueta, Font fuenteValor) {
         Phrase contenido = new Phrase();
         contenido.add(new Phrase(etiqueta + "\n", fuenteEtiqueta));
@@ -273,7 +247,6 @@ public class ReciboPagoPdfService {
         return celda;
     }
 
-    /** Linea para firmar con el texto debajo. */
     private static PdfPCell firma(String texto, Font fuente) {
         PdfPCell celda = new PdfPCell(new Phrase(texto, fuente));
         celda.setBorder(Rectangle.TOP);
@@ -282,7 +255,6 @@ public class ReciboPagoPdfService {
         return celda;
     }
 
-    /** El membrete de siempre y, cruzando la pagina, la marca ANULADO: el recibo ya no respalda nada. */
     private static final class MembreteAnulado extends MembretePdf {
         private final Font fuenteMarca = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 90, ROJO_ANULADO);
 

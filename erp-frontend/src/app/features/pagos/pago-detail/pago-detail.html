@@ -85,8 +85,6 @@
             </mat-form-field>
           </div>
 
-          <!-- La foto de la boleta o el PDF de la transferencia. En el celular, "Tomar foto"
-               abre la camara directamente (capture). Las fotos se reducen antes de subirlas. -->
           <div class="archivo-elegir">
             <input #camara type="file" accept="image/*" capture="environment" hidden (change)="elegirArchivo($event)" />
             <input #selector type="file" [accept]="archivosAceptados" hidden (change)="elegirArchivo($event)" />

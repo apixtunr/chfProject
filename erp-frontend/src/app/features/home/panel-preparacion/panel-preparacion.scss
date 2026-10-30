@@ -68,7 +68,6 @@
   color: var(--chf-texto-medio);
 }
 
-// Faltan dos dias o menos para que se cancele solo.
 .fecha--urgente {
   background: var(--chf-estado-aviso-fondo);
 
@@ -124,7 +123,6 @@
   gap: 6px;
 }
 
-// Punteado y gris si falta; verde con check si ya esta asignado.
 .paso {
   display: inline-flex;
   align-items: center;
@@ -162,8 +160,6 @@
   gap: 8px;
 }
 
-// Anillo de avance: r = 15.9155 da una circunferencia de 100, asi el porcentaje se usa
-// tal cual en stroke-dasharray.
 .progreso {
   position: relative;
   width: 48px;

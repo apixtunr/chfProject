@@ -70,7 +70,6 @@ export class PagoDetail implements OnInit {
   readonly agregandoComprobante = signal(false);
   readonly guardando = signal(false);
 
-  /** Foto o PDF elegido para el comprobante nuevo, ya comprimido si era una foto. */
   readonly archivoNuevo = signal<File | null>(null);
   readonly preparandoArchivo = signal(false);
 
@@ -82,13 +81,8 @@ export class PagoDetail implements OnInit {
   readonly archivosAceptados = ARCHIVOS_COMPROBANTE;
   readonly tamanoLegible = tamanoLegible;
 
-  /**
-   * Celular o tablet (se toca la pantalla en vez de usar mouse): solo ahi se ofrece "Tomar
-   * foto". En una computadora no hay camara para fotografiar una boleta y el boton estorba.
-   */
   readonly conCamara = window.matchMedia('(pointer: coarse)').matches;
 
-  /** Un comprobante no puede ser de una fecha futura. */
   readonly hoy = new Date();
 
   readonly columnasComprobantes = ['numeroComprobante', 'tipoComprobante', 'fechaEmision', 'archivo', 'esValido', 'acciones'];
@@ -107,12 +101,10 @@ export class PagoDetail implements OnInit {
     this.puedeEliminar = this.authService.tienePermiso(PAGINA_URL, 'baja');
   }
 
-  /** Adjuntar o reemplazar el archivo: basta con poder dar de alta o modificar (igual que el backend). */
   get puedeAdjuntar(): boolean {
     return (this.puedeAgregar || this.puedeEditar) && !this.anulado;
   }
 
-  /** Un pago anulado ya no se respalda con comprobantes. */
   get anulado(): boolean {
     return this.pago()?.estadoNombre === ESTADO_ANULADO;
   }
@@ -138,7 +130,6 @@ export class PagoDetail implements OnInit {
     });
   }
 
-  /** La foto de la camara o el archivo elegido; las fotos se reducen antes de guardarlas. */
   async elegirArchivo(evento: Event): Promise<void> {
     const input = evento.target as HTMLInputElement;
     const archivo = await this.prepararArchivo(input);
@@ -183,7 +174,6 @@ export class PagoDetail implements OnInit {
       });
   }
 
-  /** Adjunta el archivo a un comprobante que no lo tenia, o reemplaza el que tenia (foto borrosa, etc.). */
   async adjuntarArchivo(comprobante: ComprobantePagoResponse, evento: Event): Promise<void> {
     const input = evento.target as HTMLInputElement;
     const archivo = await this.prepararArchivo(input);
@@ -198,7 +188,6 @@ export class PagoDetail implements OnInit {
     });
   }
 
-  /** Muestra el archivo dentro del sistema, sin salir de la pagina (en el celular no se podia regresar). */
   verArchivo(comprobante: ComprobantePagoResponse): void {
     this.pagoService.archivoComprobante(this.idPago, comprobante.idComprobante).subscribe((archivo) =>
       this.dialog.open(VisorArchivo, {
@@ -213,7 +202,6 @@ export class PagoDetail implements OnInit {
     );
   }
 
-  /** Una boleta rechazada por el banco, un voucher reversado: queda registrado pero no cuenta. */
   cambiarValidez(comprobante: ComprobantePagoResponse): void {
     const marcarInvalido = comprobante.esValido;
     const ref = this.dialog.open(ConfirmDialog, {
@@ -268,7 +256,6 @@ export class PagoDetail implements OnInit {
     return `${anio}-${mes}-${dia}`;
   }
 
-  /** Comprime la foto y revisa el tamaño; deja el input listo para volver a elegir el mismo archivo. */
   private async prepararArchivo(input: HTMLInputElement): Promise<File | null> {
     const original = input.files?.[0];
     input.value = '';

@@ -56,8 +56,6 @@ public class ProductoServiceImpl implements ProductoService {
     @Override
     @Transactional
     public void eliminar(Integer id) {
-        // Si el producto tiene inventario o movimientos asociados, la FK lo impide
-        // y el GlobalExceptionHandler lo traduce a HTTP 409.
         Producto producto = buscarProducto(id);
         productoRepository.delete(producto);
     }

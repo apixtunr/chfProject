@@ -14,17 +14,14 @@ public interface DocumentoEmpleadoRepository extends JpaRepository<DocumentoEmpl
 
     List<DocumentoEmpleado> findByEmpleadoIdEmpleado(Integer idEmpleado);
 
-    /** Los documentos de un tipo para varios empleados a la vez (el DPI de una pagina del listado). */
     List<DocumentoEmpleado> findByEmpleadoIdEmpleadoInAndTipoDocumentoNombreTipo(Collection<Integer> idsEmpleado,
                                                                                  String nombreTipo);
 
-    /** Quien tiene ya ese numero en ese tipo de documento (a lo sumo uno, por el indice unico de V31). */
     Optional<DocumentoEmpleado> findByTipoDocumentoIdTipoDocumentoAndNumeroDocumento(Integer idTipoDocumento,
                                                                                      String numeroDocumento);
 
     boolean existsByEmpleadoIdEmpleadoAndTipoDocumentoNombreTipo(Integer idEmpleado, String nombreTipo);
 
-    /** De estos empleados, cuales tienen registrado un documento de ese tipo. */
     @Query("""
             SELECT d.empleado.idEmpleado FROM DocumentoEmpleado d
             WHERE d.empleado.idEmpleado IN :idsEmpleado

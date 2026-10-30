@@ -9,7 +9,6 @@ import org.springframework.data.repository.query.Param;
 
 public interface EmpleadoRepository extends JpaRepository<Empleado, Integer> {
 
-    /** Busca por nombre, apellido o numero de DPI (el DPI se guarda sin espacios). */
     @Query("""
             SELECT e FROM Empleado e
             WHERE LOWER(e.nombre) LIKE LOWER(CONCAT('%', :texto, '%'))

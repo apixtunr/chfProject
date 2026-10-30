@@ -15,11 +15,9 @@ public record TipoServicioRequest(
         @Size(max = 255)
         String descripcion,
 
-        /** Opcional: precio por unidad (ej. por cocinero y hora). Vacio = monto libre al cotizar. */
         @DecimalMin(value = "0.0", message = "El precio no puede ser negativo")
         BigDecimal precioUnitario,
 
-        /** Opcional: false = ya no se ofrece al cotizar. Vacio = activo. */
         Boolean activo
 ) {
 }

@@ -14,17 +14,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-/** Los reportes en tabla: agrupacion por periodo, subtotales y filas que no suman. */
 class ReporteTablaBuilderTest {
 
     private record Pago(String recibo, LocalDate fecha, String monto, boolean anulado) {
     }
 
     private static final List<Pago> PAGOS = List.of(
-            new Pago("REC-1", LocalDate.of(2026, 10, 9), "100", false),   // jueves
-            new Pago("REC-2", LocalDate.of(2026, 9, 30), "50", false),    // mes anterior
-            new Pago("REC-3", LocalDate.of(2026, 10, 5), "70", true),     // lunes, anulado
-            new Pago("REC-4", LocalDate.of(2026, 10, 11), "30", false));  // domingo
+            new Pago("REC-1", LocalDate.of(2026, 10, 9), "100", false),
+            new Pago("REC-2", LocalDate.of(2026, 9, 30), "50", false),
+            new Pago("REC-3", LocalDate.of(2026, 10, 5), "70", true),
+            new Pago("REC-4", LocalDate.of(2026, 10, 11), "30", false));
 
     private static ReporteTabla reporte(String agrupar) {
         return ReporteTablaBuilder.de("Recibos", PAGOS)

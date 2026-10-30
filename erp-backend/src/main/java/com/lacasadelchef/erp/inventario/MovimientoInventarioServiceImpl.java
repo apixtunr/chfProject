@@ -78,8 +78,6 @@ public class MovimientoInventarioServiceImpl implements MovimientoInventarioServ
         movimiento.setDescripcion(request.descripcion());
         movimiento = movimientoInventarioRepository.save(movimiento);
 
-        // El trigger AFTER INSERT actualiza (o crea) la fila de inventario en otra tabla;
-        // hay que refrescarla explicitamente para no devolver el stock desactualizado.
         Inventario inventario = inventarioRepository.findByProductoIdProducto(request.idProducto()).orElse(null);
         if (inventario != null) {
             entityManager.refresh(inventario);

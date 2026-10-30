@@ -37,7 +37,6 @@ public class ComprobantePagoController {
         return comprobantePagoService.agregar(idPago, request, null);
     }
 
-    /** Datos y archivo en una sola peticion: "datos" (JSON) y "archivo" (PDF, JPG o PNG). */
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("@permisoService.tienePermiso('/api/pagos', T(com.lacasadelchef.erp.security.TipoPermiso).ALTA)")
@@ -54,7 +53,6 @@ public class ComprobantePagoController {
         return comprobantePagoService.actualizar(idPago, idComprobante, request);
     }
 
-    /** Adjuntar el archivo es parte de registrar el comprobante: basta con poder dar de alta o modificar. */
     @PutMapping(path = "/{idComprobante}/archivo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("@permisoService.tienePermiso('/api/pagos', T(com.lacasadelchef.erp.security.TipoPermiso).ALTA)"
             + " or @permisoService.tienePermiso('/api/pagos', T(com.lacasadelchef.erp.security.TipoPermiso).MODIFICACION)")
@@ -63,10 +61,6 @@ public class ComprobantePagoController {
         return comprobantePagoService.guardarArchivo(idPago, idComprobante, archivo);
     }
 
-    /**
-     * El archivo para verlo en el navegador. Se pide con el token como cualquier otra
-     * llamada; no hay enlace publico. No se guarda en cache: es un documento de pago.
-     */
     @GetMapping("/{idComprobante}/archivo")
     public ResponseEntity<byte[]> archivo(@PathVariable Integer idPago, @PathVariable Integer idComprobante) {
         ComprobantePagoService.Archivo archivo = comprobantePagoService.obtenerArchivo(idPago, idComprobante);

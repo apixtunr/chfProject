@@ -16,11 +16,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * Analisis de rentabilidad en PDF, con los mismos filtros que la pantalla: los indicadores, el
- * desglose de costos, la ganancia por tipo de evento y el detalle de cada evento finalizado.
- * Las graficas de la pantalla van aqui como tablas.
- */
 @Service
 @RequiredArgsConstructor
 public class RentabilidadPdfService {

@@ -17,11 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
 
-/**
- * Reporte de cotizaciones por periodo: cada cotizacion hecha en el periodo con su version
- * vigente, su estado y su monto. Agrupado por estado deja ver cuantas se aceptaron,
- * rechazaron o vencieron.
- */
 @RestController
 @RequestMapping("/api/cotizaciones/reportes/cotizaciones")
 @RequiredArgsConstructor

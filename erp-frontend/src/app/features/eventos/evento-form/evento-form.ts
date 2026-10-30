@@ -57,16 +57,13 @@ export class EventoForm implements OnInit {
   readonly departamentos = signal<DepartamentoResponse[]>([]);
   readonly municipios = signal<MunicipioResponse[]>([]);
 
-  /** Texto que el usuario escribe para buscar el cliente; separado del idCliente que en realidad se envia. */
   readonly busquedaCliente = new FormControl('', { nonNullable: true });
   readonly clientesFiltrados = signal<ClienteResponse[]>([]);
 
   readonly formulario = this.crearFormulario();
 
-  /** Una semana de anticipacion; el backend igual lo valida, esto solo evita el viaje. */
   readonly fechaMinima = fechaMinimaEvento();
 
-  /** Mismos turnos que la cotizacion: empieza en punto de 7:00 a 19:00; el fin lo calcula el sistema. */
   readonly horasDeInicio = HORAS_DE_INICIO;
   readonly horarioServicio = horarioServicio;
   readonly minimoPersonas = MINIMO_PERSONAS;
@@ -94,7 +91,6 @@ export class EventoForm implements OnInit {
 
     this.formulario.controls.idCotizacionVersion.valueChanges.subscribe((idCotizacionVersion) => {
       this.idCotizacionVersionSeleccionada.set(idCotizacionVersion);
-      // El horario ya se acordo en la cotizacion: se propone el mismo (se puede cambiar).
       const hora = this.cotizacionSeleccionada()?.horaInicio;
       if (hora) {
         this.formulario.controls.horaInicio.setValue(hora.substring(0, 5));
@@ -122,8 +118,6 @@ export class EventoForm implements OnInit {
       conCotizacion.updateValueAndValidity();
       directo.updateValueAndValidity();
 
-      // Si viene de una cotizacion, el tipo/ubicacion/fecha/personas ya se aceptaron ahi:
-      // no se vuelven a pedir en este formulario.
       const esDirecto = tieneCotizacion === false;
       const camposSimples = [
         this.formulario.controls.idTipoEvento,
@@ -143,11 +137,7 @@ export class EventoForm implements OnInit {
     });
 
     this.busquedaCliente.valueChanges.subscribe((texto) => {
-      // Si el usuario edita el texto sin volver a elegir una opcion, el id queda invalido.
       this.formulario.controls.idCliente.setValue(null);
-      // Al seleccionar una opcion, el autocomplete guarda el ClienteResponse completo
-      // (no un string) como valor del control; solo hay texto libre que evaluar cuando
-      // sigue siendo un string.
       if (typeof texto === 'string' && !texto.trim()) {
         this.clientesFiltrados.set([]);
       }
@@ -169,7 +159,6 @@ export class EventoForm implements OnInit {
     this.formulario.controls.tieneCotizacion.setValue(tieneCotizacion);
   }
 
-  /** Aviso (no bloquea) igual que en la cotizacion: la empresa atiende desde 50 personas. */
   debajoDelMinimo(): boolean {
     const personas = this.formulario.controls.cantidadPersonas.value;
     return personas != null && personas > 0 && personas < MINIMO_PERSONAS;
@@ -206,8 +195,6 @@ export class EventoForm implements OnInit {
     const v = this.formulario.getRawValue();
 
     if (this.tieneCotizacion()) {
-      // Tipo de evento, ubicacion, fecha y cantidad de personas ya se aceptaron en la
-      // cotizacion: el backend los toma de ahi, no se vuelven a pedir ni a enviar.
       this.eventoService
         .crear({
           idCotizacionVersion: v.idCotizacionVersion,
@@ -230,7 +217,6 @@ export class EventoForm implements OnInit {
       return;
     }
 
-    // La ubicacion es propia de este evento: se crea primero, y luego se usa su id al crear el evento.
     this.ubicacionService.crear({ idMunicipio: v.idMunicipio!, direccion: v.direccion }).subscribe({
       next: (ubicacion) => {
         this.eventoService

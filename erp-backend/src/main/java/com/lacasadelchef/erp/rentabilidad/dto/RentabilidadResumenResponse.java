@@ -5,7 +5,6 @@ import lombok.Builder;
 import java.math.BigDecimal;
 import java.util.List;
 
-/** Totales de los eventos finalizados del periodo (mismas cuentas que RentabilidadEventoResponse). */
 @Builder
 public record RentabilidadResumenResponse(
         long cantidadEventos,
@@ -18,9 +17,7 @@ public record RentabilidadResumenResponse(
         BigDecimal totalCostos,
         BigDecimal gananciaAcordada,
         BigDecimal gananciaCobrada,
-        /** Ganancia acordada total sobre ingresos acordados totales. */
         BigDecimal margen,
-        /** Ganancia por tipo de evento, de la mas alta a la mas baja. */
         List<RentabilidadTipoResponse> porTipo
 ) {
 

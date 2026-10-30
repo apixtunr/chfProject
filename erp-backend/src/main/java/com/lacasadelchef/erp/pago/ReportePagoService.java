@@ -15,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.List;
 
-/** Reportes del modulo de Pagos: recibos emitidos y cuentas por cobrar. */
 @Service
 @RequiredArgsConstructor
 public class ReportePagoService {
@@ -25,10 +24,6 @@ public class ReportePagoService {
     private final PagoRepository pagoRepository;
     private final VPagoEventoRepository vPagoEventoRepository;
 
-    /**
-     * Recibos emitidos en el periodo, en su secuencia. Los anulados aparecen (para que no
-     * queden huecos en la numeracion) pero no suman.
-     */
     @Transactional(readOnly = true)
     public ReporteTabla recibos(LocalDate desde, LocalDate hasta, Integer idMetodoPago, Integer idEstado, String agrupar) {
         List<Pago> pagos = pagoRepository.recibosEmitidos(
@@ -53,10 +48,6 @@ public class ReportePagoService {
                 .construir(agrupar);
     }
 
-    /**
-     * Eventos con saldo pendiente (sin los cancelados), con lo que les toca pagar ahora y
-     * para cuando. Las fechas filtran por la fecha del evento.
-     */
     @Transactional(readOnly = true)
     public ReporteTabla cuentasPorCobrar(LocalDate desde, LocalDate hasta, Integer idCliente, Situacion situacion,
                                          String agrupar) {

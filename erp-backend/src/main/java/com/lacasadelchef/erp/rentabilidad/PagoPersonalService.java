@@ -13,11 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-/**
- * Pago al personal por evento. Toma solo los eventos FINALIZADOS: el personal se paga al
- * terminar el evento, y es tambien el criterio de Rentabilidad, de modo que el total
- * coincide con el costo de personal de esa pantalla.
- */
 @Service
 @RequiredArgsConstructor
 public class PagoPersonalService {
@@ -42,7 +37,6 @@ public class PagoPersonalService {
                 .construir(agrupar);
     }
 
-    /** El horario de la persona en el evento; si no se le registro uno propio, el del evento. */
     private static String horario(EventoEmpleado ee) {
         LocalTime inicio = ee.getHoraInicio() != null ? ee.getHoraInicio() : ee.getEvento().getHoraInicio();
         LocalTime fin = ee.getHoraFin() != null ? ee.getHoraFin() : ee.getEvento().getHoraFin();

@@ -59,8 +59,6 @@ public class VehiculoServiceImpl implements VehiculoService {
     @Override
     @Transactional
     public void eliminar(Integer id) {
-        // Si el vehiculo tiene asignaciones a eventos, la FK lo impide y el
-        // GlobalExceptionHandler lo traduce a HTTP 409.
         Vehiculo vehiculo = buscar(id);
         vehiculoRepository.delete(vehiculo);
     }

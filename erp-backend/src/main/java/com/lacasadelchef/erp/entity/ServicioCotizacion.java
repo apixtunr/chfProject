@@ -8,7 +8,6 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 
-/** Servicio o costo extra no-menu cotizado dentro de una version (hora extra de cocinero, cubremantel...). */
 @Getter
 @Setter
 @NoArgsConstructor
@@ -32,11 +31,9 @@ public class ServicioCotizacion extends Auditable {
     @Column(name = "descripcion", length = 255)
     private String descripcion;
 
-    /** Unidades cotizadas; si el tipo tiene precio fijo, monto = cantidad x precio. */
     @Column(name = "cantidad", nullable = false)
     private Integer cantidad = 1;
 
-    /** Total de la linea. */
     @Column(name = "monto", nullable = false, precision = 12, scale = 2)
     private BigDecimal monto;
 }

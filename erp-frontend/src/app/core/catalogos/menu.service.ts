@@ -5,7 +5,6 @@ import { API_URL } from '../api-config';
 import { Page } from '../models/page';
 import { MenuPlatoResponse, MenuResponse } from './menu';
 
-/** Catalogo de menus activos, usado para armar el detalle de una cotizacion. */
 @Injectable({ providedIn: 'root' })
 export class MenuService {
   constructor(private readonly http: HttpClient) {}
@@ -17,7 +16,6 @@ export class MenuService {
       .pipe(map((pagina) => pagina.content.filter((m) => m.estadoNombre === 'ACTIVO')));
   }
 
-  /** Platos disponibles dentro de un menu (categoria), cada uno con su propio precio. */
   listarPlatosDeMenu(idMenu: number): Observable<MenuPlatoResponse[]> {
     return this.http.get<MenuPlatoResponse[]>(`${API_URL}/menus/${idMenu}/platos`);
   }

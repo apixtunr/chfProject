@@ -11,12 +11,6 @@ const BASE_URL = `${API_URL}/clientes`;
 export class ClienteService {
   constructor(private readonly http: HttpClient) {}
 
-  /**
-   * busqueda: texto libre sobre nombre, NIT, telefono y correo.
-   * estado: los selectores para crear algo nuevo (cotizacion, evento) piden 'ACTIVO';
-   * filtros y reportes de historial usan 'TODOS' (por defecto) para no perder clientes
-   * que ya se inactivaron.
-   */
   listar(busqueda: string, page: number, size: number, estado: EstadoClienteFiltro = 'TODOS'): Observable<Page<ClienteResponse>> {
     let params = new HttpParams().set('page', page).set('size', size).set('sort', 'nombre').set('estado', estado);
     if (busqueda) {
@@ -37,7 +31,6 @@ export class ClienteService {
     return this.http.put<ClienteResponse>(`${BASE_URL}/${id}`, request);
   }
 
-  /** Inactivar (false) o reactivar (true). Los clientes no se borran. */
   cambiarEstado(id: number, activo: boolean): Observable<ClienteResponse> {
     return this.http.put<ClienteResponse>(`${BASE_URL}/${id}/estado`, { activo });
   }

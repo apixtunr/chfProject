@@ -16,12 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-/**
- * Configura, por rol, que puede hacer sobre cada opcion del menu (alta/baja/modificacion/
- * imprimir/exportar). Es la pantalla que le da datos reales a PermisoService: hasta que un
- * administrador no asigne estos permisos, los roles distintos de ADMINISTRADOR no pueden
- * ejecutar ninguna operacion de escritura en el resto de los modulos.
- */
 @Service
 @RequiredArgsConstructor
 public class RolOpcionServiceImpl implements RolOpcionService {

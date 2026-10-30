@@ -12,15 +12,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.Set;
 
-/**
- * Reglas de los documentos de un empleado, compartidas por el formulario del empleado
- * (que guarda DPI y documentos junto con sus datos) y por la API de documentos.
- *
- * Dos tipos tienen reglas propias y el sistema los reconoce por su nombre (V31):
- *   - DPI: obligatorio, 13 digitos. Se registra en los datos del empleado.
- *   - Licencia de conducir: la exige la asignacion de conductor de un vehiculo.
- * Por eso esos dos no se pueden renombrar ni borrar desde el catalogo.
- */
 @Component
 @RequiredArgsConstructor
 public class DocumentosEmpleado {
@@ -45,10 +36,6 @@ public class DocumentosEmpleado {
                 .orElseThrow(() -> new IllegalStateException("Falta el tipo de documento DPI (revisar V31)"));
     }
 
-    /**
-     * Deja el numero como se guarda: el DPI sin espacios ni guiones (asi se escribe en el
-     * documento fisico, "2547 12345 0101"), los demas solo sin espacios a los lados.
-     */
     public static String normalizar(TipoDocumento tipo, String numero) {
         String limpio = numero == null ? "" : numero.trim();
         if (esDpi(tipo)) {
@@ -63,7 +50,6 @@ public class DocumentosEmpleado {
         return limpio;
     }
 
-    /** Un numero no puede pertenecer a dos empleados: serian la misma persona registrada dos veces. */
     public void validarNoRepetido(TipoDocumento tipo, String numero, Integer idEmpleado) {
         documentoEmpleadoRepository
                 .findByTipoDocumentoIdTipoDocumentoAndNumeroDocumento(tipo.getIdTipoDocumento(), numero)
@@ -74,7 +60,6 @@ public class DocumentosEmpleado {
                 });
     }
 
-    /** Crea o actualiza el documento de ese tipo del empleado, ya validado. */
     public DocumentoEmpleado guardar(Empleado empleado, TipoDocumento tipo, String numero) {
         String normalizado = normalizar(tipo, numero);
         validarNoRepetido(tipo, normalizado, empleado.getIdEmpleado());

@@ -52,7 +52,7 @@ class JwtServiceTest {
     @Test
     @DisplayName("Un token expirado no es valido")
     void tokenExpiradoNoEsValido() {
-        JwtService servicioExpirado = new JwtService(props(SECRET, -1)); // expiro hace 1 minuto
+        JwtService servicioExpirado = new JwtService(props(SECRET, -1));
         String token = servicioExpirado.generarToken("admin", "ADMINISTRADOR", "sesion-de-prueba");
 
         assertThat(jwtService.esValido(token)).isFalse();

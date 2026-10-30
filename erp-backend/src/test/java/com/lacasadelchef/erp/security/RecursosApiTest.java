@@ -15,28 +15,11 @@ import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/**
- * Red de seguridad del control de acceso.
- *
- * Recorre el codigo fuente de todos los controladores y verifica que cada ruta expuesta
- * este clasificada en {@link RecursosApi}. Una ruta sin clasificar se niega en tiempo de
- * ejecucion (devuelve 403), asi que el sistema no queda expuesto; lo que esta prueba
- * agrega es avisar en la compilacion, antes de que alguien descubra en la demostracion
- * que una pantalla nueva no responde.
- *
- * Esta prueba existe porque el problema original no fue una anotacion mal escrita sino un
- * olvido repetido 90 veces: mientras proteger fuera opcional, se iba a volver a olvidar.
- */
 class RecursosApiTest {
 
     private static final Path CONTROLADORES = Path.of("src/main/java/com/lacasadelchef/erp");
     private static final Pattern RUTA_BASE = Pattern.compile("@RequestMapping\\(\\s*\"([^\"]+)\"");
 
-    /**
-     * Rutas escritas directamente en un metodo. Un controlador puede no tener
-     * @RequestMapping a nivel de clase y poner la ruta completa en cada metodo; mirando
-     * solo la anotacion de la clase, esas rutas pasaban desapercibidas.
-     */
     private static final Pattern RUTA_EN_METODO = Pattern.compile(
             "@(?:Get|Post|Put|Patch|Delete|Request)Mapping\\(\\s*(?:value\\s*=\\s*)?\"(/[^\"]*)\"");
 
@@ -53,11 +36,6 @@ class RecursosApiTest {
         }
     }
 
-    /**
-     * Las rutas que expone un controlador: la de la clase si la tiene, y ademas cualquier
-     * ruta absoluta escrita en un metodo. Las relativas (las que cuelgan de la base) no
-     * hace falta mirarlas: heredan por prefijo.
-     */
     private static Stream<String> rutasDe(Path archivo) {
         String fuente;
         try {
@@ -105,7 +83,6 @@ class RecursosApiTest {
     @Test
     @DisplayName("Las rutas anidadas heredan la regla de su modulo")
     void rutasAnidadasHeredan() {
-        // Ojo: costos y empleados ya NO heredan, tienen regla propia por exponer montos.
         assertThat(RecursosApi.reglaDe("/api/eventos/7/detalles"))
                 .get()
                 .isEqualTo(RecursosApi.reglaDe("/api/eventos").orElseThrow());
@@ -129,7 +106,6 @@ class RecursosApiTest {
     @Test
     @DisplayName("Gana el prefijo mas largo, no el primero que coincida")
     void ganaElPrefijoMasLargo() {
-        // /api/movimientos-inventario no debe resolverse por un prefijo mas corto.
         RecursosApi.Regla regla = RecursosApi.reglaDe("/api/movimientos-inventario").orElseThrow();
         assertThat(regla.paginaUrl()).isEqualTo("/api/movimientos-inventario");
     }
@@ -144,7 +120,6 @@ class RecursosApiTest {
     @Test
     @DisplayName("Un prefijo no captura a otro que solo comparte el comienzo del nombre")
     void noCapturaPorPrefijoDeNombre() {
-        // /api/clientes no debe capturar a una hipotetica /api/clientes-externos.
         assertThat(RecursosApi.reglaDe("/api/clientes-externos")).isEmpty();
     }
 }

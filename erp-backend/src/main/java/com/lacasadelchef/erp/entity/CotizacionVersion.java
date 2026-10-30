@@ -33,18 +33,15 @@ public class CotizacionVersion extends Auditable {
     @Column(name = "numero_version", nullable = false)
     private Integer numeroVersion = 1;
 
-    /** Mantenido por trigger en la base de datos a partir de los detalles. */
     @Column(name = "monto_total", insertable = false, updatable = false, precision = 12, scale = 2)
     private BigDecimal montoTotal;
 
     @Column(name = "fecha_version", insertable = false, updatable = false)
     private LocalDateTime fechaVersion;
 
-    /** Cuando se envio al cliente; null mientras es borrador. */
     @Column(name = "fecha_envio")
     private LocalDateTime fechaEnvio;
 
-    /** Ultimo dia en que el cliente puede aceptarla; despues pasa a VENCIDA. */
     @Column(name = "vigente_hasta")
     private LocalDate vigenteHasta;
 }

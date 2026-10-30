@@ -17,22 +17,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 
-/**
- * Membrete de los documentos que se le entregan al cliente (cotizacion, recibo de pago):
- * franja navy arriba con el logo del chef (el mismo del menu del sistema) y el nombre de
- * la empresa, y franja de agradecimiento abajo, en cada pagina.
- *
- * Hay dos tamanos: el normal, para la cotizacion en hoja carta (el documento deja margen
- * superior de 115 e inferior de 65), y el compacto, para el recibo en media carta (margen
- * superior de 72 e inferior de 34).
- */
 public class MembretePdf extends PdfPageEventHelper {
 
     public static final Color NAVY = new Color(0x2c, 0x3e, 0x50);
-    /** Contacto que se imprime en el encabezado de cada pagina. */
     public static final String TELEFONO_EMPRESA = "5173-0435";
 
-    /** Se lee una sola vez: es el mismo en todas las paginas y todos los documentos. */
     private static final byte[] LOGO = leerLogo();
 
     private final float alturaHeader;
@@ -44,17 +33,14 @@ public class MembretePdf extends PdfPageEventHelper {
     private final Font fuenteContacto;
     private final Font fuentePie;
 
-    /** Membrete normal, para hoja carta. */
     public MembretePdf() {
         this(false);
     }
 
-    /** @param compacto franjas mas bajas, para documentos chicos como el recibo en media carta */
     public MembretePdf(boolean compacto) {
         alturaHeader = compacto ? 60f : 95f;
         alturaFooter = compacto ? 24f : 45f;
         altoLogo = compacto ? 50f : 80f;
-        // Distancia desde el borde superior de la pagina a la linea de cada texto del encabezado.
         posicionesTexto = compacto ? new float[] {24, 39, 51} : new float[] {35, 55, 72};
         fuenteTitulo = FontFactory.getFont(FontFactory.HELVETICA_BOLD, compacto ? 16 : 22, Color.WHITE);
         fuenteSubtitulo = FontFactory.getFont(FontFactory.HELVETICA, compacto ? 9 : 12, Color.WHITE);
@@ -99,7 +85,6 @@ public class MembretePdf extends PdfPageEventHelper {
                 anchoPagina / 2, alturaFooter / 2f - 3, 0);
     }
 
-    /** Texto de la franja inferior. Los reportes internos lo cambian por el numero de pagina. */
     protected String textoPie(PdfWriter writer) {
         return "Gracias por su preferencia | La Casa del Chef";
     }

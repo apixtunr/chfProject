@@ -42,14 +42,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-/**
- * El alta de empleado, con y sin acceso al sistema.
- *
- * Lo que mas importa comprobar aca es que empleado y usuario no se puedan separar: si el
- * usuario no se puede crear, el empleado tampoco tiene que quedar grabado. Sin eso, un
- * nombre de usuario repetido dejaria a la persona cargada a medias y el segundo intento
- * la duplicaria.
- */
 @ExtendWith(MockitoExtension.class)
 class EmpleadoServiceImplTest {
 
@@ -158,19 +150,15 @@ class EmpleadoServiceImplTest {
             guardado[0] = u;
             return u;
         });
-        // La respuesta se arma releyendo el usuario del empleado, como al consultarlo.
         when(usuarioRepository.findByEmpleadoIdEmpleado(99)).thenAnswer(inv -> Optional.ofNullable(guardado[0]));
 
         EmpleadoResponse resultado = empleadoService.crear(
                 pedido(new AccesoSistemaRequest("Secreta2026", ID_ROL)));
 
         assertThat(resultado.idUsuario()).isEqualTo(7);
-        // El nombre de usuario no lo escribe nadie: sale del nombre del empleado.
         assertThat(resultado.username()).isEqualTo("amado.soto");
         assertThat(resultado.rolUsuario()).isEqualTo("OPERATIVO");
 
-        // El usuario guardado apunta al empleado recien creado: la relacion queda armada
-        // en la misma operacion, no en un segundo paso que podria no ocurrir.
         verify(usuarioRepository).save(any(Usuario.class));
     }
 

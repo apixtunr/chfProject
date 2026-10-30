@@ -62,7 +62,6 @@ export class PlatoList implements OnInit {
     this.puedeEliminar = this.authService.tienePermiso(PAGINA_URL, 'baja');
   }
 
-  /** "por persona", "el ciento" o "c/u", como se escribe junto al precio. */
   precioPor(unidad: UnidadVenta): string {
     return PRECIO_POR[unidad];
   }
@@ -85,7 +84,6 @@ export class PlatoList implements OnInit {
       });
   }
 
-  /** Mientras se escribe, la tabla se actualiza sola al dejar de teclear (como en Clientes). */
   private readonly escritura = new Subject<void>();
   private readonly busquedaAlEscribir = this.escritura
     .pipe(debounceTime(300), takeUntilDestroyed())

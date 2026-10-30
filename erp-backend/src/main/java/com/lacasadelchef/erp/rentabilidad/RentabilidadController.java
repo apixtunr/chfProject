@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
 
-/** Reportes de solo lectura: ingresos, costos y ganancia por evento (vistas SQL ya calculadas). */
 @RestController
 @RequestMapping("/api/rentabilidad")
 @RequiredArgsConstructor
@@ -52,7 +51,6 @@ public class RentabilidadController {
         return rentabilidadService.resumen(fechaDesde, fechaHasta, idCliente, idTipoEvento);
     }
 
-    /** Analisis de rentabilidad en PDF, con los mismos filtros que la pantalla. */
     @GetMapping("/pdf")
     @PreAuthorize("@permisoService.tienePermiso('/api/rentabilidad', T(com.lacasadelchef.erp.security.TipoPermiso).IMPRIMIR)")
     public ResponseEntity<byte[]> analisisPdf(
@@ -66,7 +64,6 @@ public class RentabilidadController {
                 "analisis-de-rentabilidad");
     }
 
-    /** Lo que se le pago a cada persona en los eventos finalizados del periodo. */
     @GetMapping("/reportes/pago-personal")
     public ReporteTabla pagoPersonal(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaDesde,

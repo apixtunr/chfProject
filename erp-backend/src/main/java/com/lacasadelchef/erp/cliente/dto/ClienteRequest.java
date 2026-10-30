@@ -6,7 +6,6 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
-/** Datos de entrada para crear o actualizar un cliente. */
 public record ClienteRequest(
 
         @NotBlank(message = "El nombre es obligatorio")
@@ -20,7 +19,6 @@ public record ClienteRequest(
         @Pattern(regexp = "^[0-9+\\- ]{8,20}$", message = "El telefono no tiene un formato valido")
         String telefono,
 
-        /** Opcional: vacio se guarda como "CF". Se valida el digito verificador. */
         @Size(max = 20)
         String nit,
 

@@ -12,13 +12,10 @@ public interface CotizacionVersionRepository extends JpaRepository<CotizacionVer
 
     List<CotizacionVersion> findByCotizacionIdCotizacionOrderByNumeroVersionDesc(Integer idCotizacion);
 
-    /** Para vencer: versiones en el estado indicado cuya vigencia termino antes de la fecha. */
     List<CotizacionVersion> findByEstadoNombreAndVigenteHastaBefore(String estado, LocalDate fecha);
 
-    /** true si alguna version de la cotizacion ya salio del estado indicado (ej. ya se envio). */
     boolean existsByCotizacionIdCotizacionAndEstadoNombreNot(Integer idCotizacion, String estado);
 
-    /** Candidatas para crear un evento: aceptadas y que ningun evento haya tomado todavia. */
     @Query("""
             SELECT cv FROM CotizacionVersion cv
             WHERE cv.estado.nombre = 'ACEPTADA'
@@ -27,10 +24,6 @@ public interface CotizacionVersionRepository extends JpaRepository<CotizacionVer
             """)
     List<CotizacionVersion> buscarAceptadasSinEvento();
 
-    /**
-     * Reporte de cotizaciones: la version vigente (la de numero mas alto) de cada cotizacion
-     * hecha en el periodo, con su estado y su monto.
-     */
     @Query("""
             SELECT v FROM CotizacionVersion v
             JOIN FETCH v.cotizacion c

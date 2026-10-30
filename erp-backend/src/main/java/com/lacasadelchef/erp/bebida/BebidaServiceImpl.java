@@ -16,11 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-/**
- * Catalogo de bebidas que pueden incluir los platos. Igual que un plato: no se borra si
- * ya esta en uso (en un plato o en una cotizacion); se inactiva, y deja de ofrecerse al
- * cotizar sin cambiar lo que ya se cotizo.
- */
 @Service
 @RequiredArgsConstructor
 public class BebidaServiceImpl implements BebidaService {

@@ -22,7 +22,6 @@ public record DetalleCotizacionResponse(
         String observaciones,
         Integer idBebida,
         String nombreBebida,
-        /** Bebidas que incluye el plato; si hay y no se eligio ninguna, falta elegirla. */
         List<BebidaResumen> bebidasPlato,
         BigDecimal montoTotalVersion,
         LocalDateTime fechaCreacion,

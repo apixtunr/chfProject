@@ -12,8 +12,6 @@ public interface PagoService {
 
     Page<PagoResponse> listar(Integer idEvento, Pageable pageable);
 
-    /** Eventos con su saldo (total/abonado/pendiente), para la pantalla principal de Pagos.
-     * filtro: PENDIENTE (default) o PAGADO. */
     Page<EventoPagoResponse> listarEventosConSaldo(String filtro, Integer idCliente,
                                                     LocalDate fechaDesde, LocalDate fechaHasta, Pageable pageable);
 

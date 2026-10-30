@@ -38,7 +38,6 @@ export type TipoMovimiento = 'ENTRADA' | 'SALIDA' | 'AJUSTE';
 export interface MovimientoInventarioRequest {
   idProducto: number;
   tipoMovimiento: TipoMovimiento;
-  /** ENTRADA/SALIDA: magnitud positiva. AJUSTE: valor con signo. */
   cantidad: number;
   descripcion: string | null;
   idEvento: number | null;

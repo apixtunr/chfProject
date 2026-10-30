@@ -9,14 +9,9 @@ import { ACUERDOS_ANTICIPO, AcuerdoAnticipo, CancelarEventoRequest } from '../dt
 
 export interface CancelarEventoDialogData {
   idEvento: number;
-  /** Lo que el cliente ya pago del evento. */
   abonado: number;
 }
 
-/**
- * Cancelar un evento: el motivo es obligatorio y, si el cliente ya pago algo, en que quedo
- * ese dinero. No hay una politica fija; es lo que se negocio con el cliente.
- */
 @Component({
   selector: 'app-cancelar-evento-dialog',
   imports: [ReactiveFormsModule, DecimalPipe, MatDialogModule, MatButtonModule, MatIconModule, MatSelectModule],

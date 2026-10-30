@@ -15,13 +15,10 @@ public interface PagoRepository extends JpaRepository<Pago, Integer> {
 
     List<Pago> findByEventoIdEvento(Integer idEvento);
 
-    /** Si el cliente ya pago (y no se anulo) el reembolso de ese costo extra. */
     boolean existsByCostoEventoIdCostoEventoAndEstadoNombreNot(Integer idCostoEvento, String estado);
 
     Page<Pago> findByEventoIdEvento(Integer idEvento, Pageable pageable);
 
-    /** Suma de abonos al precio del evento (sin contar reembolsos de costos ni pagos ANULADOS),
-     * excluyendo opcionalmente un pago (para revalidar al editarlo sin contarse a si mismo). */
     @Query("""
             SELECT COALESCE(SUM(p.monto), 0) FROM Pago p
             WHERE p.evento.idEvento = :idEvento
@@ -31,10 +28,6 @@ public interface PagoRepository extends JpaRepository<Pago, Integer> {
             """)
     BigDecimal sumarAbonado(@Param("idEvento") Integer idEvento, @Param("idPagoExcluir") Integer idPagoExcluir);
 
-    /**
-     * Lo abonado al precio del evento hasta ese pago inclusive (sin reembolsos ni anulados):
-     * el saldo que se imprime en su recibo es el de ese momento, no el de hoy.
-     */
     @Query("""
             SELECT COALESCE(SUM(p.monto), 0) FROM Pago p
             WHERE p.evento.idEvento = :idEvento
@@ -44,11 +37,6 @@ public interface PagoRepository extends JpaRepository<Pago, Integer> {
             """)
     BigDecimal sumarAbonadoHasta(@Param("idEvento") Integer idEvento, @Param("idPago") Integer idPago);
 
-    /**
-     * Recibos emitidos: todos los pagos del periodo en el orden en que se registraron (el
-     * numero de recibo es el del pago), incluidos los anulados para que no queden huecos en
-     * la secuencia.
-     */
     @Query("""
             SELECT p FROM Pago p
             JOIN FETCH p.evento e

@@ -27,7 +27,6 @@ import { EmpleadoService } from '../empleado.service';
 const TIPO_ESTADO_GENERAL = 'GENERAL';
 const PAGINA_USUARIOS = '/api/usuarios';
 
-/** 13 digitos, con los espacios o guiones opcionales del documento fisico. */
 const PATRON_DPI = /^\d{4}[ -]?\d{5}[ -]?\d{4}$/;
 
 type FilaDocumento = FormGroup<{
@@ -66,21 +65,16 @@ export class EmpleadoForm implements OnInit {
   readonly estados = signal<EstadoResponse[]>([]);
   readonly roles = signal<RolResponse[]>([]);
 
-  /** Tipos de documento que van en la seccion Documentos: todos menos el DPI, que va en los datos. */
   readonly tiposDocumento = signal<TipoDocumentoResponse[]>([]);
 
-  /** Filas de la seccion Documentos (licencia de conducir, etc.). */
   readonly documentos = new FormArray<FilaDocumento>([]);
 
-  /** Usuario de esta persona, al editar a alguien que ya lo tiene. */
   readonly usuarioActual = signal<{ idUsuario: number; username: string; rol: string } | null>(null);
 
-  /** Sin permiso para crear usuarios no se ofrece el acceso, para no chocar con un 403. */
   readonly puedeCrearUsuarios = this.authService.tienePermiso(PAGINA_USUARIOS, 'alta');
 
   readonly formulario = this.crearFormulario();
 
-  /** true cuando se eligio "Si, crearle un usuario" en el alta. */
   get creaAcceso(): boolean {
     return this.formulario.controls.daAcceso.value === true;
   }
@@ -97,27 +91,17 @@ export class EmpleadoForm implements OnInit {
       fechaContratacion: this.fb.control<Date | null>(null),
       dpi: ['', [Validators.required, Validators.pattern(PATRON_DPI)]],
 
-      // Acceso al sistema. Solo se usa al dar de alta: el acceso de alguien que ya
-      // existe se administra desde la pantalla de Usuarios.
       daAcceso: this.fb.control<boolean>(false),
       password: [''],
       idRolUsuario: this.fb.control<number | null>(null),
     });
   }
 
-  /** Como va a quedar su usuario: nombre.apellido, segun la politica de la empresa. */
   get usuarioPrevisto(): string {
     const { nombre, apellido } = this.formulario.controls;
     return usuarioSegunPolitica(nombre.value, apellido.value);
   }
 
-  /**
-   * Enciende o apaga las reglas de los campos del acceso.
-   *
-   * Hay que hacerlo a mano porque los dos campos existen siempre en el formulario: si
-   * quedaran obligatorios con el acceso apagado, no se podria guardar a un empleado que
-   * no entra al sistema, que es el caso mas comun.
-   */
   cambiarAcceso(da: boolean): void {
     const c = this.formulario.controls;
     if (da) {
@@ -146,7 +130,6 @@ export class EmpleadoForm implements OnInit {
     this.documentos.removeAt(indice);
   }
 
-  /** En cada fila se ofrecen los tipos que no estan elegidos en otra: cada tipo va una sola vez. */
   tiposDisponibles(indice: number): TipoDocumentoResponse[] {
     const usados = this.documentos.controls
       .filter((_, i) => i !== indice)
@@ -154,7 +137,6 @@ export class EmpleadoForm implements OnInit {
     return this.tiposDocumento().filter((t) => !usados.includes(t.idTipoDocumento));
   }
 
-  /** Ya se eligieron todos los tipos: no hay que ofrecer otra fila. */
   get todosLosTiposUsados(): boolean {
     return this.documentos.length >= this.tiposDocumento().length;
   }
@@ -228,8 +210,6 @@ export class EmpleadoForm implements OnInit {
         idTipoDocumento: d.idTipoDocumento!,
         numeroDocumento: d.numeroDocumento.trim(),
       })),
-      // Solo viaja en el alta y solo si se pidio. El backend graba empleado y usuario
-      // juntos, y le pone al usuario el nombre segun la politica de la empresa.
       acceso: acceso,
     };
 

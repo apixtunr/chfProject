@@ -55,32 +55,25 @@ export class PagoForm implements OnInit {
   readonly formulario = this.fb.nonNullable.group({
     idMetodoPago: this.fb.control<number | null>(null, Validators.required),
     monto: this.fb.control<number | null>(null, [Validators.required, Validators.min(0.01)]),
-    // Arranca bloqueada: se habilita al elegir un metodo que pide referencia (transferencia, tarjeta).
     referenciaTransaccion: this.fb.nonNullable.control({ value: '', disabled: true }, Validators.maxLength(100)),
     observaciones: this.fb.nonNullable.control('', Validators.maxLength(255)),
-    /** Si se deja vacio, el backend usa la fecha/hora actual. */
     fechaPago: this.fb.control<Date | null>(null, Validators.required),
   });
 
-  /** El pago puede ser el reembolso de un costo extra; este formulario no lo cambia, solo
-   * evita perder el enlace si alguien edita un pago que ya lo tenia. */
   private idCostoEventoActual: number | null = null;
 
   ngOnInit(): void {
     this.pagoService.listarMetodos().subscribe((m) => {
       this.metodos.set(m);
-      // Al editar, el metodo puede llegar antes que la lista: con ella ya se sabe si lleva referencia.
       this.ajustarValidacionReferencia();
     });
 
-    // La referencia es obligatoria solo si el metodo la requiere
     this.formulario.controls.idMetodoPago.valueChanges.subscribe(() => this.ajustarValidacionReferencia());
 
     const idPagoParam = this.route.snapshot.paramMap.get('id');
     const idEventoParam = this.route.snapshot.paramMap.get('idEvento');
 
     if (idPagoParam) {
-      // Editar: el evento del pago ya existe y no se puede cambiar aqui.
       const id = Number(idPagoParam);
       this.idPago.set(id);
       this.pagoService.obtener(id).subscribe((pago) => {
@@ -96,7 +89,6 @@ export class PagoForm implements OnInit {
         });
       });
     } else if (idEventoParam) {
-      // Registrar un abono nuevo: el evento viene fijo desde la ruta (se eligio en /pagos).
       const idEvento = Number(idEventoParam);
       this.idEvento.set(idEvento);
       this.cargarEventoYResumen(idEvento);
@@ -108,13 +100,8 @@ export class PagoForm implements OnInit {
     return this.metodos().find((m) => m.idMetodoPago === idMetodo)?.requiereReferencia ?? false;
   }
 
-  /** Un pago no puede ser de una fecha futura. */
   readonly hoy = new Date();
 
-  /**
-   * Transferencia o tarjeta: la referencia (No. de boleta o transferencia) es obligatoria.
-   * Efectivo: no existe, asi que el campo se bloquea y se vacia.
-   */
   private ajustarValidacionReferencia(): void {
     const control = this.formulario.controls.referenciaTransaccion;
     if (this.metodoRequiereReferencia) {
@@ -128,13 +115,6 @@ export class PagoForm implements OnInit {
     control.updateValueAndValidity({ emitEvent: false });
   }
 
-  /**
-   * Muestra Total/Abonado/Pendiente del evento, para que quien registra el pago sepa cuanto
-   * falta en vez de escribir un monto a ciegas. El "Total" es el precio pactado (menu directo,
-   * o el monto total de la cotizacion si el evento viene de ahi); "Abonado" suma solo los pagos
-   * que NO son reembolso de un costo extra (idCostoEvento nulo), porque un reembolso no es un
-   * abono al precio del evento, es una devolucion de un gasto aparte.
-   */
   private cargarEventoYResumen(idEvento: number): void {
     this.eventoService.obtener(idEvento).subscribe((evento) => {
       this.evento.set(evento);
@@ -177,8 +157,6 @@ export class PagoForm implements OnInit {
     operacion.subscribe({
       next: (pago) => {
         this.snackBar.open(id ? 'Pago actualizado' : 'Pago registrado', 'Cerrar', { duration: 3000 });
-        // Al registrar un abono se muestra su recibo, listo para entregarlo al cliente. Se
-        // abre despues de volver a la lista: las ventanas se cierran al cambiar de pantalla.
         this.router.navigate(['/pagos/evento', this.idEvento()]).then(() => {
           if (!id) {
             this.reciboPago.ver(pago.idPago);

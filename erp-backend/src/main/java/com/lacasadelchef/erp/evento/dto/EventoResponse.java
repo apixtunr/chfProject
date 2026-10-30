@@ -62,7 +62,6 @@ public record EventoResponse(
                 .build();
     }
 
-    /** El cliente sale de la cotizacion si la hay, o del campo directo si no. */
     private static com.lacasadelchef.erp.entity.Cliente clienteDe(Evento evento) {
         return evento.getCotizacionVersion() != null
                 ? evento.getCotizacionVersion().getCotizacion().getCliente()

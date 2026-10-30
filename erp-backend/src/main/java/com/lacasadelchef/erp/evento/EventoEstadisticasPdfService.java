@@ -19,15 +19,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * Estadisticas de eventos en PDF, con los mismos filtros que la pantalla: los indicadores, los
- * eventos por estado y por tipo (las graficas, aqui como tablas) y el detalle de los eventos.
- */
 @Service
 @RequiredArgsConstructor
 public class EventoEstadisticasPdfService {
 
-    /** Tope de eventos del detalle; un periodo real de la empresa queda muy por debajo. */
     private static final int MAXIMO_EVENTOS = 5000;
     private static final DateTimeFormatter HORA = DateTimeFormatter.ofPattern("HH:mm");
 

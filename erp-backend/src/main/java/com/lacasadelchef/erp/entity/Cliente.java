@@ -27,19 +27,16 @@ public class Cliente extends Auditable {
     @Column(name = "telefono", length = 20)
     private String telefono;
 
-    /** "cuerpo-verificador" (ej. 6769359-8) o "CF" (consumidor final). Unico salvo CF. */
     @Column(name = "nit", nullable = false, length = 20)
     private String nit = "CF";
 
     @Column(name = "direccion", nullable = false, length = 255)
     private String direccion;
 
-    /** Municipio del cliente; el departamento se obtiene de el, no se guarda aparte. */
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "id_municipio", nullable = false)
     private Municipio municipio;
 
-    /** ACTIVO o INACTIVO (tipo GENERAL). Un cliente no se borra: se inactiva. */
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "id_estado", nullable = false)
     private Estado estado;

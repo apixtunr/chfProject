@@ -32,19 +32,15 @@ const BASE_URL = `${API_URL}/eventos`;
 export class EventoService {
   constructor(private readonly http: HttpClient) {}
 
-  // --- Cabecera ---
-
   listar(filtros: FiltrosEvento, page: number, size: number, orden = 'fechaEvento,desc'): Observable<Page<EventoResponse>> {
     const params = this.aParams(filtros).set('page', page).set('size', size).set('sort', orden);
     return this.http.get<Page<EventoResponse>>(BASE_URL, { params });
   }
 
-  /** Conteos por estado y por tipo de evento, para el dashboard. */
   resumen(filtros: FiltrosEvento): Observable<EventoResumenResponse> {
     return this.http.get<EventoResumenResponse>(`${BASE_URL}/resumen`, { params: this.aParams(filtros) });
   }
 
-  /** Estadisticas de eventos en PDF con los mismos filtros; textoFiltros va en el encabezado. */
   resumenPdf(filtros: FiltrosEvento, textoFiltros: string): Observable<Blob> {
     let params = this.aParams(filtros);
     if (textoFiltros) {
@@ -81,7 +77,6 @@ export class EventoService {
     return this.http.post<EventoResponse>(BASE_URL, request);
   }
 
-  // Servicio que se utilizara a futuro para poder editar, guardar, consultar, eliminar x funcionalidad
   actualizar(id: number, request: EventoRequest): Observable<EventoResponse> {
     return this.http.put<EventoResponse>(`${BASE_URL}/${id}`, request);
   }
@@ -90,14 +85,10 @@ export class EventoService {
     return this.http.put<EventoResponse>(`${BASE_URL}/${id}/estado`, { idEstado });
   }
 
-  /** Pasa un evento CREADO a PLANIFICADO; el backend valida que ya tenga Menu, Personal,
-   * Vehiculos e Inventario, y rechaza el cambio (con el detalle de que falta) si no.
-   * sinAnticipo: el usuario confirma planificar aunque el cliente no haya pagado el 50%. */
   planificar(id: number, sinAnticipo = false): Observable<EventoResponse> {
     return this.http.put<EventoResponse>(`${BASE_URL}/${id}/planificar`, null, { params: { sinAnticipo } });
   }
 
-  /** Hoja de servicio del evento en PDF. */
   hojaServicio(id: number): Observable<Blob> {
     return this.http.get(`${BASE_URL}/${id}/hoja-servicio`, { responseType: 'blob' });
   }
@@ -114,12 +105,9 @@ export class EventoService {
     return this.http.get<TipoEventoResponse[]>(`${API_URL}/tipos-evento`);
   }
 
-  /** Cotizaciones ACEPTADA que todavia no tienen un evento asociado. */
   listarCotizacionesDisponibles(): Observable<CotizacionResponse[]> {
     return this.http.get<CotizacionResponse[]>(`${BASE_URL}/cotizaciones-disponibles`);
   }
-
-  // --- Detalle (menu de eventos directos, sin cotizacion) ---
 
   listarDetalle(idEvento: number): Observable<DetalleEventoResponse[]> {
     return this.http.get<DetalleEventoResponse[]>(`${BASE_URL}/${idEvento}/detalles`);
@@ -129,7 +117,6 @@ export class EventoService {
     return this.http.post<DetalleEventoResponse>(`${BASE_URL}/${idEvento}/detalles`, request);
   }
 
-  // Servicio que se utilizara a futuro para poder editar, guardar, consultar, eliminar x funcionalidad
   actualizarDetalle(idEvento: number, idDetalle: number, request: DetalleEventoRequest): Observable<DetalleEventoResponse> {
     return this.http.put<DetalleEventoResponse>(`${BASE_URL}/${idEvento}/detalles/${idDetalle}`, request);
   }
@@ -137,8 +124,6 @@ export class EventoService {
   eliminarDetalle(idEvento: number, idDetalle: number): Observable<void> {
     return this.http.delete<void>(`${BASE_URL}/${idEvento}/detalles/${idDetalle}`);
   }
-
-  // --- Costos ---
 
   listarCostos(idEvento: number): Observable<CostoEventoResponse[]> {
     return this.http.get<CostoEventoResponse[]>(`${BASE_URL}/${idEvento}/costos`);
@@ -156,8 +141,6 @@ export class EventoService {
     return this.http.delete<void>(`${BASE_URL}/${idEvento}/costos/${idCosto}`);
   }
 
-  // --- Personal ---
-
   listarPersonal(idEvento: number): Observable<EventoEmpleadoResponse[]> {
     return this.http.get<EventoEmpleadoResponse[]>(`${BASE_URL}/${idEvento}/empleados`);
   }
@@ -174,8 +157,6 @@ export class EventoService {
     return this.http.delete<void>(`${BASE_URL}/${idEvento}/empleados/${idEmpleado}`);
   }
 
-  // --- Vehiculos ---
-
   listarVehiculos(idEvento: number): Observable<EventoVehiculoResponse[]> {
     return this.http.get<EventoVehiculoResponse[]>(`${BASE_URL}/${idEvento}/vehiculos`);
   }
@@ -191,8 +172,6 @@ export class EventoService {
   quitarVehiculo(idEvento: number, idVehiculo: number): Observable<void> {
     return this.http.delete<void>(`${BASE_URL}/${idEvento}/vehiculos/${idVehiculo}`);
   }
-
-  // --- Inventario ---
 
   listarInventario(idEvento: number): Observable<EventoInventarioResponse[]> {
     return this.http.get<EventoInventarioResponse[]>(`${BASE_URL}/${idEvento}/inventario`);

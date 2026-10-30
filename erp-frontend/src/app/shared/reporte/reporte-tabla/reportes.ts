@@ -6,11 +6,6 @@ import { PagoService } from '../../../features/pagos/pago.service';
 import { estadosDe, fijas } from './opciones';
 import { ConfigReporte } from './reporte-config';
 
-/*
- * Los reportes de cada modulo. Todos usan la misma pantalla (ReporteTablaPage); aqui solo
- * cambia el endpoint, los filtros y las agrupaciones propias de cada uno.
- */
-
 export const REPORTE_CLIENTES: ConfigReporte = {
   titulo: 'Reporte de Clientes',
   subtitulo: 'Reporte de clientes registrados, por fecha y estado',

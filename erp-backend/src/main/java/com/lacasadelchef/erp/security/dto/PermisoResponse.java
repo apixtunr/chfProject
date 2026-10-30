@@ -2,7 +2,6 @@ package com.lacasadelchef.erp.security.dto;
 
 import lombok.Builder;
 
-/** Permisos de una opcion de menu para el rol autenticado (consumido por Angular). */
 @Builder
 public record PermisoResponse(
         String modulo,

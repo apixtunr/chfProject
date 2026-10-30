@@ -43,7 +43,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String username = jwtService.extraerUsername(token);
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
-            // Revocacion por logout: rechazar tokens emitidos antes de la marca
             if (estaRevocado(token, userDetails)) {
                 filterChain.doFilter(request, response);
                 return;
@@ -53,10 +52,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     userDetails, null, userDetails.getAuthorities());
             auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
-            // Se crea un contexto nuevo en vez de modificar el que ya estaba. Es el patron
-            // que recomienda Spring Security desde que el contexto se resuelve de forma
-            // diferida: al mutar el compartido, algunos filtros posteriores pueden seguir
-            // viendo el contexto vacio y tratar la peticion como no autenticada.
             SecurityContext contexto = SecurityContextHolder.createEmptyContext();
             contexto.setAuthentication(auth);
             SecurityContextHolder.setContext(contexto);

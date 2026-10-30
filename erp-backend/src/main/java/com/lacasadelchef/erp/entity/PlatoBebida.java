@@ -7,10 +7,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/**
- * Una bebida que incluye un plato. Es entidad propia (y no un @ManyToMany) para que
- * agregar o quitar una bebida de un plato quede en la bitacora como cualquier cambio.
- */
 @Getter
 @Setter
 @NoArgsConstructor

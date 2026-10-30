@@ -1,4 +1,3 @@
-<!-- ══ CABECERA DE PÁGINA ══════════════════════════════════════ -->
 <div class="pf-page-header">
   <div class="pf-header-left">
     <nav class="pf-breadcrumb" aria-label="Ruta de navegación">
@@ -18,7 +17,6 @@
   </div>
 </div>
 
-<!-- ══ SECCIÓN: ACCESO AL SISTEMA ═════════════════════════════ -->
 <form [formGroup]="formulario" (ngSubmit)="guardar()" novalidate>
   <div class="pf-section">
 
@@ -29,9 +27,6 @@
       </div>
     </div>
 
-    <!-- ── Campo 1: Empleado ──
-         Va primero porque de el sale el nombre de usuario. Sin opcion "Ninguno": un
-         usuario sin persona detras es el que dejaba a la bitacora diciendo "admin". -->
     <div class="pf-field">
       <label class="pf-label" for="empleado">
         <span class="pf-label-num">1.</span>
@@ -53,7 +48,6 @@
       }
     </div>
 
-    <!-- ── Campo 2: Usuario (se genera, no se escribe) ── -->
     <div class="pf-field">
       <label class="pf-label" for="username">
         <span class="pf-label-num">2.</span>
@@ -74,7 +68,6 @@
       }
     </div>
 
-    <!-- ── Campo 3: Contraseña (solo al crear; en edición tiene su propio botón) ── -->
     @if (!idUsuario()) {
       <div class="pf-field">
         <label class="pf-label" for="password">
@@ -101,7 +94,6 @@
       </div>
     }
 
-    <!-- ── Fila 2 columnas: Rol + Estado ── -->
     <div class="pf-row-2col">
 
       <div class="pf-field">
@@ -144,9 +136,8 @@
 
     </div>
 
-  </div><!-- /pf-section -->
+  </div>
 
-  <!-- ══ ACCIONES ABAJO ══════════════════════════════════════ -->
   <div class="pf-footer-actions">
     <button mat-stroked-button type="button" routerLink="/admin/usuarios" class="pf-btn-cancel pf-btn-cancelar">
       Cancelar

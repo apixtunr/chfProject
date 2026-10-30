@@ -83,9 +83,6 @@ public class CotizacionServiceImpl implements CotizacionService {
     @Transactional
     public CotizacionResponse actualizar(Integer id, CotizacionRequest request) {
         Cotizacion cotizacion = buscarCotizacion(id);
-        // Cliente, fecha, lugar y personas son parte de lo que se le envia al cliente: una
-        // vez enviada, cambiarlos haria que el sistema ya no coincida con lo que el cliente
-        // tiene en su PDF. Si hay que cambiarlos, se crea una version nueva.
         CotizacionVersion ultima = buscarUltimaVersion(id);
         if (ultima != null && !ESTADO_CREADA.equalsIgnoreCase(ultima.getEstado().getNombre())) {
             throw new BusinessException(
@@ -104,15 +101,11 @@ public class CotizacionServiceImpl implements CotizacionService {
     @Override
     @Transactional
     public void eliminar(Integer id) {
-        // Solo se borra un borrador. Lo que ya se le envio al cliente es historial
-        // comercial: queda como rechazado, no desaparece.
         Cotizacion cotizacion = buscarCotizacion(id);
         if (cotizacionVersionRepository.existsByCotizacionIdCotizacionAndEstadoNombreNot(id, ESTADO_CREADA)) {
             throw new BusinessException(
                     "Solo se puede eliminar una cotizacion que nunca se envio; esta ya tiene versiones enviadas");
         }
-        // Las versiones (con sus platos y servicios) son parte del borrador: se van con el.
-        // La base no borra en cascada, asi que sin esto la llave foranea lo impedia siempre.
         for (CotizacionVersion version : cotizacionVersionRepository.findByCotizacionIdCotizacionOrderByNumeroVersionDesc(id)) {
             Integer idVersion = version.getIdCotizacionVersion();
             detalleCotizacionRepository.deleteAll(detalleCotizacionRepository.findByCotizacionVersionIdCotizacionVersion(idVersion));
@@ -122,7 +115,6 @@ public class CotizacionServiceImpl implements CotizacionService {
         cotizacionRepository.delete(cotizacion);
     }
 
-    /** Toda cotizacion nace con una version 1 en CREADA, lista para cargarle el detalle. */
     private CotizacionVersion crearVersionInicial(Cotizacion cotizacion) {
         Estado creada = estadoRepository.findByTipoEstadoNombreTipoAndNombre(TIPO_ESTADO_COTIZACION, ESTADO_CREADA)
                 .orElseThrow(() -> new ResourceNotFoundException(
@@ -138,17 +130,12 @@ public class CotizacionServiceImpl implements CotizacionService {
         return personas != null && personas >= MenuPlato.PERSONAS_PRECIO_VOLUMEN;
     }
 
-    /**
-     * El evento cruzo las 100 personas (en un sentido u otro): los platos del borrador pasan
-     * al precio de la nueva escala. Los que ya no estan en el catalogo conservan su precio.
-     */
     private void reajustarPrecios(CotizacionVersion version, int personas) {
         for (DetalleCotizacion detalle :
                 detalleCotizacionRepository.findByCotizacionVersionIdCotizacionVersion(version.getIdCotizacionVersion())) {
             menuPlatoRepository.findById(new MenuPlatoId(detalle.getMenu().getIdMenu(), detalle.getPlato().getIdPlato()))
                     .ifPresent(menuPlato -> detalle.setPrecioUnitario(menuPlato.precioPorUnidadPara(personas)));
         }
-        // El total de la version lo recalcula un trigger al actualizar los platos.
         entityManager.flush();
         entityManager.refresh(version);
     }
@@ -167,15 +154,11 @@ public class CotizacionServiceImpl implements CotizacionService {
     private void aplicar(CotizacionRequest request, Cotizacion cotizacion) {
         Cliente cliente = clienteRepository.findById(request.idCliente())
                 .orElseThrow(() -> new ResourceNotFoundException("Cliente", request.idCliente()));
-        // Un cliente inactivo no entra en cotizaciones nuevas; las que ya tenia no cambian
-        // de cliente, asi que solo se revisa al asignarlo (alta o cambio de cliente).
         boolean clienteNuevo = cotizacion.getCliente() == null
                 || !cotizacion.getCliente().getIdCliente().equals(cliente.getIdCliente());
         if (clienteNuevo && !cliente.estaActivo()) {
             throw new BusinessException("El cliente %s está inactivo: reactívelo antes de %s".formatted(cliente.getNombre(), "cotizarle"));
         }
-        // Una semana de anticipacion, igual que el evento (el 50% se cobra una semana antes).
-        // Solo si la fecha cambia: corregir otro dato no obliga a mover una fecha ya puesta.
         LocalDate minima = CondicionesComerciales.fechaMinimaEvento(LocalDate.now());
         boolean cambiaLaFecha = request.fechaEvento() != null && !request.fechaEvento().equals(cotizacion.getFechaEvento());
         if (cambiaLaFecha && request.fechaEvento().isBefore(minima)) {
@@ -198,8 +181,6 @@ public class CotizacionServiceImpl implements CotizacionService {
                     "El servicio empieza en punto, entre las 7:00 y las 19:00 (dura 4 horas y termina a mas tardar a"
                             + " las 21:00, o 22:00 si inicia a las 18:00 o 19:00; un desayuno, a las 11:00)");
         }
-        // Un evento para hoy no puede empezar a una hora que ya paso (solo posible con el modo
-        // pruebas, que permite cotizar para el mismo dia).
         if (cambiaLaFecha || !Objects.equals(request.horaInicio(), cotizacion.getHoraInicio())) {
             if (LocalDate.now().equals(request.fechaEvento()) && request.horaInicio() != null
                     && !request.horaInicio().isAfter(LocalTime.now())) {

@@ -1,10 +1,4 @@
-// Detalle del evento: encabezado, pestanas, formularios y tablas (clases evt-*).
-// Va global para no pasar el limite de estilos por pantalla de Angular.
 
-// ===========================================================================
-// Encabezado del evento: tarjeta blanca grande con el titulo, el estado y las
-// acciones, y abajo los datos del evento en recuadros.
-// ===========================================================================
 .evt-cabecera {
   background: #fff;
   border: 1px solid #eef0f4;
@@ -65,7 +59,6 @@
   font-weight: 400;
 }
 
-// Estado como pildora con punto, en el color de su estado.
 .evt-estado {
   display: inline-flex;
   align-items: center;
@@ -94,9 +87,6 @@
   flex-wrap: wrap;
 }
 
-// Cancelar el evento: el mismo rojo de los demas botones Cancelar (pf-btn-cancelar);
-// aqui solo el tamano, igual al de Planificar.
-// Mas especifico que .pf-btn-cancel (que fija 40px de alto) para que gane esta medida.
 .evt-acciones .evt-btn-cancelar.pf-btn-cancel.mat-mdc-outlined-button {
   height: 48px;
   min-width: 200px;
@@ -106,7 +96,6 @@
   gap: 6px;
 }
 
-// Hoja de servicio: mismo tamano que las otras dos acciones, con borde y texto de la marca.
 .evt-acciones .evt-btn-hoja.mat-mdc-outlined-button {
   height: 48px;
   padding: 0 22px;
@@ -118,7 +107,6 @@
   gap: 6px;
 }
 
-// Accion principal (Planificar evento y los botones de los formularios): azul de marca.
 .evt-btn-planificar.mat-mdc-unelevated-button,
 .evt-btn-enviar.mat-mdc-unelevated-button {
   background: var(--chf-marca);
@@ -140,7 +128,6 @@
   padding: 0 22px;
 }
 
-// Datos del evento: un recuadro por dato, etiqueta chica en mayusculas con icono.
 .evt-datos {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -186,7 +173,6 @@
     color: var(--chf-texto-medio);
   }
 
-  // La direccion puede ser larga: dos lineas y el resto en el tooltip.
   &--largo {
     font-size: 1rem;
     display: -webkit-box;
@@ -212,10 +198,6 @@
   background: #f59e0b;
 }
 
-// ===========================================================================
-// Pestanas: sobre el fondo de la pagina, con icono; la activa en negrita oscura
-// con una linea debajo.
-// ===========================================================================
 .evt-pestanas {
   margin-bottom: 24px;
 
@@ -249,8 +231,6 @@
   padding: 24px 0 8px;
 }
 
-// Formulario de cada pestana: tarjeta blanca, etiqueta arriba de cada campo y el boton
-// al final de la fila.
 .evt-tarjeta {
   background: #fff;
   border: 1px solid #eef0f4;
@@ -262,19 +242,15 @@
 
 .contenido-tab .formulario-linea {
   display: flex;
-  // Arriba y no abajo: si un campo muestra una ayuda o un error debajo, se hace mas alto
-  // y con la alineacion de abajo bajaba a los demas campos y al boton.
   align-items: flex-start;
   gap: 16px;
   flex-wrap: wrap;
 
-  // Los botones van a la altura de las cajas: se saltan el alto de la etiqueta.
   > button {
     margin-top: 26px;
   }
 }
 
-// Los campos pf- traen margenes pensados para las secciones de los formularios grandes.
 .evt-campo.pf-field {
   padding: 0;
   gap: 6px;
@@ -288,10 +264,6 @@
   flex: 2 1 260px;
 }
 
-// ===========================================================================
-// Tablas del evento: tarjeta blanca como la del formulario, encabezado oscuro alto,
-// filas espaciadas y montos alineados a la derecha.
-// ===========================================================================
 .contenido-tab .tabla-contenedor {
   border: 1px solid #eef0f4;
   border-radius: 16px;
@@ -322,7 +294,6 @@
     font-size: 0.92rem;
   }
 
-  // Montos: a la derecha y con cifras de ancho fijo, para comparar de un vistazo.
   .mat-column-precio,
   .mat-column-subtotal,
   .mat-column-monto,
@@ -338,7 +309,6 @@
   }
 }
 
-// Cantidad en un recuadro gris; bebida como pildora con icono.
 .evt-badge {
   display: inline-block;
   padding: 4px 12px;
@@ -366,8 +336,6 @@
   }
 }
 
-// Material pone scroll propio en el cuerpo de cada pestana; el contenido ya crece con
-// la pagina, asi que se quita para que no aparezca una barra innecesaria.
 .evt-pestanas .mat-mdc-tab-body-content {
   overflow: visible;
 }

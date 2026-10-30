@@ -50,8 +50,6 @@ public class RolServiceImpl implements RolService {
     @Override
     @Transactional
     public void eliminar(Integer id) {
-        // Si el rol tiene usuarios o permisos asignados, la FK lo impide y el
-        // GlobalExceptionHandler lo traduce a HTTP 409.
         Rol rol = buscar(id);
         rolRepository.delete(rol);
     }

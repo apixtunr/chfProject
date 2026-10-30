@@ -1,18 +1,12 @@
 import { BebidaResumen } from '../../../core/catalogos/bebida';
-/** Espeja evento/dto/*.java del backend. */
 export interface EventoRequest {
   idCotizacionVersion: number | null;
-  /** Obligatorio solo si idCotizacionVersion viene vacio (evento directo). */
   idCliente: number | null;
-  /** Obligatorio solo si idCotizacionVersion viene vacio; si no, se toma de la cotizacion. */
   idTipoEvento: number | null;
-  /** Obligatorio solo si idCotizacionVersion viene vacio; si no, se toma de la cotizacion. */
   idUbicacion: number | null;
-  /** Obligatoria solo si idCotizacionVersion viene vacio; si no, se toma de la cotizacion. */
   fechaEvento: string | null;
   horaInicio: string | null;
   horaFin: string | null;
-  /** Obligatoria solo si idCotizacionVersion viene vacio; si no, se toma de la cotizacion. */
   cantidadPersonas: number | null;
   observaciones: string | null;
 }
@@ -36,14 +30,12 @@ export interface EventoResponse {
   montoMenu: number;
   fechaCreacion: string | null;
   fechaModificacion: string | null;
-  /** Se planifico sin tener pagado el 50% (decision del usuario). */
   planificadoSinAnticipo: boolean;
   motivoCancelacion: string | null;
   acuerdoAnticipo: AcuerdoAnticipo | null;
   montoDevuelto: number | null;
 }
 
-/** En que quedo lo pagado al cancelar (espeja EventoServiceImpl.cancelar). */
 export type AcuerdoAnticipo = 'SIN_ANTICIPO' | 'RETENIDO' | 'DEVUELTO' | 'DEVUELTO_PARCIAL';
 
 export const ACUERDOS_ANTICIPO: Record<AcuerdoAnticipo, string> = {
@@ -53,7 +45,6 @@ export const ACUERDOS_ANTICIPO: Record<AcuerdoAnticipo, string> = {
   DEVUELTO_PARCIAL: 'Se devuelve una parte',
 };
 
-/** Cuanto ha pagado el cliente contra el 50% que se cobra una semana antes (AnticipoResponse). */
 export interface AnticipoResponse {
   total: number;
   abonado: number;
@@ -75,7 +66,6 @@ export interface ConteoResponse {
 
 export interface EventoResumenResponse {
   totalEventos: number;
-  /** Suma de invitados de los eventos finalizados del periodo. */
   personasAtendidas: number;
   porEstado: ConteoResponse[];
   porTipo: ConteoResponse[];
@@ -94,7 +84,6 @@ export interface DetalleEventoRequest {
   idPlato: number;
   cantidadPlatos: number;
   observaciones: string | null;
-  /** Una de las bebidas que incluye el plato (id del catalogo). */
   idBebida: number | null;
 }
 
@@ -111,7 +100,6 @@ export interface DetalleEventoResponse {
   observaciones: string | null;
   idBebida: number | null;
   nombreBebida: string | null;
-  /** Bebidas que incluye el plato; si hay y no se eligio ninguna, falta elegirla. */
   bebidasPlato: BebidaResumen[];
   montoMenuEvento: number;
   fechaCreacion: string | null;
@@ -155,7 +143,6 @@ export interface EventoEmpleadoResponse {
   fechaAsignacion: string;
   horaInicio: string | null;
   horaFin: string | null;
-  /** Si tiene licencia de conducir registrada: solo ellos pueden ser conductores. */
   tieneLicencia: boolean | null;
 }
 
@@ -209,7 +196,6 @@ export interface ColorEstado {
   text: string;
 }
 
-/** Colores fijos por estado de evento (fondo suave + texto), compartidos entre los chips y la grafica de Estadisticas de eventos. */
 export const COLOR_POR_ESTADO_EVENTO: Record<string, ColorEstado> = {
   CREADO: { bg: '#F3F4F6', text: '#374151' },
   FINALIZADO: { bg: '#ECFDF5', text: '#047857' },

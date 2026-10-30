@@ -95,7 +95,6 @@ public class DetalleCotizacionServiceImpl implements DetalleCotizacionService {
         }
     }
 
-    /** El precio nunca lo manda el cliente: se toma del menu_plato configurado en Administracion. */
     private MenuPlato buscarMenuPlato(Integer idMenu, Integer idPlato) {
         Menu menu = menuRepository.findById(idMenu)
                 .orElseThrow(() -> new ResourceNotFoundException("Menu", idMenu));
@@ -118,14 +117,12 @@ public class DetalleCotizacionServiceImpl implements DetalleCotizacionService {
     }
 
     private void aplicar(DetalleCotizacionRequest request, MenuPlato menuPlato, DetalleCotizacion detalle) {
-        // La bebida que ya tenia la linea solo cuenta si el plato no cambia.
         Bebida bebidaActual = detalle.getPlato() != null
                 && detalle.getPlato().getIdPlato().equals(menuPlato.getPlato().getIdPlato())
                 ? detalle.getBebida() : null;
         detalle.setMenu(menuPlato.getMenu());
         detalle.setPlato(menuPlato.getPlato());
         detalle.setCantidadPlatos(request.cantidadPlatos());
-        // Precio del catalogo segun el tamano del evento (menos de 100 o desde 100 personas).
         int personas = detalle.getCotizacionVersion().getCotizacion().getCantidadPersonas();
         detalle.setPrecioUnitario(menuPlato.precioPorUnidadPara(personas));
         detalle.setObservaciones(request.observaciones());

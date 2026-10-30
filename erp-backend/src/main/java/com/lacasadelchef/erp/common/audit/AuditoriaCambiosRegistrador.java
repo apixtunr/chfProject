@@ -8,12 +8,6 @@ import org.hibernate.event.service.spi.EventListenerRegistry;
 import org.hibernate.event.spi.EventType;
 import org.springframework.stereotype.Component;
 
-/**
- * Engancha {@link AuditoriaCambiosListener} a los eventos de alta, cambio y baja de
- * Hibernate una vez que Spring termino de construir el EntityManagerFactory. Es un bean aparte para que
- * el listener pueda ser un @Component normal (con logging e inyeccion) sin tener que
- * declararlo en hibernate.properties.
- */
 @Component
 @RequiredArgsConstructor
 class AuditoriaCambiosRegistrador {

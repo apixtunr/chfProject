@@ -24,15 +24,9 @@ interface Indicador {
   detalle: string;
   icono: string;
   ruta: string;
-  /** Se pinta en ambar solo cuando hay algo que alguien tiene que resolver. */
   atencion: boolean;
 }
 
-/**
- * Acciones rapidas en orden de prioridad. Se muestran las tres primeras que el rol puede
- * usar: asi Ventas ve "Nueva cotizacion", Almacén "Movimiento de inventario", Cocina
- * "Nuevo plato", sin tener que configurar nada por rol.
- */
 const ACCIONES: AccionRapida[] = [
   { etiqueta: 'Nueva cotización', icono: 'request_quote', ruta: '/cotizaciones/nueva', paginaUrl: '/api/cotizaciones', permiso: 'alta' },
   { etiqueta: 'Nuevo evento', icono: 'event', ruta: '/eventos/nuevo', paginaUrl: '/api/eventos', permiso: 'alta' },
@@ -43,12 +37,6 @@ const ACCIONES: AccionRapida[] = [
   { etiqueta: 'Rentabilidad', icono: 'trending_up', ruta: '/rentabilidad', paginaUrl: '/api/rentabilidad', permiso: 'ver' },
 ];
 
-/**
- * Pantalla de inicio: un panel de trabajo por rol. Todo sale de una sola llamada a
- * GET /api/inicio, que ya viene recortada a lo que el rol puede ver (una seccion en null
- * no se dibuja). Los paneles grandes son componentes aparte para que cada hoja de estilos
- * quede dentro del presupuesto de angular.json.
- */
 @Component({
   selector: 'app-home',
   imports: [RouterLink, MatIconModule, PanelPreparacion, PanelAgenda, PanelPendientes],
@@ -63,11 +51,6 @@ export class Home {
   readonly cargando = signal(true);
   readonly error = signal(false);
 
-  /**
-   * La fecha de referencia la da el backend. Antes se calculaba con toISOString(), que
-   * devuelve la fecha en UTC: despues de las 18:00 en Guatemala ya era "manana" y los
-   * eventos del dia desaparecian del inicio.
-   */
   readonly hoy = computed(() => this.panel()?.fechaReferencia ?? fechaLocalHoy());
   readonly fecha = computed(() => fechaLarga(this.hoy()));
 
@@ -84,7 +67,6 @@ export class Home {
     ).slice(0, 3),
   );
 
-  /** Una frase con el estado del dia; se arma con lo que el rol puede ver. */
   readonly resumenDelDia = computed(() => {
     const r = this.panel()?.resumen;
     if (!r) return '';
@@ -147,7 +129,6 @@ export class Home {
     return lista;
   });
 
-  /** Hay al menos una tarjeta de pendientes que aplica al rol. */
   readonly conPendientes = computed(() => {
     const p = this.panel();
     return (

@@ -20,15 +20,6 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-/**
- * Arma un {@link ReporteTabla} a partir de una lista de registros: cada reporte declara sus
- * columnas (como sacar cada valor del registro), la fecha por la que se agrupa y, si tiene,
- * agrupaciones propias (por persona, por producto...). El builder reparte las filas en
- * grupos, en orden cronologico, y calcula subtotales y totales de las columnas que suman.
- *
- * Agrupaciones de fecha: DIA, SEMANA (de lunes a domingo), MES y ANIO. NINGUNA (o null)
- * deja todo en un solo grupo.
- */
 public class ReporteTablaBuilder<T> {
 
     private static final Locale ES = Locale.of("es", "GT");
@@ -65,7 +56,6 @@ public class ReporteTablaBuilder<T> {
         return columna(new Columna(clave, titulo, Tipo.FECHA_HORA, false, ancho), valor);
     }
 
-    /** Numero entero o decimal; con sumar, lleva subtotal y total. */
     public ReporteTablaBuilder<T> numero(String clave, String titulo, float ancho, boolean sumar, Function<T, Object> valor) {
         return columna(new Columna(clave, titulo, Tipo.NUMERO, sumar, ancho), valor);
     }
@@ -79,19 +69,16 @@ public class ReporteTablaBuilder<T> {
         return this;
     }
 
-    /** La fecha del registro con la que se agrupa por dia, semana, mes o año. */
     public ReporteTablaBuilder<T> fechaDeAgrupacion(Function<T, LocalDate> fecha) {
         this.fecha = fecha;
         return this;
     }
 
-    /** Agrupacion propia del reporte (por ejemplo "PERSONA"): la etiqueta de cada grupo. */
     public ReporteTablaBuilder<T> agrupacion(String clave, Function<T, String> etiqueta) {
         agrupacionesPropias.put(clave, etiqueta);
         return this;
     }
 
-    /** Registros que se muestran pero no suman (recibos anulados). */
     public ReporteTablaBuilder<T> excluirDeTotales(Predicate<T> excluir) {
         this.excluir = excluir;
         return this;
@@ -100,7 +87,6 @@ public class ReporteTablaBuilder<T> {
     public ReporteTabla construir(String agrupar) {
         Function<T, String> etiqueta = etiquetaDe(agrupar);
         Map<String, List<T>> porGrupo = new LinkedHashMap<>();
-        // Las agrupaciones por fecha salen en orden cronologico aunque los registros no lo esten.
         List<T> ordenados = new ArrayList<>(registros);
         if (esDeFecha(agrupar)) {
             ordenados.sort((a, b) -> {
@@ -177,7 +163,6 @@ public class ReporteTablaBuilder<T> {
         };
     }
 
-    /** Fecha que identifica al periodo, para ordenarlos: el dia, el lunes, el dia 1 del mes o del año. */
     static LocalDate clavePeriodo(String agrupar, LocalDate f) {
         return switch (agrupar) {
             case "SEMANA" -> f.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
@@ -187,7 +172,6 @@ public class ReporteTablaBuilder<T> {
         };
     }
 
-    /** "Jueves 09/10/2026", "Semana del 05/10/2026 al 11/10/2026", "Octubre 2026" o "2026". */
     static String etiquetaPeriodo(String agrupar, LocalDate f) {
         return switch (agrupar) {
             case "DIA" -> mayuscula(f.getDayOfWeek().getDisplayName(TextStyle.FULL, ES)) + " " + f.format(FECHA);

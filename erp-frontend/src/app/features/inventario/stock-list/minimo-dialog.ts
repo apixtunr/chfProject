@@ -7,7 +7,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { InventarioResponse } from '../dto/inventario';
 
-/** Dialogo para editar la cantidad minima (umbral de alerta) de un producto. */
 @Component({
   selector: 'app-minimo-dialog',
   imports: [MatIconModule, FormsModule, MatDialogModule, MatButtonModule, MatFormFieldModule, MatInputModule],

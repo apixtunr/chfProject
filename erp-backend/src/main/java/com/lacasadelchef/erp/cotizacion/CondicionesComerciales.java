@@ -9,13 +9,6 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.IntStream;
 
-/**
- * Condiciones que la empresa ofrece en toda cotizacion, tomadas de su menu de banquetes
- * 2026. Estan en un solo lugar para que el PDF (y lo que se construya despues, como el
- * vencimiento de las cotizaciones) no repita ni contradiga lo que la empresa promete.
- *
- * La vigencia se puede cambiar sin tocar el codigo con app.cotizacion.vigencia-dias.
- */
 @Component
 public class CondicionesComerciales {
 
@@ -43,30 +36,18 @@ public class CondicionesComerciales {
             "Prueba de menú para 4 personas: se reserva con un mes de anticipación y su costo es el precio del"
                     + " menú elegido.");
 
-    /**
-     * Anticipacion minima para reservar: el primer 50% se paga una semana antes del
-     * evento, asi que no se agenda (ni se cotiza) un evento para dentro de menos de 7 dias.
-     */
     public static final int DIAS_ANTICIPACION = 7;
 
-    /** Porcion del total que se paga una semana antes del evento. */
     public static final BigDecimal PORCION_ANTICIPO = new BigDecimal("0.50");
 
-    /** El servicio dura 4 horas desde la hora solicitada. */
     public static final int HORAS_DE_SERVICIO = 4;
 
-    /**
-     * Turnos del menu: el servicio empieza en punto entre las 7:00 y las 19:00. De 7:00 a
-     * 10:00 son desayunos; de 11:00 en adelante, almuerzos y cenas.
-     */
     public static final List<LocalTime> HORAS_DE_INICIO = IntStream.rangeClosed(7, 19)
             .mapToObj(hora -> LocalTime.of(hora, 0))
             .toList();
 
-    /** Un desayuno (inicio de 7:00 a 10:00) termina a mas tardar a las 11:00. */
     private static final LocalTime CIERRE_DESAYUNO = LocalTime.of(11, 0);
     private static final LocalTime CIERRE = LocalTime.of(21, 0);
-    /** Excepcion del menu: si empieza a las 18 o 19, se atiende hasta las 22:00. */
     private static final LocalTime CIERRE_NOCTURNO = LocalTime.of(22, 0);
     private static final LocalTime INICIO_NOCTURNO = LocalTime.of(18, 0);
 
@@ -76,7 +57,6 @@ public class CondicionesComerciales {
         this.vigenciaDias = vigenciaDias;
     }
 
-    /** Primer dia en que se puede agendar un evento si se reserva hoy. */
     public static LocalDate fechaMinimaEvento(LocalDate hoy) {
         return hoy.plusDays(DIAS_ANTICIPACION);
     }
@@ -85,11 +65,6 @@ public class CondicionesComerciales {
         return HORAS_DE_INICIO.contains(inicio);
     }
 
-    /**
-     * Fin del servicio: 4 horas despues del inicio, sin pasar de las 21:00 (22:00 si
-     * empieza a las 18 o 19). Un desayuno termina a mas tardar a las 11:00: el de las 7:00
-     * dura sus 4 horas, el de las 9:00 hasta las 11:00.
-     */
     public static LocalTime horaFinServicio(LocalTime inicio) {
         LocalTime cierre = inicio.isBefore(CIERRE_DESAYUNO) ? CIERRE_DESAYUNO
                 : inicio.isBefore(INICIO_NOCTURNO) ? CIERRE : CIERRE_NOCTURNO;
@@ -101,7 +76,6 @@ public class CondicionesComerciales {
         return vigenciaDias;
     }
 
-    /** Lo que dice la cotizacion sobre su plazo: el precio se respeta mientras esta vigente. */
     public String textoVigencia() {
         return "%d días. Los precios de esta cotización se respetan durante ese plazo; pasado ese tiempo pueden"
                 .formatted(vigenciaDias) + " actualizarse.";

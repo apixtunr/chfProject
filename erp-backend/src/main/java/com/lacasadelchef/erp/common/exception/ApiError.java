@@ -5,7 +5,6 @@ import lombok.Builder;
 import java.time.LocalDateTime;
 import java.util.List;
 
-/** Estructura estandar de error que recibe el frontend. */
 @Builder
 public record ApiError(
         LocalDateTime timestamp,

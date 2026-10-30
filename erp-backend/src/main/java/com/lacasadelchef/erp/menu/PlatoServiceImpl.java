@@ -67,8 +67,6 @@ public class PlatoServiceImpl implements PlatoService {
     @Override
     @Transactional
     public void eliminar(Integer id) {
-        // Si el plato esta en uso en algun menu, la FK lo impide y el
-        // GlobalExceptionHandler lo traduce a HTTP 409.
         Plato plato = buscarPlato(id);
         platoRepository.delete(plato);
     }
@@ -87,10 +85,6 @@ public class PlatoServiceImpl implements PlatoService {
         asignarBebidas(plato, request.idsBebida());
     }
 
-    /**
-     * Deja en el plato exactamente las bebidas pedidas: quita las que ya no van y agrega
-     * las nuevas (cada cambio queda en la bitacora como alta o baja en plato_bebida).
-     */
     private void asignarBebidas(Plato plato, List<Integer> idsBebida) {
         Set<Integer> pedidas = idsBebida == null ? Set.of()
                 : idsBebida.stream().filter(Objects::nonNull).collect(Collectors.toCollection(LinkedHashSet::new));

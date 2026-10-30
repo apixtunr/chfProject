@@ -1,4 +1,3 @@
-<!-- ══ CABECERA DE PÁGINA ══════════════════════════════════════ -->
 <div class="pf-page-header">
   <div class="pf-header-left">
     <nav class="pf-breadcrumb" aria-label="Ruta de navegación">
@@ -18,7 +17,6 @@
   </div>
 </div>
 
-<!-- ══ SECCIÓN: DATOS DEL PRODUCTO ════════════════════════════ -->
 <form [formGroup]="formulario" (ngSubmit)="guardar()" novalidate>
   <div class="pf-section">
 
@@ -29,7 +27,6 @@
       </div>
     </div>
 
-    <!-- ── Campo 1: Nombre ── -->
     <div class="pf-field">
       <label class="pf-label" for="nombreProducto">
         <span class="pf-label-num">1.</span>
@@ -53,7 +50,6 @@
       }
     </div>
 
-    <!-- ── Campo 2: Categoría ── -->
     <div class="pf-field">
       <label class="pf-label" for="categoria">
         <span class="pf-label-num">2.</span>
@@ -75,7 +71,6 @@
       }
     </div>
 
-    <!-- ── Fila 2 columnas: Unidad de medida + Precio ── -->
     <div class="pf-row-2col">
 
       <div class="pf-field">
@@ -129,9 +124,8 @@
 
     </div>
 
-  </div><!-- /pf-section -->
+  </div>
 
-  <!-- ══ ACCIONES ABAJO ══════════════════════════════════════ -->
   <div class="pf-footer-actions">
     <button mat-stroked-button type="button" routerLink="/inventario/productos" class="pf-btn-cancel pf-btn-cancelar">
       Cancelar

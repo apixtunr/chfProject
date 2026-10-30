@@ -8,23 +8,11 @@ import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
-/**
- * Lo que le toca pagar a un evento con saldo y para cuando, segun la forma de pago de la
- * empresa: el 50 % una semana antes del evento y el resto al finalizar.
- *
- * @param vence fecha en que vence lo que toca pagar (el anticipo o el saldo final)
- * @param dias  dias que faltan para que venza; negativo si ya esta atrasado
- */
 public record CuentaPorCobrar(VPagoEvento evento, BigDecimal faltaAnticipo, Situacion situacion, LocalDate vence,
                               long dias) {
 
     private static final String ESTADO_FINALIZADO = "FINALIZADO";
 
-    /**
-     * ANTICIPO    todavia no cubre el 50 %, que vence una semana antes del evento;
-     * SALDO_FINAL ya cubrio el anticipo y le falta el resto, que se paga al finalizar;
-     * VENCIDO     el evento ya finalizo y quedo saldo sin pagar.
-     */
     public enum Situacion {
         ANTICIPO("Anticipo pendiente"),
         SALDO_FINAL("Saldo al finalizar"),
@@ -60,14 +48,12 @@ public record CuentaPorCobrar(VPagoEvento evento, BigDecimal faltaAnticipo, Situ
             vence = v.getFechaEvento();
         }
         long dias = ChronoUnit.DAYS.between(hoy, vence);
-        // Un evento finalizado con saldo ya esta vencido, aunque haya terminado hoy.
         if (situacion == Situacion.VENCIDO && dias == 0) {
             dias = -1;
         }
         return new CuentaPorCobrar(v, faltaAnticipo, situacion, vence, dias);
     }
 
-    /** "En 5 días", "Hoy" o "Atrasado 3 días". */
     public String textoVencimiento() {
         if (dias == 0) {
             return "Hoy";

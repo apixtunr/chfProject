@@ -33,7 +33,6 @@ import static org.mockito.Mockito.when;
 class ClienteServiceImplTest {
 
     private static final int ID_MUNICIPIO = 1;
-    /** NIT valido: 6769359 con digito verificador 8. */
     private static final String NIT_VALIDO = "6769359-8";
 
     @Mock private ClienteRepository clienteRepository;
@@ -67,7 +66,6 @@ class ClienteServiceImplTest {
         return peticion(nombre, NIT_VALIDO, "5555-5555", "a@b.com");
     }
 
-    /** El cliente ya guardado trae municipio y estado porque las columnas son obligatorias. */
     private static Cliente clienteGuardado(Integer id, String nombre, boolean activo) {
         Cliente cliente = new Cliente();
         cliente.setIdCliente(id);
@@ -84,8 +82,6 @@ class ClienteServiceImplTest {
                 .thenReturn(Optional.of(estado(1, "ACTIVO")));
         when(municipioRepository.findById(ID_MUNICIPIO)).thenReturn(Optional.of(municipioDePrueba()));
     }
-
-    // ------------------------------------------------------------------- alta
 
     @Test
     @DisplayName("Crear cliente: guarda activo y recorta espacios")
@@ -198,8 +194,6 @@ class ClienteServiceImplTest {
                 .hasMessageContaining("Municipio");
     }
 
-    // ----------------------------------------------------------------- edicion
-
     @Test
     @DisplayName("Actualizar cliente conservando su propio NIT no cuenta como repetido")
     void actualizarConSuPropioNit() {
@@ -223,8 +217,6 @@ class ClienteServiceImplTest {
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("99");
     }
-
-    // ---------------------------------------------------- inactivar / reactivar
 
     @Test
     @DisplayName("Inactivar cliente sin negocio abierto: pasa a INACTIVO y no se borra")
@@ -272,8 +264,6 @@ class ClienteServiceImplTest {
         assertThat(response.activo()).isTrue();
         verify(clienteRepository, never()).contarEventosVigentes(anyInt());
     }
-
-    // ------------------------------------------------------------------ consulta
 
     @Test
     @DisplayName("Obtener por id devuelve el cliente mapeado a DTO")

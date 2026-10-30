@@ -12,10 +12,6 @@ import java.util.List;
 
 public interface VPagoEventoRepository extends JpaRepository<VPagoEvento, Integer> {
 
-    /**
-     * filtro admite: PENDIENTE (le falta abonar) o PAGADO (ya sin saldo). Un evento cancelado
-     * no figura como pendiente: lo que debe o se le devuelve quedo en el acuerdo de cancelacion.
-     */
     @Query("""
             SELECT v FROM VPagoEvento v
             WHERE ((:filtro = 'PAGADO' AND v.pendiente <= 0)
@@ -30,7 +26,6 @@ public interface VPagoEventoRepository extends JpaRepository<VPagoEvento, Intege
                               @Param("fechaHasta") LocalDate fechaHasta,
                               Pageable pageable);
 
-    /** Cuentas por cobrar: los eventos con saldo, sin los cancelados, del mas proximo al mas lejano. */
     @Query("""
             SELECT v FROM VPagoEvento v
             WHERE v.pendiente > 0 AND v.estadoNombre <> 'CANCELADO'

@@ -49,7 +49,6 @@ public record PagoResponse(
                 .build();
     }
 
-    // El evento puede ser directo (cliente propio) o venir de una cotizacion (cliente ahi).
     private static Cliente clienteDe(Evento evento) {
         return evento.getCotizacionVersion() != null
                 ? evento.getCotizacionVersion().getCotizacion().getCliente()

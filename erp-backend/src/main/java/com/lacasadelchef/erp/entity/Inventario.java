@@ -26,11 +26,6 @@ public class Inventario extends Auditable {
     @JoinColumn(name = "id_producto", nullable = false)
     private Producto producto;
 
-    /**
-     * Mantenido por trigger a partir de movimiento_inventario; solo lectura.
-     * @Generated(INSERT) solo cubre el valor inicial (DEFAULT 0) de esta misma fila;
-     * cuando el trigger la actualiza desde otra tabla hay que refrescar explicitamente.
-     */
     @Generated(event = EventType.INSERT)
     @Column(name = "cantidad_total", insertable = false, updatable = false, precision = 12, scale = 2)
     private BigDecimal cantidadTotal;

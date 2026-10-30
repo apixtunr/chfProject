@@ -64,11 +64,6 @@ public class EventoServiceImpl implements EventoService {
     private static final String ACUERDO_DEVUELTO = "DEVUELTO";
     private static final String ACUERDO_DEVUELTO_PARCIAL = "DEVUELTO_PARCIAL";
 
-    // EN CURSO y FINALIZADO los pone solo EventoEstadoAutomaticoJob/EventoEstadoSchedulerService,
-    // en base a la fecha/hora cargada; CANCELADO es la unica transicion que un usuario puede
-    // disparar a mano via cambiarEstado(). CREADO -> PLANIFICADO tiene su propio metodo
-    // (planificar()) porque necesita validar que el evento ya este completo, algo que
-    // cambiarEstado() no hace para ningun otro caso.
     private static final Map<String, Set<String>> TRANSICIONES_VALIDAS = Map.of(
             ESTADO_CREADO, Set.of(ESTADO_CANCELADO),
             ESTADO_PLANIFICADO, Set.of(ESTADO_CANCELADO),
@@ -156,8 +151,6 @@ public class EventoServiceImpl implements EventoService {
     @Override
     @Transactional
     public void eliminar(Integer id) {
-        // Si el evento tiene costos, pagos o asignaciones, la FK lo impide y el
-        // GlobalExceptionHandler lo traduce a HTTP 409.
         Evento evento = buscarEvento(id);
         eventoRepository.delete(evento);
         estadoSchedulerService.cancelarTareas(id);
@@ -188,8 +181,6 @@ public class EventoServiceImpl implements EventoService {
 
         evento.setEstado(estado);
         evento = eventoRepository.save(evento);
-        // Unica transicion manual (ver TRANSICIONES_VALIDAS): siempre termina en CANCELADO,
-        // que no tiene ningun temporizador pendiente que programar, solo cancelar el que haya.
         estadoSchedulerService.cancelarTareas(evento.getIdEvento());
         return EventoResponse.desde(evento);
     }
@@ -205,8 +196,6 @@ public class EventoServiceImpl implements EventoService {
         }
 
         List<String> faltantes = new ArrayList<>();
-        // El menu de un evento con cotizacion ya viene garantizado desde que se acepto esa
-        // version (no se vuelve a pedir aqui); solo un evento directo puede tener el menu vacio.
         if (evento.getCotizacionVersion() == null && !detalleEventoRepository.existsByEventoIdEvento(id)) {
             faltantes.add("Menú");
         }
@@ -224,9 +213,6 @@ public class EventoServiceImpl implements EventoService {
                     "Para planificar el evento primero hay que completar: %s".formatted(String.join(", ", faltantes)));
         }
 
-        // El 50% se cobra una semana antes: planificar sin el queda a criterio del usuario,
-        // que tiene que confirmarlo (sinAnticipo); se marca en el evento y la bitacora guarda
-        // quien lo hizo.
         AnticipoResponse anticipo = anticipo(id);
         if (!anticipo.cubierto() && !sinAnticipo) {
             throw new BusinessException(("El cliente ha pagado Q%s de Q%s; falta Q%s para el 50%% que se cobra una"
@@ -237,7 +223,6 @@ public class EventoServiceImpl implements EventoService {
 
         evento.setEstado(buscarEstado(TIPO_ESTADO_EVENTO, ESTADO_PLANIFICADO));
         evento = eventoRepository.save(evento);
-        // Recien aqui entra a la automatizacion: se programa el temporizador exacto de inicio.
         estadoSchedulerService.programar(evento);
         return EventoResponse.desde(evento);
     }
@@ -265,8 +250,6 @@ public class EventoServiceImpl implements EventoService {
             throw new BusinessException("Solo un administrador puede cancelar un evento");
         }
 
-        // No hay una politica fija de devolucion: se negocia con el cliente y aqui se
-        // registra en que quedo lo pagado. Si se devuelve, los pagos se anulan en Pagos.
         BigDecimal abonado = anticipo(id).abonado();
         String acuerdo = request.acuerdoAnticipo() == null ? null : request.acuerdoAnticipo().trim().toUpperCase();
         BigDecimal devuelto;
@@ -293,8 +276,6 @@ public class EventoServiceImpl implements EventoService {
         evento.setMontoDevuelto(devuelto);
         evento.setEstado(buscarEstado(TIPO_ESTADO_EVENTO, ESTADO_CANCELADO));
         evento = eventoRepository.save(evento);
-        // Ya no inicia ni finaliza solo. Lo planificado del inventario no se habia descontado
-        // (solo se descuenta al iniciar) y un evento cancelado ya no cuenta en los faltantes.
         estadoSchedulerService.cancelarTareas(evento.getIdEvento());
         return EventoResponse.desde(evento);
     }
@@ -325,8 +306,6 @@ public class EventoServiceImpl implements EventoService {
                 throw new BusinessException("Esta version de cotizacion ya tiene un evento asociado");
             }
 
-            // Lo que el cliente acepto en la cotizacion es lo que lleva el evento:
-            // tipo, ubicacion, fecha y cantidad de personas no se vuelven a pedir.
             var cotizacion = cotizacionVersion.getCotizacion();
             evento.setCotizacionVersion(cotizacionVersion);
             evento.setCliente(null);
@@ -364,9 +343,6 @@ public class EventoServiceImpl implements EventoService {
             evento.setCantidadPersonas(request.cantidadPersonas());
         }
 
-        // El horario sigue las mismas reglas que la cotizacion, venga o no de una: empieza en
-        // punto entre las 7:00 y las 19:00 y el fin lo calcula el sistema (4 horas, hasta
-        // las 21:00 o las 22:00; un desayuno, hasta las 11:00). Si viene de una cotizacion y no se indica otro, el acordado.
         LocalTime inicio = request.horaInicio();
         var cotizacion = evento.getCotizacionVersion() == null ? null : evento.getCotizacionVersion().getCotizacion();
         if (inicio == null && cotizacion != null) {
@@ -384,9 +360,6 @@ public class EventoServiceImpl implements EventoService {
         evento.setObservaciones(request.observaciones());
     }
 
-    // Una semana de anticipacion (el 50% se cobra una semana antes). Solo aplica al crear:
-    // un evento existente puede quedar a menos de 7 dias, o ya haber pasado, sin que eso
-    // impida registrarle cosas.
     private void validarAnticipacion(Evento evento) {
         LocalDate minima = CondicionesComerciales.fechaMinimaEvento(LocalDate.now());
         if (evento.getFechaEvento() == null || evento.getFechaEvento().isBefore(minima)) {
@@ -394,9 +367,6 @@ public class EventoServiceImpl implements EventoService {
                     .formatted(CondicionesComerciales.DIAS_ANTICIPACION)
                     + " próxima es el %s".formatted(minima.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))));
         }
-        // Un evento para hoy no puede empezar a una hora que ya paso: nunca se llegaria a
-        // planificar y el proceso automatico lo cancelaria en minutos. Solo ocurre con el
-        // modo pruebas (sin anticipacion), pero la regla vale siempre.
         if (evento.getFechaEvento().equals(LocalDate.now()) && evento.getHoraInicio() != null
                 && !evento.getHoraInicio().isAfter(LocalTime.now())) {
             throw new BusinessException("La hora de inicio (%s) ya pasó: elija una hora posterior a la actual"

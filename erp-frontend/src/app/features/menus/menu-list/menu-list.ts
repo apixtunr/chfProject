@@ -72,7 +72,6 @@ export class MenuList implements OnInit {
     });
   }
 
-  /** Mientras se escribe, la tabla se actualiza sola al dejar de teclear (como en Clientes). */
   private readonly escritura = new Subject<void>();
   private readonly busquedaAlEscribir = this.escritura
     .pipe(debounceTime(300), takeUntilDestroyed())

@@ -11,18 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
-/**
- * Confirma una sola linea de evento_inventario (registra la SALIDA y marca su fecha de
- * consumo) en su propia transaccion (REQUIRES_NEW). Es un bean aparte, y no un metodo mas
- * de EventoInventarioServiceImpl, por la misma razon documentada en
- * {@link EventoEstadoTransicionExecutor}: si esto se invocara como metodo privado dentro de
- * un @Transactional ya abierto (confirmarConsumoAutomatico o confirmarTodo, que recorren
- * varias lineas atrapando el BusinessException de cada una para seguir con las demas), el
- * fallo de una linea marcaria toda esa transaccion compartida como rollback-only pese a
- * quedar "atrapado" en el catch, y el commit final terminaria lanzando
- * UnexpectedRollbackException y deshaciendo tambien las lineas que si se confirmaron. Con
- * REQUIRES_NEW, cada linea vive en su propia transaccion: si falla, solo ella se revierte.
- */
 @Component
 @RequiredArgsConstructor
 class EventoInventarioLineaConfirmador {

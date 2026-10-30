@@ -6,12 +6,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/**
- * El archivo de un comprobante de pago (foto de la boleta o PDF de la transferencia).
- *
- * Va aparte de ComprobantePago para que listar los comprobantes no cargue los archivos.
- * Comparte la llave con su comprobante: un comprobante tiene a lo sumo un archivo.
- */
 @Getter
 @Setter
 @NoArgsConstructor

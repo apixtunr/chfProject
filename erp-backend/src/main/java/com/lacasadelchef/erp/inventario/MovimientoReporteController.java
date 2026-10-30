@@ -18,11 +18,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
 
-/**
- * Reporte de movimientos de inventario por periodo (entradas, salidas y ajustes). Las
- * cantidades no se suman en el total general porque cada producto tiene su unidad; al
- * agrupar por producto, cada grupo si muestra su cantidad.
- */
 @RestController
 @RequestMapping("/api/movimientos-inventario/reportes/movimientos")
 @RequiredArgsConstructor

@@ -45,7 +45,6 @@ public class EventoEmpleadoServiceImpl implements EventoEmpleadoService {
         if (personal.isEmpty()) {
             return List.of();
         }
-        // Quien puede conducir: lo usa la pantalla para ofrecer solo a ellos como conductores.
         Set<Integer> conLicencia = Set.copyOf(documentoEmpleadoRepository.idsEmpleadoConDocumento(
                 personal.stream().map(ee -> ee.getEmpleado().getIdEmpleado()).toList(),
                 DocumentosEmpleado.TIPO_LICENCIA));
@@ -83,8 +82,6 @@ public class EventoEmpleadoServiceImpl implements EventoEmpleadoService {
     @Transactional
     public EventoEmpleadoResponse actualizar(Integer idEvento, Integer idEmpleado, EventoEmpleadoRequest request) {
         EventoEmpleado eventoEmpleado = buscar(idEvento, idEmpleado);
-        // El salario se puede ajustar despues del evento (el gerente paga al terminar),
-        // salvo en un evento cancelado.
         if (EventoReglas.ESTADO_CANCELADO.equalsIgnoreCase(eventoEmpleado.getEvento().getEstado().getNombre())) {
             throw new BusinessException("No se puede modificar el personal de un evento CANCELADO");
         }
@@ -98,8 +95,6 @@ public class EventoEmpleadoServiceImpl implements EventoEmpleadoService {
     public void quitar(Integer idEvento, Integer idEmpleado) {
         EventoEmpleado eventoEmpleado = buscar(idEvento, idEmpleado);
         EventoReglas.validarModificable(eventoEmpleado.getEvento(), "quitar personal de");
-        // Si conduce un vehiculo del evento, quitarlo dejaria al vehiculo con un conductor
-        // que ya no forma parte del personal.
         eventoVehiculoRepository.findByEventoIdEvento(idEvento).stream()
                 .filter(ev -> ev.getEmpleado() != null && ev.getEmpleado().getIdEmpleado().equals(idEmpleado))
                 .findFirst()
@@ -131,11 +126,6 @@ public class EventoEmpleadoServiceImpl implements EventoEmpleadoService {
         validarDisponible(eventoEmpleado);
     }
 
-    /**
-     * Una persona no puede estar en dos eventos a la vez. Se compara el turno de cada
-     * asignacion (o el horario del evento si no se indico turno). No se exige que el turno
-     * quede dentro del horario del evento: el personal llega antes a montar el buffet.
-     */
     private void validarDisponible(EventoEmpleado asignacion) {
         Evento evento = asignacion.getEvento();
         LocalTime inicio = horaInicio(asignacion);
