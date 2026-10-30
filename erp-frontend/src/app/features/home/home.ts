@@ -133,7 +133,7 @@ export class Home {
     const p = this.panel();
     return (
       !!p &&
-      [p.insumosFaltantes, p.bajoStock, p.cotizacionesEnviadas, p.cotizacionesAceptadasSinEvento, p.cobrosPendientes, p.actividad].some(
+      [p.insumosFaltantes, p.consumosSinDescontar, p.bajoStock, p.cotizacionesEnviadas, p.cotizacionesAceptadasSinEvento, p.cobrosPendientes, p.actividad].some(
         (s) => s !== null,
       )
     );

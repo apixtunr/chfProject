@@ -10,6 +10,7 @@ import com.lacasadelchef.erp.entity.Usuario;
 import com.lacasadelchef.erp.entity.VPagoEvento;
 import com.lacasadelchef.erp.inicio.dto.ActividadPanelResponse;
 import com.lacasadelchef.erp.inicio.dto.CobroPanelResponse;
+import com.lacasadelchef.erp.inicio.dto.ConsumoPendientePanelResponse;
 import com.lacasadelchef.erp.inicio.dto.CotizacionPanelResponse;
 import com.lacasadelchef.erp.inicio.dto.EventoPanelResponse;
 import com.lacasadelchef.erp.inicio.dto.InsumoPanelResponse;
@@ -53,6 +54,7 @@ public class InicioServiceImpl implements InicioService {
     private static final String ESTADO_CREADO = "CREADO";
     private static final String ESTADO_PLANIFICADO = "PLANIFICADO";
     private static final String ESTADO_EN_CURSO = "EN CURSO";
+    private static final String ESTADO_FINALIZADO = "FINALIZADO";
     private static final String ESTADO_CANCELADO = "CANCELADO";
 
     private static final int DIAS_AGENDA = 7;
@@ -149,6 +151,7 @@ public class InicioServiceImpl implements InicioService {
                     i.getCantidadTotal(),
                     i.getCantidadMinima())).toList());
             panel.insumosFaltantes(insumosFaltantes(hoy));
+            panel.consumosSinDescontar(consumosSinDescontar());
             resumen.productosBajoStock((long) bajoStock.size());
         }
 
@@ -322,6 +325,33 @@ public class InicioServiceImpl implements InicioService {
         }
         faltantes.sort((a, b) -> a.primerEvento().compareTo(b.primerEvento()));
         return faltantes.stream().limit(LIMITE_LISTA).toList();
+    }
+
+    /**
+     * Lista los insumos de eventos ya iniciados que no se descontaron del stock.
+     *
+     * @return insumos pendientes de descontar, con el stock disponible de cada uno.
+     */
+    private List<ConsumoPendientePanelResponse> consumosSinDescontar() {
+        return em.createQuery("""
+                SELECT e.idEvento, e.fechaEvento, e.estado.nombre, p.nombreProducto, p.unidadMedida,
+                       ei.cantidad, i.cantidadTotal
+                FROM EventoInventario ei
+                JOIN ei.evento e
+                JOIN ei.producto p
+                LEFT JOIN Inventario i ON i.producto = p
+                WHERE ei.fechaConsumo IS NULL
+                  AND e.estado.nombre IN :iniciados
+                ORDER BY e.fechaEvento, e.idEvento, p.nombreProducto
+                """, Object[].class)
+                .setParameter("iniciados", List.of(ESTADO_EN_CURSO, ESTADO_FINALIZADO))
+                .setMaxResults(LIMITE_LISTA)
+                .getResultList()
+                .stream()
+                .map(f -> new ConsumoPendientePanelResponse((Integer) f[0], (LocalDate) f[1], (String) f[2],
+                        (String) f[3], (String) f[4], (BigDecimal) f[5],
+                        f[6] == null ? BigDecimal.ZERO : (BigDecimal) f[6]))
+                .toList();
     }
 
     private ActividadPanelResponse actividad(LocalDate hoy) {

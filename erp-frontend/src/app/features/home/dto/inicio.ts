@@ -8,6 +8,7 @@ export interface PanelInicio {
   cotizacionesAceptadasSinEvento: CotizacionPanel[] | null;
   bajoStock: StockPanel[] | null;
   insumosFaltantes: InsumoPanel[] | null;
+  consumosSinDescontar: ConsumoPendientePanel[] | null;
   cobrosPendientes: CobroPanel[] | null;
   actividad: ActividadPanel | null;
 }
@@ -68,6 +69,16 @@ export interface InsumoPanel {
   faltante: number;
   primerEvento: string;
   cantidadEventos: number;
+}
+
+export interface ConsumoPendientePanel {
+  idEvento: number;
+  fechaEvento: string;
+  estadoEvento: string;
+  nombreProducto: string;
+  unidadMedida: string | null;
+  cantidad: number;
+  disponible: number;
 }
 
 export interface CobroPanel {

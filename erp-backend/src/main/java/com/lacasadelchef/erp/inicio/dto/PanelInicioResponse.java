@@ -16,6 +16,7 @@ public record PanelInicioResponse(
         List<CotizacionPanelResponse> cotizacionesAceptadasSinEvento,
         List<StockPanelResponse> bajoStock,
         List<InsumoPanelResponse> insumosFaltantes,
+        List<ConsumoPendientePanelResponse> consumosSinDescontar,
         List<CobroPanelResponse> cobrosPendientes,
         ActividadPanelResponse actividad
 ) {

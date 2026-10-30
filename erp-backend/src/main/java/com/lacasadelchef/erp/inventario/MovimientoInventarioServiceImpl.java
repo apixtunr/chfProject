@@ -56,7 +56,9 @@ public class MovimientoInventarioServiceImpl implements MovimientoInventarioServ
                 .orElseThrow(() -> new ResourceNotFoundException("Producto", request.idProducto()));
 
         BigDecimal delta = calcularDelta(request.tipoMovimiento(), request.cantidad());
-        BigDecimal stockActual = stockActual(request.idProducto());
+        BigDecimal stockActual = inventarioRepository.bloquearPorProducto(request.idProducto())
+                .map(Inventario::getCantidadTotal)
+                .orElse(BigDecimal.ZERO);
         if (stockActual.add(delta).compareTo(BigDecimal.ZERO) < 0) {
             throw new BusinessException(
                     "El movimiento dejaria el stock de '%s' en negativo (actual: %s, solicitado: %s)"

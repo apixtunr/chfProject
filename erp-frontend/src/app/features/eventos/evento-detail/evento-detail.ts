@@ -628,6 +628,11 @@ export class EventoDetail implements OnInit {
     this.eventoService.quitarProducto(this.idEvento, item.idProducto).subscribe(() => this.cargar());
   }
 
+  get eventoIniciado(): boolean {
+    const estado = this.evento()?.estadoNombre;
+    return estado === 'EN CURSO' || estado === 'FINALIZADO';
+  }
+
   get hayInventarioPendiente(): boolean {
     return this.inventario().some((i) => !i.fechaConsumo);
   }

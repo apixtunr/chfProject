@@ -1,5 +1,33 @@
 @let p = panel();
 
+@if (p.consumosSinDescontar; as consumos) {
+@if (consumos.length) {
+  <section class="tarjeta-panel tarjeta-panel--alerta">
+    <header class="panel-encabezado">
+      <div>
+        <h2><mat-icon class="icono-alerta">report</mat-icon>Insumos sin descontar</h2>
+        <p class="panel-sub">Eventos ya iniciados con insumos que no se descontaron del stock.</p>
+      </div>
+    </header>
+    <ul class="lista">
+      @for (c of consumos; track c.idEvento + c.nombreProducto) {
+        <li>
+          <a class="fila fila--columna" [routerLink]="['/eventos', c.idEvento]">
+            <span class="principal">
+              <span class="nombre">{{ c.nombreProducto }}</span>
+              <span class="valor valor--alerta">{{ c.cantidad | number: '1.0-2' }} {{ c.unidadMedida }}</span>
+            </span>
+            <span class="meta">
+              Evento #{{ c.idEvento }} · {{ fechaCorta(c.fechaEvento) }} · hay {{ c.disponible | number: '1.0-2' }} en stock
+            </span>
+          </a>
+        </li>
+      }
+    </ul>
+  </section>
+}
+}
+
 @if (p.insumosFaltantes; as insumos) {
 @if (insumos.length) {
   <section class="tarjeta-panel tarjeta-panel--alerta">
